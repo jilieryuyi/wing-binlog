@@ -6,9 +6,8 @@ mysqlbinlog事件采集系统
 * 1、发生数据变化的数据库名称
 * 2、发生数据变化的数据表名称
 * 3、实际变化的数据
-
-   
-    `array(3) {
+###如以下数据
+    array(3) {
       ["event_type"]=> 
       string(11) "update_rows"
       ["time"]=> 
