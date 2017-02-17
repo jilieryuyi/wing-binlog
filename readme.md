@@ -8,7 +8,7 @@ mysqlbinlog事件采集系统
 * 3、实际变化的数据
 
    
-    array(3) {
+    `array(3) {
       ["event_type"]=> 
       string(11) "update_rows"
       ["time"]=> 
@@ -42,7 +42,7 @@ mysqlbinlog事件采集系统
           string(10) "1486622467"
         }
       }
-    }
+    }`
 
 >event_type 为事件类型，三者之一 update_rows、delete_rows、write_rows
  如果是update_rows，则data部分包含new_data和old_data两部分，分别代表修改后和修改前的数据
