@@ -53,4 +53,5 @@ mysqlbinlog事件采集系统
     php app server:start
     //可选项 --d以守护进程启动
 
-
+###注意
+最后强调一下，仅支持mysqlbinlog的row格式
