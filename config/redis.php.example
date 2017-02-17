@@ -1,0 +1,12 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: yuyi
+ * Date: 17/2/11
+ * Time: 07:42
+ */
+return [
+    "host"     => "127.0.0.1",
+    "port"     => 6379,
+    "password" => null
+];

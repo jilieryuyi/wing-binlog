@@ -1,0 +1,13 @@
+/vendor/
+/.idea/
+/composer.lock
+/.DS_Store
+/src/Doc/.DS_Store
+/src/.DS_Store
+/*.log
+/cache
+/cache/*
+/config/*.php
+/seals.pid
+/log
+/log/*

@@ -1,0 +1,52 @@
+{
+  "name": "wing/binlog",
+  "type": "library",
+  "description": "mysqlbinlog事件收集系统",
+  "keywords": ["mysql","binlog","wing"],
+  "homepage": "http://www.itdfy.com/",
+  "support": {
+    "issues": "http://www.itdfy.com/",
+    "email":"297341015@qq.com"
+  },
+  "authors": [
+    {
+      "name": "yuyi",
+      "email": "297341015@qq.com",
+      "homepage": "http://www.itdfy.com/"
+    }
+  ],
+  "repositories":[
+    {
+      "type":"vcs",
+      "url":"https://github.com/jilieryuyi/wing-file-system.git"
+    },
+    {
+      "type": "composer",
+      "url": "http://packagist.phpcomposer.com"
+    },
+    {
+      "packagist": false
+    }
+  ],
+  "config": {
+    "preferred-install": "dist",
+    "secure-http": false
+  },
+  "require": {
+    "php": ">=5.0",
+    "symfony/console":"~3.1",
+    "wing/FileSystem":"dev-master"
+  },
+  "autoload": {
+    "psr-4": {"Wing\\Binlog\\": "src/"},
+    "classmap": ["tests/unit/"],
+    "files": [
+      "src/helpers.php"
+    ]
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.0-dev"
+    }
+  }
+}
