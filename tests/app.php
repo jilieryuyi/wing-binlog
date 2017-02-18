@@ -5,13 +5,13 @@
  * Date: 17/2/8
  * Time: 10:42
  */
-include "vendor/autoload.php";
+include __DIR__."/../vendor/autoload.php";
 
 
 use Wing\Binlog\Library\EventPublish;
 
 $bin = new \Wing\Binlog\Library\BinLog(
-    \Wing\Binlog\Library\Context::instance()->activity_pdo
+    \Wing\Binlog\Library\Context::instance()->pdo
 );
 
 $bin->onChange( function( $database_name, $table_name, $event_data ){
