@@ -12,8 +12,6 @@ class Context{
     public $redis;
     public $pdo;
 
-    private $connectors = [];
-
     private static $instance = null;
 
     public static function instance(){
@@ -25,17 +23,6 @@ class Context{
     public function __construct()
     {
         $this->reset();
-    }
-    /**
-     * 获取数据库连接
-     * @param string $sb_name 数据库名称
-     *
-     * @return PDO
-     */
-    public function getPdo( $sb_name ){
-        if( !isset( $this->connectors[$sb_name] ))
-            return null;
-        return $this->connectors[$sb_name];
     }
 
     public function reset()
@@ -49,21 +36,12 @@ class Context{
         );
 
         $configs    = require __DIR__."/../../config/db.php";
-        $db_name    = array_keys($configs)[0];
         $this->pdo  = new \Wing\Binlog\Library\PDO(
-            $configs[ $db_name ]["user"],
-            $configs[ $db_name ]["password"],
-            $configs[ $db_name ]["host"],
-            $db_name
+            $configs["user"],
+            $configs["password"],
+            $configs["host"],
+            $configs["db_name"]
         );
 
-        foreach ( $configs as $db_name => $config ){
-            $this->connectors[$db_name] = new \Wing\Binlog\Library\PDO(
-                $config["user"],
-                $config["password"],
-                $config["host"],
-                $db_name
-            );
-        }
     }
 }

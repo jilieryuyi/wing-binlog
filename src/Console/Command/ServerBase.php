@@ -26,6 +26,41 @@ class ServerBase extends Command{
         $worker->setWorkDir(__APP_DIR__);
         $worker->setLogDir(__APP_DIR__."/log");
 
+        $notify_config = include __DIR__."/../../../config/notify.php";
+        $handler       = $notify_config["handler"];
+        $params        = $notify_config["params"];
+        $len           = is_array($params)?count( $params ):0;
+
+
+        switch( $len ){
+            case 0:
+                $notify = new $handler;
+                break;
+            case 1:
+                $notify = new $handler( $params[0] );
+                break;
+            case 2:
+                $notify = new $handler( $params[0], $params[1] );
+                break;
+            case 3:
+                $notify = new $handler( $params[0], $params[1], $params[2] );
+                break;
+            case 4:
+                $notify = new $handler( $params[0], $params[1], $params[2], $params[3] );
+                break;
+            case 5:
+                $notify = new $handler( $params[0], $params[1], $params[2], $params[3], $params[4] );
+                break;
+            case 6:
+                $notify = new $handler( $params[0], $params[1], $params[2], $params[3], $params[4], $params[5] );
+                break;
+            default:
+                $notify = new $handler;
+        }
+
+        $worker->setNotify( $notify );
+
+
         if( $debug )
             $worker->enabledDebug();
         else

@@ -1,0 +1,18 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: yuyi
+ * Date: 17/2/18
+ * Time: 10:26
+ * @设置事件通知方式
+ */
+return [
+    "handler" => \Wing\Notify\Redis::class,
+    "params"  => []
+];
+//使用http发起事件通知
+/*return [
+    "handler" => \Wing\Notify\Http::class,
+    "params"  => [ "http://www.test.com/binlog" ]
+];
+*/

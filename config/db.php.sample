@@ -6,20 +6,8 @@
  * Time: 14:12
  */
 return [
-    //test1为数据库名称
-    "test1" => [
-        "host" => "127.0.0.1",
-        "user" => "root",
-        "password" => "123456"
-    ],
-    "test2" => [
-        "host" => "127.0.0.1",
-        "user" => "root",
-        "password" => "123456"
-    ],
-    "test3" => [
-        "host" => "127.0.0.1",
-        "user" => "root",
-        "password" => "123456"
-    ]
+    "db_name"  =>"xsl",
+    "host"     => "127.0.0.1",
+    "user"     => "root",
+    "password" => "123456"
 ];

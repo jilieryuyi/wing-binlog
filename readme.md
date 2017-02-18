@@ -60,3 +60,9 @@ mysqlbinlog事件采集系统
 
 ###注意
 最后强调一下，仅支持mysqlbinlog的row格式
+
+###如何使用？
+* 1、首先复制config目录下的.php.example为.php文件，也就是全部去掉.example
+* 2、修改config目录下的配置文件为自己的服务器参数
+* 3、config/notify.php 目前支持两种事件通知当时，一种是redis队列，另一种则是常见的http通知
+

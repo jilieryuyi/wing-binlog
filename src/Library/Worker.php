@@ -6,6 +6,7 @@ use Wing\FileSystem\WFile;
  * @created 2016/9/23 8:27
  * @email 297341015@qq.com
  * @worker worker工作调度，只负责调度
+ * @property Notify $notify
  */
 
 class Worker implements Process{
@@ -15,6 +16,7 @@ class Worker implements Process{
     protected $log_dir;
     protected $debug            = false;
     protected $start_time       = 0;
+    protected $notify;
 
     //队列名称
     const QUEUE_NAME = "wing:mysqlbinlog:events:collector";
@@ -32,6 +34,9 @@ class Worker implements Process{
         register_shutdown_function(function() use($self){
             $self->clear();
         });
+
+        $this->work_dir = dirname( dirname(__DIR__) );
+        $this->log_dir  = dirname( dirname(__DIR__) )."/log";
 
     }
 
@@ -79,6 +84,10 @@ class Worker implements Process{
      */
     public function setLogDir($dir){
         $this->log_dir = $dir;
+    }
+
+    public function setNotify( Notify $notify ){
+        $this->notify = $notify;
     }
 
 
@@ -414,12 +423,13 @@ class Worker implements Process{
             var_dump($event_data);
             echo "\r\n\r\n\r\n";
 
-            $event = new EventPublish(
-                $database_name,
-                $table_name,
-                $event_data
-            );
-            $event->trigger();
+//            $event = new EventPublish(
+//                $database_name,
+//                $table_name,
+//                $event_data
+//            );
+//            $event->trigger();
+            $self->notify->send( $database_name, $table_name, $event_data );
         });
     }
 
