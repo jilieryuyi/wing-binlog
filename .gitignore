@@ -8,7 +8,6 @@
 /cache
 /cache/*
 /config/*.php
-/seals.pid
 /log
 /log/*
 /*.pid

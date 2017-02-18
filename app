@@ -7,7 +7,7 @@ use Symfony\Component\Console\Application;
 
 try {
 
-    $application = new Application("seals-analysis", "1.0.0");
+    $application = new Application("wing-binlog", "1.0.0");
 
     $application->setCatchExceptions(true);
 
