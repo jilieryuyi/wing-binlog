@@ -8,10 +8,10 @@
 include "vendor/autoload.php";
 
 
-use Seals\Library\EventPublish;
+use Wing\Binlog\Library\EventPublish;
 
-$bin = new \Seals\Library\BinLog(
-    \Seals\Library\Context::instance()->activity_pdo
+$bin = new \Wing\Binlog\Library\BinLog(
+    \Wing\Binlog\Library\Context::instance()->activity_pdo
 );
 
 $bin->onChange( function( $database_name, $table_name, $event_data ){

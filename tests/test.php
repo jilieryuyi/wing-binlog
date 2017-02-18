@@ -7,8 +7,8 @@
  */
 include __DIR__."/../vendor/autoload.php";
 
-$bin = new \Seals\Library\BinLog(
-    new \Seals\Library\PDO("root","123456","localhost","ylb_activity")
+$bin = new \Wing\Binlog\Library\BinLog(
+    new \Wing\Binlog\Library\PDO("root","123456","localhost","ylb_activity")
 );
 //
 //$data = $bin->getCurrentLogInfo();
@@ -27,8 +27,8 @@ $bin = new \Seals\Library\BinLog(
 //var_dump($data);
 //
 
-$bin = new \Seals\Library\BinLog(
-    new \Seals\Library\PDO("root","123456","localhost","ylb_activity")
+$bin = new \Wing\Binlog\Library\BinLog(
+    new \Wing\Binlog\Library\PDO("root","123456","localhost","ylb_activity")
 );
 $bin->onChange(function( $database_name, $table_name, $event_data ){
 
@@ -40,6 +40,6 @@ $bin->onChange(function( $database_name, $table_name, $event_data ){
 });
 
 //$command = "mysqlbinlog --base64-output=DECODE-ROWS -v --start-position=4 --stop-position=8000 mysql-bin.000005";// >d:\1.sql
-//var_dump((new \Seals\Library\Command($command))->run());
+//var_dump((new \Wing\Binlog\Library\Command($command))->run());
 
 //echo date("Y-m-d H:i:s",strtotime("170210 13:58:06"));

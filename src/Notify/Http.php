@@ -1,4 +1,4 @@
-<?php namespace Wing\Notify;
+<?php namespace Wing\Binlog\Notify;
 use Wing\Binlog\Library\Notify;
 
 /**

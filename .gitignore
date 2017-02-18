@@ -11,3 +11,4 @@
 /seals.pid
 /log
 /log/*
+/*.pid

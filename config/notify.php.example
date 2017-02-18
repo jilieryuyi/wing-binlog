@@ -7,12 +7,12 @@
  * @设置事件通知方式
  */
 return [
-    "handler" => \Wing\Notify\Redis::class,
+    "handler" => \Wing\Binlog\Notify\Redis::class,
     "params"  => ["wing:mysqlbinlog:event:list"]
 ];
 //使用http发起事件通知
 /*return [
-    "handler" => \Wing\Notify\Http::class,
+    "handler" => \Wing\Binlog\Notify\Http::class,
     "params"  => [ "http://www.test.com/binlog" ]
 ];
 */
