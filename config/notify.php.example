@@ -8,7 +8,7 @@
  */
 return [
     "handler" => \Wing\Notify\Redis::class,
-    "params"  => []
+    "params"  => ["wing:mysqlbinlog:event:list"]
 ];
 //使用http发起事件通知
 /*return [
