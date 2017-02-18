@@ -66,3 +66,4 @@ mysqlbinlog事件采集系统
 * 2、修改config目录下的配置文件为自己的服务器参数
 * 3、config/notify.php 目前支持两种事件通知当时，一种是redis队列，另一种则是常见的http通知
 * 4、redis默认事件队列为 wing:mysqlbinlog:event:list
+* 5、不要忘了 composer install
