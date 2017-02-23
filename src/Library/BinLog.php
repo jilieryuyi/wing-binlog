@@ -378,7 +378,6 @@ class BinLog{
             //去掉行的开始#和空格
             $target_line = ltrim($target_line, "#");
             $target_line = trim($target_line);
-            echo "========>",$target_line,"\r\n";
             //所有的字段开始的字符都是@
             if (substr($target_line, 0, 1) == "@") {
                 $target_line = preg_replace("/@[0-9]{1,}=/", "", $target_line);
