@@ -112,13 +112,12 @@ class BinLog{
      *
      * @return array 一维
      *    array(5) {
-    ["File"] => string(16) "mysql-bin.000005"
-    ["Position"] => int(8840)
-    ["Binlog_Do_DB"] => string(0) ""
-    ["Binlog_Ignore_DB"] => string(0) ""
-    ["Executed_Gtid_Set"] => string(0) ""
-    }
-
+        ["File"] => string(16) "mysql-bin.000005"
+        ["Position"] => int(8840)
+        ["Binlog_Do_DB"] => string(0) ""
+        ["Binlog_Ignore_DB"] => string(0) ""
+        ["Executed_Gtid_Set"] => string(0) ""
+        }
      */
     public function getCurrentLogInfo(){
         $sql  = 'show master status';
@@ -355,37 +354,6 @@ class BinLog{
         var_dump($items);
         return $items;
 
-
-        $lines        = explode("\n", $item);
-        $target_lines = [];
-        $temp_lines   = [];
-
-        //因为一个事务可能有多个增删改查的操作 为了得到完整的sql信息
-        //这里需要分组 - 支持批量和单次操作的binlog
-        foreach ($lines as $target_line) {
-
-            $target_line = ltrim($target_line, "#");
-            $target_line = trim($target_line);
-            $key         = strtolower(substr($target_line, 0, 6));
-
-            //遇到delete、update和insert关键字结束一组
-            if ($key == "delete" || $key == "update" || $key == "insert") {
-                if ($temp_lines) {
-                    $target_lines[] = $temp_lines;
-                }
-                $temp_lines = [];
-            }
-
-            $temp_lines[] = $target_line;
-        }
-
-        unset($lines);
-
-        //别忘了最后一组
-        $target_lines[] = $temp_lines;
-
-        unset($temp_lines);
-        return $target_lines;
     }
 
     /**
@@ -395,13 +363,11 @@ class BinLog{
      */
     protected function eventDatasFormat( $target_lines, $daytime, $event_type, $columns ){
 
-        //$events     = [];
         $event_data = [
             "event_type" => $event_type,
             "time"       => $daytime
         ];
 
-        // foreach ($target_lines as $_target_line) {
         $is_old_data = true;
         $old_data    = [];
         $new_data    = [];
@@ -474,9 +440,6 @@ class BinLog{
             $event_data["data"] = $set_data;
         }
 
-        //$events[] = $event_data;
-        // }
-
         return $event_data;
     }
 
@@ -512,26 +475,6 @@ class BinLog{
         echo $res,"\r\n\r\n\r\n";
 
         return $res;
-
-        $matches    = explode("BEGIN\n/*!*/;", $res);
-        var_dump($matches);
-        $commit_res = [];
-
-        foreach ( $matches as $m)
-        {
-            if( strpos($m,"COMMIT/*!*/;") !== false )
-                $_commit_res = explode("COMMIT/*!*/;", $m);
-            else
-                $_commit_res = explode("COMMIT\n/*!*/;", $m);
-
-            if( count($_commit_res) != 2 )
-                continue;
-            $commit_res[] = $_commit_res[0];
-            $commit_res[] = $_commit_res[1];
-
-        }
-
-        return $commit_res;
     }
 
     /**
