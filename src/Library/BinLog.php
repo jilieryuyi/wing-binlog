@@ -643,6 +643,14 @@ class BinLog{
                             //事件计数器
                             if( $event ) {
                                 $this->events_times++;
+                                $str1 = md5(rand(0,999999));
+                                $str2 = md5(rand(0,999999));
+                                $str3 = md5(rand(0,999999));
+
+                                $event["__enevt_id"] = "seals_".time()."_".
+                                    substr($str1,rand(0,strlen($str1)-16),16)."_".
+                                    substr($str2,rand(0,strlen($str2)-16),16)."_".
+                                    substr($str3,rand(0,strlen($str3)-16),16);
                                 //执行事件回调函数
                                 $callback($database_name, $table_name, $event);
                                 echo "事件次数", $this->events_times, "\r\n\r\n";

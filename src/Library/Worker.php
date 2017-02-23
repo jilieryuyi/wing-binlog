@@ -31,8 +31,14 @@ class Worker implements Process{
         $this->start_time = time();
 
         $self = $this;
+
         register_shutdown_function(function() use($self){
+            file_put_contents(__APP_DIR__."/log/error_".date("Ymd").".log",date("Y-m-d H:i:s")."\r\n".json_encode(error_get_last(),JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND);
             $self->clear();
+        });
+
+        set_error_handler(function($errno, $errstr, $errfile, $errline){
+            file_put_contents(__APP_DIR__."/log/error_".date("Ymd").".log",date("Y-m-d H:i:s")."\r\n".json_encode(func_get_args(),JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND);
         });
 
         $this->work_dir = dirname( dirname(__DIR__) );
