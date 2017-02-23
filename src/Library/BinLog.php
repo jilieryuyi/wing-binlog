@@ -27,8 +27,8 @@ class BinLog{
     private $mysqlbinlog  = "mysqlbinlog";
     private $events_times = 0;
 
-     const EVENT_TICK_START = "on_tick_start";
-     const EVENT_TICK_END   = "on_tick_end";
+    const EVENT_TICK_START = "on_tick_start";
+    const EVENT_TICK_END   = "on_tick_end";
 
     private $callbacks = [];
 
@@ -112,12 +112,12 @@ class BinLog{
      *
      * @return array 一维
      *    array(5) {
-                ["File"] => string(16) "mysql-bin.000005"
-                ["Position"] => int(8840)
-                ["Binlog_Do_DB"] => string(0) ""
-                ["Binlog_Ignore_DB"] => string(0) ""
-                ["Executed_Gtid_Set"] => string(0) ""
-          }
+    ["File"] => string(16) "mysql-bin.000005"
+    ["Position"] => int(8840)
+    ["Binlog_Do_DB"] => string(0) ""
+    ["Binlog_Ignore_DB"] => string(0) ""
+    ["Executed_Gtid_Set"] => string(0) ""
+    }
 
      */
     public function getCurrentLogInfo(){
@@ -349,6 +349,13 @@ class BinLog{
      * @return array
      */
     protected function linesFormat($item){
+
+        $items = preg_split("/#[\s]{1,}at[\s]{1,}[0-9]{1,}/",$item);
+        echo "new-----items---";
+        var_dump($items);
+        return $items;
+
+
         $lines        = explode("\n", $item);
         $target_lines = [];
         $temp_lines   = [];
@@ -388,73 +395,89 @@ class BinLog{
      */
     protected function eventDatasFormat( $target_lines, $daytime, $event_type, $columns ){
 
-        $events     = [];
+        //$events     = [];
         $event_data = [
             "event_type" => $event_type,
             "time"       => $daytime
         ];
 
-        foreach ($target_lines as $_target_line) {
-            $is_old_data = true;
-            $old_data    = [];
-            $new_data    = [];
-            $set_data    = [];
-            $index       = 0;
-            var_dump($_target_line);
-            foreach ($_target_line as $target_line) {
-                //去掉行的开始#和空格
-                $target_line = ltrim($target_line, "#");
-                $target_line = trim($target_line);
-                echo "========>",$target_line,"\r\n";
-                //所有的字段开始的字符都是@
-                if (substr($target_line, 0, 1) == "@") {
-                    $target_line = preg_replace("/@[0-9]{1,}=/", "", $target_line);
-                    $target_line = trim($target_line, "'");
-                    //如果是update操作 有两组数据 一组是旧数据 一组是新数据
-                    if ($event_type == "update_rows") {
-                        if ($is_old_data) {
-                            $old_data[$columns[$index]] = $target_line;
-                        } else {
-                            $new_data[$columns[$index]] = $target_line;
-                        }
+        // foreach ($target_lines as $_target_line) {
+        $is_old_data = true;
+        $old_data    = [];
+        $new_data    = [];
+        $set_data    = [];
+        $index       = 0;
+        var_dump($target_lines);
+        foreach ($target_lines as $target_line) {
+            //去掉行的开始#和空格
+            $target_line = ltrim($target_line, "#");
+            $target_line = trim($target_line);
+            echo "========>",$target_line,"\r\n";
+            //所有的字段开始的字符都是@
+            if (substr($target_line, 0, 1) == "@") {
+                $target_line = preg_replace("/@[0-9]{1,}=/", "", $target_line);
+                $target_line = trim($target_line, "'");
+                //如果是update操作 有两组数据 一组是旧数据 一组是新数据
+                if ($event_type == "update_rows") {
+                    if ($is_old_data) {
+                        $old_data[$columns[$index]] = $target_line;
+                    } else {
+                        $new_data[$columns[$index]] = $target_line;
                     }
-                    else {
-                        $set_data[$columns[$index]] = $target_line;
-                    }
-                    $index++;
                 }
-
-                //遇到set关键字 重置索引 开始记录老数据
-                if (strtolower($target_line) == "set") {
-                    $is_old_data = false;
-                    $index = 0;
+                else {
+                    $set_data[$columns[$index]] = $target_line;
                 }
+                $index++;
             }
 
-            if ($event_type == "update_rows") {
-                //这里忽略空数据
-                if (count($old_data) <= 0 || count($new_data) <= 0) {
-                    echo $event_type,"数据为空\r\n";
-                    continue;
-                }
-                $event_data["data"] = [
-                    "old_data" => $old_data,
-                    "new_data" => $new_data
-                ];
+            //遇到set关键字 重置索引 开始记录老数据
+            if (strtolower($target_line) == "set") {
+                $is_old_data = false;
+                $index = 0;
             }
-            else {
-                //这里忽略空数据
-                if (count($set_data) <= 0) {
-                    echo $event_type,"数据为空\r\n";
-                    continue;
-                }
-                $event_data["data"] = $set_data;
-            }
-
-            $events[] = $event_data;
         }
 
-        return $events;
+        if ($event_type == "update_rows") {
+            //这里忽略空数据
+            if (count($old_data) <= 0 || count($new_data) <= 0) {
+                echo $event_type,"数据为空\r\n";
+                return null;
+            }
+
+            foreach ($columns as $column ){
+                if(!isset($old_data[$column])){
+                    echo $column,"--old_data《----行数据异常----》\r\n";
+                }
+                if(!isset($new_data[$column])){
+                    echo $column,"--new_data《----行数据异常----》\r\n";
+                }
+            }
+
+            $event_data["data"] = [
+                "old_data" => $old_data,
+                "new_data" => $new_data
+            ];
+        }
+        else {
+            //这里忽略空数据
+            if (count($set_data) <= 0) {
+                echo $event_type,"数据为空\r\n";
+                return null;
+            }
+
+            foreach ($columns as $column ){
+                if(!isset($set_data[$column])){
+                    echo $column,"--set_data《----行数据异常----》\r\n";
+                }
+            }
+            $event_data["data"] = $set_data;
+        }
+
+        //$events[] = $event_data;
+        // }
+
+        return $event_data;
     }
 
 
@@ -484,8 +507,11 @@ class BinLog{
         //一个完整的事务 以BEGIN开始COMMIT结束
         $res       = (new Command($command))->run();
 
+
         echo "==============================================================\r\n";
         echo $res,"\r\n\r\n\r\n";
+
+        return $res;
 
         $matches    = explode("BEGIN\n/*!*/;", $res);
         var_dump($matches);
@@ -563,68 +589,71 @@ class BinLog{
                     $commit_res = $this->getSessions( $start_pos, $end_pos );
 
                     var_dump($commit_res);
-                    array_map(function ($item) use ($callback) {
-
+                    // array_map(function ($__item) use ($callback) {
+                    $items = $this->linesFormat($commit_res);
+                    array_map(function($item)  use ($callback){
                         echo "item===>";
                         var_dump($item);
+                        do {
+                            //得到事件发生的时间
+                            $daytime = $this->getEventTime( $item );
+                            if( !$daytime ){
+                                break;
+                            }
+                            echo "事件发生的时间=>",$daytime,"\r\n";
 
-                            do {
-                                //得到事件发生的时间
-                                $daytime = $this->getEventTime( $item );
-                                if( !$daytime ){
-                                    break;
-                                }
-                                echo "事件发生的时间=>",$daytime,"\r\n";
-
-                                //得到事件发生的数据库和表
-                                list($database_name,$table_name) = $this->getTables($item);
-                                if( !$database_name || !$table_name ) {
-                                    break;
-                                }
-                                echo "数据库和数据表=>",$database_name,"=>",$table_name,"\r\n";
-
-
-                                //得到事件 类型 这里只在乎 Delete_rows|Write_rows|Update_rows
-                                //因为这三种事件影响了数据，也就是数据发生了变化
-                                $event_type = $this->getEventType( $item );
-                                if ( !$event_type ) {
-                                    break;
-                                }
-                                echo "事件=>",$event_type,"\r\n";
+                            //得到事件发生的数据库和表
+                            list($database_name,$table_name) = $this->getTables($item);
+                            if( !$database_name || !$table_name ) {
+                                break;
+                            }
+                            echo "数据库和数据表=>",$database_name,"=>",$table_name,"\r\n";
 
 
-                                //得到表字段
-                                $columns = $this->getColumns( $database_name, $table_name );
-                                if (!$columns) {
-                                    break;
-                                }
-                                echo "数据表行";
-                                var_dump($columns);
-                                echo "\r\n";
+                            //得到事件 类型 这里只在乎 Delete_rows|Write_rows|Update_rows
+                            //因为这三种事件影响了数据，也就是数据发生了变化
+                            $event_type = $this->getEventType( $item );
+                            if ( !$event_type ) {
+                                break;
+                            }
+                            echo "事件=>",$event_type,"\r\n";
 
-                                //按行解析
-                                //因为一个事务可能有多个增删改查的操作 为了得到完整的sql信息
-                                //这里需要分组 - 支持批量和单次操作的binlog
-                                $target_lines = $this->linesFormat($item);
-                                $events       = $this->eventDatasFormat( $target_lines, $daytime, $event_type, $columns );
 
-                                unset($target_lines);
-                                echo "events===>";
-                                var_dump($events);
+                            //得到表字段
+                            $columns = $this->getColumns( $database_name, $table_name );
+                            if (!$columns) {
+                                break;
+                            }
+                            echo "数据表行";
+                            var_dump($columns);
+                            echo "\r\n";
 
-                                foreach ( $events as $event ){
-                                    //事件计数器
-                                    $this->events_times++;
-                                    //执行事件回调函数
-                                    $callback($database_name, $table_name, $event);
-                                    echo "事件次数", $this->events_times, "\r\n\r\n";
-                                }
+                            //按行解析
+                            //因为一个事务可能有多个增删改查的操作 为了得到完整的sql信息
+                            //这里需要分组 - 支持批量和单次操作的binlog
+                            //$target_lines = $this->linesFormat($item);
+                            $target_lines = explode("\n",$item);
+                            $event       = $this->eventDatasFormat( $target_lines, $daytime, $event_type, $columns );
 
-                                unset($events);
-                            } while (0);
-                        }, $commit_res );
+                            unset($target_lines);
+                            echo "events===>";
+                            var_dump($event);
 
-                    unset($commit_res);
+                            // foreach ( $events as $event ){
+                            //事件计数器
+                            if( $event ) {
+                                $this->events_times++;
+                                //执行事件回调函数
+                                $callback($database_name, $table_name, $event);
+                                echo "事件次数", $this->events_times, "\r\n\r\n";
+                            }//  }
+
+                            unset($events);
+                        } while (0);
+                    },$items);
+                    // }, $commit_res );
+
+                    // unset($commit_res);
 
 
                 } while (0);

@@ -10,7 +10,6 @@ use Wing\Binlog\Library\Queue;
  */
 class Redis implements Notify {
 
-    //const EVENT_LIST = "wing:mysqlbinlog:event:list";
     private $list_name;
     public function __construct( $list_name )
     {
