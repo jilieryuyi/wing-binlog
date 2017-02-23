@@ -191,44 +191,14 @@ class BinLog{
      * @设置存储最后操作的binlog名称
      */
     private function setLastBinLog( $binlog ){
-
-//        $cache_dir  = $this->getCacheDir();
-//        $dir        = new WDir( $cache_dir );
-//        $cache_file = $this->getLastBinLogCacheFile();
-//        $file       = new WFile( $cache_file );
-//
-//        $dir->mkdir();
-
         return Context::instance()->redis->set("mysql:last:binlog",$binlog);
-
-        //return $file->write($binlog,false);
     }
 
     /**
      * @获取最后操作的binlog文件名称
      */
     private function getLastBinLog(){
-
         return Context::instance()->redis->get("mysql:last:binlog");//,$binlog);
-
-
-//        $cache_file = $this->getLastBinLogCacheFile();
-//        $file       = new WFile( $cache_file );
-//
-//        if( !$file->exists() )
-//            return "";
-//
-//        return $file->read();
-    }
-
-    /**
-     * @获取记录记录上次binlog读取位置的缓存文件
-     *
-     * @return string
-     */
-    private function getLastPositionCacheFile(){
-        $cache_dir  = $this->getCacheDir();
-        return $cache_dir.DIRECTORY_SEPARATOR."mysql_last_bin_log_pos";
     }
 
     /**
@@ -239,16 +209,7 @@ class BinLog{
      * @return bool
      */
     private function setLastPosition( $start_pos, $end_pos ){
-//        $cache_dir  = $this->getCacheDir();
-//        $dir        = new WDir( $cache_dir );
-//        $cache_file = $this->getLastPositionCacheFile();
-//        $file       = new WFile( $cache_file );
-//
-//        $dir->mkdir();
-
         return Context::instance()->redis->set("mysql:binlog:lastpos:read", $start_pos.":".$end_pos );
-
-        //return $file->write( $start_pos.":".$end_pos, false );
     }
 
     /**
@@ -256,13 +217,11 @@ class BinLog{
      * @return array
      */
     private function getLastPosition(){
-//        $file_path = $this->getLastPositionCacheFile() ;
-//        $file      = new WFile( $file_path );
-//        if( !$file->exists() )
-//            return [0,0];
         $res = explode(":", Context::instance()->redis->get("mysql:binlog:lastpos:read") );
         if( !is_array($res) || count($res) != 2 )
+        {
             return [0,0];
+        }
         return $res;
     }
 
@@ -322,7 +281,7 @@ class BinLog{
         $database_name = trim($database_name,"`");
         $table_name    = trim($table_name,"`");
 
-        return [$database_name,$table_name];
+        return [ $database_name, $table_name ];
     }
 
     /**
@@ -332,6 +291,7 @@ class BinLog{
      */
     protected function getEventTime($item){
         preg_match_all("/[0-9]{6}\s+?[0-9]{1,2}\:[0-9]{1,2}\:[0-9]{1,2}/", $item, $time_match);
+
         if (!isset($time_match[0][0]))
         {
             echo "无法匹配时间\r\n";
@@ -348,9 +308,7 @@ class BinLog{
      * @return array
      */
     protected function linesFormat($item){
-
         $items = preg_split("/#[\s]{1,}at[\s]{1,}[0-9]{1,}/",$item);
-        echo "new-----items---";
         var_dump($items);
         return $items;
 
@@ -373,15 +331,19 @@ class BinLog{
         $new_data    = [];
         $set_data    = [];
         $index       = 0;
-        var_dump($target_lines);
+
         foreach ($target_lines as $target_line) {
+
             //去掉行的开始#和空格
             $target_line = ltrim($target_line, "#");
             $target_line = trim($target_line);
+
             //所有的字段开始的字符都是@
             if (substr($target_line, 0, 1) == "@") {
+
                 $target_line = preg_replace("/@[0-9]{1,}=/", "", $target_line);
                 $target_line = trim($target_line, "'");
+
                 //如果是update操作 有两组数据 一组是旧数据 一组是新数据
                 if ($event_type == "update_rows") {
                     if ($is_old_data) {
@@ -412,10 +374,10 @@ class BinLog{
 
             foreach ($columns as $column ){
                 if(!isset($old_data[$column])){
-                    echo $column,"--old_data《----行数据异常----》\r\n";
+                    echo $column,"--old_data----行数据异常----\r\n";
                 }
                 if(!isset($new_data[$column])){
-                    echo $column,"--new_data《----行数据异常----》\r\n";
+                    echo $column,"--new_data----行数据异常----\r\n";
                 }
             }
 
@@ -433,7 +395,7 @@ class BinLog{
 
             foreach ($columns as $column ){
                 if(!isset($set_data[$column])){
-                    echo $column,"--set_data《----行数据异常----》\r\n";
+                    echo $column,"--set_data----行数据异常----\r\n";
                 }
             }
             $event_data["data"] = $set_data;
@@ -466,12 +428,9 @@ class BinLog{
         $command   = $this->mysqlbinlog . " --base64-output=DECODE-ROWS -v --start-position=" .
             $start_pos . " --stop-position=" .
             $end_pos . "  \"" . $current_binlog_file . "\"";// > ".$this->binlog_cache_file->get();// >d:\1.sql
+
         //一个完整的事务 以BEGIN开始COMMIT结束
         $res       = (new Command($command))->run();
-
-
-        echo "==============================================================\r\n";
-        echo $res,"\r\n\r\n\r\n";
 
         return $res;
     }
@@ -529,13 +488,13 @@ class BinLog{
                     $start_pos  = $first_row["Pos"];
                     $end_pos    = $last_row["End_log_pos"];
                     $commit_res = $this->getSessions( $start_pos, $end_pos );
+                    $items      = $this->linesFormat($commit_res);
 
-                    var_dump($commit_res);
-                    // array_map(function ($__item) use ($callback) {
-                    $items = $this->linesFormat($commit_res);
                     array_map(function($item)  use ($callback){
+
                         echo "item===>";
                         var_dump($item);
+
                         do {
                             //得到事件发生的时间
                             $daytime = $this->getEventTime( $item );
@@ -560,15 +519,11 @@ class BinLog{
                             }
                             echo "事件=>",$event_type,"\r\n";
 
-
                             //得到表字段
                             $columns = $this->getColumns( $database_name, $table_name );
                             if (!$columns) {
                                 break;
                             }
-                            echo "数据表行";
-                            var_dump($columns);
-                            echo "\r\n";
 
                             //按行解析
                             //因为一个事务可能有多个增删改查的操作 为了得到完整的sql信息
@@ -578,13 +533,11 @@ class BinLog{
                             $event       = $this->eventDatasFormat( $target_lines, $daytime, $event_type, $columns );
 
                             unset($target_lines);
-                            echo "events===>";
-                            var_dump($event);
 
-                            // foreach ( $events as $event ){
                             //事件计数器
                             if( $event ) {
                                 $this->events_times++;
+
                                 $str1 = md5(rand(0,999999));
                                 $str2 = md5(rand(0,999999));
                                 $str3 = md5(rand(0,999999));
@@ -593,18 +546,14 @@ class BinLog{
                                     substr($str1,rand(0,strlen($str1)-16),16)."_".
                                     substr($str2,rand(0,strlen($str2)-16),16)."_".
                                     substr($str3,rand(0,strlen($str3)-16),16);
+
                                 //执行事件回调函数
                                 $callback($database_name, $table_name, $event);
                                 echo "事件次数", $this->events_times, "\r\n\r\n";
-                            }//  }
+                            }
 
-                            unset($events);
                         } while (0);
                     },$items);
-                    // }, $commit_res );
-
-                    // unset($commit_res);
-
 
                 } while (0);
 
