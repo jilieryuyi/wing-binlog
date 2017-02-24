@@ -57,6 +57,7 @@ mysqlbinlog事件采集系统
     php seals server:stop
     //停止服务
     php seals server:restart
+    //重启
 
 ###注意
 最后强调一下，仅支持mysqlbinlog的row格式
