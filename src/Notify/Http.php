@@ -1,5 +1,5 @@
-<?php namespace Wing\Binlog\Notify;
-use Wing\Binlog\Library\Notify;
+<?php namespace Seals\Notify;
+use Seals\Library\Notify;
 
 /**
  * Created by PhpStorm.

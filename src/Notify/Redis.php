@@ -1,6 +1,6 @@
-<?php namespace Wing\Binlog\Notify;
-use Wing\Binlog\Library\Notify;
-use Wing\Binlog\Library\Queue;
+<?php namespace Seals\Notify;
+use Seals\Library\Notify;
+use Seals\Library\Queue;
 
 /**
  * Created by PhpStorm.

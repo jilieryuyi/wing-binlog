@@ -4,15 +4,14 @@
  * User: yuyi
  * Date: 17/2/18
  * Time: 10:26
- * @设置事件通知方式
  */
 return [
-    "handler" => \Wing\Binlog\Notify\Redis::class,
-    "params"  => ["wing:mysqlbinlog:event:list"]
+    "handler" => \Seals\Notify\Redis::class,
+    "params"  => ["seals:event:list"]
 ];
 //使用http发起事件通知
 /*return [
-    "handler" => \Wing\Binlog\Notify\Http::class,
-    "params"  => [ "http://www.test.com/binlog" ]
+    "handler" => \Seals\Notify\Http::class,
+    "params"  => ["http://www.test.com/binlog"]
 ];
 */
