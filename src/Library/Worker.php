@@ -33,12 +33,12 @@ class Worker implements Process{
         $self = $this;
 
         register_shutdown_function(function() use($self){
-            file_put_contents(__APP_DIR__."/log/error_".date("Ymd").".log",date("Y-m-d H:i:s")."\r\n".json_encode(error_get_last(),JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND);
+            file_put_contents(__APP_DIR__."/log/error_".date("Ymd")."_".self::getCurrentProcessId().".log",date("Y-m-d H:i:s")."\r\n".json_encode(error_get_last(),JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND);
             $self->clear();
         });
 
         set_error_handler(function($errno, $errstr, $errfile, $errline){
-            file_put_contents(__APP_DIR__."/log/error_".date("Ymd").".log",date("Y-m-d H:i:s")."\r\n".json_encode(func_get_args(),JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND);
+            file_put_contents(__APP_DIR__."/log/error_".date("Ymd")."_".self::getCurrentProcessId().".log",date("Y-m-d H:i:s")."\r\n".json_encode(func_get_args(),JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND);
         });
 
         $cpu              = new Cpu();
@@ -310,7 +310,7 @@ class Worker implements Process{
 
         global $STDOUT, $STDERR;
 
-        $file   = new WFile( $this->log_dir . "/seals_output_".date("Ymd").".log" );
+        $file   = new WFile( $this->log_dir . "/seals_output_".date("Ymd")."_".self::getCurrentProcessId().".log" );
         $file->touch();
 
         $handle = fopen( $file->get(), "a+");
