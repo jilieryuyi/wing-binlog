@@ -456,6 +456,8 @@ class Worker implements Process{
                         break;
                     }
 
+                    unset($len);
+
                     $cache_file = $queue->pop();
 
                     if (!$cache_file||!file_exists(	$cache_file ) || !is_file($cache_file))
@@ -485,6 +487,7 @@ class Worker implements Process{
 
             } catch(\Exception $e){
                 var_dump($e);
+                unset($e);
             }
 
             $content = ob_get_contents();
@@ -493,6 +496,7 @@ class Worker implements Process{
 
             if( $content ) {
                 echo $content;
+                unset($content);
             }
         }
     }
