@@ -19,10 +19,10 @@
 //var_dump($matches);
 
 $items = preg_split("/#[\s]{1,}at[\s]{1,}[0-9]{1,}/","# at 166208909
-#170223 15:29:53 server id 2  end_log_pos 166208986 CRC32 0xcddec847 	Table_map: `huolicai`.`bw_account_log` mapped to number 76
+#170223 15:29:53 server id 2  end_log_pos 166208986 CRC32 0xcddec847 	Table_map: `---`.`---` mapped to number 76
 # at 166208986
 #170223 15:29:53 server id 2  end_log_pos 166209091 CRC32 0x82a5ec93 	Write_rows: table id 76 flags: STMT_END_F
-### INSERT INTO `huolicai`.`bw_account_log`
+### INSERT INTO `--`.`----`
 ### SET
 ###   @1=11503214
 ###   @2=1116474
@@ -33,12 +33,12 @@ $items = preg_split("/#[\s]{1,}at[\s]{1,}[0-9]{1,}/","# at 166208909
 ###   @7=1
 ###   @8=1
 ###   @9=107
-###   @10='宝付充值#ORD20170223032953G5OZS'
+###   @10='宝付充值#123'
 # at 166209091
-#170223 15:29:53 server id 2  end_log_pos 166209183 CRC32 0x15a9cbbe 	Table_map: `huolicai`.`yx_member_account` mapped to number 77
+#170223 15:29:53 server id 2  end_log_pos 166209183 CRC32 0x15a9cbbe 	Table_map: `---`.`-----` mapped to number 77
 # at 166209183
 #170223 15:29:53 server id 2  end_log_pos 166209331 CRC32 0xfb260044 	Update_rows: table id 77 flags: STMT_END_F
-### UPDATE `huolicai`.`yx_member_account`
+### UPDATE `----`.`-----`
 ### WHERE
 ###   @1=116179
 ###   @2=1116474
