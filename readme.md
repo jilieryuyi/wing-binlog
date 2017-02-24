@@ -65,5 +65,5 @@ mysqlbinlog事件采集系统
 ###如何使用？
 * 1、首先复制config目录下的.php.example为.php文件，也就是全部去掉.example
 * 2、修改config目录下的配置文件为自己的服务器参数
-* 3、redis默认事件队列为 wing:mysqlbinlog:event:list
+* 3、redis默认事件队列为 seals:event:list
 * 4、不要忘了 composer install
