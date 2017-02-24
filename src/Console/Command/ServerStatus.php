@@ -1,6 +1,6 @@
-<?php namespace Wing\Binlog\Console\Command;
+<?php namespace Seals\Console\Command;
 
-use Wing\Binlog\Library\Worker;
+use Seals\Library\Worker;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

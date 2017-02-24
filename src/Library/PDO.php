@@ -1,4 +1,4 @@
-<?php namespace Wing\Binlog\Library;
+<?php namespace Seals\Library;
 
 /**
  * @author yuyi

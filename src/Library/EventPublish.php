@@ -1,4 +1,4 @@
-<?php namespace Wing\Binlog\Library;
+<?php namespace Seals\Library;
 /**
  * Created by PhpStorm.
  * User: yuyi
@@ -12,7 +12,7 @@ class EventPublish implements Event{
     private $table_name;
     private $event_data;
 
-    const EVENT_LIST = "wing:mysqlbinlog:event:list";
+    const EVENT_LIST = "seals:event:list";
 
     public function __construct( $database_name, $table, array $data ){
         $this->database_name = $database_name;

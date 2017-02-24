@@ -1,4 +1,4 @@
-<?php namespace Wing\Binlog\Library;
+<?php namespace Seals\Library;
 use Wing\FileSystem\WFile;
 
 /**
@@ -6,7 +6,6 @@ use Wing\FileSystem\WFile;
  * @created 2016/9/23 8:27
  * @email 297341015@qq.com
  * @worker worker工作调度，只负责调度
- * @property Notify $notify
  */
 
 class Worker implements Process{
@@ -16,10 +15,11 @@ class Worker implements Process{
     protected $log_dir;
     protected $debug            = false;
     protected $start_time       = 0;
-    protected $notify;
+    protected $workers          = 1;
+
 
     //队列名称
-    const QUEUE_NAME = "wing:mysqlbinlog:events:collector";
+    const QUEUE_NAME = "seals:events:collector";
 
     /**
      * @构造函数
@@ -41,8 +41,10 @@ class Worker implements Process{
             file_put_contents(__APP_DIR__."/log/error_".date("Ymd").".log",date("Y-m-d H:i:s")."\r\n".json_encode(func_get_args(),JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND);
         });
 
-        $this->work_dir = dirname( dirname(__DIR__) );
-        $this->log_dir  = dirname( dirname(__DIR__) )."/log";
+        $cpu              = new Cpu();
+        $this->workers    =  $cpu->cpu_num ;
+
+        ini_set("memory_limit","10240M");
 
     }
 
@@ -90,10 +92,6 @@ class Worker implements Process{
      */
     public function setLogDir($dir){
         $this->log_dir = $dir;
-    }
-
-    public function setNotify( Notify $notify ){
-        $this->notify = $notify;
     }
 
 
@@ -312,7 +310,7 @@ class Worker implements Process{
 
         global $STDOUT, $STDERR;
 
-        $file   = new WFile( $this->log_dir . "/wing_binlog_output_".date("Ymd").".log" );
+        $file   = new WFile( $this->log_dir . "/seals_output_".date("Ymd").".log" );
         $file->touch();
 
         $handle = fopen( $file->get(), "a+");
@@ -336,6 +334,13 @@ class Worker implements Process{
         return $this->getStatus();
     }
 
+    public function getWorkersNum(){
+        return $this->workers;
+    }
+
+    public function setWorkersNum($workers){
+        $this->workers = $workers;
+    }
     /**
      * @是否还在运行
      */
@@ -389,15 +394,10 @@ class Worker implements Process{
     /**
      * @启动进程 入口函数
      */
-    public function start( $deamon = false ){
+    public function dispatch(  ){
         echo "start...\r\n";
-        if( $deamon )
-        {
-            self::daemonize();
-            $this->resetStd();
-        }
         $self         = $this;
-        $process_name = "php wing_binlog >> mysqlbinlog events collector";
+        $process_name = "php seals >> events collector - dispatch";
         echo $process_name," is running\r\n";
 
         //设置进程标题 mac 会有warning 直接忽略
@@ -406,8 +406,8 @@ class Worker implements Process{
         //由于是多进程 redis和pdo等连接资源 需要重置
         Context::instance()->reset();
 
-        $bin = new \Wing\Binlog\Library\BinLog(
-            \Wing\Binlog\Library\Context::instance()->pdo
+        $bin = new \Seals\Library\BinLog(
+            \Seals\Library\Context::instance()->activity_pdo
         );
 
         //绑定开始执行和结束执行一个事件周期的回调函数
@@ -419,24 +419,125 @@ class Worker implements Process{
             $self->checkStopSignal();
         });
 
-        $self = $this;
-        //发生事件是自动触发回调函数
-        $bin->onChange( function( $database_name, $table_name, $event_data ) use( $self ){
+        $dispatcher = new DispatchQueue( $this );
 
-            echo "数据库：", $database_name, "\r\n";
-            echo "数据表：", $table_name, "\r\n";
-            echo "改变数据：";
-            var_dump($event_data);
-            echo "\r\n\r\n\r\n";
-
-//            $event = new EventPublish(
-//                $database_name,
-//                $table_name,
-//                $event_data
-//            );
-//            $event->trigger();
-            $self->notify->send( $database_name, $table_name, $event_data );
+        //阻塞执行
+        $bin->dispatch(function($file) use($dispatcher){
+            $target_worker = $dispatcher->get();
+            Context::instance()->redis->rPush( $target_worker, $file );
+            unset($target_worker,$file);
         });
     }
+
+    protected function bworker($i){
+
+
+        $process_name = "php seals >> events collector - workers ".$i;
+        echo $process_name," is running\r\n";
+
+        //设置进程标题 mac 会有warning 直接忽略
+        $this->setProcessTitle( $process_name );
+
+        $queue = new Queue(self::QUEUE_NAME.$i);
+
+        //由于是多进程 redis和pdo等连接资源 需要重置
+        Context::instance()->reset();
+
+        while(1) {
+            ob_start();
+            try {
+                $this->setStatus( $process_name );
+                $this->setIsRunning();
+
+                do {
+                    $len = $queue->length();
+                    if ($len <= 0) {
+                        unset($len);
+                        break;
+                    }
+
+                    $cache_file = $queue->pop();
+
+                    if (!$cache_file||!file_exists(	$cache_file ) || !is_file($cache_file))
+                    {
+                        unset($cache_file);
+                        break;
+                    }
+
+                    $file = new FileFormat($cache_file,\Seals\Library\Context::instance()->activity_pdo);
+
+                    $file->parse(function ($database_name, $table_name, $event) {
+                        Context::instance()->redis->rPush( "seals:event:list", json_encode([
+                            "database_name" => $database_name,
+                            "table_name"    => $table_name,
+                            "event_data"    => $event
+                        ]) );
+                    });
+
+                    unset($file);
+
+                    unlink($cache_file);
+                    unset($cache_file);
+
+                } while (0);
+
+                $this->checkStopSignal();
+
+            } catch(\Exception $e){
+                var_dump($e);
+            }
+
+            $content = ob_get_contents();
+            ob_end_clean();
+            usleep(10000);
+
+            if( $content ) {
+                echo $content;
+            }
+        }
+    }
+
+    public function start( $deamon = false){
+        echo "start...\r\n";
+
+        echo "\r\n";
+        echo "启动服务：php seals server:start\r\n";
+        echo "指定进程数量：php seals server:start --n 4\r\n";
+        echo "4个进程以守护进程方式启动服务：php seals server:start --n 4 --d\r\n";
+        echo "重启服务：php seals server:restart\r\n";
+        echo "停止服务：php seals server:stop\r\n";
+        echo "服务状态：php seals server:status\r\n";
+        echo "\r\n";
+
+        if( $deamon )
+        {
+            self::daemonize();
+        }
+        //启动工作进程
+        for ($i = 1; $i <= $this->workers; $i++)
+        {
+            $process_id = pcntl_fork();
+            if ($process_id == 0)
+            {
+                if ($deamon)
+                {
+                    $this->resetStd();
+                }
+                echo "process ",$i," is running \r\n";
+                ini_set("memory_limit","10240M");
+                $this->bworker($i);
+            }
+        }
+
+        //调度进程
+        if ($deamon)
+        {
+            $this->resetStd();
+        }
+        echo "process queue dispatch is running \r\n";
+        ini_set("memory_limit","10240M");
+        $this->dispatch();
+    }
+
 
 }

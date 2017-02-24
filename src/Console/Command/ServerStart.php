@@ -1,6 +1,6 @@
-<?php namespace Wing\Binlog\Console\Command;
+<?php namespace Seals\Console\Command;
 
-use Wing\Binlog\Library\Context;
+use Seals\Library\Context;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,7 +19,8 @@ class ServerStart extends ServerBase{
             ->setName('server:start')
             ->setDescription('服务启动')
             ->addOption("d",null,InputOption::VALUE_NONE,"守护进程")
-            ->addOption("debug",null,InputOption::VALUE_NONE,"调试模式");
+            ->addOption("debug",null,InputOption::VALUE_NONE,"调试模式")
+            ->addOption("n",null,InputOption::VALUE_REQUIRED,"进程数量",0);
 
     }
 
@@ -27,6 +28,7 @@ class ServerStart extends ServerBase{
     {
         $deamon      = $input->getOption("d");
         $debug       = $input->getOption("debug");
-        $this->start( $deamon, $debug );
+        $workers     = $input->getOption("n");
+        $this->start( $deamon, $workers, $debug );
     }
 }

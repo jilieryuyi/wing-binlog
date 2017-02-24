@@ -1,4 +1,4 @@
-<?php namespace Wing\Binlog\Console\Command;
+<?php namespace Seals\Console\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -16,10 +16,10 @@ class Help extends ServerBase{
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        echo "启动服务：php app server:start\r\n";
-        echo "以守护进程方式启动服务：php app server:start --d\r\n";
-        echo "重启服务：php app server:restart\r\n";
-        echo "停止服务：php app server:stop\r\n";
-        echo "服务状态：php app server:status\r\n";
+        echo "启动服务：php seals server:start\r\n";
+        echo "以守护进程方式启动服务：php seals server:start --d\r\n";
+        echo "重启服务：php seals server:restart\r\n";
+        echo "停止服务：php seals server:stop\r\n";
+        echo "服务状态：php seals server:status\r\n";
     }
 }

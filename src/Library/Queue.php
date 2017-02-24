@@ -1,4 +1,4 @@
-<?php namespace Wing\Binlog\Library;
+<?php namespace Seals\Library;
 
 
 /**
@@ -25,16 +25,16 @@ class Queue{
     }
 
     /**
-     * @加入到队列尾部
+     * @加入到队列
      *
      * @param $event_id string 事件id标示
      * @param $data array 事件依附的数据
      * @return bool
      */
-    public function push( array $data ){
-        $len     = $this->length();
-        $new_len = Context::instance()->redis->rPush( $this->queue_name, json_encode($data) );
-        return $new_len > $len ;
+    public function push( $data ){
+        if(is_array($data))
+            $data = json_encode($data);
+        return Context::instance()->redis->rPush( $this->queue_name, $data );
     }
     /**
      * @弹出队列首部数据
@@ -46,9 +46,9 @@ class Queue{
         $data = Context::instance()->redis->lPop( $this->queue_name );
 
         if( $data === false )
-            return [];
+            return null;
 
-        return json_decode($data, true);
+        return $data;//json_decode($data, true);
     }
 
     /**
@@ -57,8 +57,10 @@ class Queue{
      * @return array
      */
     public function peek(){
-        $data =  Context::instance()->redis->lRange(  $this->queue_name, -1, -1 );
-        return json_decode( $data ,true );
+        $data =  Context::instance()->redis->lRange(  $this->queue_name, 0, 1 );
+        if( isset($data[0]) )
+            return $data[0];
+        return null;
     }
 
     /**

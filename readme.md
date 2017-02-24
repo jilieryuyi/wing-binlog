@@ -50,13 +50,13 @@ mysqlbinlog事件采集系统
  
  
 ###启动|状态|停止|重启 服务指令
-    php app server:start
+    php seals server:start
     //可选项 --d以守护进程启动
-    php app server:status 
+    php seals server:status 
     //查看运行状态
-    php app server:stop
+    php seals server:stop
     //停止服务
-    php app server:restart
+    php seals server:restart
 
 ###注意
 最后强调一下，仅支持mysqlbinlog的row格式

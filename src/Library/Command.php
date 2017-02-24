@@ -1,4 +1,4 @@
-<?php namespace Wing\Binlog\Library;
+<?php namespace Seals\Library;
 /**
  * Created by PhpStorm.
  * User: yuyi
@@ -30,8 +30,7 @@ class Command
 
     public function run(){
         $handle = popen( $this->command ,"r");
-        if( !$handle )
-            return "";
+
         $result = '';
         while(1){
             $res = fgets($handle, 1024);
@@ -39,6 +38,7 @@ class Command
                 $result.=$res;
             else break;
         }
+
         pclose($handle);
         return $result;
     }

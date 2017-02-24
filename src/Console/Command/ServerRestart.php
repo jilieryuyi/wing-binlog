@@ -1,4 +1,4 @@
-<?php namespace Wing\Binlog\Console\Command;
+<?php namespace Seals\Console\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;

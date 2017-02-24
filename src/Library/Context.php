@@ -1,16 +1,16 @@
-<?php namespace Wing\Binlog\Library;
+<?php namespace Seals\Library;
 /**
  * Created by PhpStorm.
  * User: yuyi
  * Date: 17/2/7
  * Time: 18:26
- * @property PDO $pdo 连接配置文件第一个数据库的pdo
+ * @property PDO $activity_pdo
  * @property \Redis $redis
  */
 class Context{
 
     public $redis;
-    public $pdo;
+    public $activity_pdo;
 
     private static $instance = null;
 
@@ -35,13 +35,12 @@ class Context{
             $redis_config["password"]
         );
 
-        $configs    = require __DIR__."/../../config/db.php";
-        $this->pdo  = new \Wing\Binlog\Library\PDO(
+        $configs = require __DIR__."/../../config/db.php";
+        $this->activity_pdo  = new \Seals\Library\PDO(
             $configs["user"],
             $configs["password"],
             $configs["host"],
             $configs["db_name"]
         );
-
     }
 }

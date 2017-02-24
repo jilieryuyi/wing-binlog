@@ -1,16 +1,16 @@
 {
-  "name": "wing/binlog",
+  "name": "Seals/Collector",
   "type": "library",
-  "description": "mysqlbinlog事件收集系统",
-  "keywords": ["mysql","binlog","wing"],
+  "description": "mysqlbinlog事件采集系统",
+  "keywords": ["ylb"],
   "homepage": "http://www.itdfy.com/",
   "support": {
-    "issues": "http://www.itdfy.com/",
+    "issues": "https://www.itdfy.com/",
     "email":"297341015@qq.com"
   },
   "authors": [
     {
-      "name": "yuyi",
+      "name": "huangxiaoan",
       "email": "297341015@qq.com",
       "homepage": "http://www.itdfy.com/"
     }
@@ -35,10 +35,16 @@
   "require": {
     "php": ">=5.0",
     "symfony/console":"~3.1",
+    "robmorgan/phinx":"dev-master",
     "wing/FileSystem":"dev-master"
   },
+  "require-dev": {
+    "phpmd/phpmd" : "~2.2",
+    "phpunit/phpunit": "~5.0",
+    "squizlabs/php_codesniffer": "~2.3"
+  },
   "autoload": {
-    "psr-4": {"Wing\\Binlog\\": "src/"},
+    "psr-4": {"Seals\\": "src/"},
     "classmap": ["tests/unit/"],
     "files": [
       "src/helpers.php"
