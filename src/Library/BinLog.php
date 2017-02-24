@@ -33,6 +33,7 @@ class BinLog{
     private $cache_dir;
 
     private $callbacks = [];
+    private $debug = false;
 
     public function __construct( DbInterface $db_handler,$mysqlbinlog = "mysqlbinlog")
     {
@@ -61,6 +62,9 @@ class BinLog{
 
     }
 
+    public function setDebug( $debug ){
+        $this->debug = $debug;
+    }
     /**
      * @绑定回调函数，支持绑定多个回调函数
      *
@@ -236,20 +240,11 @@ class BinLog{
      * @return array
      */
     private function getLastPosition(){
-//        $file_path = $this->getLastPositionCacheFile() ;
-//        $file      = new WFile( $file_path );
-//        if( !$file->exists() )
-//            return [0,0];
         $res = explode(":", Context::instance()->redis->get("mysql:binlog:lastpos:read") );
         if( !is_array($res) || count($res) != 2 )
             return [0,0];
         return $res;
     }
-
-
-
-
-
 
     /**
      * @行分组格式化
@@ -258,8 +253,6 @@ class BinLog{
      */
     protected function linesFormat($item){
         $items = preg_split("/#[\s]{1,}at[\s]{1,}[0-9]{1,}/",$item);
-        echo "new-----items---";
-        var_dump($items);
         return $items;
     }
 
@@ -303,7 +296,7 @@ class BinLog{
         unset($current_binlog_file);
 
         pclose(popen( $command ,"r"));
-
+        unset($command);
         return $cache_file;
     }
 
@@ -383,13 +376,17 @@ class BinLog{
 
             }catch(\Exception $e){
                 var_dump($e);
+                unset($e);
             }
+            $output = null;
 
+            if( $this->debug )
             $output = ob_get_contents();
             ob_end_clean();
 
-            if ($output) {
+            if ($output && $this->debug) {
                 echo $output;
+                unset($output);
             }
             usleep(100000);
 

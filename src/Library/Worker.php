@@ -410,6 +410,8 @@ class Worker implements Process{
             \Seals\Library\Context::instance()->activity_pdo
         );
 
+        $bin->setDebug( $this->debug );
+
         //绑定开始执行和结束执行一个事件周期的回调函数
         $bin->setEventCallback( BinLog::EVENT_TICK_START, function() use( $self, $process_name ){
             $self->setStatus( $process_name );
@@ -490,11 +492,15 @@ class Worker implements Process{
                 unset($e);
             }
 
-            $content = ob_get_contents();
+            $content = null;
+            if( $this->debug )
+            {
+                $content = ob_get_contents();
+            }
             ob_end_clean();
             usleep(10000);
 
-            if( $content ) {
+            if( $content && $this->debug ) {
                 echo $content;
                 unset($content);
             }
