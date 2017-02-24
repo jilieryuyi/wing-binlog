@@ -51,7 +51,7 @@ mysqlbinlog事件采集系统
  
 ###启动|状态|停止|重启 服务指令
     php seals server:start
-    //可选项 --d以守护进程启动
+    //可选项 --d以守护进程启动 --n 4启动4个工作进程
     php seals server:status 
     //查看运行状态
     php seals server:stop
