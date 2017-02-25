@@ -1,16 +1,8 @@
 <?php namespace Seals\Console\Command;
 
-use Seals\Library\Context;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Wing\FileSystem\WDir;
-use Wing\FileSystem\WFile;
-use Wing\Library\Module;
-use Wing\Library\Modules;
-use Wing\Library\WArray;
 
 class ServerStart extends ServerBase{
     protected function configure()
