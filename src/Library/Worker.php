@@ -5,7 +5,7 @@ use Wing\FileSystem\WFile;
  * @author yuyi
  * @created 2016/9/23 8:27
  * @email 297341015@qq.com
- * @worker worker工作调度，只负责调度
+ * @property Notify $notify
  */
 
 class Worker implements Process{
@@ -16,6 +16,7 @@ class Worker implements Process{
     protected $debug            = false;
     protected $start_time       = 0;
     protected $workers          = 1;
+    protected $notify;
 
 
     //队列名称
@@ -51,6 +52,13 @@ class Worker implements Process{
     public function __destruct()
     {
         $this->clear();
+    }
+
+    /**
+     * @事件通知方式实现
+     */
+    public function setNotify( Notify $notify ){
+        $this->notify = $notify;
     }
 
 
@@ -471,11 +479,17 @@ class Worker implements Process{
                     $file = new FileFormat($cache_file,\Seals\Library\Context::instance()->activity_pdo);
 
                     $file->parse(function ($database_name, $table_name, $event) {
-                        Context::instance()->redis->rPush( "seals:event:list", json_encode([
+//                        Context::instance()->redis->rPush( "seals:event:list",
+//                            json_encode([
+//                            "database_name" => $database_name,
+//                            "table_name"    => $table_name,
+//                            "event_data"    => $event
+//                        ]) );
+                        $this->notify->send($database_name,$table_name,[
                             "database_name" => $database_name,
                             "table_name"    => $table_name,
                             "event_data"    => $event
-                        ]) );
+                        ]);
                     });
 
                     unset($file);

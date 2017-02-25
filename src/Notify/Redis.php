@@ -10,16 +10,15 @@ use Seals\Library\Queue;
  */
 class Redis implements Notify {
 
-    private $list_name;
+    private $queue;
     public function __construct( $list_name )
     {
-        $this->list_name = $list_name;
+        $this->queue = new Queue($list_name);
     }
 
     public function send($database_name, $table_name, array $event_data)
     {
-        $queue   = new Queue( $this->list_name );
-        $success = $queue->push([
+        $success = $this->queue->push([
             "database_name" => $database_name,
             "table_name"    => $table_name,
             "event_data"    => $event_data

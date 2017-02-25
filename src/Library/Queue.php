@@ -32,7 +32,7 @@ class Queue{
      * @return bool
      */
     public function push( $data ){
-        if(is_array($data))
+        if( is_array($data) )
             $data = json_encode($data);
         return Context::instance()->redis->rPush( $this->queue_name, $data );
     }
@@ -48,11 +48,16 @@ class Queue{
         if( $data === false )
             return null;
 
-        return $data;//json_decode($data, true);
+        $arr = @json_decode($data,true);
+        if( is_array($arr) ){
+            return $arr;
+        }
+
+        return $data;
     }
 
     /**
-     * @只返回队尾部元素 不弹出 不阻塞
+     * @只返回队首部元素 不弹出 不阻塞
      *
      * @return array
      */

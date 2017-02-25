@@ -6,7 +6,7 @@
  * Time: 14:12
  */
 return [
-               "db_name"  => "ylb_activity",
+               "db_name"  => "activity",
                "host"     => "127.0.0.1",
                "user"     => "root",
                "password" => "123456"
