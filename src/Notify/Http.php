@@ -12,7 +12,7 @@ class Http implements Notify {
     private $url;
     private $data;
 
-    public function __construct( $url , $data = null )
+    public function __construct( $url , $data = "" )
     {
         $this->url  = $url;
         $this->data = $data;
@@ -31,10 +31,17 @@ class Http implements Notify {
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
         }
+
+        $self_data = $this->data;
+        if( is_array($this->data) ) {
+            $self_data = json_encode( $this->data );
+        }
+
         curl_setopt($ch, CURLOPT_POSTFIELDS, [
             "database_name" => $database_name,
             "table_name"    => $table_name,
-            "event_data"    => json_encode( $event_data )
+            "event_data"    => json_encode( $event_data ),
+            "data"          => $self_data //自定义部分的数据
         ]);
 
         $output = curl_exec($ch);
