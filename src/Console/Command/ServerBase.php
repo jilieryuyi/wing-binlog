@@ -2,19 +2,32 @@
 
 use Seals\Library\Worker;
 use Symfony\Component\Console\Command\Command;
+use Wing\FileSystem\WDir;
 use Wing\FileSystem\WFile;
 
 class ServerBase extends Command{
 
-    protected function start( $deamon, $workers, $debug = false ){
+    protected function clear(){
+        $dir   = new WDir(__APP_DIR__."/cache");
+        $files = $dir->scandir();
+        array_map(function($file){
+            unlink($file);
+        },$files);
+
+        $dir   = new WDir(__APP_DIR__."/log");
+        $files = $dir->scandir();
+        array_map(function($file){
+            unlink($file);
+        },$files);
+    }
+    protected function start( $deamon, $workers, $debug = false, $clear = false ){
 
         $file = new WFile(__APP_DIR__."/seals.pid");
-        $file->write( ($deamon?1:0).":".$workers.":".($debug?1:0), false );
+        $file->write( ($deamon?1:0).":".$workers.":".($debug?1:0).":".($clear?1:0), false );
 
-        if( $debug )
-        {
-            $deamon = !$debug;
-        }
+
+        if( $clear )
+            $this->clear();
 
         $worker    = new Worker();
 
@@ -127,12 +140,13 @@ class ServerBase extends Command{
 
         $res = new WFile(__APP_DIR__."/seals.pid");
 
-        list( $deamon, $workers, $debug ) = explode(":",$res->read());
+        list( $deamon, $workers, $debug, $clear ) = explode(":",$res->read());
 
         $deamon = $deamon == 1;
         $debug  = $debug == 1;
+        $clear  = $clear == 1;
 
-        $this->start( $deamon, $workers, $debug );
+        $this->start( $deamon, $workers, $debug, $clear );
     }
 
     protected function status(){
