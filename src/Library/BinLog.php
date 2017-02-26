@@ -204,14 +204,14 @@ class BinLog{
      * @设置存储最后操作的binlog名称
      */
     private function setLastBinLog( $binlog ){
-        return Context::instance()->redis->set("mysql:last:binlog",$binlog);
+        return file_put_contents(dirname(dirname(__DIR__))."/mysql.last",$binlog);
     }
 
     /**
      * @获取最后操作的binlog文件名称
      */
     private function getLastBinLog(){
-        return Context::instance()->redis->get("mysql:last:binlog");//,$binlog);
+        return file_get_contents(dirname(dirname(__DIR__))."/mysql.last");
     }
 
     /**
@@ -232,7 +232,7 @@ class BinLog{
      * @return bool
      */
     private function setLastPosition( $start_pos, $end_pos ){
-        return Context::instance()->redis->set("mysql:binlog:lastpos:read", $start_pos.":".$end_pos );
+        return file_put_contents(dirname(dirname(__DIR__))."/mysql.pos",$start_pos.":".$end_pos);
     }
 
     /**
@@ -240,7 +240,8 @@ class BinLog{
      * @return array
      */
     private function getLastPosition(){
-        $res = explode(":", Context::instance()->redis->get("mysql:binlog:lastpos:read") );
+        $pos = file_get_contents(dirname(dirname(__DIR__))."/mysql.pos");
+        $res = explode(":",$pos);
         if( !is_array($res) || count($res) != 2 )
             return [0,0];
         return $res;

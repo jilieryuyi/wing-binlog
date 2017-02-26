@@ -13,3 +13,5 @@
 /log/*
 /*.pid
 /process_cache
+/mysql.last
+/mysql.pos
