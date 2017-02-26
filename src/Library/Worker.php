@@ -218,8 +218,9 @@ class Worker implements Process{
         $files = $this->cache_dir->scandir();
         $process_ids = [];
         foreach ( $files as $file ){
-            list( $name, $process_id) = explode("_",$file);
-            $name = pathinfo( $name,PATHINFO_FILENAME);
+            $name = pathinfo( $file,PATHINFO_FILENAME);
+            list( $name, $process_id) = explode("_",$name);
+
             if( $name == "running" )
                 $process_ids[] = $process_id;
 
@@ -250,18 +251,19 @@ class Worker implements Process{
         //$cache_file = $this->cache_dir->get()."/status_".$process_id;
 
         $files = $this->cache_dir->scandir();
-        //var_dump($files);
+       // var_dump($files);
 
         foreach ( $files as $file ){
-            list( $name, $process_id) = explode("_",$file);
-            $name = pathinfo( $name,PATHINFO_FILENAME);
+            $name = pathinfo( $file,PATHINFO_FILENAME);
+            list( $name, $process_id) = explode("_",$name);
+
             //echo $name,"-",$process_id,"\r\n";
             if( $name == "status" )
                 $arr[$process_id] = file_get_contents($file) ;
 
         }
 
-        //var_dump($arr);
+       // var_dump($arr);
 
         foreach ( $arr as $process_id => $josn ){
             $t = json_decode($josn,true);
