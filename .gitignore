@@ -12,3 +12,4 @@
 /log
 /log/*
 /*.pid
+/process_cache

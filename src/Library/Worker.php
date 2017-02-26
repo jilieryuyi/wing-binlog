@@ -38,7 +38,7 @@ class Worker implements Process{
         chdir( $this->work_dir );
 
         $this->log_dir    = $this->work_dir."/log";
-        $this->cache_dir  = new WDir($this->work_dir."/cache/process");
+        $this->cache_dir  = new WDir($this->work_dir."/process_cache");
 
         (new WDir($this->log_dir))->mkdir();
         $this->cache_dir->mkdir();
