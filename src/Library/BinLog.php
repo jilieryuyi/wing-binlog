@@ -271,8 +271,10 @@ class BinLog{
         $sql   = 'show binlog events in "' . $current_binlog . '" from ' . $last_end_pos.' limit '.$limit;
         $datas = $this->db_handler->query($sql);
 
+        echo "读取数据",count($datas),"条\r\n";
         if( $times > 10 )
         {
+            echo "递归超过10次返回全部\r\n";
             return $datas;
         }
 
@@ -293,9 +295,12 @@ class BinLog{
         //如果第一次limit没找到 limitx2倍继续找，
         //直到找了10次都没找到 直接返回全部，也就是说最多支持10万条查询
         if( !$has ) {
+            echo "没找到事务，继续递归",($times+1),"次\r\n";
             return $this->getEvents($current_binlog,$last_end_pos, 2*$limit, $times+1);
         }
 
+        echo "找到事务\r\n";
+        echo "实际返回条数",count($res),"\r\n";
         return $res;
     }
 

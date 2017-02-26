@@ -326,7 +326,7 @@ class Worker implements Process{
 
             $res[] = [
                 "process_id" => sprintf("%-8d",$status["process_id"]),
-                "start_time" => date("Y-m-d H:i:s", $status["start_time"]),
+                "start_time" => date("Y-m-d H:i:s", /*$status["start_time"]*/$this->start_time),
                 "run_time"   => $time_len,
                 "name"       => $status["name"]
             ];

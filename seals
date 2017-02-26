@@ -2,6 +2,7 @@
 <?php
 require __DIR__.'/vendor/autoload.php';
 define("__APP_DIR__",__DIR__);
+date_default_timezone_set("PRC");
 
 use Symfony\Component\Console\Application;
 
