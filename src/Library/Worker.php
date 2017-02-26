@@ -1,4 +1,5 @@
 <?php namespace Seals\Library;
+use Wing\FileSystem\WDir;
 use Wing\FileSystem\WFile;
 
 /**
@@ -6,6 +7,7 @@ use Wing\FileSystem\WFile;
  * @created 2016/9/23 8:27
  * @email 297341015@qq.com
  * @property Notify $notify
+ * @property WDir $cache_dir
  */
 
 class Worker implements Process{
@@ -17,6 +19,7 @@ class Worker implements Process{
     protected $start_time       = 0;
     protected $workers          = 1;
     protected $notify;
+    protected $cache_dir;
 
 
     //队列名称
@@ -31,6 +34,15 @@ class Worker implements Process{
 
         $this->start_time = time();
 
+        $this->work_dir   = dirname(dirname(__DIR__));
+        chdir( $this->work_dir );
+
+        $this->log_dir    = $this->work_dir."/log";
+        $this->cache_dir  = new WDir($this->work_dir."/cache/process");
+
+        (new WDir($this->log_dir))->mkdir();
+        $this->cache_dir->mkdir();
+
         $self = $this;
 
         register_shutdown_function(function() use($self){
@@ -43,7 +55,8 @@ class Worker implements Process{
         });
 
         $cpu              = new Cpu();
-        $this->workers    =  $cpu->cpu_num ;
+        $this->workers    = $cpu->cpu_num ;
+
 
         ini_set("memory_limit","10240M");
 
@@ -61,7 +74,6 @@ class Worker implements Process{
         $this->notify = $notify;
     }
 
-
     /**
      * @设置进程标题，仅linux
      */
@@ -71,7 +83,6 @@ class Worker implements Process{
         if( function_exists("cli_set_process_title") )
             cli_set_process_title($title);
     }
-
 
     //启用debug模式
     public function enabledDebug(){
@@ -84,7 +95,6 @@ class Worker implements Process{
         $this->debug = false;
         return $this;
     }
-
 
     /**
      * @设置工作目录
@@ -109,22 +119,31 @@ class Worker implements Process{
     private function clear(){
 
         $process_id = self::getCurrentProcessId();
+        unlink($this->cache_dir->get()."/running_".$process_id);
+        unlink($this->cache_dir->get()."/stop_".$process_id);
+        unlink($this->cache_dir->get()."/status_".$process_id);
 
-        $keys = [
-            self::QUEUE_NAME.":is:running",
-            self::QUEUE_NAME.":status",
-            self::QUEUE_NAME.":is:stop"
-        ];
+//        $files      = $this->cache_dir->scandir();
+//        foreach ( $files as $file )
+//        {
+//            unlink($file);
+//        }
 
-        foreach ( $keys as $key )
-        {
-            Context::instance()->redis->hDel( $key, $process_id );
-            $len = Context::instance()->redis->hLen( $key );
-            if( $len <= 0 )
-            {
-                Context::instance()->redis->del( $key );
-            }
-        }
+//        $keys = [
+//            self::QUEUE_NAME.":is:running",
+//            self::QUEUE_NAME.":status",
+//            self::QUEUE_NAME.":is:stop"
+//        ];
+//
+//        foreach ( $keys as $key )
+//        {
+//            Context::instance()->redis->hDel( $key, $process_id );
+//            $len = Context::instance()->redis->hLen( $key );
+//            if( $len <= 0 )
+//            {
+//                Context::instance()->redis->del( $key );
+//            }
+//        }
     }
 
     /**
@@ -145,7 +164,9 @@ class Worker implements Process{
      */
     public function setIsRunning(){
         $process_id = self::getCurrentProcessId();
-        Context::instance()->redis->hSet( self::QUEUE_NAME.":is:running",$process_id,1);
+        file_put_contents($this->cache_dir->get()."/running_".$process_id,1);
+
+        //Context::instance()->redis->hSet( self::QUEUE_NAME.":is:running",$process_id,1);
         return $this;
     }
 
@@ -156,9 +177,13 @@ class Worker implements Process{
      */
     public function getIsRunning(){
         $process_id = self::getCurrentProcessId();
-        return
-            Context::instance()->redis->hExists( self::QUEUE_NAME.":is:running", $process_id) &&
-            Context::instance()->redis->hGet( self::QUEUE_NAME.":is:running", $process_id ) == 1;
+        $cache_file = $this->cache_dir->get()."/running_".$process_id;
+
+        return file_exists($cache_file) && file_get_contents($cache_file) == 1;
+
+//        return
+//            Context::instance()->redis->hExists( self::QUEUE_NAME.":is:running", $process_id) &&
+//            Context::instance()->redis->hGet( self::QUEUE_NAME.":is:running", $process_id ) == 1;
     }
 
     /**
@@ -168,8 +193,14 @@ class Worker implements Process{
      */
     public function checkStopSignal(){
         $process_id = self::getCurrentProcessId();
-        $is_stop = Context::instance()->redis->hExists( self::QUEUE_NAME.":is:stop",$process_id) &&
-            Context::instance()->redis->hGet( self::QUEUE_NAME.":is:stop",$process_id) == 1;
+
+        $cache_file = $this->cache_dir->get()."/stop_".$process_id;
+
+        $is_stop    = file_exists( $cache_file ) && file_get_contents($cache_file) == 1;
+
+//        $is_stop = Context::instance()->redis->hExists( self::QUEUE_NAME.":is:stop",$process_id) &&
+//            Context::instance()->redis->hGet( self::QUEUE_NAME.":is:stop",$process_id) == 1;
+//
         if( $is_stop )
         {
             echo $process_id," get stop signal\r\n";
@@ -183,13 +214,28 @@ class Worker implements Process{
      * @return void
      */
     public function stop(){
-        $process_ids = Context::instance()->redis->hKeys( self::QUEUE_NAME.":is:running" );
+
+        $files = $this->cache_dir->scandir();
+        $process_ids = [];
+        foreach ( $files as $file ){
+            list( $name, $process_id) = explode("_",$file);
+            $name = pathinfo( $name,PATHINFO_FILENAME);
+            if( $name == "running" )
+                $process_ids[] = $process_id;
+
+        }
+
+//        $process_ids = Context::instance()->redis->hKeys( self::QUEUE_NAME.":is:running" );
         if( !$process_ids )
             return;
         foreach ( $process_ids as $process_id )
         {
-            Context::instance()->redis->hSet( self::QUEUE_NAME.":is:stop",$process_id,1);
+            $cache_file = $this->cache_dir->get()."/stop_".$process_id;
+            file_put_contents($cache_file,1);
+           // Context::instance()->redis->hSet( self::QUEUE_NAME.":is:stop",$process_id,1);
         }
+
+
     }
 
     /**
@@ -199,13 +245,30 @@ class Worker implements Process{
      */
     public function getStatus(){
 
-        $arr  = Context::instance()->redis->hGetAll( self::QUEUE_NAME.":status" );
+        $arr  = [];//Context::instance()->redis->hGetAll( self::QUEUE_NAME.":status" );
         $_res = [];
+        //$cache_file = $this->cache_dir->get()."/status_".$process_id;
+
+        $files = $this->cache_dir->scandir();
+        //var_dump($files);
+
+        foreach ( $files as $file ){
+            list( $name, $process_id) = explode("_",$file);
+            $name = pathinfo( $name,PATHINFO_FILENAME);
+            //echo $name,"-",$process_id,"\r\n";
+            if( $name == "status" )
+                $arr[$process_id] = file_get_contents($file) ;
+
+        }
+
+        //var_dump($arr);
 
         foreach ( $arr as $process_id => $josn ){
             $t = json_decode($josn,true);
             if( (time()-$t["updated"]) >= 3 ) {
-                Context::instance()->redis->hDel( self::QUEUE_NAME.":status", $process_id );
+                unlink($this->cache_dir->get()."/status_".$process_id);
+
+               // Context::instance()->redis->hDel( self::QUEUE_NAME.":status", $process_id );
             }
             else {
                 $_res[] = $t;
@@ -290,15 +353,24 @@ class Worker implements Process{
      */
     public function setStatus( $name ){
         $process_id = self::getCurrentProcessId();
-        Context::instance()->redis->hSet(
-            self::QUEUE_NAME.":status",$process_id,
-            json_encode([
-                "process_id" => $process_id,
-                "start_time" => $this->start_time,
-                "name"       => $name,
-                "updated"    => time()
-            ])
-        );
+        $cache_file = $this->cache_dir->get()."/status_".$process_id;
+
+        file_put_contents($cache_file,json_encode([
+            "process_id" => $process_id,
+            "start_time" => $this->start_time,
+            "name"       => $name,
+            "updated"    => time()
+        ]));
+
+//        Context::instance()->redis->hSet(
+//            self::QUEUE_NAME.":status",$process_id,
+//            json_encode([
+//                "process_id" => $process_id,
+//                "start_time" => $this->start_time,
+//                "name"       => $name,
+//                "updated"    => time()
+//            ])
+//        );
     }
 
 
