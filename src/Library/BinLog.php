@@ -259,13 +259,43 @@ class BinLog{
 
 
     /**
-     * @获取binlog事件
+     * @获取binlog事件，请只在意第一第二个参数
+     * 最后两个参数是为了防止数据过大 引起php调用mysqlbinlog报内存错误
+     * 最后一个参数是递归计数器，防止进入死循环 最多递归10次
      *
      * @return array
      */
-    protected function getEvents($current_binlog,$last_end_pos){
-        $sql  = 'show binlog events in "' . $current_binlog . '" from ' . $last_end_pos;// .' limit 10';
-        return $this->db_handler->query($sql);
+    protected function getEvents($current_binlog,$last_end_pos, $limit = 10000, $times = 1){
+
+        $sql   = 'show binlog events in "' . $current_binlog . '" from ' . $last_end_pos.' limit '.$limit;
+        $datas = $this->db_handler->query($sql);
+
+        if( $times > 10 )
+        {
+            return $datas;
+        }
+
+        //防止一次性过大的数据 需要处理一下
+        $res = [];
+        $has = false;
+        //每次只返回一个事务
+        foreach ( $datas as $row ){
+            $res[] = $row;
+            if( $row["Event_type"] == "Xid" )
+            {
+                $has =  true;
+                break;
+            }
+        }
+        unset($datas,$sql);
+
+        //如果第一次limit没找到 limitx2倍继续找，
+        //直到找了10次都没找到 直接返回全部，也就是说最多支持10万条查询
+        if( !$has ) {
+            return $this->getEvents($current_binlog,$last_end_pos, 2*$limit, $times+1);
+        }
+
+        return $res;
     }
 
 
@@ -295,7 +325,12 @@ class BinLog{
 
         unset($current_binlog_file);
 
-        pclose(popen( $command ,"r"));
+//        $handler = popen( $command ,"r");
+//        if( $handler && is_resource($handler))
+//            pclose($handler);
+
+        system($command);
+
         unset($command);
         return $cache_file;
     }
