@@ -26,7 +26,7 @@ class EventPublish implements Event{
      * @return bool
      */
     public function trigger(){
-        $queue = new Queue( self::EVENT_LIST );
+        $queue = new Queue( self::EVENT_LIST, Context::instance()->redis );
         $success = $queue->push([
             "database_name" => $this->database_name,
             "table_name"    => $this->table_name,

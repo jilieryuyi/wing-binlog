@@ -25,11 +25,11 @@ class DispatchQueue implements Dispatch{
             return $target_worker;
         }
 
-        $target_len = Context::instance()->redis->lLen($target_worker);
+        $target_len = Context::instance()->redis_local->lLen($target_worker);
 
 
         for ($i = 2; $i <= $num; $i++) {
-            $len = Context::instance()->redis->lLen($queue_name . $i);
+            $len = Context::instance()->redis_local->lLen($queue_name . $i);
             if ($len < $target_len) {
                 $target_worker = $queue_name . $i;
                 $target_len    = $len;

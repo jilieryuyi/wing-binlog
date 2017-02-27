@@ -14,10 +14,12 @@
 class Queue{
 
     private $queue_name;
+    private $redis;
 
-    public function __construct( $queue_name )
+    public function __construct( $queue_name, RedisInterface $redis )
     {
         $this->queue_name = $queue_name;
+        $this->redis = $redis;
     }
 
     public function getQueueName(){
@@ -34,7 +36,7 @@ class Queue{
     public function push( $data ){
         if( is_array($data) )
             $data = json_encode($data);
-        return Context::instance()->redis->rPush( $this->queue_name, $data );
+        return $this->redis->rPush( $this->queue_name, $data );
     }
     /**
      * @弹出队列首部数据
@@ -43,7 +45,7 @@ class Queue{
      */
     public function pop(){
 
-        $data = Context::instance()->redis->lPop( $this->queue_name );
+        $data = $this->redis->lPop( $this->queue_name );
 
         if( $data === false )
             return null;
@@ -62,7 +64,7 @@ class Queue{
      * @return array
      */
     public function peek(){
-        $data =  Context::instance()->redis->lRange(  $this->queue_name, 0, 1 );
+        $data =  $this->redis->lRange(  $this->queue_name, 0, 1 );
         if( isset($data[0]) )
             return $data[0];
         return null;
@@ -74,7 +76,7 @@ class Queue{
      * @return int
      */
     public function length(){
-        return Context::instance()->redis->lLen( $this->queue_name );
+        return $this->redis->lLen( $this->queue_name );
     }
 
     /**
@@ -83,6 +85,6 @@ class Queue{
      * @return bool
      */
     public function clear(){
-        return !!Context::instance()->redis->del( $this->queue_name );
+        return !!$this->redis->del( $this->queue_name );
     }
 }

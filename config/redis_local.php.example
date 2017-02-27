@@ -4,7 +4,7 @@
  * User: yuyi
  * Date: 17/2/11
  * Time: 07:42
- * @事件队列redis
+ * @本地redis 用于缓存
  */
 return [
     "host"     => "127.0.0.1",

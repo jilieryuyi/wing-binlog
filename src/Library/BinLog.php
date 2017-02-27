@@ -33,7 +33,11 @@ class BinLog{
     private $cache_dir;
 
     private $callbacks = [];
-    private $debug = false;
+    private $debug     = false;
+    private $workers   = 1;
+
+    private $queue_name    = "seals:events:collector:ep";//$this->worker->getQueueName();
+
 
     public function __construct( DbInterface $db_handler,$mysqlbinlog = "mysqlbinlog")
     {
@@ -65,6 +69,10 @@ class BinLog{
     public function setDebug( $debug ){
         $this->debug = $debug;
     }
+
+    public function setWorkers($workers){
+        $this->workers = $workers;
+    }
     /**
      * @绑定回调函数，支持绑定多个回调函数
      *
@@ -72,13 +80,13 @@ class BinLog{
      * @param \Closure $callback 事件回调函数
      */
     public function setEventCallback( $event, $callback ){
-        if( isset($this->callbacks[$event]) ) {
-            $old = $this->callbacks[$event];
-            $this->callbacks[$event][] = $old;
-            $this->callbacks[$event][] = $callback;
-        }else{
+//        if( isset($this->callbacks[$event]) ) {
+//            $old = $this->callbacks[$event];
+//            $this->callbacks[$event][] = $old;
+//            $this->callbacks[$event][] = $callback;
+//        }else{
             $this->callbacks[$event] = $callback;
-        }
+       // }
     }
 
     /**
@@ -87,14 +95,14 @@ class BinLog{
      * @param string $event 事件名称
      */
     private function runEventCallback($event){
-        if( !is_array($this->callbacks[$event]) ){
+        //if( !is_array($this->callbacks[$event]) ){
             if( is_callable($this->callbacks[$event]) )
                 call_user_func($this->callbacks[$event]);
-        }else{
-            array_map(function($callback){
-                call_user_func($callback);
-            },$this->callbacks[$event]);
-        }
+//        }else{
+//            array_map(function($callback){
+//                call_user_func($callback);
+//            },$this->callbacks[$event]);
+//        }
     }
     /**
      * @设置mysqlbinlog命令路径
@@ -258,51 +266,149 @@ class BinLog{
     }
 
 
+    public function getWorker( )
+    {
+        $target_worker = $this->queue_name . "1";
+
+        //那个工作队列的待处理任务最少 就派发给那个队列
+        $num        = $this->workers;
+
+        if( $num <= 1 )
+        {
+            return $target_worker;
+        }
+
+        $target_len = Context::instance()->redis_local->lLen($target_worker);
+
+
+        for ($i = 2; $i <= $num; $i++) {
+            $len = Context::instance()->redis_local->lLen($this->queue_name . $i);
+            if ($len < $target_len) {
+                $target_worker = $this->queue_name . $i;
+                $target_len    = $len;
+            }
+        }
+        return $target_worker;
+    }
 
     /**
      * @获取binlog事件，请只在意第一第二个参数
      * 最后两个参数是为了防止数据过大 引起php调用mysqlbinlog报内存错误
      * 最后一个参数是递归计数器，防止进入死循环 最多递归10次
      *
+     * 1、得到数据
+     * 2、设置last_pos
+     * 3、push队列
+     * 4、递归
+     *
      * @return array
      */
-    protected function getEvents($current_binlog,$last_end_pos, $limit = 10000, $times = 1){
-
+    protected function getEvents($current_binlog,$last_end_pos, $limit = 10000){
         $sql   = 'show binlog events in "' . $current_binlog . '" from ' . $last_end_pos.' limit '.$limit;
         $datas = $this->db_handler->query($sql);
-
-        echo "读取数据",count($datas),"条\r\n";
-        if( $times > 10 )
-        {
-            echo "递归超过10次返回全部\r\n";
-            return $datas;
-        }
-
-        //防止一次性过大的数据 需要处理一下
-        $res = [];
-        $has = false;
-        //每次只返回一个事务
-        foreach ( $datas as $row ){
-            $res[] = $row;
-            if( $row["Event_type"] == "Xid" )
-            {
-                $has =  true;
-                break;
-            }
-        }
-        unset($datas,$sql);
-
-        //如果第一次limit没找到 limitx2倍继续找，
-        //直到找了10次都没找到 直接返回全部，也就是说最多支持10万条查询
-        if( !$has ) {
-            echo "没找到事务，继续递归",($times+1),"次\r\n";
-            return $this->getEvents($current_binlog,$last_end_pos, 2*$limit, $times+1);
-        }
-
-        echo "找到事务\r\n";
-        echo "实际返回条数",count($res),"\r\n";
-        return $res;
+        return $datas;
     }
+
+
+    //事件进程 只负责获取last_pos 然后push
+    public function eventsProcess(){
+        $limit = 10000;
+        while( 1 )
+        {
+            clearstatcache();
+            ob_start();
+
+            try {
+                //$mem_start = memory_get_usage();
+
+                do {
+                    $this->runEventCallback(self::EVENT_TICK_START);
+
+                    //最后操作的binlog文件
+                    $last_binlog         = $this->getLastBinLog();
+                    //当前使用的binlog 文件
+                    $current_binlog      = $this->getCurrentLogInfo()["File"];
+
+                    //获取最后读取的位置
+                    list($last_start_pos, $last_end_pos) = $this->getLastPosition();
+
+                    //binlog切换时，比如 .00001 切换为 .00002，重启mysql时会切换
+                    //重置读取起始的位置
+                    if ($last_binlog != $current_binlog) {
+                        $this->setLastBinLog($current_binlog);
+                        $last_start_pos = $last_end_pos = 0;
+                        $this->setLastPosition($last_start_pos, $last_end_pos);
+                    }
+
+                    unset($last_binlog);
+
+                    //得到所有的binlog事件 记住这里不允许加limit 有坑
+                    $data = $this->getEvents($current_binlog,$last_end_pos,$limit);
+                    if (!$data) {
+                        unset($current_binlog,$last_start_pos,$last_start_pos);
+                        break;
+                    }
+                    unset($current_binlog,$last_start_pos,$last_start_pos);
+
+                    $start_pos   = $data[0]["Pos"];
+                    $has_session = false;
+
+                    foreach ( $data as $row ){
+                        if( $row["Event_type"] == "Xid" ) {
+                            $worker     = $this->getWorker();
+                            $queue      = new Queue( $worker, Context::instance()->redis_local );
+
+                            echo "push==>",$start_pos.":".$row["End_log_pos"],"\r\n";
+
+                            $queue->push($start_pos.":".$row["End_log_pos"]);
+
+                            unset($queue,$worker);
+                            //设置最后读取的位置
+                            $this->setLastPosition($start_pos, $row["End_log_pos"] );
+
+                            $has_session = true;
+                            $start_pos = $row["End_log_pos"];
+                        }
+                    }
+
+                    //如果没有查找到一个事务 $limit x 2 直到超过 100000 行
+                    if( !$has_session ){
+                        $limit = 2*$limit;
+                        if( $limit > 100000 )
+                            $limit = 10000;
+                    }else{
+                        $limit = 10000;
+                    }
+
+                } while (0);
+
+
+                $this->runEventCallback(self::EVENT_TICK_END);
+
+                //$mem_end = memory_get_usage();
+
+            }catch(\Exception $e){
+                var_dump($e->getMessage());
+                unset($e);
+            }
+            $output = null;
+
+            if( $this->debug )
+                $output = ob_get_contents();
+            ob_end_clean();
+
+            if ($output && $this->debug) {
+                echo $output;
+                unset($output);
+            }
+            usleep(10000);
+
+
+            // echo "增加了=>",($mem_end - $mem_start),"\r\n";
+
+        }
+    }
+
 
 
     /**
@@ -346,7 +452,8 @@ class BinLog{
      *
      * @return void
      */
-    public function dispatch( $callback ){
+    public function dispatchProcess( $i, $callback ){
+        $queue = new Queue( $this->queue_name.$i, Context::instance()->redis_local);
         while( 1 )
         {
             clearstatcache();
@@ -358,47 +465,11 @@ class BinLog{
                 do {
                     $this->runEventCallback(self::EVENT_TICK_START);
 
-                    //最后操作的binlog文件
-                    $last_binlog         = $this->getLastBinLog();
-                    //当前使用的binlog 文件
-                    $current_binlog      = $this->getCurrentLogInfo()["File"];
-
-                    //获取最后读取的位置
-                    list($last_start_pos, $last_end_pos) = $this->getLastPosition();
-
-                    //binlog切换时，比如 .00001 切换为 .00002，重启mysql时会切换
-                    //重置读取起始的位置
-                    if ($last_binlog != $current_binlog) {
-                        $this->setLastBinLog($current_binlog);
-                        $last_start_pos = $last_end_pos = 0;
-                        $this->setLastPosition($last_start_pos, $last_end_pos);
-                    }
-
-                    unset($last_binlog);
-
-                    //得到所有的binlog事件 记住这里不允许加limit 有坑
-                    $data = $this->getEvents($current_binlog,$last_end_pos);
-                    if (!$data) {
-                        unset($current_binlog,$last_start_pos,$last_start_pos);
+                    $res = $queue->pop();
+                    if( !$res )
                         break;
-                    }
-                    unset($current_binlog,$last_start_pos,$last_start_pos);
 
-                    //第一行最后一行 完整的事务
-                    $last_row  = $data[count($data) - 1];
-                    $first_row = $data[0];
-
-                    unset($data);
-
-                    //设置最后读取的位置
-                    $this->setLastPosition($first_row["Pos"], $last_row["End_log_pos"]);
-
-
-                    $start_pos  = $first_row["Pos"];
-                    $end_pos    = $last_row["End_log_pos"];
-
-                    unset($first_row,$last_row);
-
+                    list( $start_pos, $end_pos ) = explode(":",$res);
 
                     $cache_path = $this->getSessions( $start_pos, $end_pos );
                     unset($end_pos,$start_pos);
@@ -416,7 +487,7 @@ class BinLog{
                 //$mem_end = memory_get_usage();
 
             }catch(\Exception $e){
-                var_dump($e);
+                var_dump($e->getMessage());
                 unset($e);
             }
             $output = null;

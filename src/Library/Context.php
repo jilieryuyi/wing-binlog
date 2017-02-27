@@ -6,10 +6,12 @@
  * Time: 18:26
  * @property PDO $activity_pdo
  * @property \Redis $redis
+ * @property \Redis $redis_local
  */
 class Context{
 
     public $redis;
+    public $redis_local;
     public $activity_pdo;
 
     private static $instance = null;
@@ -30,6 +32,14 @@ class Context{
         $redis_config = require __DIR__."/../../config/redis.php";
 
         $this->redis  = new Redis(
+            $redis_config["host"],
+            $redis_config["port"],
+            $redis_config["password"]
+        );
+
+        $redis_config = require __DIR__."/../../config/redis_local.php";
+
+        $this->redis_local  = new Redis(
             $redis_config["host"],
             $redis_config["port"],
             $redis_config["password"]

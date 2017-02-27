@@ -1,4 +1,5 @@
 <?php namespace Seals\Notify;
+use Seals\Library\Context;
 use Seals\Library\Notify;
 use Seals\Library\Queue;
 
@@ -13,7 +14,7 @@ class Redis implements Notify {
     private $queue;
     public function __construct( $list_name )
     {
-        $this->queue = new Queue($list_name);
+        $this->queue = new Queue( $list_name, Context::instance()->redis );
     }
 
     public function send($database_name, $table_name, array $event_data)
