@@ -319,8 +319,6 @@ class Worker implements Process{
 
     }
 
-
-
     /**
      * @重置标准错误和标准输出，linux支持
      *
@@ -367,13 +365,13 @@ class Worker implements Process{
     public function setWorkersNum($workers){
         $this->workers = $workers;
     }
+
     /**
      * @是否还在运行
      */
     public function isRunning(){
         return $this->getIsRunning();
     }
-
 
     /**
      * @获取当前进程id
@@ -417,10 +415,8 @@ class Worker implements Process{
     }
 
 
-    /**
-     * @启动进程 入口函数
-     */
-    public function dispatch( $i  ){
+    //调度进程
+    protected function dispatchProcess( $i  ){
         echo "start...\r\n";
         $self         = $this;
         $process_name = "php seals >> events collector - dispatch";
@@ -440,25 +436,80 @@ class Worker implements Process{
         $bin->setDebug( $this->debug );
 
         //绑定开始执行和结束执行一个事件周期的回调函数
-        $bin->setEventCallback( BinLog::EVENT_TICK_START, function() use( $self, $process_name ){
-            $self->setStatus( $process_name );
-            $self->setIsRunning();
-        });
-        $bin->setEventCallback( BinLog::EVENT_TICK_END, function() use( $self ){
-            $self->checkStopSignal();
-        });
+//        $bin->setEventCallback( BinLog::EVENT_TICK_START, function() use( $self, $process_name ){
+//            $self->setStatus( $process_name );
+//            $self->setIsRunning();
+//        });
+//        $bin->setEventCallback( BinLog::EVENT_TICK_END, function() use( $self ){
+//            $self->checkStopSignal();
+//        });
 
         $dispatcher = new DispatchQueue( $this );
 
         //阻塞执行
-        $bin->dispatchProcess($i,function($file) use($dispatcher){
-            $target_worker = $dispatcher->get();
-            Context::instance()->redis_local->rPush( $target_worker, $file );
-            unset($target_worker,$file);
-        });
-    }
+//        $bin->dispatchProcess($i,function($file) use($dispatcher){
+//            $target_worker = $dispatcher->get();
+//            Context::instance()->redis_local->rPush( $target_worker, $file );
+//            unset($target_worker,$file);
+//        });
+        $queue_name = $bin->getQueueName();
+        $queue = new Queue( $queue_name.$i, Context::instance()->redis_local);
+        while( 1 )
+        {
+            clearstatcache();
+            ob_start();
 
-    protected function bworker($i){
+            try {
+                //$mem_start = memory_get_usage();
+
+                do {
+                    //$this->runEventCallback(self::EVENT_TICK_START);
+                    $self->setStatus( $process_name );
+                    $self->setIsRunning();
+                    $res = $queue->pop();
+                    if( !$res )
+                        break;
+
+                    list( $start_pos, $end_pos ) = explode(":",$res);
+
+                    $cache_path = $bin->getSessions( $start_pos, $end_pos );
+                    unset($end_pos,$start_pos);
+
+                    //进程调度 看看该把cache_file扔给那个进程处理
+                    //$callback($cache_path);
+                    $target_worker = $dispatcher->get();
+                    Context::instance()->redis_local->rPush( $target_worker, $cache_path );
+                    unset($target_worker,$cache_path);
+
+                    unset($cache_path);
+
+                } while (0);
+
+
+                //$this->runEventCallback(self::EVENT_TICK_END);
+                $self->checkStopSignal();
+                //$mem_end = memory_get_usage();
+
+            }catch(\Exception $e){
+                var_dump($e->getMessage());
+                unset($e);
+            }
+            $output = null;
+
+            if( $this->debug )
+                $output = ob_get_contents();
+            ob_end_clean();
+
+            if ($output && $this->debug) {
+                echo $output;
+                unset($output);
+            }
+            usleep(10000);
+        }
+
+    }
+    //解析进程
+    protected function parseProcess($i){
 
 
         $process_name = "php seals >> events collector - workers ".$i;
@@ -533,8 +584,8 @@ class Worker implements Process{
             }
         }
     }
-
-    public function eventProcess(  ){
+    //事件分配进程
+    protected function eventProcess(){
         echo "start...\r\n";
         $self         = $this;
         $process_name = "php seals >> events collector - ep";
@@ -550,27 +601,101 @@ class Worker implements Process{
             \Seals\Library\Context::instance()->activity_pdo
         );
         $bin->setWorkers( $this->workers );
-
         $bin->setDebug( $this->debug );
 
-        //绑定开始执行和结束执行一个事件周期的回调函数
-        $bin->setEventCallback( BinLog::EVENT_TICK_START, function() use( $self, $process_name ){
-            $self->setStatus( $process_name );
-            $self->setIsRunning();
-        });
-        $bin->setEventCallback( BinLog::EVENT_TICK_END, function() use( $self ){
-            $self->checkStopSignal();
-        });
+        $limit = 10000;
+        while( 1 )
+        {
+            clearstatcache();
+            ob_start();
 
-        //阻塞执行
-        $bin->eventsProcess();
+            try {
+                do {
+                    $self->setStatus( $process_name );
+                    $self->setIsRunning();
+
+                    //最后操作的binlog文件
+                    $last_binlog         = $bin->getLastBinLog();
+                    //当前使用的binlog 文件
+                    $current_binlog      = $bin->getCurrentLogInfo()["File"];
+
+                    //获取最后读取的位置
+                    list($last_start_pos, $last_end_pos) = $bin->getLastPosition();
+
+                    //binlog切换时，比如 .00001 切换为 .00002，重启mysql时会切换
+                    //重置读取起始的位置
+                    if ($last_binlog != $current_binlog) {
+                        $bin->setLastBinLog($current_binlog);
+                        $last_start_pos = $last_end_pos = 0;
+                        $bin->setLastPosition($last_start_pos, $last_end_pos);
+                    }
+
+                    unset($last_binlog);
+
+                    //得到所有的binlog事件 记住这里不允许加limit 有坑
+                    $data = $bin->getEvents($current_binlog,$last_end_pos,$limit);
+                    if (!$data) {
+                        unset($current_binlog,$last_start_pos,$last_start_pos);
+                        break;
+                    }
+                    unset($current_binlog,$last_start_pos,$last_start_pos);
+
+                    $start_pos   = $data[0]["Pos"];
+                    $has_session = false;
+
+                    foreach ( $data as $row ){
+                        if( $row["Event_type"] == "Xid" ) {
+                            $worker     = $bin->getWorker();
+                            $queue      = new Queue( $worker, Context::instance()->redis_local );
+
+                            echo "push==>",$start_pos.":".$row["End_log_pos"],"\r\n";
+
+                            $queue->push($start_pos.":".$row["End_log_pos"]);
+
+                            unset($queue,$worker);
+                            //设置最后读取的位置
+                            $bin->setLastPosition($start_pos, $row["End_log_pos"] );
+
+                            $has_session = true;
+                            $start_pos = $row["End_log_pos"];
+                        }
+                    }
+
+                    //如果没有查找到一个事务 $limit x 2 直到超过 100000 行
+                    if( !$has_session ){
+                        $limit = 2*$limit;
+                        if( $limit > 100000 )
+                            $limit = 10000;
+                    }else{
+                        $limit = 10000;
+                    }
+
+                } while (0);
+                $self->checkStopSignal();
+            }catch(\Exception $e){
+                var_dump($e->getMessage());
+                unset($e);
+            }
+            $output = null;
+
+            if( $this->debug )
+                $output = ob_get_contents();
+            ob_end_clean();
+
+            if ($output && $this->debug) {
+                echo $output;
+                unset($output);
+            }
+            usleep(10000);
+        }
     }
 
-
+    /**
+     * @启动进程 入口函数
+     */
     public function start( $deamon = false){
-        echo "start...\r\n";
 
-        echo "\r\n";
+        echo "帮助：\r\n";
         echo "启动服务：php seals server:start\r\n";
         echo "指定进程数量：php seals server:start --n 4\r\n";
         echo "4个进程以守护进程方式启动服务：php seals server:start --n 4 --d\r\n";
@@ -595,7 +720,7 @@ class Worker implements Process{
                 }
                 echo "process ",$i," is running \r\n";
                 ini_set("memory_limit","10240M");
-                $this->bworker($i);
+                $this->parseProcess($i);
             }
         }
         for ($i = 1; $i <= $this->workers; $i++) {
@@ -607,7 +732,7 @@ class Worker implements Process{
                 }
                 echo "process queue dispatch ".$i." is running \r\n";
                 ini_set("memory_limit", "10240M");
-                $this->dispatch( $i );
+                $this->dispatchProcess( $i );
             }
         }
 
@@ -617,7 +742,6 @@ class Worker implements Process{
         echo "process queue dispatch is running \r\n";
         ini_set("memory_limit", "10240M");
         $this->eventProcess( );
-
 
     }
 
