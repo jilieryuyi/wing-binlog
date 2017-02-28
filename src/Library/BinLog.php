@@ -46,14 +46,18 @@ class BinLog{
             echo "仅支持row格式\r\n";
             exit;
         }
-        //防止在导入、删除大量数据时候发生内存错误 这里调整内存限制为10G
-        $dir = new WDir(dirname(dirname(__DIR__))."/cache");
+    }
+
+    public function setCacheDir($dir){
+        $dir = str_replace("\\","/",$dir);
+        $dir = rtrim($dir,"/");
+        $this->cache_dir = $dir;
+        $dir = new WDir($this->cache_dir);
         $dir->mkdir();
-
+        if( !$dir->isWrite() ) {
+            die( $this->cache_dir ." is not writeable \r\n" );
+        }
         unset($dir);
-
-        $this->cache_dir = dirname(dirname(__DIR__))."/cache";
-
     }
 
     public function setDebug( $debug ){

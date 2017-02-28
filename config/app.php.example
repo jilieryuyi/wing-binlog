@@ -6,6 +6,7 @@
  * Time: 21:22
  *
  * __APP_DIR__ 为当前wing-binlog系统根目录路径
+ * 警告：log_dir、binlog_cache_dir、process_cache_dir请不要设置为相同的目录
  *
  */
 return [
@@ -17,7 +18,14 @@ return [
     //最大内存限制
 
     "log_dir" => __APP_DIR__."/logs",
-    //日志目录 默认为当前路径下的logs文件夹
+    //日志目录 默认为当前路径下的logs文件夹 log_dir目录下的文件，
+    //在指定--clear参数后 在重启或者停止进程后将全部被删除
+    //在设定目录和使用--clear参数时请注意
+
+    "binlog_cache_dir" => __APP_DIR__."/cache",
+    //binlog采集中金生成的临时文件目录 binlog_cache_dir目录下的文件，
+    //在指定--clear参数后 在重启或者停止进程后将全部被删除
+    //在设定目录和使用--clear参数时请注意
 
     "process_cache_dir" => __APP_DIR__."/process_cache"
     //生成的一些进程控制的缓存文件目录

@@ -21,6 +21,7 @@ class Worker implements Process{
     protected $cache_dir;
     protected $app_id           = "wing-binlog";
     protected $memory_limit     = "10240M";
+    protected $binlog_cache_dir;
 
 
     //队列名称
@@ -33,14 +34,16 @@ class Worker implements Process{
         $app_id = "",
         $memory_limit = "10240M",
         $log_dir = __APP_DIR__."/logs",
-        $process_cache_dir = __APP_DIR__."/process_cache"
+        $process_cache_dir = __APP_DIR__."/process_cache",
+        $binlog_cache_dir = __APP_DIR__."/cache"
     )
     {
         gc_enable();
 
-        $this->start_time   = time();
-        $this->app_id       = $app_id;
-        $this->memory_limit = $memory_limit;
+        $this->start_time       = time();
+        $this->app_id           = $app_id;
+        $this->memory_limit     = $memory_limit;
+        $this->binlog_cache_dir = $binlog_cache_dir;
 
         $this->setWorkDir(dirname(dirname(__DIR__)));
         $this->setLogDir( $log_dir );
@@ -101,6 +104,8 @@ class Worker implements Process{
      * @设置工作目录
      */
     public function setWorkDir($dir){
+        $dir = str_replace("\\","/",$dir);
+        $dir = rtrim($dir,"/");
         $this->work_dir = $dir;
         $dir = new WDir($this->work_dir);
         $dir->mkdir();
@@ -110,6 +115,8 @@ class Worker implements Process{
     }
 
     public function setProcessCacheDir($dir){
+        $dir = str_replace("\\","/",$dir);
+        $dir = rtrim($dir,"/");
         $this->cache_dir = $dir;
         $dir = new WDir($this->cache_dir);
         $dir->mkdir();
@@ -126,6 +133,8 @@ class Worker implements Process{
      * @设置日志目录
      */
     public function setLogDir($dir){
+        $dir = str_replace("\\","/",$dir);
+        $dir = rtrim($dir,"/");
         $this->log_dir = $dir;
         $dir = new WDir($this->log_dir);
         $dir->mkdir();
@@ -462,7 +471,7 @@ class Worker implements Process{
             \Seals\Library\Context::instance()->activity_pdo
         );
         $bin->setWorkers( $this->workers );
-
+        $bin->setCacheDir( $this->binlog_cache_dir );
         $bin->setDebug( $this->debug );
 
         $dispatcher = new DispatchQueue( $this );
@@ -608,6 +617,7 @@ class Worker implements Process{
             \Seals\Library\Context::instance()->activity_pdo
         );
         $bin->setWorkers( $this->workers );
+        $bin->setCacheDir( $this->binlog_cache_dir );
         $bin->setDebug( $this->debug );
 
         $limit = 10000;

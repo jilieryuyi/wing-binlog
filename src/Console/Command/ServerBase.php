@@ -7,14 +7,14 @@ use Wing\FileSystem\WFile;
 
 class ServerBase extends Command{
 
-    protected function clear(){
-        $dir   = new WDir(__APP_DIR__."/cache");
+    protected function clear( $log_dir, $binlog_cache_dir ){
+        $dir   = new WDir($binlog_cache_dir);
         $files = $dir->scandir();
         array_map(function($file){
             unlink($file);
         },$files);
 
-        $dir   = new WDir(__APP_DIR__."/log");
+        $dir   = new WDir($log_dir);
         $files = $dir->scandir();
         array_map(function($file){
             unlink($file);
@@ -25,16 +25,18 @@ class ServerBase extends Command{
         $file = new WFile(__APP_DIR__."/seals.pid");
         $file->write( ($deamon?1:0).":".$workers.":".($debug?1:0).":".($clear?1:0), false );
 
+        $app_config = include __APP_DIR__."/config/app.php";
+
 
         if( $clear )
-            $this->clear();
+            $this->clear($app_config["log_dir"],$app_config["binlog_cache_dir"]);
 
-        $app_config = include __APP_DIR__."/config/app.php";
 
         $worker    = new Worker(
             $app_config["app_id"],
             $app_config["memory_limit"],
-            $app_config["log_dir"]
+            $app_config["log_dir"],
+            $app_config["binlog_cache_dir"]
         );
 
         if( $workers > 0 )
