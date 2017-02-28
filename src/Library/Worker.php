@@ -29,7 +29,12 @@ class Worker implements Process{
     /**
      * @构造函数
      */
-    public function __construct( $app_id = "", $memory_limit = "10240M" )
+    public function __construct(
+        $app_id = "",
+        $memory_limit = "10240M",
+        $log_dir = __APP_DIR__."/logs",
+        $process_cache_dir = __APP_DIR__."/process_cache"
+    )
     {
         gc_enable();
 
@@ -38,16 +43,16 @@ class Worker implements Process{
         $this->memory_limit = $memory_limit;
 
         $this->setWorkDir(dirname(dirname(__DIR__)));
-        $this->setLogDir($this->work_dir."/log");
-        $this->setProcessCacheDir($this->work_dir."/process_cache");
+        $this->setLogDir( $log_dir );
+        $this->setProcessCacheDir( $process_cache_dir );
 
         register_shutdown_function(function(){
-            file_put_contents(__APP_DIR__."/log/shutdown_".date("Ymd")."_".self::getCurrentProcessId().".log",date("Y-m-d H:i:s")."\r\n".json_encode(error_get_last(),JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND);
+            file_put_contents( $this->log_dir."/shutdown_".date("Ymd")."_".self::getCurrentProcessId().".log",date("Y-m-d H:i:s")."\r\n".json_encode(error_get_last(),JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND);
             $this->clear();
         });
 
         set_error_handler(function($errno, $errstr, $errfile, $errline){
-            file_put_contents(__APP_DIR__."/log/error_".date("Ymd")."_".self::getCurrentProcessId().".log",date("Y-m-d H:i:s")."\r\n".json_encode(func_get_args(),JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND);
+            file_put_contents( $this->log_dir."/error_".date("Ymd")."_".self::getCurrentProcessId().".log",date("Y-m-d H:i:s")."\r\n".json_encode(func_get_args(),JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND);
         });
 
         $cpu = new Cpu();
@@ -108,6 +113,12 @@ class Worker implements Process{
         $this->cache_dir = $dir;
         $dir = new WDir($this->cache_dir);
         $dir->mkdir();
+
+        if( $dir->isWrite() )
+        {
+            die( $this->cache_dir." is writeable \r\n");
+        }
+
         unset($dir);
     }
 
@@ -118,6 +129,9 @@ class Worker implements Process{
         $this->log_dir = $dir;
         $dir = new WDir($this->log_dir);
         $dir->mkdir();
+        if( !$dir->isWrite() ) {
+            die( $this->log_dir ." is not writeable \r\n" );
+        }
         unset($dir);
     }
 

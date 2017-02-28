@@ -4,6 +4,9 @@
  * User: yuyi
  * Date: 17/2/28
  * Time: 21:22
+ *
+ * __APP_DIR__ 为当前系统根目录路径
+ *
  */
 return [
     "app_id" => "wing-binlog",
@@ -12,4 +15,11 @@ return [
 
     "memory_limit" => "10240M",
     //最大内存限制
+
+    "log_dir" => __APP_DIR__."/logs",
+    //日志目录 默认为当前路径下的logs文件夹
+
+    "process_cache_dir" => __APP_DIR__."/process_cache"
+    //生成的一些进程控制的缓存文件目录
+
 ];

@@ -33,11 +33,9 @@ class ServerBase extends Command{
 
         $worker    = new Worker(
             $app_config["app_id"],
-            $app_config["memory_limit"]
+            $app_config["memory_limit"],
+            $app_config["log_dir"]
         );
-
-        $worker->setWorkDir(__APP_DIR__);
-        $worker->setLogDir(__APP_DIR__."/log");
 
         if( $workers > 0 )
             $worker->setWorkersNum($workers);
