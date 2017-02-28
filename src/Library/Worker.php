@@ -258,61 +258,19 @@ class Worker implements Process{
 
         $res = [];
         foreach ($_res as $status) {
-            $time_len = (time() - $status["start_time"]);
-            if ($time_len < 60)
-                $time_len = $time_len . "秒";
-            else if ($time_len < 3600 && $time_len >= 60) {
-                $m = intval($time_len / 60);
-                $s = $time_len - $m * 60;
-                $time_len = $m . "分钟" . $s . "秒";
-            } else if ($time_len < (24 * 3600) && $time_len >= 3600) {
-                $h = intval($time_len / 3600);
-                $s = $time_len - $h * 3600;
-                if ($s >= 60) {
-                    $m = intval($s / 60);
 
-                } else {
-                    $m = 0;
-                }
-                $s = $s-$m * 60;
-                $time_len = $h . "小时" . $m . "分钟" . $s . "秒";
-            } else {
-                $d = intval($time_len / (24 * 3600));
-                $s = $time_len - $d * (24 * 3600);
+            $time_len = timelen_format(time() - $status["start_time"]);
+            $n        = preg_replace("/\D/","",$status["name"]);
+            $wlen     = 0;
 
-                $h = 0;
-                $m = 0;
-
-                if ($s < 60) {
-
-                } else if ($s >= 60 && $s < 3600) {
-                    $m = intval($s / 60);
-                    $s = $s - $m * 60;
-                } else {
-                    $h = intval($s / 3600);
-                    $s = $s - $h * 3600;
-                    $m = 0;
-                    if ($s >= 60) {
-                        $m = intval($s / 60);
-                        $s = $s - $m * 60;
-                    }
-                }
-            }
-
-            $n = preg_replace("/\D/","",$status["name"]);
-            $wlen = 0;
-            if( strpos($status["name"],"dispatch") !== false )
-            {
-                //echo self::QUEUE_NAME .":ep". $n,"\r\n";
+            if( strpos($status["name"],"dispatch") !== false ) {
                 $queue = new Queue(self::QUEUE_NAME .":ep". $n, Context::instance()->redis_local);
-                $wlen = $queue->length();
+                $wlen  = $queue->length();
             }
             else {
-                //echo self::QUEUE_NAME . $n,"\r\n";
                 $queue = new Queue(self::QUEUE_NAME . $n, Context::instance()->redis_local);
-                $wlen = $queue->length();
+                $wlen  = $queue->length();
             }
-
 
             $res[] = [
                 "process_id" => sprintf("%-8d",$status["process_id"]),
@@ -322,21 +280,20 @@ class Worker implements Process{
                 "work_len"   => $wlen
             ];
 
-
             if(!is_numeric($n))
                 $n = 0;
-            if( strpos($status["name"],"dispatch") !== false )
-            {
+
+            if( strpos($status["name"],"dispatch") !== false ) {
                 $names[] = $n+1;
             }
-            elseif( strpos($status["name"],"workers") !== false )
-            {
+            elseif( strpos($status["name"],"workers") !== false ) {
                 $names[] = $n+100;
             }
             else{
                 $names[] = 0;
             }
         }
+
         array_multisort( $names, SORT_ASC, $res );
 
         $str = "进程id    开始时间            待处理任务  运行时长\r\n";
