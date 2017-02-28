@@ -49,7 +49,7 @@ mysqlbinlog事件采集系统
  如果是delete_rows或者write_rows，data部分则仅包含变化的数据，time为事件发生的具体时间
  
  
-###启动|状态|停止|重启 服务指令
+###启动|状态|停止|重启 服务指令--请使用root执行
     php seals server:start
     //可选项 --d以守护进程启动 --n 4启动4个工作进程 --debug启用debug模式 --clear自动清理日志和缓存
     php seals server:status 
