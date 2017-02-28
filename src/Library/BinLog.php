@@ -47,7 +47,6 @@ class BinLog{
             exit;
         }
         //防止在导入、删除大量数据时候发生内存错误 这里调整内存限制为10G
-        ini_set("memory_limit","10240M");
         $dir = new WDir(dirname(dirname(__DIR__))."/cache");
         $dir->mkdir();
 

@@ -19,6 +19,8 @@ class Worker implements Process{
     protected $workers          = 1;
     protected $notify;
     protected $cache_dir;
+    protected $app_id           = "wing-binlog";
+    protected $memory_limit     = "10240M";
 
 
     //队列名称
@@ -27,11 +29,13 @@ class Worker implements Process{
     /**
      * @构造函数
      */
-    public function __construct()
+    public function __construct( $app_id = "", $memory_limit = "10240M" )
     {
         gc_enable();
 
-        $this->start_time = time();
+        $this->start_time   = time();
+        $this->app_id       = $app_id;
+        $this->memory_limit = $memory_limit;
 
         $this->setWorkDir(dirname(dirname(__DIR__)));
         $this->setLogDir($this->work_dir."/log");
@@ -50,7 +54,7 @@ class Worker implements Process{
         $this->setWorkersNum( $cpu->cpu_num ) ;
 
         unset($cpu);
-        ini_set("memory_limit","10240M");
+        ini_set("memory_limit", $this->memory_limit );
 
     }
 
@@ -584,7 +588,8 @@ class Worker implements Process{
                         $this->notify->send($database_name,$table_name,[
                             "database_name" => $database_name,
                             "table_name"    => $table_name,
-                            "event_data"    => $event
+                            "event_data"    => $event,
+                            "app_id"        => $this->app_id
                         ]);
                     });
 
@@ -750,7 +755,7 @@ class Worker implements Process{
                     $this->resetStd();
                 }
                 echo "process ",$i," is running \r\n";
-                ini_set("memory_limit","10240M");
+                ini_set("memory_limit", $this->memory_limit);
                 $this->parseProcess($i);
             }
         }
@@ -762,7 +767,7 @@ class Worker implements Process{
                     $this->resetStd();
                 }
                 echo "process queue dispatch ".$i." is running \r\n";
-                ini_set("memory_limit", "10240M");
+                ini_set("memory_limit", $this->memory_limit);
                 $this->dispatchProcess( $i );
             }
         }
@@ -771,7 +776,7 @@ class Worker implements Process{
             $this->resetStd();
         }
         echo "process queue dispatch is running \r\n";
-        ini_set("memory_limit", "10240M");
+        ini_set("memory_limit", $this->memory_limit);
         $this->eventProcess( );
 
     }

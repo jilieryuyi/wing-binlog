@@ -1,0 +1,15 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: yuyi
+ * Date: 17/2/28
+ * Time: 21:22
+ */
+return [
+    "app_id" => "wing-binlog",
+    //app_id可以定义不同的名称，用于区分不同的服务器，
+    //在分布式多服务器部署的时候，如果遇到库和标的名字都相同即可区分来源
+
+    "memory_limit" => "10240M",
+    //最大内存限制
+];

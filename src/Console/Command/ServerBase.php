@@ -29,7 +29,12 @@ class ServerBase extends Command{
         if( $clear )
             $this->clear();
 
-        $worker    = new Worker();
+        $app_config = include __APP_DIR__."/config/app.php";
+
+        $worker    = new Worker(
+            $app_config["app_id"],
+            $app_config["memory_limit"]
+        );
 
         $worker->setWorkDir(__APP_DIR__);
         $worker->setLogDir(__APP_DIR__."/log");
