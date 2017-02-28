@@ -222,7 +222,7 @@ class Worker implements Process{
 
         foreach ( $arr as $process_id => $josn ){
             $t = json_decode($josn,true);
-            if( (time()-$t["updated"]) >= 3 ) {
+            if( (time()-$t["updated"]) >= 180 ) {
                 unlink($this->cache_dir."/status_".$process_id);
             }
             else {
@@ -245,7 +245,6 @@ class Worker implements Process{
             } else if ($time_len < (24 * 3600) && $time_len >= 3600) {
                 $h = intval($time_len / 3600);
                 $s = $time_len - $h * 3600;
-                $m = 0;
                 if ($s >= 60) {
                     $m = intval($s / 60);
 
@@ -277,25 +276,52 @@ class Worker implements Process{
                 }
             }
 
+            $n = preg_replace("/\D/","",$status["name"]);
+            $wlen = 0;
+            if( strpos($status["name"],"dispatch") !== false )
+            {
+                //echo self::QUEUE_NAME .":ep". $n,"\r\n";
+                $queue = new Queue(self::QUEUE_NAME .":ep". $n, Context::instance()->redis_local);
+                $wlen = $queue->length();
+            }
+            else {
+                //echo self::QUEUE_NAME . $n,"\r\n";
+                $queue = new Queue(self::QUEUE_NAME . $n, Context::instance()->redis_local);
+                $wlen = $queue->length();
+            }
+
+
             $res[] = [
                 "process_id" => sprintf("%-8d",$status["process_id"]),
                 "start_time" => date("Y-m-d H:i:s", $status["start_time"]),
                 "run_time"   => $time_len,
-                "name"       => $status["name"]
+                "name"       => $status["name"],
+                "work_len"   => $wlen
             ];
 
-            $n = preg_replace("/\D/","",$status["name"]);
+
             if(!is_numeric($n))
                 $n = 0;
-            $names[] = $n+100;
+            if( strpos($status["name"],"dispatch") !== false )
+            {
+                $names[] = $n+1;
+            }
+            elseif( strpos($status["name"],"workers") !== false )
+            {
+                $names[] = $n+100;
+            }
+            else{
+                $names[] = 0;
+            }
         }
         array_multisort( $names, SORT_ASC, $res );
 
-        $str = "进程id    开始时间             运行时长\r\n";
+        $str = "进程id    开始时间            待处理任务  运行时长\r\n";
         foreach ($res as $v)
             $str.=  $v["process_id"].
                 "  ". $v["start_time"].
-                "  ". $v["run_time"].
+                "     ". $v["work_len"].
+                "       ". $v["run_time"].
                 "  ". $v["name"]."\r\n";
         return $str;
 
@@ -414,13 +440,37 @@ class Worker implements Process{
 
     }
 
+    public function getWorker( )
+    {
+        $target_worker = self::QUEUE_NAME. ":ep1";
+
+        //那个工作队列的待处理任务最少 就派发给那个队列
+        $num = $this->workers;
+
+        if( $num <= 1 )
+        {
+            return $target_worker;
+        }
+
+        $target_len = Context::instance()->redis_local->lLen($target_worker);
+
+        for ($i = 2; $i <= $num; $i++ ) {
+            $len = Context::instance()->redis_local->lLen(self::QUEUE_NAME. ":ep" . $i);
+            if ($len < $target_len) {
+                $target_worker = self::QUEUE_NAME. ":ep" . $i;
+                $target_len    = $len;
+            }
+        }
+        return $target_worker;
+    }
+
+
 
     //调度进程
     protected function dispatchProcess( $i  ){
-        echo "start...\r\n";
+
         $self         = $this;
-        $process_name = "php seals >> events collector - dispatch";
-        echo $process_name," is running\r\n";
+        $process_name = "php seals >> events collector - dispatch - ".$i;
 
         //设置进程标题 mac 会有warning 直接忽略
         $this->setProcessTitle( $process_name );
@@ -435,24 +485,9 @@ class Worker implements Process{
 
         $bin->setDebug( $this->debug );
 
-        //绑定开始执行和结束执行一个事件周期的回调函数
-//        $bin->setEventCallback( BinLog::EVENT_TICK_START, function() use( $self, $process_name ){
-//            $self->setStatus( $process_name );
-//            $self->setIsRunning();
-//        });
-//        $bin->setEventCallback( BinLog::EVENT_TICK_END, function() use( $self ){
-//            $self->checkStopSignal();
-//        });
-
         $dispatcher = new DispatchQueue( $this );
 
-        //阻塞执行
-//        $bin->dispatchProcess($i,function($file) use($dispatcher){
-//            $target_worker = $dispatcher->get();
-//            Context::instance()->redis_local->rPush( $target_worker, $file );
-//            unset($target_worker,$file);
-//        });
-        $queue_name = $bin->getQueueName();
+        $queue_name = self::QUEUE_NAME. ":ep";
         $queue = new Queue( $queue_name.$i, Context::instance()->redis_local);
         while( 1 )
         {
@@ -460,12 +495,10 @@ class Worker implements Process{
             ob_start();
 
             try {
-                //$mem_start = memory_get_usage();
-
                 do {
-                    //$this->runEventCallback(self::EVENT_TICK_START);
                     $self->setStatus( $process_name );
                     $self->setIsRunning();
+
                     $res = $queue->pop();
                     if( !$res )
                         break;
@@ -476,7 +509,6 @@ class Worker implements Process{
                     unset($end_pos,$start_pos);
 
                     //进程调度 看看该把cache_file扔给那个进程处理
-                    //$callback($cache_path);
                     $target_worker = $dispatcher->get();
                     Context::instance()->redis_local->rPush( $target_worker, $cache_path );
                     unset($target_worker,$cache_path);
@@ -485,10 +517,7 @@ class Worker implements Process{
 
                 } while (0);
 
-
-                //$this->runEventCallback(self::EVENT_TICK_END);
                 $self->checkStopSignal();
-                //$mem_end = memory_get_usage();
 
             }catch(\Exception $e){
                 var_dump($e->getMessage());
@@ -511,9 +540,7 @@ class Worker implements Process{
     //解析进程
     protected function parseProcess($i){
 
-
-        $process_name = "php seals >> events collector - workers ".$i;
-        echo $process_name," is running\r\n";
+        $process_name = "php seals >> events collector - workers - ".$i;
 
         //设置进程标题 mac 会有warning 直接忽略
         $this->setProcessTitle( $process_name );
@@ -586,10 +613,9 @@ class Worker implements Process{
     }
     //事件分配进程
     protected function eventProcess(){
-        echo "start...\r\n";
+
         $self         = $this;
         $process_name = "php seals >> events collector - ep";
-        echo $process_name," is running\r\n";
 
         //设置进程标题 mac 会有warning 直接忽略
         $this->setProcessTitle( $process_name );
@@ -645,7 +671,7 @@ class Worker implements Process{
 
                     foreach ( $data as $row ){
                         if( $row["Event_type"] == "Xid" ) {
-                            $worker     = $bin->getWorker();
+                            $worker     = $this->getWorker();
                             $queue      = new Queue( $worker, Context::instance()->redis_local );
 
                             echo "push==>",$start_pos.":".$row["End_log_pos"],"\r\n";

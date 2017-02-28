@@ -1,6 +1,5 @@
 <?php namespace Seals\Library;
 use Wing\FileSystem\WDir;
-use Wing\FileSystem\WFile;
 
 /**
  * Created by PhpStorm.
@@ -25,16 +24,11 @@ class BinLog{
     private $db_handler;
     //mysqlbinlog 命令路径
     private $mysqlbinlog  = "mysqlbinlog";
-    private $events_times = 0;
-
-     const EVENT_TICK_START = "on_tick_start";
-     const EVENT_TICK_END   = "on_tick_end";
 
     private $cache_dir;
 
     private $debug       = false;
     private $workers     = 1;
-    private $queue_name  = "seals:events:collector:ep";
 
     public function __construct( DbInterface $db_handler,$mysqlbinlog = "mysqlbinlog")
     {
@@ -76,10 +70,6 @@ class BinLog{
      */
     public function setMysqlbinlog( $mysqlbinlog ){
         $this->mysqlbinlog = $mysqlbinlog;
-    }
-
-    public function getQueueName(){
-        return $this->queue_name;
     }
 
     /**
@@ -180,10 +170,10 @@ class BinLog{
      *
      * @return string
      */
-    private function getLastPositionCacheFile(){
-        $cache_dir  = $this->getCacheDir();
-        return $cache_dir.DIRECTORY_SEPARATOR."mysql_last_bin_log_pos";
-    }
+//    private function getLastPositionCacheFile(){
+//        $cache_dir  = $this->getCacheDir();
+//        return $cache_dir.DIRECTORY_SEPARATOR."mysql_last_bin_log_pos";
+//    }
 
     /**
      * @设置最后的读取位置
@@ -218,40 +208,8 @@ class BinLog{
         return $items;
     }
 
-
-    public function getWorker( )
-    {
-        $target_worker = $this->queue_name . "1";
-
-        //那个工作队列的待处理任务最少 就派发给那个队列
-        $num = $this->workers;
-
-        if( $num <= 1 )
-        {
-            return $target_worker;
-        }
-
-        $target_len = Context::instance()->redis_local->lLen($target_worker);
-
-        for ($i = 2; $i <= $num; $i++ ) {
-            $len = Context::instance()->redis_local->lLen($this->queue_name . $i);
-            if ($len < $target_len) {
-                $target_worker = $this->queue_name . $i;
-                $target_len    = $len;
-            }
-        }
-        return $target_worker;
-    }
-
     /**
      * @获取binlog事件，请只在意第一第二个参数
-     * 最后两个参数是为了防止数据过大 引起php调用mysqlbinlog报内存错误
-     * 最后一个参数是递归计数器，防止进入死循环 最多递归10次
-     *
-     * 1、得到数据
-     * 2、设置last_pos
-     * 3、push队列
-     * 4、递归
      *
      * @return array
      */
