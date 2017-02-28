@@ -33,30 +33,23 @@ class Worker implements Process{
 
         $this->start_time = time();
 
-        $this->work_dir   = dirname(dirname(__DIR__));
-        chdir( $this->work_dir );
+        $this->setWorkDir(dirname(dirname(__DIR__)));
+        $this->setLogDir($this->work_dir."/log");
+        $this->setProcessCacheDir($this->work_dir."/process_cache");
 
-        $this->log_dir    = $this->work_dir."/log";
-        $this->cache_dir  = $this->work_dir."/process_cache";//new WDir();
-
-        (new WDir($this->log_dir))->mkdir();
-        (new WDir($this->cache_dir))->mkdir();
-
-        $self = $this;
-
-        register_shutdown_function(function() use($self){
-            file_put_contents(__APP_DIR__."/log/error_".date("Ymd")."_".self::getCurrentProcessId().".log",date("Y-m-d H:i:s")."\r\n".json_encode(error_get_last(),JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND);
-            $self->clear();
+        register_shutdown_function(function(){
+            file_put_contents(__APP_DIR__."/log/shutdown_".date("Ymd")."_".self::getCurrentProcessId().".log",date("Y-m-d H:i:s")."\r\n".json_encode(error_get_last(),JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND);
+            $this->clear();
         });
 
         set_error_handler(function($errno, $errstr, $errfile, $errline){
             file_put_contents(__APP_DIR__."/log/error_".date("Ymd")."_".self::getCurrentProcessId().".log",date("Y-m-d H:i:s")."\r\n".json_encode(func_get_args(),JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND);
         });
 
-        $cpu              = new Cpu();
-        $this->workers    = $cpu->cpu_num ;
+        $cpu = new Cpu();
+        $this->setWorkersNum( $cpu->cpu_num ) ;
 
-
+        unset($cpu);
         ini_set("memory_limit","10240M");
 
     }
@@ -100,8 +93,18 @@ class Worker implements Process{
      */
     public function setWorkDir($dir){
         $this->work_dir = $dir;
+        $dir = new WDir($this->work_dir);
+        $dir->mkdir();
+        unset($dir);
         //改变当前文件目录
         chdir( $this->work_dir );
+    }
+
+    public function setProcessCacheDir($dir){
+        $this->cache_dir = $dir;
+        $dir = new WDir($this->cache_dir);
+        $dir->mkdir();
+        unset($dir);
     }
 
     /**
@@ -109,6 +112,9 @@ class Worker implements Process{
      */
     public function setLogDir($dir){
         $this->log_dir = $dir;
+        $dir = new WDir($this->log_dir);
+        $dir->mkdir();
+        unset($dir);
     }
 
 
@@ -121,7 +127,6 @@ class Worker implements Process{
         unlink($this->cache_dir."/running_".$process_id);
         unlink($this->cache_dir."/stop_".$process_id);
         unlink($this->cache_dir."/status_".$process_id);
-
     }
 
     /**
@@ -129,8 +134,7 @@ class Worker implements Process{
      *
      * @return string
      */
-    public function getQueueName()
-    {
+    public function getQueueName(){
         return self::QUEUE_NAME;
     }
 
@@ -182,6 +186,7 @@ class Worker implements Process{
 
         $dir   = new WDir($this->cache_dir);
         $files = $dir->scandir();
+
         $process_ids = [];
         foreach ( $files as $file ){
             $name = pathinfo( $file,PATHINFO_FILENAME);
@@ -192,12 +197,12 @@ class Worker implements Process{
 
         if( !$process_ids )
             return;
+
         foreach ( $process_ids as $process_id )
         {
             $cache_file = $this->cache_dir."/stop_".$process_id;
             file_put_contents($cache_file,1);
         }
-
 
     }
 
