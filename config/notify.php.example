@@ -6,7 +6,9 @@
  * Time: 10:26
  */
 return [
+    //接收事件通知的实现
     "handler" => \Seals\Notify\Redis::class,
+    //接收事件通知的实现-构造参数 数组
     "params"  => ["seals:event:list"]
 ];
 //使用http发起事件通知
