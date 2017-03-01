@@ -120,12 +120,6 @@ class Worker implements Process{
         $this->cache_dir = $dir;
         $dir = new WDir($this->cache_dir);
         $dir->mkdir();
-
-        if( $dir->isWrite() )
-        {
-            die( $this->cache_dir." is writeable \r\n");
-        }
-
         unset($dir);
     }
 
@@ -138,9 +132,6 @@ class Worker implements Process{
         $this->log_dir = $dir;
         $dir = new WDir($this->log_dir);
         $dir->mkdir();
-        if( !$dir->isWrite() ) {
-            die( $this->log_dir ." is not writeable \r\n" );
-        }
         unset($dir);
     }
 
@@ -151,9 +142,14 @@ class Worker implements Process{
     private function clear(){
 
         $process_id = self::getCurrentProcessId();
-        unlink($this->cache_dir."/running_".$process_id);
-        unlink($this->cache_dir."/stop_".$process_id);
-        unlink($this->cache_dir."/status_".$process_id);
+        if( file_exists($this->cache_dir."/running_".$process_id))
+            unlink($this->cache_dir."/running_".$process_id);
+
+        if(file_exists($this->cache_dir."/stop_".$process_id))
+            unlink($this->cache_dir."/stop_".$process_id);
+
+        if(file_exists($this->cache_dir."/status_".$process_id))
+            unlink($this->cache_dir."/status_".$process_id);
     }
 
     /**

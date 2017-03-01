@@ -36,6 +36,7 @@ class ServerBase extends Command{
             $app_config["app_id"],
             $app_config["memory_limit"],
             $app_config["log_dir"],
+            $app_config["process_cache_dir"],
             $app_config["binlog_cache_dir"]
         );
 
