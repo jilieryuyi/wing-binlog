@@ -17,13 +17,9 @@ class Redis implements Notify {
         $this->queue = new Queue( $list_name, Context::instance()->redis );
     }
 
-    public function send($database_name, $table_name, array $event_data)
+    public function send( array $event_data)
     {
-        $success = $this->queue->push([
-            "database_name" => $database_name,
-            "table_name"    => $table_name,
-            "event_data"    => $event_data
-        ]);
+        $success = $this->queue->push($event_data);
         return $success;
     }
 }

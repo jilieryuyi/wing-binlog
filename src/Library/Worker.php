@@ -551,17 +551,18 @@ class Worker implements Process{
                     unset($len);
 
                     $cache_file = $queue->pop();
-
+                    echo $cache_file,"\r\n";
                     if (!$cache_file||!file_exists(	$cache_file ) || !is_file($cache_file))
                     {
                         unset($cache_file);
                         break;
                     }
 
+
                     $file = new FileFormat($cache_file,\Seals\Library\Context::instance()->activity_pdo);
 
                     $file->parse(function ($database_name, $table_name, $event) {
-                        $this->notify->send($database_name,$table_name,[
+                        $this->notify->send([
                             "database_name" => $database_name,
                             "table_name"    => $table_name,
                             "event_data"    => $event,

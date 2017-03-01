@@ -9,5 +9,5 @@ interface Notify{
     /**
      * @return bool
      */
-    public function send( $database_name, $table_name, array $event_data);
+    public function send(array $event_data);
 }

@@ -18,7 +18,7 @@ class Http implements Notify {
         $this->data = $data;
     }
 
-    public function send($database_name, $table_name, array $event_data)
+    public function send(array $event_data)
     {
         $ch = curl_init();
 
@@ -38,8 +38,6 @@ class Http implements Notify {
         }
 
         curl_setopt($ch, CURLOPT_POSTFIELDS, [
-            "database_name" => $database_name,
-            "table_name"    => $table_name,
             "event_data"    => json_encode( $event_data ),
             "data"          => $self_data //自定义部分的数据
         ]);
