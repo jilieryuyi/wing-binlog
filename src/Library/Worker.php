@@ -466,7 +466,6 @@ class Worker implements Process{
         $bin = new \Seals\Library\BinLog(
             \Seals\Library\Context::instance()->activity_pdo
         );
-        $bin->setWorkers( $this->workers );
         $bin->setCacheDir( $this->binlog_cache_dir );
         $bin->setDebug( $this->debug );
 
@@ -613,7 +612,6 @@ class Worker implements Process{
         $bin = new \Seals\Library\BinLog(
             \Seals\Library\Context::instance()->activity_pdo
         );
-        $bin->setWorkers( $this->workers );
         $bin->setCacheDir( $this->binlog_cache_dir );
         $bin->setDebug( $this->debug );
 

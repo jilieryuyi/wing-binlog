@@ -28,7 +28,6 @@ class BinLog{
     private $cache_dir;
 
     private $debug       = false;
-    private $workers     = 1;
 
     public function __construct( DbInterface $db_handler,$mysqlbinlog = "mysqlbinlog")
     {
@@ -62,10 +61,6 @@ class BinLog{
 
     public function setDebug( $debug ){
         $this->debug = $debug;
-    }
-
-    public function setWorkers($workers){
-        $this->workers = $workers;
     }
 
     /**
@@ -169,16 +164,6 @@ class BinLog{
     }
 
     /**
-     * @获取记录记录上次binlog读取位置的缓存文件
-     *
-     * @return string
-     */
-//    private function getLastPositionCacheFile(){
-//        $cache_dir  = $this->getCacheDir();
-//        return $cache_dir.DIRECTORY_SEPARATOR."mysql_last_bin_log_pos";
-//    }
-
-    /**
      * @设置最后的读取位置
      *
      * @param int $start_pos
@@ -199,16 +184,6 @@ class BinLog{
         if( !is_array($res) || count($res) != 2 )
             return [0,0];
         return $res;
-    }
-
-    /**
-     * @行分组格式化
-     *
-     * @return array
-     */
-    protected function linesFormat($item){
-        $items = preg_split("/#[\s]{1,}at[\s]{1,}[0-9]{1,}/",$item);
-        return $items;
     }
 
     /**
@@ -244,7 +219,7 @@ class BinLog{
 
         $command    = $this->mysqlbinlog . " --base64-output=DECODE-ROWS -v --start-position=" .
             $start_pos . " --stop-position=" .
-            $end_pos . "  \"" . $current_binlog_file . "\" > ".$cache_file ;// > ".$this->binlog_cache_file->get();// >d:\1.sql
+            $end_pos . "  \"" . $current_binlog_file . "\" > ".$cache_file ;
 
         unset($current_binlog_file);
 
