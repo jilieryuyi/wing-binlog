@@ -51,7 +51,9 @@ class Worker implements Process{
         $this->setProcessCacheDir( $process_cache_dir );
 
         register_shutdown_function(function(){
-            file_put_contents( $this->log_dir."/shutdown_".date("Ymd")."_".self::getCurrentProcessId().".log",date("Y-m-d H:i:s")."\r\n".json_encode(error_get_last(),JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND);
+            $error = error_get_last();
+            if( $error )
+            file_put_contents( $this->log_dir."/shutdown_".date("Ymd")."_".self::getCurrentProcessId().".log",date("Y-m-d H:i:s")."\r\n".json_encode($error,JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND);
             $this->clear();
         });
 
