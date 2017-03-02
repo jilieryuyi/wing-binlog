@@ -133,7 +133,10 @@ class ServerBase extends Command{
         else
             $worker->disabledDebug();
 
-        $worker->start($deamon);
+        if( $deamon )
+            $worker->enableDeamon();
+
+        $worker->start();
     }
 
     protected function stop(){

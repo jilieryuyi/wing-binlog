@@ -22,6 +22,7 @@ class Worker implements Process{
     protected $app_id           = "wing-binlog";
     protected $memory_limit     = "10240M";
     protected $binlog_cache_dir;
+    protected $deamon           = false;
 
 
     //队列名称
@@ -76,6 +77,14 @@ class Worker implements Process{
      */
     public function setNotify( Notify $notify ){
         $this->notify = $notify;
+    }
+
+    public function enableDeamon(){
+        $this->deamon = true;
+    }
+
+    public function disableDeamon(){
+        $this->deamon = false;
     }
 
     /**
@@ -705,7 +714,7 @@ class Worker implements Process{
     /**
      * @启动进程 入口函数
      */
-    public function start( $deamon = false){
+    public function start(){
 
         echo "帮助：\r\n";
         echo "启动服务：php seals server:start\r\n";
@@ -716,7 +725,7 @@ class Worker implements Process{
         echo "服务状态：php seals server:status\r\n";
         echo "\r\n";
 
-        if( $deamon )
+        if( $this->deamon )
         {
             self::daemonize();
         }
@@ -726,7 +735,7 @@ class Worker implements Process{
             $process_id = pcntl_fork();
             if ($process_id == 0)
             {
-                if ($deamon)
+                if ($this->deamon)
                 {
                     $this->resetStd();
                 }
@@ -739,7 +748,7 @@ class Worker implements Process{
             $process_id = pcntl_fork();
             if ($process_id == 0) {
                 //调度进程
-                if ($deamon) {
+                if ($this->deamon) {
                     $this->resetStd();
                 }
                 echo "process queue dispatch ".$i." is running \r\n";
@@ -748,7 +757,7 @@ class Worker implements Process{
             }
         }
 
-        if ($deamon) {
+        if ($this->deamon) {
             $this->resetStd();
         }
         echo "process queue dispatch is running \r\n";
