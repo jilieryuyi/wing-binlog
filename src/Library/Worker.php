@@ -53,7 +53,7 @@ class Worker implements Process{
         register_shutdown_function(function(){
             $error = error_get_last();
             if( $error )
-            file_put_contents( $this->log_dir."/shutdown_".date("Ymd")."_".self::getCurrentProcessId().".log",date("Y-m-d H:i:s")."\r\n".json_encode($error,JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND);
+                file_put_contents( $this->log_dir."/shutdown_".date("Ymd")."_".self::getCurrentProcessId().".log",date("Y-m-d H:i:s")."\r\n".json_encode($error,JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND);
             $this->clear();
         });
 
@@ -76,21 +76,29 @@ class Worker implements Process{
 
     /**
      * @事件通知方式实现
+     * @param Notify $notify
      */
     public function setNotify( Notify $notify ){
         $this->notify = $notify;
     }
 
+    /**
+     * @启用守护进程模式
+     */
     public function enableDeamon(){
         $this->deamon = true;
     }
 
+    /**
+     * @禁用守护进程模式
+     */
     public function disableDeamon(){
         $this->deamon = false;
     }
 
     /**
      * @设置进程标题，仅linux
+     * @param string $title 进程标题
      */
     public function setProcessTitle( $title ){
         if( function_exists("setproctitle") )
@@ -99,13 +107,17 @@ class Worker implements Process{
             cli_set_process_title($title);
     }
 
-    //启用debug模式
+    /**
+     * 启用debug模式
+     */
     public function enabledDebug(){
         $this->debug = true;
         return $this;
     }
 
-    //禁用debug模式
+    /**
+     * 禁用debug模式
+     */
     public function disabledDebug(){
         $this->debug = false;
         return $this;
@@ -113,8 +125,9 @@ class Worker implements Process{
 
     /**
      * @设置工作目录
+     * @param string $dir 目录路径
      */
-    public function setWorkDir($dir){
+    public function setWorkDir( $dir ){
         $dir = str_replace("\\","/",$dir);
         $dir = rtrim($dir,"/");
         $this->work_dir = $dir;
@@ -125,6 +138,10 @@ class Worker implements Process{
         chdir( $this->work_dir );
     }
 
+    /**
+     * @设置进程缓存路径
+     * @param string $dir 目录路径
+     */
     public function setProcessCacheDir($dir){
         $dir = str_replace("\\","/",$dir);
         $dir = rtrim($dir,"/");
@@ -136,6 +153,7 @@ class Worker implements Process{
 
     /**
      * @设置日志目录
+     * @param string $dir 目录路径
      */
     public function setLogDir($dir){
         $dir = str_replace("\\","/",$dir);
@@ -164,7 +182,7 @@ class Worker implements Process{
     }
 
     /**
-     * @获取模块的名称
+     * @获取队列名称
      *
      * @return string
      */
@@ -174,7 +192,7 @@ class Worker implements Process{
 
 
     /**
-     * @设置模块正在运行
+     * @设置进程运行状态
      *
      * @return self
      */
@@ -185,7 +203,7 @@ class Worker implements Process{
     }
 
     /**
-     * @获取模块是否正在运行
+     * @获取进程运行状态
      *
      * @return bool
      */
@@ -196,7 +214,7 @@ class Worker implements Process{
     }
 
     /**
-     * @检查退出信号
+     * @检查退出信号，如果检测到退出信号，则直接退出
      *
      * @return void
      */
@@ -212,7 +230,7 @@ class Worker implements Process{
     }
 
     /**
-     * @停止模块
+     * @停止进程
      *
      * @return void
      */
@@ -380,10 +398,17 @@ class Worker implements Process{
         return $this->getStatus();
     }
 
+    /**
+     * @获取进程数量
+     */
     public function getWorkersNum(){
         return $this->workers;
     }
 
+    /**
+     * @设置进程数量
+     * @param int $workers
+     */
     public function setWorkersNum($workers){
         $this->workers = $workers;
     }
@@ -396,7 +421,7 @@ class Worker implements Process{
     }
 
     /**
-     * @获取当前进程id
+     * @获取当前进程id 仅linux
      *
      * @return int
      */
@@ -436,6 +461,9 @@ class Worker implements Process{
 
     }
 
+    /**
+     * @简单的进程调度实现，获取该分配的进程队列名称
+     */
     public function getWorker( )
     {
         $target_worker = self::QUEUE_NAME. ":ep1";
@@ -462,7 +490,10 @@ class Worker implements Process{
 
 
 
-    //调度进程
+    /**
+     * 调度进程
+     * @param int $i
+     */
     protected function dispatchProcess( $i  ){
 
         $self         = $this;
@@ -532,7 +563,10 @@ class Worker implements Process{
         }
 
     }
-    //解析进程
+    /**
+     * 解析进程
+     * @param int $i
+     */
     protected function parseProcess($i){
 
         $process_name = "php seals >> events collector - workers - ".$i;
@@ -608,7 +642,9 @@ class Worker implements Process{
             }
         }
     }
-    //事件分配进程
+    /**
+     * 事件分配进程
+     */
     protected function eventProcess(){
 
         $self         = $this;
@@ -727,11 +763,13 @@ class Worker implements Process{
         echo "服务状态：php seals server:status\r\n";
         echo "\r\n";
 
+        //设置守护进程模式
         if( $this->deamon )
         {
             self::daemonize();
         }
-        //启动工作进程
+
+        //启动元数据解析进程
         for ($i = 1; $i <= $this->workers; $i++)
         {
             $process_id = pcntl_fork();
@@ -746,6 +784,7 @@ class Worker implements Process{
                 $this->parseProcess($i);
             }
         }
+        //启动调度进程 负责生成缓存文件
         for ($i = 1; $i <= $this->workers; $i++) {
             $process_id = pcntl_fork();
             if ($process_id == 0) {
@@ -764,6 +803,7 @@ class Worker implements Process{
         }
         echo "process queue dispatch is running \r\n";
         ini_set("memory_limit", $this->memory_limit);
+        //基础事件采集进程
         $this->eventProcess( );
 
     }
