@@ -9,8 +9,7 @@ interface QueueInterface{
     /**
      * @加入到队列
      *
-     * @param $event_id string 事件id标示
-     * @param $data array 事件依附的数据
+     * @param mixed $data 事件依附的数据
      * @return bool
      */
     public function push( $data );
@@ -24,7 +23,7 @@ interface QueueInterface{
     /**
      * @只返回队首部元素 不弹出 不阻塞
      *
-     * @return array
+     * @return mixed
      */
     public function peek();
     /**
