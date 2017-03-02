@@ -11,7 +11,7 @@
  * @先进先出队列 使用redis list
  * @可以通过 XSL::instance()->queue 访问，如 XSL::instance()->queue->pop()
  */
-class Queue{
+class Queue implements QueueInterface {
 
     private $queue_name;
     private $redis;
