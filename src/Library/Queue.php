@@ -39,7 +39,7 @@ class Queue implements QueueInterface
     {
         if (is_array($data))
             $data = json_encode($data);
-        return $this->redis->rPush( $this->queue_name, $data );
+        return $this->redis->rPush($this->queue_name, $data);
     }
     /**
      * @弹出队列首部数据
@@ -49,7 +49,7 @@ class Queue implements QueueInterface
     public function pop()
     {
 
-        $data = $this->redis->lPop( $this->queue_name );
+        $data = $this->redis->lPop($this->queue_name);
 
         if ($data === false)
             return null;
@@ -69,7 +69,7 @@ class Queue implements QueueInterface
      */
     public function peek()
     {
-        $data =  $this->redis->lRange(  $this->queue_name, 0, 1 );
+        $data =  $this->redis->lRange( $this->queue_name, 0, 1);
         if (isset($data[0]))
             return $data[0];
         return null;
@@ -82,7 +82,7 @@ class Queue implements QueueInterface
      */
     public function length()
     {
-        return $this->redis->lLen( $this->queue_name );
+        return $this->redis->lLen($this->queue_name);
     }
 
     /**
@@ -92,6 +92,6 @@ class Queue implements QueueInterface
      */
     public function clear()
     {
-        return !!$this->redis->del( $this->queue_name );
+        return !!$this->redis->del($this->queue_name);
     }
 }

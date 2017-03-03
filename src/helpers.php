@@ -30,7 +30,7 @@ if(!function_exists("get_start_time")) {
     }
 }
 
-if( !function_exists("enable_time_test")) {
+if(!function_exists("enable_time_test")) {
     function enable_time_test()
     {
         set_start_time(get_millisecond());
@@ -45,7 +45,7 @@ if(!function_exists("time_test_dump")) {
     }
 }
 
-if( !function_exists("str_is_email")) {
+if(!function_exists("str_is_email")) {
     /**
      * @邮箱合法性校验
      *
@@ -60,7 +60,7 @@ if( !function_exists("str_is_email")) {
     }
 }
 
-if( !function_exists("timelen_format")){
+if(!function_exists("timelen_format")){
     function timelen_format($time_len){
             if ($time_len < 60)
                 return $time_len . "秒";

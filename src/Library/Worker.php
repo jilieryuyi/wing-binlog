@@ -36,7 +36,7 @@ class Worker implements Process
         $log_dir           = __APP_DIR__."/logs",
         $process_cache_dir = __APP_DIR__."/process_cache",
         $binlog_cache_dir  = __APP_DIR__."/cache"
-    ) {
+   ) {
         gc_enable();
 
         $this->start_time       = time();
@@ -45,25 +45,25 @@ class Worker implements Process
         $this->binlog_cache_dir = $binlog_cache_dir;
 
         $this->setWorkDir(dirname(dirname(__DIR__)));
-        $this->setLogDir( $log_dir );
-        $this->setProcessCacheDir( $process_cache_dir );
+        $this->setLogDir($log_dir);
+        $this->setProcessCacheDir($process_cache_dir);
 
         register_shutdown_function(function() {
             $error = error_get_last();
-            if( $error )
-                file_put_contents( $this->log_dir."/shutdown_".date("Ymd")."_".self::getCurrentProcessId().".log",date("Y-m-d H:i:s")."\r\n".json_encode($error,JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND);
+            if($error)
+                file_put_contents($this->log_dir."/shutdown_".date("Ymd")."_".self::getCurrentProcessId().".log",date("Y-m-d H:i:s")."\r\n".json_encode($error,JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND);
             $this->clear();
         });
 
         set_error_handler(function($errno, $errstr, $errfile, $errline) {
-            file_put_contents( $this->log_dir."/error_".date("Ymd")."_".self::getCurrentProcessId().".log",date("Y-m-d H:i:s")."\r\n".json_encode(func_get_args(),JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND);
+            file_put_contents($this->log_dir."/error_".date("Ymd")."_".self::getCurrentProcessId().".log",date("Y-m-d H:i:s")."\r\n".json_encode(func_get_args(),JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND);
         });
 
         $cpu = new Cpu();
-        $this->setWorkersNum( $cpu->cpu_num ) ;
+        $this->setWorkersNum($cpu->cpu_num) ;
 
         unset($cpu);
-        ini_set("memory_limit", $this->memory_limit );
+        ini_set("memory_limit", $this->memory_limit);
 
     }
 
@@ -149,7 +149,7 @@ class Worker implements Process
         $dir->mkdir();
         unset($dir);
         //改变当前文件目录
-        chdir( $this->work_dir );
+        chdir($this->work_dir);
     }
 
     /**
@@ -242,7 +242,7 @@ class Worker implements Process
     {
         $process_id = self::getCurrentProcessId();
         $cache_file = $this->cache_dir."/stop_".$process_id;
-        $is_stop    = file_exists( $cache_file ) && file_get_contents($cache_file) == 1;
+        $is_stop    = file_exists($cache_file) && file_get_contents($cache_file) == 1;
         if ($is_stop) {
             echo $process_id," get stop signal\r\n";
             exit(0);
@@ -262,8 +262,8 @@ class Worker implements Process
 
         $process_ids = [];
         foreach ($files as $file) {
-            $name = pathinfo( $file,PATHINFO_FILENAME);
-            list( $name, $process_id) = explode("_",$name);
+            $name = pathinfo($file,PATHINFO_FILENAME);
+            list($name, $process_id) = explode("_",$name);
             if ($name == "running")
                 $process_ids[] = $process_id;
         }
@@ -290,7 +290,7 @@ class Worker implements Process
         $files = $dir->scandir();
 
         foreach ($files as $file) {
-            $name = pathinfo( $file,PATHINFO_FILENAME);
+            $name = pathinfo($file,PATHINFO_FILENAME);
             list($name, $process_id) = explode("_",$name);
             if ($name == "status")
                 $arr[$process_id] = file_get_contents($file) ;
@@ -347,7 +347,7 @@ class Worker implements Process
             }
         }
 
-        array_multisort( $names, SORT_ASC, $res );
+        array_multisort($names, SORT_ASC, $res);
 
         $str = "进程id    开始时间            待处理任务  运行时长\r\n";
         foreach ($res as $v)
@@ -381,7 +381,7 @@ class Worker implements Process
     public function setBusy($queue_name, $busy)
     {
         $cache_file = $this->cache_dir."/busy_".$queue_name;
-        $file       = new WFile( $cache_file );
+        $file       = new WFile($cache_file);
 
         $file->write($busy,false,1);
 
@@ -419,7 +419,7 @@ class Worker implements Process
 
         global $STDOUT, $STDERR;
 
-        $file   = new WFile( $this->log_dir . "/seals_output_".date("Ymd")."_".self::getCurrentProcessId().".log" );
+        $file   = new WFile($this->log_dir . "/seals_output_".date("Ymd")."_".self::getCurrentProcessId().".log");
         $file->touch();
 
         $handle = fopen($file->get(), "a+");
@@ -517,7 +517,7 @@ class Worker implements Process
      * @param string $base_queue_name 基础队列名称
      * @return string
      */
-    public function getWorker( $base_queue_name )
+    public function getWorker($base_queue_name)
     {
         //$base_queue_name self::QUEUE_NAME. ":ep
         $target_worker = $base_queue_name."1";
@@ -556,21 +556,21 @@ class Worker implements Process
         $process_name = "php seals >> events collector - dispatch - ".$i;
 
         //设置进程标题 mac 会有warning 直接忽略
-        $this->setProcessTitle( $process_name );
+        $this->setProcessTitle($process_name);
 
         //由于是多进程 redis和pdo等连接资源 需要重置
         Context::instance()->reset();
 
         $bin = new \Seals\Library\BinLog(
             \Seals\Library\Context::instance()->activity_pdo
-        );
-        $bin->setCacheDir( $this->binlog_cache_dir );
-        $bin->setDebug( $this->debug );
+       );
+        $bin->setCacheDir($this->binlog_cache_dir);
+        $bin->setDebug($this->debug);
 
-        //$dispatcher = new DispatchQueue( $this );
+        //$dispatcher = new DispatchQueue($this);
 
         $queue_name = self::QUEUE_NAME. ":ep".$i;
-        $queue      = new Queue( $queue_name, Context::instance()->redis_local);
+        $queue      = new Queue($queue_name, Context::instance()->redis_local);
 
         while (1) {
             clearstatcache();
@@ -578,7 +578,7 @@ class Worker implements Process
 
             try {
                 do {
-                    $this->setStatus( $process_name );
+                    $this->setStatus($process_name);
                     $this->setIsRunning();
 
                     $res = $queue->pop();
@@ -586,14 +586,14 @@ class Worker implements Process
                         break;
 
                     $this->setBusy($queue_name, 1);
-                    list( $start_pos, $end_pos ) = explode(":",$res);
+                    list($start_pos, $end_pos) = explode(":",$res);
 
-                    $cache_path = $bin->getSessions( $start_pos, $end_pos );
+                    $cache_path = $bin->getSessions($start_pos, $end_pos);
                     unset($end_pos,$start_pos);
 
                     //进程调度 看看该把cache_file扔给那个进程处理
                     $target_worker = $this->getWorker(self::QUEUE_NAME);
-                    Context::instance()->redis_local->rPush( $target_worker, $cache_path );
+                    Context::instance()->redis_local->rPush($target_worker, $cache_path);
                     unset($target_worker,$cache_path);
 
                     unset($cache_path);
@@ -631,10 +631,10 @@ class Worker implements Process
         $process_name = "php seals >> events collector - workers - ".$i;
 
         //设置进程标题 mac 会有warning 直接忽略
-        $this->setProcessTitle( $process_name );
+        $this->setProcessTitle($process_name);
 
         $queue_name = self::QUEUE_NAME.$i;
-        $queue      = new Queue($queue_name, Context::instance()->redis_local );
+        $queue      = new Queue($queue_name, Context::instance()->redis_local);
 
         //由于是多进程 redis和pdo等连接资源 需要重置
         Context::instance()->reset();
@@ -642,7 +642,7 @@ class Worker implements Process
         while (1) {
             ob_start();
             try {
-                $this->setStatus( $process_name );
+                $this->setStatus($process_name);
                 $this->setIsRunning();
 
                 do {
@@ -656,7 +656,7 @@ class Worker implements Process
 
                     $cache_file = $queue->pop();
                     echo $cache_file,"\r\n";
-                    if (!$cache_file||!file_exists(	$cache_file ) || !is_file($cache_file)) {
+                    if (!$cache_file||!file_exists(	$cache_file) || !is_file($cache_file)) {
                         unset($cache_file);
                         break;
                     }
@@ -711,16 +711,16 @@ class Worker implements Process
         $process_name = "php seals >> events collector - ep";
 
         //设置进程标题 mac 会有warning 直接忽略
-        $this->setProcessTitle( $process_name );
+        $this->setProcessTitle($process_name);
 
         //由于是多进程 redis和pdo等连接资源 需要重置
         Context::instance()->reset();
 
         $bin = new \Seals\Library\BinLog(
             \Seals\Library\Context::instance()->activity_pdo
-        );
-        $bin->setCacheDir( $this->binlog_cache_dir );
-        $bin->setDebug( $this->debug );
+       );
+        $bin->setCacheDir($this->binlog_cache_dir);
+        $bin->setDebug($this->debug);
 
         $limit = 10000;
         while (1) {
@@ -729,7 +729,7 @@ class Worker implements Process
 
             try {
                 do {
-                    $this->setStatus( $process_name );
+                    $this->setStatus($process_name);
                     $this->setIsRunning();
 
                     //最后操作的binlog文件
@@ -772,7 +772,7 @@ class Worker implements Process
 
                             unset($queue,$worker);
                             //设置最后读取的位置
-                            $bin->setLastPosition($start_pos, $row["End_log_pos"] );
+                            $bin->setLastPosition($start_pos, $row["End_log_pos"]);
 
                             $has_session = true;
                             $start_pos = $row["End_log_pos"];

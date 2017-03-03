@@ -32,7 +32,7 @@ class Command
     public function check()
     {
         $res = $this->run();
-        if (strpos( $res, "command not found" ) !== false) {
+        if (strpos($res, "command not found") !== false) {
             return false;
         }
         return true;
@@ -45,7 +45,7 @@ class Command
      */
     public function run(){
 
-        $handle = popen( $this->command ,"r");
+        $handle = popen($this->command ,"r");
         $result = '';
 
         while (1) {

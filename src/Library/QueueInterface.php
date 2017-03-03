@@ -16,7 +16,7 @@ interface QueueInterface{
      * @param mixed $data 事件依附的数据
      * @return bool
      */
-    public function push( $data );
+    public function push($data);
 
     /**
      * @弹出队列首部数据

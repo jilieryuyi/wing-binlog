@@ -22,9 +22,9 @@ class Redis implements Notify
      *
      * @param string $list_name
      */
-    public function __construct( $list_name )
+    public function __construct($list_name)
     {
-        $this->queue = new Queue( $list_name, Context::instance()->redis );
+        $this->queue = new Queue($list_name, Context::instance()->redis);
     }
 
     /**
@@ -33,7 +33,7 @@ class Redis implements Notify
      * @param array $event_data
      * @return bool
      */
-    public function send( array $event_data)
+    public function send(array $event_data)
     {
         $success = $this->queue->push($event_data);
         return $success;

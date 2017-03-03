@@ -11,8 +11,8 @@ use Wing\FileSystem\WDir;
  * demo
  * $bin = new \Seals\Library\BinLog(
         new \Seals\Library\PDO("root","123456","localhost","activity")
-    );
-    $bin->onChange(function( $database_name, $table_name, $event_data ){
+   );
+    $bin->onChange(function($database_name, $table_name, $event_data){
         echo "数据库：",$database_name,"\r\n";
         echo "数据表：",$table_name,"\r\n";
         echo "改变数据：";var_dump($event_data);
@@ -48,7 +48,7 @@ class BinLog{
      * @param DbInterface $db_handler
      * @param string $mysqlbinlog
      */
-    public function __construct( DbInterface $db_handler,$mysqlbinlog = "mysqlbinlog")
+    public function __construct(DbInterface $db_handler,$mysqlbinlog = "mysqlbinlog")
     {
         $this->db_handler  = $db_handler;
         $this->mysqlbinlog = $mysqlbinlog;
@@ -81,7 +81,7 @@ class BinLog{
         $dir->mkdir();
 
         if (!$dir->isWrite()) {
-            die( $this->cache_dir ." is not writeable \r\n" );
+            die($this->cache_dir ." is not writeable \r\n");
         }
 
         unset($dir);
@@ -114,14 +114,14 @@ class BinLog{
     public function getLogs()
     {
         $sql  = 'show binary logs';
-        return $this->db_handler->query( $sql );
+        return $this->db_handler->query($sql);
     }
 
     public function getFormat()
     {
         $sql  = 'select @@binlog_format';
-        $data = $this->db_handler->row( $sql );
-        return strtolower( $data["@@binlog_format"] );
+        $data = $this->db_handler->row($sql);
+        return strtolower($data["@@binlog_format"]);
     }
 
     /**
@@ -140,7 +140,7 @@ class BinLog{
     public function getCurrentLogInfo()
     {
         $sql  = 'show master status';
-        $data = $this->db_handler->row( $sql );
+        $data = $this->db_handler->row($sql);
         return $data;
     }
 
@@ -153,8 +153,8 @@ class BinLog{
     {
         $logs  = $this->getLogs();
         $sql   = 'select @@log_bin_basename';
-        $data  = $this->db_handler->row( $sql );
-        $path  = pathinfo( $data["@@log_bin_basename"],PATHINFO_DIRNAME );
+        $data  = $this->db_handler->row($sql);
+        $path  = pathinfo($data["@@log_bin_basename"],PATHINFO_DIRNAME);
         $files = [];
 
         foreach ($logs as $line) {
@@ -172,8 +172,8 @@ class BinLog{
     public function getCurrentLogFile()
     {
         $sql  = 'select @@log_bin_basename';
-        $data = $this->db_handler->row( $sql );
-        $path = pathinfo( $data["@@log_bin_basename"],PATHINFO_DIRNAME );
+        $data = $this->db_handler->row($sql);
+        $path = pathinfo($data["@@log_bin_basename"],PATHINFO_DIRNAME);
         $info = $this->getCurrentLogInfo();
 
         return $path.DIRECTORY_SEPARATOR.$info["File"];
@@ -187,8 +187,8 @@ class BinLog{
     public function isOpen()
     {
         $sql  = 'select @@sql_log_bin';
-        $data = $this->db_handler->row( $sql );
-        return isset( $data["@@sql_log_bin"] ) && $data["@@sql_log_bin"] == 1;
+        $data = $this->db_handler->row($sql);
+        return isset($data["@@sql_log_bin"]) && $data["@@sql_log_bin"] == 1;
     }
 
 
@@ -219,7 +219,7 @@ class BinLog{
      * @param int $end_pos
      * @return bool
      */
-    public function setLastPosition($start_pos,$end_pos )
+    public function setLastPosition($start_pos,$end_pos)
     {
         return file_put_contents(dirname(dirname(__DIR__))."/mysql.pos",$start_pos.":".$end_pos);
     }
@@ -255,7 +255,7 @@ class BinLog{
      *
      * @return string 缓存文件路径
      */
-    public function getSessions( $start_pos, $end_pos )
+    public function getSessions($start_pos, $end_pos)
     {
         //当前使用的binlog文件路径
         $current_binlog_file = $this->getCurrentLogFile();

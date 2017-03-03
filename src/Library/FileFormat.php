@@ -38,7 +38,7 @@ class FileFormat
      * @param string $file 文件路径
      * @param DbInterface $db_handler
      */
-    public function __construct( $file, DbInterface $db_handler )
+    public function __construct($file, DbInterface $db_handler)
     {
         $this->file = $file;
         $this->db_handler = $db_handler;
@@ -52,14 +52,14 @@ class FileFormat
      */
     public function parse($callback)
     {
-        $fh = fopen( $this->file, 'r');
-        if( !$fh || !is_resource($fh) )
+        $fh = fopen($this->file, 'r');
+        if(!$fh || !is_resource($fh))
         {
             return false;
         }
 
         $lines = [];
-        while( !feof($fh) ) {
+        while(!feof($fh)) {
 
             $line  = fgets($fh);
             $_line = ltrim($line,"#");
@@ -73,9 +73,9 @@ class FileFormat
                 $e == "insert" ||
                 $e == "update" ||
                 $e == "delete"
-            ) {
+           ) {
 
-                if( $lines ) {
+                if($lines) {
                     $this->linesParse($lines,$callback);
                 }
                 unset($lines);
@@ -90,7 +90,7 @@ class FileFormat
             $this->linesParse($lines,$callback);
         }
 
-        fclose( $fh );
+        fclose($fh);
         return true;
     }
 
@@ -205,13 +205,13 @@ class FileFormat
             $_item = trim($_item);
 
             $e = strtolower(substr($_item,0,6));
-            if( $e == "insert")
+            if($e == "insert")
                 return "write_rows";
 
-            if( $e == "update")
+            if($e == "update")
                 return "update_rows";
 
-            if( $e == "delete")
+            if($e == "delete")
                 return "delete_rows";
 
             return $this->event_type;

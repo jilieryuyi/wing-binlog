@@ -37,9 +37,9 @@ class Cpu{
                 break;
         }
 
-        $this->cpu_num = intval( $this->cpu_num );
+        $this->cpu_num = intval($this->cpu_num);
 
-        if( $this->cpu_num <= 0 )
+        if($this->cpu_num <= 0)
             $this->cpu_num = 1;
     }
 

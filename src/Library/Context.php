@@ -39,7 +39,7 @@ class Context{
      * @return self
      */
     public static function instance(){
-        if( !self::$instance )
+        if(!self::$instance)
             self::$instance = new self();
         return self::$instance;
     }
@@ -68,7 +68,7 @@ class Context{
             $redis_config["host"],
             $redis_config["port"],
             $redis_config["password"]
-        );
+       );
 
         $redis_config = require __DIR__."/../../config/redis_local.php";
 
@@ -76,7 +76,7 @@ class Context{
             $redis_config["host"],
             $redis_config["port"],
             $redis_config["password"]
-        );
+       );
 
         $configs = require __DIR__."/../../config/db.php";
         $this->activity_pdo  = new \Seals\Library\PDO(
@@ -84,6 +84,6 @@ class Context{
             $configs["password"],
             $configs["host"],
             $configs["db_name"]
-        );
+       );
     }
 }

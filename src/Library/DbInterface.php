@@ -7,8 +7,8 @@
  * 数据库pdo实现接口
  */
 interface DbInterface{
-    public function query( $sql );
+    public function query($sql);
     public function getDatabaseName();
     public function getTables();
-    public function row( $sql );
+    public function row($sql);
 }

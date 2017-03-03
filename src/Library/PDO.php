@@ -117,7 +117,7 @@ class PDO implements DbInterface
 
         $this->lastSql = $query;
         if ($parameters)
-            $this->lastSql .= " with raw data : ".json_encode( $parameters,JSON_UNESCAPED_UNICODE);
+            $this->lastSql .= " with raw data : ".json_encode($parameters,JSON_UNESCAPED_UNICODE);
 
         if (!$this->bconnected) {
             $this->connect();
