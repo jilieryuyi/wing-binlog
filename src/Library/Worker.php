@@ -496,7 +496,6 @@ class Worker implements Process{
      */
     protected function dispatchProcess( $i  ){
 
-        $self         = $this;
         $process_name = "php seals >> events collector - dispatch - ".$i;
 
         //设置进程标题 mac 会有warning 直接忽略
@@ -514,16 +513,16 @@ class Worker implements Process{
         $dispatcher = new DispatchQueue( $this );
 
         $queue_name = self::QUEUE_NAME. ":ep";
-        $queue = new Queue( $queue_name.$i, Context::instance()->redis_local);
-        while( 1 )
-        {
+        $queue      = new Queue( $queue_name.$i, Context::instance()->redis_local);
+
+        while(1) {
             clearstatcache();
             ob_start();
 
             try {
                 do {
-                    $self->setStatus( $process_name );
-                    $self->setIsRunning();
+                    $this->setStatus( $process_name );
+                    $this->setIsRunning();
 
                     $res = $queue->pop();
                     if( !$res )
@@ -543,9 +542,9 @@ class Worker implements Process{
 
                 } while (0);
 
-                $self->checkStopSignal();
+                $this->checkStopSignal();
 
-            }catch(\Exception $e){
+            } catch(\Exception $e){
                 var_dump($e->getMessage());
                 unset($e);
             }
@@ -647,7 +646,6 @@ class Worker implements Process{
      */
     protected function eventProcess(){
 
-        $self         = $this;
         $process_name = "php seals >> events collector - ep";
 
         //设置进程标题 mac 会有warning 直接忽略
@@ -670,8 +668,8 @@ class Worker implements Process{
 
             try {
                 do {
-                    $self->setStatus( $process_name );
-                    $self->setIsRunning();
+                    $this->setStatus( $process_name );
+                    $this->setIsRunning();
 
                     //最后操作的binlog文件
                     $last_binlog         = $bin->getLastBinLog();
@@ -721,23 +719,23 @@ class Worker implements Process{
                     }
 
                     //如果没有查找到一个事务 $limit x 2 直到超过 100000 行
-                    if( !$has_session ){
+                    if (!$has_session) {
                         $limit = 2*$limit;
-                        if( $limit > 100000 )
+                        if ($limit > 100000)
                             $limit = 10000;
-                    }else{
+                    } else {
                         $limit = 10000;
                     }
 
                 } while (0);
-                $self->checkStopSignal();
-            }catch(\Exception $e){
+                $this->checkStopSignal();
+            } catch (\Exception $e) {
                 var_dump($e->getMessage());
                 unset($e);
             }
             $output = null;
 
-            if( $this->debug )
+            if ($this->debug)
                 $output = ob_get_contents();
             ob_end_clean();
 
@@ -764,19 +762,15 @@ class Worker implements Process{
         echo "\r\n";
 
         //设置守护进程模式
-        if( $this->deamon )
-        {
+        if ($this->deamon) {
             self::daemonize();
         }
 
         //启动元数据解析进程
-        for ($i = 1; $i <= $this->workers; $i++)
-        {
+        for ($i = 1; $i <= $this->workers; $i++) {
             $process_id = pcntl_fork();
-            if ($process_id == 0)
-            {
-                if ($this->deamon)
-                {
+            if ($process_id == 0) {
+                if ($this->deamon) {
                     $this->resetStd();
                 }
                 echo "process ",$i," is running \r\n";
@@ -784,6 +778,7 @@ class Worker implements Process{
                 $this->parseProcess($i);
             }
         }
+
         //启动调度进程 负责生成缓存文件
         for ($i = 1; $i <= $this->workers; $i++) {
             $process_id = pcntl_fork();
@@ -794,7 +789,7 @@ class Worker implements Process{
                 }
                 echo "process queue dispatch ".$i." is running \r\n";
                 ini_set("memory_limit", $this->memory_limit);
-                $this->dispatchProcess( $i );
+                $this->dispatchProcess($i);
             }
         }
 
@@ -804,9 +799,6 @@ class Worker implements Process{
         echo "process queue dispatch is running \r\n";
         ini_set("memory_limit", $this->memory_limit);
         //基础事件采集进程
-        $this->eventProcess( );
-
+        $this->eventProcess();
     }
-
-
 }
