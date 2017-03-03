@@ -6,18 +6,34 @@ use Seals\Library\Notify;
  * User: yuyi
  * Date: 17/2/18
  * Time: 10:17
+ *
+ * http协议事件通知的实现
+ *
  */
-class Http implements Notify {
+class Http implements Notify
+{
 
     private $url;
     private $data;
 
+    /**
+     * 构造函数
+     *
+     * @param string $url
+     * @param mixed $data
+     */
     public function __construct( $url , $data = "" )
     {
         $this->url  = $url;
         $this->data = $data;
     }
 
+    /**
+     * 发送数据
+     *
+     * @param array $event_data
+     * @return string
+     */
     public function send(array $event_data)
     {
         $ch = curl_init();
