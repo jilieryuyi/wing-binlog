@@ -512,11 +512,15 @@ class Worker implements Process
     }
 
     /**
-     * @简单的进程调度实现，获取该分配的进程队列名称
+     * 简单的进程调度实现，获取该分配的进程队列名称
+     *
+     * @param string $base_queue_name 基础队列名称
+     * @return string
      */
-    public function getWorker()
+    public function getWorker( $base_queue_name )
     {
-        $target_worker = self::QUEUE_NAME. ":ep1";
+        //$base_queue_name self::QUEUE_NAME. ":ep
+        $target_worker = $base_queue_name."1";
 
         if ($this->workers <= 1) {
             return $target_worker;
@@ -524,7 +528,7 @@ class Worker implements Process
 
         //改良调度算法的实现（使用类似 数据链路的令牌方式 拥有令牌则繁忙）
         for ($i = 1; $i <= $this->workers; $i++) {
-            if (!$this->isBusy(self::QUEUE_NAME. ":ep" . $i)) {
+            if (!$this->isBusy($base_queue_name . $i)) {
                 return $target_worker;
             }
         }
@@ -533,40 +537,12 @@ class Worker implements Process
         $target_len = Context::instance()->redis_local->lLen($target_worker);
 
         for ($i = 2; $i <= $this->workers; $i++) {
-            $len = Context::instance()->redis_local->lLen(self::QUEUE_NAME. ":ep" . $i);
+            $len = Context::instance()->redis_local->lLen($base_queue_name . $i);
             if ($len < $target_len) {
-                $target_worker = self::QUEUE_NAME. ":ep" . $i;
+                $target_worker = $base_queue_name . $i;
                 $target_len    = $len;
             }
         }
-        return $target_worker;
-    }
-
-    protected function getDsipatchWorker()
-    {
-        $target_worker = self::QUEUE_NAME . "1";
-
-        if ($this->workers <= 1) {
-            return $target_worker;
-        }
-
-        //改良调度算法的实现（使用类似 数据链路的令牌方式 拥有令牌则繁忙）
-        for ($i = 1; $i <= $this->workers; $i++) {
-            if (!$this->isBusy(self::QUEUE_NAME . $i)) {
-                return $target_worker;
-            }
-        }
-
-        $target_len = Context::instance()->redis_local->lLen($target_worker);
-        //那个工作队列的待处理任务最少 就派发给那个队列
-        for ($i = 2; $i <= $this->workers; $i++) {
-            $len = Context::instance()->redis_local->lLen(self::QUEUE_NAME . $i);
-            if ($len < $target_len) {
-                $target_worker = self::QUEUE_NAME . $i;
-                $target_len    = $len;
-            }
-        }
-
         return $target_worker;
     }
 
@@ -616,7 +592,7 @@ class Worker implements Process
                     unset($end_pos,$start_pos);
 
                     //进程调度 看看该把cache_file扔给那个进程处理
-                    $target_worker = $this->getDsipatchWorker();
+                    $target_worker = $this->getWorker(self::QUEUE_NAME);
                     Context::instance()->redis_local->rPush( $target_worker, $cache_path );
                     unset($target_worker,$cache_path);
 
@@ -787,7 +763,7 @@ class Worker implements Process
 
                     foreach ($data as $row){
                         if ($row["Event_type"] == "Xid") {
-                            $worker     = $this->getWorker();
+                            $worker     = $this->getWorker(self::QUEUE_NAME. ":ep");
                             $queue      = new Queue($worker, Context::instance()->redis_local);
 
                             echo "push==>",$start_pos.":".$row["End_log_pos"],"\r\n";
