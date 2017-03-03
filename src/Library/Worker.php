@@ -378,6 +378,33 @@ class Worker implements Process
 
     }
 
+    public function setBusy($queue_name, $busy)
+    {
+        $cache_file = $this->cache_dir."/busy_".$queue_name;
+        $file       = new WFile( $cache_file );
+
+        $file->write($busy,false,1);
+
+        unset($file,$cache_file);
+    }
+
+    public function isBusy($queue_name)
+    {
+        $cache_file = $this->cache_dir."/busy_".$queue_name;
+        $file       = new WFile($cache_file);
+
+        if (!$file->exists()) {
+            unset($file,$cache_file);
+            return 0;
+        }
+
+        $is_busy = $file->read();
+
+        unset($file,$cache_file);
+
+        return $is_busy == 1;
+    }
+
     /**
      * @重置标准错误和标准输出，linux支持
      *
@@ -395,13 +422,13 @@ class Worker implements Process
         $file   = new WFile( $this->log_dir . "/seals_output_".date("Ymd")."_".self::getCurrentProcessId().".log" );
         $file->touch();
 
-        $handle = fopen( $file->get(), "a+");
+        $handle = fopen($file->get(), "a+");
         if ($handle) {
             unset($handle);
             @fclose(STDOUT);
             @fclose(STDERR);
-            $STDOUT = fopen( $file->get(), "a+");
-            $STDERR = fopen( $file->get(), "a+");
+            $STDOUT = fopen($file->get(), "a+");
+            $STDERR = fopen($file->get(), "a+");
         }
         else {
             throw new \Exception('can not open stdoutFile ' . $file->get());
@@ -487,20 +514,25 @@ class Worker implements Process
     /**
      * @简单的进程调度实现，获取该分配的进程队列名称
      */
-    public function getWorker( )
+    public function getWorker()
     {
         $target_worker = self::QUEUE_NAME. ":ep1";
 
-        //那个工作队列的待处理任务最少 就派发给那个队列
-        $num = $this->workers;
-
-        if ($num <= 1) {
+        if ($this->workers <= 1) {
             return $target_worker;
         }
 
+        //改良调度算法的实现（使用类似 数据链路的令牌方式 拥有令牌则繁忙）
+        for ($i = 1; $i <= $this->workers; $i++) {
+            if (!$this->isBusy(self::QUEUE_NAME. ":ep" . $i)) {
+                return $target_worker;
+            }
+        }
+
+        //如果没有空闲的进程 然后判断待处理的队列长度 那个待处理的任务少 就派发给那个进程
         $target_len = Context::instance()->redis_local->lLen($target_worker);
 
-        for ($i = 2; $i <= $num; $i++) {
+        for ($i = 2; $i <= $this->workers; $i++) {
             $len = Context::instance()->redis_local->lLen(self::QUEUE_NAME. ":ep" . $i);
             if ($len < $target_len) {
                 $target_worker = self::QUEUE_NAME. ":ep" . $i;
@@ -510,7 +542,33 @@ class Worker implements Process
         return $target_worker;
     }
 
+    protected function getDsipatchWorker()
+    {
+        $target_worker = self::QUEUE_NAME . "1";
 
+        if ($this->workers <= 1) {
+            return $target_worker;
+        }
+
+        //改良调度算法的实现（使用类似 数据链路的令牌方式 拥有令牌则繁忙）
+        for ($i = 1; $i <= $this->workers; $i++) {
+            if (!$this->isBusy(self::QUEUE_NAME . $i)) {
+                return $target_worker;
+            }
+        }
+
+        $target_len = Context::instance()->redis_local->lLen($target_worker);
+        //那个工作队列的待处理任务最少 就派发给那个队列
+        for ($i = 2; $i <= $this->workers; $i++) {
+            $len = Context::instance()->redis_local->lLen(self::QUEUE_NAME . $i);
+            if ($len < $target_len) {
+                $target_worker = self::QUEUE_NAME . $i;
+                $target_len    = $len;
+            }
+        }
+
+        return $target_worker;
+    }
 
     /**
      * 调度进程
@@ -533,10 +591,10 @@ class Worker implements Process
         $bin->setCacheDir( $this->binlog_cache_dir );
         $bin->setDebug( $this->debug );
 
-        $dispatcher = new DispatchQueue( $this );
+        //$dispatcher = new DispatchQueue( $this );
 
-        $queue_name = self::QUEUE_NAME. ":ep";
-        $queue      = new Queue( $queue_name.$i, Context::instance()->redis_local);
+        $queue_name = self::QUEUE_NAME. ":ep".$i;
+        $queue      = new Queue( $queue_name, Context::instance()->redis_local);
 
         while (1) {
             clearstatcache();
@@ -551,17 +609,19 @@ class Worker implements Process
                     if (!$res)
                         break;
 
+                    $this->setBusy($queue_name, 1);
                     list( $start_pos, $end_pos ) = explode(":",$res);
 
                     $cache_path = $bin->getSessions( $start_pos, $end_pos );
                     unset($end_pos,$start_pos);
 
                     //进程调度 看看该把cache_file扔给那个进程处理
-                    $target_worker = $dispatcher->get();
+                    $target_worker = $this->getDsipatchWorker();
                     Context::instance()->redis_local->rPush( $target_worker, $cache_path );
                     unset($target_worker,$cache_path);
 
                     unset($cache_path);
+                    $this->setBusy($queue_name, 0);
 
                 } while (0);
 
@@ -597,7 +657,8 @@ class Worker implements Process
         //设置进程标题 mac 会有warning 直接忽略
         $this->setProcessTitle( $process_name );
 
-        $queue = new Queue(self::QUEUE_NAME.$i, Context::instance()->redis_local );
+        $queue_name = self::QUEUE_NAME.$i;
+        $queue      = new Queue($queue_name, Context::instance()->redis_local );
 
         //由于是多进程 redis和pdo等连接资源 需要重置
         Context::instance()->reset();
@@ -624,7 +685,7 @@ class Worker implements Process
                         break;
                     }
 
-
+                    $this->setBusy($queue_name,1);
                     $file = new FileFormat($cache_file,\Seals\Library\Context::instance()->activity_pdo);
 
                     $file->parse(function ($database_name, $table_name, $event) {
@@ -635,6 +696,8 @@ class Worker implements Process
                             "app_id"        => $this->app_id
                         ]);
                     });
+                    $this->setBusy($queue_name,0);
+
 
                     unset($file);
 
@@ -725,7 +788,7 @@ class Worker implements Process
                     foreach ($data as $row){
                         if ($row["Event_type"] == "Xid") {
                             $worker     = $this->getWorker();
-                            $queue      = new Queue( $worker, Context::instance()->redis_local );
+                            $queue      = new Queue($worker, Context::instance()->redis_local);
 
                             echo "push==>",$start_pos.":".$row["End_log_pos"],"\r\n";
 
