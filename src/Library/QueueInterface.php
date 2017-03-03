@@ -4,8 +4,12 @@
  * User: yuyi
  * Date: 17/3/2
  * Time: 20:46
+ *
+ * 队列接口
+ *
  */
 interface QueueInterface{
+
     /**
      * @加入到队列
      *
@@ -13,6 +17,7 @@ interface QueueInterface{
      * @return bool
      */
     public function push( $data );
+
     /**
      * @弹出队列首部数据
      *
@@ -26,6 +31,7 @@ interface QueueInterface{
      * @return mixed
      */
     public function peek();
+
     /**
      * @返回消息队列长度
      *

@@ -4,31 +4,64 @@
  * User: yuyi
  * Date: 17/2/7
  * Time: 18:26
+ *
+ * 上下文支持
+ *
  * @property PDO $activity_pdo
  * @property \Redis $redis
  * @property \Redis $redis_local
  */
 class Context{
 
+    /**
+     * @var RedisInterface
+     */
     public $redis;
+
+    /**
+     * @var RedisInterface
+     */
     public $redis_local;
+
+    /**
+     * @var PDO
+     */
     public $activity_pdo;
 
+    /**
+     * @var self
+     */
     private static $instance = null;
 
+    /**
+     * 单例
+     *
+     * @return self
+     */
     public static function instance(){
         if( !self::$instance )
             self::$instance = new self();
         return self::$instance;
     }
 
+    /**
+     * 构造函数
+     */
     public function __construct()
     {
         $this->reset();
     }
 
+    /**
+     * 重置所有的资源，多进程编程支持
+     */
     public function reset()
     {
+
+        $this->redis = null;
+        $this->redis_local = null;
+        $this->activity_pdo = null;
+
         $redis_config = require __DIR__."/../../config/redis.php";
 
         $this->redis  = new Redis(

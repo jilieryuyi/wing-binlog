@@ -1,7 +1,18 @@
 <?php namespace Seals\Library;
 
+/**
+ * 获取cpu数量，已测试linux和mac
+ */
+
 class Cpu{
+    /**
+     * @var int
+     */
     public $cpu_num = 1;
+
+    /**
+     * @构造函数
+     */
     public function __construct()
     {
         switch(PHP_OS) {
@@ -32,6 +43,9 @@ class Cpu{
             $this->cpu_num = 1;
     }
 
+    /**
+     * linux cpu数量解析获取
+     */
     private function sysLinux() {
         if (false === ($str = @file("/proc/cpuinfo"))) {
             $this->cpu_num = 1;

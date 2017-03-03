@@ -11,18 +11,20 @@
  * @先进先出队列 使用redis list
  * @可以通过 XSL::instance()->queue 访问，如 XSL::instance()->queue->pop()
  */
-class Queue implements QueueInterface {
+class Queue implements QueueInterface
+{
 
     private $queue_name;
     private $redis;
 
-    public function __construct( $queue_name, RedisInterface $redis )
+    public function __construct($queue_name, RedisInterface $redis)
     {
         $this->queue_name = $queue_name;
         $this->redis = $redis;
     }
 
-    public function getQueueName(){
+    public function getQueueName()
+    {
         return $this->queue_name;
     }
 
@@ -33,8 +35,9 @@ class Queue implements QueueInterface {
      * @param $data array 事件依附的数据
      * @return bool
      */
-    public function push( $data ){
-        if( is_array($data) )
+    public function push($data)
+    {
+        if (is_array($data))
             $data = json_encode($data);
         return $this->redis->rPush( $this->queue_name, $data );
     }
@@ -43,15 +46,16 @@ class Queue implements QueueInterface {
      *
      * @return array
      */
-    public function pop(){
+    public function pop()
+    {
 
         $data = $this->redis->lPop( $this->queue_name );
 
-        if( $data === false )
+        if ($data === false)
             return null;
 
         $arr = @json_decode($data,true);
-        if( is_array($arr) ){
+        if (is_array($arr)) {
             return $arr;
         }
 
@@ -63,9 +67,10 @@ class Queue implements QueueInterface {
      *
      * @return array
      */
-    public function peek(){
+    public function peek()
+    {
         $data =  $this->redis->lRange(  $this->queue_name, 0, 1 );
-        if( isset($data[0]) )
+        if (isset($data[0]))
             return $data[0];
         return null;
     }
@@ -75,7 +80,8 @@ class Queue implements QueueInterface {
      *
      * @return int
      */
-    public function length(){
+    public function length()
+    {
         return $this->redis->lLen( $this->queue_name );
     }
 
@@ -84,7 +90,8 @@ class Queue implements QueueInterface {
      *
      * @return bool
      */
-    public function clear(){
+    public function clear()
+    {
         return !!$this->redis->del( $this->queue_name );
     }
 }

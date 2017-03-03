@@ -4,39 +4,58 @@
  * User: yuyi
  * Date: 16/11/17
  * Time: 16:51
+ * 执行命令并返回结果
  */
 
 class Command
 {
+    /**
+     * @var string
+     */
     private  $command;
-    public function __construct( $command )
+
+    /**
+     * 构造函数
+     *
+     * @param string $command
+     */
+    public function __construct($command)
     {
         $this->command = $command;
     }
 
     /***
-     * @检测是否支持命令
+     * 检测是否支持命令
      *
      * @return bool
      */
-    public function check(){
+    public function check()
+    {
         $res = $this->run();
-        if( strpos( $res, "command not found" ) !== false )
-        {
+        if (strpos( $res, "command not found" ) !== false) {
             return false;
         }
         return true;
     }
 
+    /**
+     * 执行指令
+     *
+     * @return string
+     */
     public function run(){
-        $handle = popen( $this->command ,"r");
 
+        $handle = popen( $this->command ,"r");
         $result = '';
-        while(1){
+
+        while (1) {
             $res = fgets($handle, 1024);
-            if( $res )
+            if ($res) {
                 $result.=$res;
-            else break;
+            }
+            else {
+                break;
+            }
         }
 
         pclose($handle);

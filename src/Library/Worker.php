@@ -9,9 +9,8 @@ use Wing\FileSystem\WFile;
  * @property Notify $notify
  */
 
-class Worker implements Process{
-
-
+class Worker implements Process
+{
     protected $work_dir;
     protected $log_dir;
     protected $debug            = false;
@@ -32,13 +31,12 @@ class Worker implements Process{
      * @构造函数
      */
     public function __construct(
-        $app_id = "",
-        $memory_limit = "10240M",
-        $log_dir = __APP_DIR__."/logs",
+        $app_id            = "",
+        $memory_limit      = "10240M",
+        $log_dir           = __APP_DIR__."/logs",
         $process_cache_dir = __APP_DIR__."/process_cache",
-        $binlog_cache_dir = __APP_DIR__."/cache"
-    )
-    {
+        $binlog_cache_dir  = __APP_DIR__."/cache"
+    ) {
         gc_enable();
 
         $this->start_time       = time();
@@ -50,14 +48,14 @@ class Worker implements Process{
         $this->setLogDir( $log_dir );
         $this->setProcessCacheDir( $process_cache_dir );
 
-        register_shutdown_function(function(){
+        register_shutdown_function(function() {
             $error = error_get_last();
             if( $error )
                 file_put_contents( $this->log_dir."/shutdown_".date("Ymd")."_".self::getCurrentProcessId().".log",date("Y-m-d H:i:s")."\r\n".json_encode($error,JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND);
             $this->clear();
         });
 
-        set_error_handler(function($errno, $errstr, $errfile, $errline){
+        set_error_handler(function($errno, $errstr, $errfile, $errline) {
             file_put_contents( $this->log_dir."/error_".date("Ymd")."_".self::getCurrentProcessId().".log",date("Y-m-d H:i:s")."\r\n".json_encode(func_get_args(),JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND);
         });
 
@@ -69,48 +67,58 @@ class Worker implements Process{
 
     }
 
+    /**
+     * 析构函数
+     */
     public function __destruct()
     {
         $this->clear();
     }
 
     /**
-     * @事件通知方式实现
+     * 事件通知方式实现
+     *
      * @param Notify $notify
      */
-    public function setNotify( Notify $notify ){
+    public function setNotify(Notify $notify)
+    {
         $this->notify = $notify;
     }
 
     /**
-     * @启用守护进程模式
+     * 启用守护进程模式
      */
-    public function enableDeamon(){
+    public function enableDeamon()
+    {
         $this->deamon = true;
     }
 
     /**
-     * @禁用守护进程模式
+     * 禁用守护进程模式
      */
-    public function disableDeamon(){
+    public function disableDeamon()
+    {
         $this->deamon = false;
     }
 
     /**
-     * @设置进程标题，仅linux
+     * 设置进程标题，仅linux
+     *
      * @param string $title 进程标题
      */
-    public function setProcessTitle( $title ){
-        if( function_exists("setproctitle") )
+    public function setProcessTitle($title)
+    {
+        if (function_exists("setproctitle"))
             setproctitle($title);
-        if( function_exists("cli_set_process_title") )
+        if (function_exists("cli_set_process_title"))
             cli_set_process_title($title);
     }
 
     /**
      * 启用debug模式
      */
-    public function enabledDebug(){
+    public function enabledDebug()
+    {
         $this->debug = true;
         return $this;
     }
@@ -118,20 +126,26 @@ class Worker implements Process{
     /**
      * 禁用debug模式
      */
-    public function disabledDebug(){
+    public function disabledDebug()
+    {
         $this->debug = false;
         return $this;
     }
 
     /**
-     * @设置工作目录
+     * 设置工作目录
+     *
      * @param string $dir 目录路径
      */
-    public function setWorkDir( $dir ){
+    public function setWorkDir($dir)
+    {
         $dir = str_replace("\\","/",$dir);
         $dir = rtrim($dir,"/");
+
         $this->work_dir = $dir;
+
         $dir = new WDir($this->work_dir);
+
         $dir->mkdir();
         unset($dir);
         //改变当前文件目录
@@ -142,7 +156,8 @@ class Worker implements Process{
      * @设置进程缓存路径
      * @param string $dir 目录路径
      */
-    public function setProcessCacheDir($dir){
+    public function setProcessCacheDir($dir)
+    {
         $dir = str_replace("\\","/",$dir);
         $dir = rtrim($dir,"/");
         $this->cache_dir = $dir;
@@ -155,7 +170,8 @@ class Worker implements Process{
      * @设置日志目录
      * @param string $dir 目录路径
      */
-    public function setLogDir($dir){
+    public function setLogDir($dir)
+    {
         $dir = str_replace("\\","/",$dir);
         $dir = rtrim($dir,"/");
         $this->log_dir = $dir;
@@ -168,16 +184,17 @@ class Worker implements Process{
     /**
      * @退出时清理一些资源
      */
-    private function clear(){
+    private function clear()
+    {
 
         $process_id = self::getCurrentProcessId();
-        if( file_exists($this->cache_dir."/running_".$process_id))
+        if (file_exists($this->cache_dir."/running_".$process_id))
             unlink($this->cache_dir."/running_".$process_id);
 
-        if(file_exists($this->cache_dir."/stop_".$process_id))
+        if (file_exists($this->cache_dir."/stop_".$process_id))
             unlink($this->cache_dir."/stop_".$process_id);
 
-        if(file_exists($this->cache_dir."/status_".$process_id))
+        if (file_exists($this->cache_dir."/status_".$process_id))
             unlink($this->cache_dir."/status_".$process_id);
     }
 
@@ -186,7 +203,8 @@ class Worker implements Process{
      *
      * @return string
      */
-    public function getQueueName(){
+    public function getQueueName()
+    {
         return self::QUEUE_NAME;
     }
 
@@ -196,7 +214,8 @@ class Worker implements Process{
      *
      * @return self
      */
-    public function setIsRunning(){
+    public function setIsRunning()
+    {
         $process_id = self::getCurrentProcessId();
         file_put_contents($this->cache_dir."/running_".$process_id,1);
         return $this;
@@ -207,7 +226,8 @@ class Worker implements Process{
      *
      * @return bool
      */
-    public function getIsRunning(){
+    public function getIsRunning()
+    {
         $process_id = self::getCurrentProcessId();
         $cache_file = $this->cache_dir."/running_".$process_id;
         return file_exists($cache_file) && file_get_contents($cache_file) == 1;
@@ -218,12 +238,12 @@ class Worker implements Process{
      *
      * @return void
      */
-    public function checkStopSignal(){
+    public function checkStopSignal()
+    {
         $process_id = self::getCurrentProcessId();
         $cache_file = $this->cache_dir."/stop_".$process_id;
         $is_stop    = file_exists( $cache_file ) && file_get_contents($cache_file) == 1;
-        if( $is_stop )
-        {
+        if ($is_stop) {
             echo $process_id," get stop signal\r\n";
             exit(0);
         }
@@ -234,28 +254,27 @@ class Worker implements Process{
      *
      * @return void
      */
-    public function stop(){
+    public function stop()
+    {
 
         $dir   = new WDir($this->cache_dir);
         $files = $dir->scandir();
 
         $process_ids = [];
-        foreach ( $files as $file ){
+        foreach ($files as $file) {
             $name = pathinfo( $file,PATHINFO_FILENAME);
             list( $name, $process_id) = explode("_",$name);
-            if( $name == "running" )
+            if ($name == "running")
                 $process_ids[] = $process_id;
         }
 
-        if( !$process_ids )
+        if (!$process_ids)
             return;
 
-        foreach ( $process_ids as $process_id )
-        {
+        foreach ($process_ids as $process_id) {
             $cache_file = $this->cache_dir."/stop_".$process_id;
             file_put_contents($cache_file,1);
         }
-
     }
 
     /**
@@ -270,16 +289,16 @@ class Worker implements Process{
         $dir   = new WDir($this->cache_dir);
         $files = $dir->scandir();
 
-        foreach ( $files as $file ){
+        foreach ($files as $file) {
             $name = pathinfo( $file,PATHINFO_FILENAME);
-            list( $name, $process_id) = explode("_",$name);
-            if( $name == "status" )
+            list($name, $process_id) = explode("_",$name);
+            if ($name == "status")
                 $arr[$process_id] = file_get_contents($file) ;
         }
 
-        foreach ( $arr as $process_id => $josn ){
+        foreach ($arr as $process_id => $josn) {
             $t = json_decode($josn,true);
-            if( (time()-$t["updated"]) >= 180 ) {
+            if ((time()-$t["updated"]) >= 180) {
                 unlink($this->cache_dir."/status_".$process_id);
             }
             else {
@@ -287,7 +306,7 @@ class Worker implements Process{
             }
         }
 
-        if( count($_res) <= 0 )
+        if (count($_res) <= 0)
             return "";
 
         $res = [];
@@ -297,7 +316,7 @@ class Worker implements Process{
             $n        = preg_replace("/\D/","",$status["name"]);
             $wlen     = 0;
 
-            if( strpos($status["name"],"dispatch") !== false ) {
+            if (strpos($status["name"],"dispatch") !== false) {
                 $queue = new Queue(self::QUEUE_NAME .":ep". $n, Context::instance()->redis_local);
                 $wlen  = $queue->length();
             }
@@ -314,16 +333,16 @@ class Worker implements Process{
                 "work_len"   => $wlen
             ];
 
-            if(!is_numeric($n))
+            if (!is_numeric($n))
                 $n = 0;
 
-            if( strpos($status["name"],"dispatch") !== false ) {
+            if (strpos($status["name"],"dispatch") !== false) {
                 $names[] = $n+1;
             }
-            elseif( strpos($status["name"],"workers") !== false ) {
+            elseif (strpos($status["name"],"workers") !== false) {
                 $names[] = $n+100;
             }
-            else{
+            else {
                 $names[] = 0;
             }
         }
@@ -338,15 +357,15 @@ class Worker implements Process{
                 "       ". $v["run_time"].
                 "  ". $v["name"]."\r\n";
         return $str;
-
     }
 
     /**
-     * @设置运行状态
+     * 设置运行状态
      *
      * @return void
      */
-    public function setStatus( $name ){
+    public function setStatus($name)
+    {
         $process_id = self::getCurrentProcessId();
         $cache_file = $this->cache_dir."/status_".$process_id;
 
@@ -367,8 +386,7 @@ class Worker implements Process{
      */
     protected function resetStd()
     {
-        if( strtolower( substr(php_uname('s'),0,3) ) == "win" )
-        {
+        if (strtolower(substr(php_uname('s'),0,3)) == "win") {
             return;
         }
 
@@ -378,15 +396,14 @@ class Worker implements Process{
         $file->touch();
 
         $handle = fopen( $file->get(), "a+");
-        if ($handle)
-        {
+        if ($handle) {
             unset($handle);
             @fclose(STDOUT);
             @fclose(STDERR);
             $STDOUT = fopen( $file->get(), "a+");
             $STDERR = fopen( $file->get(), "a+");
-        } else
-        {
+        }
+        else {
             throw new \Exception('can not open stdoutFile ' . $file->get());
         }
     }
@@ -394,14 +411,16 @@ class Worker implements Process{
     /**
      * @服务状态
      */
-    public function status(){
+    public function status()
+    {
         return $this->getStatus();
     }
 
     /**
      * @获取进程数量
      */
-    public function getWorkersNum(){
+    public function getWorkersNum()
+    {
         return $this->workers;
     }
 
@@ -409,14 +428,16 @@ class Worker implements Process{
      * @设置进程数量
      * @param int $workers
      */
-    public function setWorkersNum($workers){
+    public function setWorkersNum($workers)
+    {
         $this->workers = $workers;
     }
 
     /**
      * @是否还在运行
      */
-    public function isRunning(){
+    public function isRunning()
+    {
         return $this->getIsRunning();
     }
 
@@ -425,11 +446,12 @@ class Worker implements Process{
      *
      * @return int
      */
-    public static function  getCurrentProcessId(){
-        if( function_exists("getmypid") )
+    public static function  getCurrentProcessId()
+    {
+        if (function_exists("getmypid"))
             return getmypid();
 
-        if( function_exists("posix_getpid"))
+        if (function_exists("posix_getpid"))
             return posix_getpid();
         return 0;
     }
@@ -440,13 +462,14 @@ class Worker implements Process{
     public static function daemonize()
     {
 
-        if( !function_exists("pcntl_fork") )
+        if (!function_exists("pcntl_fork"))
             return;
         //创建进程
         $pid = pcntl_fork();
         if (-1 === $pid) {
             throw new \Exception('fork fail');
-        } elseif ($pid > 0) {
+        }
+        elseif ($pid > 0) {
             //父进程直接退出
             exit(0);
         }
@@ -471,14 +494,13 @@ class Worker implements Process{
         //那个工作队列的待处理任务最少 就派发给那个队列
         $num = $this->workers;
 
-        if( $num <= 1 )
-        {
+        if ($num <= 1) {
             return $target_worker;
         }
 
         $target_len = Context::instance()->redis_local->lLen($target_worker);
 
-        for ($i = 2; $i <= $num; $i++ ) {
+        for ($i = 2; $i <= $num; $i++) {
             $len = Context::instance()->redis_local->lLen(self::QUEUE_NAME. ":ep" . $i);
             if ($len < $target_len) {
                 $target_worker = self::QUEUE_NAME. ":ep" . $i;
@@ -494,7 +516,8 @@ class Worker implements Process{
      * 调度进程
      * @param int $i
      */
-    protected function dispatchProcess( $i  ){
+    protected function dispatchProcess($i)
+    {
 
         $process_name = "php seals >> events collector - dispatch - ".$i;
 
@@ -515,7 +538,7 @@ class Worker implements Process{
         $queue_name = self::QUEUE_NAME. ":ep";
         $queue      = new Queue( $queue_name.$i, Context::instance()->redis_local);
 
-        while(1) {
+        while (1) {
             clearstatcache();
             ob_start();
 
@@ -525,7 +548,7 @@ class Worker implements Process{
                     $this->setIsRunning();
 
                     $res = $queue->pop();
-                    if( !$res )
+                    if (!$res)
                         break;
 
                     list( $start_pos, $end_pos ) = explode(":",$res);
@@ -544,13 +567,13 @@ class Worker implements Process{
 
                 $this->checkStopSignal();
 
-            } catch(\Exception $e){
+            } catch (\Exception $e) {
                 var_dump($e->getMessage());
                 unset($e);
             }
             $output = null;
 
-            if( $this->debug )
+            if ($this->debug)
                 $output = ob_get_contents();
             ob_end_clean();
 
@@ -566,7 +589,8 @@ class Worker implements Process{
      * 解析进程
      * @param int $i
      */
-    protected function parseProcess($i){
+    protected function parseProcess($i)
+    {
 
         $process_name = "php seals >> events collector - workers - ".$i;
 
@@ -578,7 +602,7 @@ class Worker implements Process{
         //由于是多进程 redis和pdo等连接资源 需要重置
         Context::instance()->reset();
 
-        while(1) {
+        while (1) {
             ob_start();
             try {
                 $this->setStatus( $process_name );
@@ -595,8 +619,7 @@ class Worker implements Process{
 
                     $cache_file = $queue->pop();
                     echo $cache_file,"\r\n";
-                    if (!$cache_file||!file_exists(	$cache_file ) || !is_file($cache_file))
-                    {
+                    if (!$cache_file||!file_exists(	$cache_file ) || !is_file($cache_file)) {
                         unset($cache_file);
                         break;
                     }
@@ -622,20 +645,19 @@ class Worker implements Process{
 
                 $this->checkStopSignal();
 
-            } catch(\Exception $e){
+            } catch (\Exception $e) {
                 var_dump($e->getMessage());
                 unset($e);
             }
 
             $content = null;
-            if( $this->debug )
-            {
+            if ($this->debug) {
                 $content = ob_get_contents();
             }
             ob_end_clean();
             usleep(10000);
 
-            if( $content && $this->debug ) {
+            if ($content && $this->debug) {
                 echo $content;
                 unset($content);
             }
@@ -644,7 +666,8 @@ class Worker implements Process{
     /**
      * 事件分配进程
      */
-    protected function eventProcess(){
+    protected function eventProcess()
+    {
 
         $process_name = "php seals >> events collector - ep";
 
@@ -661,8 +684,7 @@ class Worker implements Process{
         $bin->setDebug( $this->debug );
 
         $limit = 10000;
-        while( 1 )
-        {
+        while (1) {
             clearstatcache();
             ob_start();
 
@@ -700,8 +722,8 @@ class Worker implements Process{
                     $start_pos   = $data[0]["Pos"];
                     $has_session = false;
 
-                    foreach ( $data as $row ){
-                        if( $row["Event_type"] == "Xid" ) {
+                    foreach ($data as $row){
+                        if ($row["Event_type"] == "Xid") {
                             $worker     = $this->getWorker();
                             $queue      = new Queue( $worker, Context::instance()->redis_local );
 

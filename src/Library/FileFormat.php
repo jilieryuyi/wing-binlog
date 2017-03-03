@@ -4,9 +4,13 @@
  * User: yuyi
  * Date: 17/2/24
  * Time: 14:45
+ *
+ * 缓存文件按行解析实现
+ *
  * @property DbInterface $db_handler
  */
-class FileFormat{
+class FileFormat
+{
 
     /**
      * @缓存路径
@@ -41,11 +45,13 @@ class FileFormat{
     }
 
     /**
-     * @按行解析文件
+     * 按行解析文件
+     *
      * @param \Closure $callback 如 function($db,$table,$event){}
      * @return bool
      */
-    public function parse($callback){
+    public function parse($callback)
+    {
         $fh = fopen( $this->file, 'r');
         if( !$fh || !is_resource($fh) )
         {
@@ -63,11 +69,11 @@ class FileFormat{
             unset($_line);
 
             //遇到分隔符 重置
-            if( preg_match("/#[\s]{1,}at[\s]{1,}[0-9]{1,}/",$line) ||
+            if (preg_match("/#[\s]{1,}at[\s]{1,}[0-9]{1,}/",$line) ||
                 $e == "insert" ||
                 $e == "update" ||
                 $e == "delete"
-            ){
+            ) {
 
                 if( $lines ) {
                     $this->linesParse($lines,$callback);
@@ -80,7 +86,7 @@ class FileFormat{
             unset($line);
         }
 
-        if( $lines ) {
+        if ($lines) {
             $this->linesParse($lines,$callback);
         }
 
@@ -93,18 +99,24 @@ class FileFormat{
      *
      * @return string
      */
-    protected function getEventTime($item){
+    protected function getEventTime($item)
+    {
         preg_match_all("/[0-9]{6}\s+?[0-9]{1,2}\:[0-9]{1,2}\:[0-9]{1,2}/", $item, $time_match);
-        if (!isset($time_match[0][0]))
-        {
+        if (!isset($time_match[0][0])) {
             return $this->daytime;
         }
         $daytime = $this->daytime = date("Y-m-d H:i:s", strtotime(substr(date("Y"), 0, 2) . $time_match[0][0]));
         return $daytime;
     }
 
-
-    protected function linesParse($lines,$callback){
+    /**
+     * 行解析
+     *
+     * @param array $lines 行
+     * @param \Closure $callback
+     */
+    protected function linesParse($lines,$callback)
+    {
         do {
             //处理流程
             $item = implode("", $lines);
@@ -159,12 +171,12 @@ class FileFormat{
     }
 
     /**
-     * @获取数据库和数据表
+     * 获取数据库和数据表
      *
      * @return array
      */
-    protected function getTables($item){
-
+    protected function getTables($item)
+    {
         preg_match_all("/`[\s\S].*?`.`[\s\S].*?`/", $item, $match_tables);
 
         if (!isset($match_tables[0][0])) {
@@ -180,15 +192,15 @@ class FileFormat{
     }
 
     /**
-     * @获取事件类型
+     * 获取事件类型
      *
      * @return string
      */
-    protected function getEventType( $item ){
+    protected function getEventType($item)
+    {
         preg_match("/\s(Delete_rows|Write_rows|Update_rows):/", $item, $ematch);
 
-        if (!isset($ematch[1]))
-        {
+        if (!isset($ematch[1])) {
             $_item = ltrim($item,"#");
             $_item = trim($_item);
 
@@ -215,7 +227,8 @@ class FileFormat{
      *
      * @return array
      */
-    protected function eventDatasFormat( $target_lines, $daytime, $event_type, $columns ){
+    protected function eventDatasFormat($target_lines, $daytime, $event_type, $columns)
+    {
 
         $event_data = [
             "event_type" => $event_type,
@@ -280,19 +293,17 @@ class FileFormat{
         return $event_data;
     }
 
-
-
     /**
      * @获取数据表行
      *
      * @return array
      */
-    protected function getColumns( $database_name, $table_name ){
+    protected function getColumns($database_name, $table_name)
+    {
         $sql     = 'SHOW COLUMNS FROM `' . $database_name . '`.`' . $table_name . '`';
         $columns = $this->db_handler->query($sql);
 
-        if (!$columns)
-        {
+        if (!$columns) {
             return null;
         }
         $columns = array_column($columns, "Field");

@@ -7,8 +7,8 @@ use Wing\FileSystem\WDir;
  * Date: 17/2/10
  * Time: 10:23
  *
- * @mysql数据变化监控实现，cache默认使用redis
- * @demo
+ * mysql数据变化监控实现，cache默认使用redis
+ * demo
  * $bin = new \Seals\Library\BinLog(
         new \Seals\Library\PDO("root","123456","localhost","activity")
     );
@@ -21,73 +21,111 @@ use Wing\FileSystem\WDir;
  */
 class BinLog{
 
+    /**
+     * @var DbInterface
+     */
     private $db_handler;
-    //mysqlbinlog 命令路径
+
+    /**
+     * mysqlbinlog 命令路径
+     * @var string
+     */
     private $mysqlbinlog  = "mysqlbinlog";
 
+    /**
+     * @var string
+     */
     private $cache_dir;
 
+    /**
+     * @var bool
+     */
     private $debug       = false;
 
+    /**
+     * 构造函数
+     *
+     * @param DbInterface $db_handler
+     * @param string $mysqlbinlog
+     */
     public function __construct( DbInterface $db_handler,$mysqlbinlog = "mysqlbinlog")
     {
         $this->db_handler  = $db_handler;
         $this->mysqlbinlog = $mysqlbinlog;
 
-        if( !$this->isOpen() )
-        {
+        if (!$this->isOpen()) {
             echo "请开启mysql binlog日志\r\n";
             exit;
         }
 
-        if( $this->getFormat() != "row" )
-        {
+        if ($this->getFormat() != "row") {
             echo "仅支持row格式\r\n";
             exit;
         }
     }
 
-    public function setCacheDir($dir){
+
+    /**
+     * 设置缓存目录
+     *
+     * @param string $dir
+     */
+    public function setCacheDir($dir)
+    {
         $dir = str_replace("\\","/",$dir);
         $dir = rtrim($dir,"/");
+
         $this->cache_dir = $dir;
+
         $dir = new WDir($this->cache_dir);
         $dir->mkdir();
-        if( !$dir->isWrite() ) {
+
+        if (!$dir->isWrite()) {
             die( $this->cache_dir ." is not writeable \r\n" );
         }
+
         unset($dir);
     }
 
-    public function setDebug( $debug ){
+    /**
+     * 设置debug
+     * @param bool $debug
+     */
+    public function setDebug($debug)
+    {
         $this->debug = $debug;
     }
 
     /**
-     * @设置mysqlbinlog命令路径
+     * 设置mysqlbinlog命令路径
+     *
+     * @param string $mysqlbinlog
      */
-    public function setMysqlbinlog( $mysqlbinlog ){
+    public function setMysqlbinlog($mysqlbinlog)
+    {
         $this->mysqlbinlog = $mysqlbinlog;
     }
 
     /**
-     * @获取所有的logs
+     * 获取所有的logs
      *
      * @return array
      */
-    public function getLogs(){
+    public function getLogs()
+    {
         $sql  = 'show binary logs';
         return $this->db_handler->query( $sql );
     }
 
-    public function getFormat(){
-        $sql = 'select @@binlog_format';
+    public function getFormat()
+    {
+        $sql  = 'select @@binlog_format';
         $data = $this->db_handler->row( $sql );
         return strtolower( $data["@@binlog_format"] );
     }
 
     /**
-     * @获取当前正在使用的binglog日志文件信息
+     * 获取当前正在使用的binglog日志文件信息
      *
      * @return array 一维
      *    array(5) {
@@ -99,25 +137,27 @@ class BinLog{
           }
 
      */
-    public function getCurrentLogInfo(){
+    public function getCurrentLogInfo()
+    {
         $sql  = 'show master status';
         $data = $this->db_handler->row( $sql );
         return $data;
     }
 
     /**
-     * @获取所有的binlog文件
+     * 获取所有的binlog文件
+     *
+     * @return array
      */
-    public function getFiles(){
-
+    public function getFiles()
+    {
         $logs  = $this->getLogs();
         $sql   = 'select @@log_bin_basename';
         $data  = $this->db_handler->row( $sql );
         $path  = pathinfo( $data["@@log_bin_basename"],PATHINFO_DIRNAME );
         $files = [];
 
-        foreach ( $logs as $line )
-        {
+        foreach ($logs as $line) {
             $files[] = $path.DIRECTORY_SEPARATOR.$line["Log_name"];
         }
 
@@ -125,10 +165,12 @@ class BinLog{
     }
 
     /**
-     * @获取当前正在使用的binlog文件路径
+     * 获取当前正在使用的binlog文件路径
+     *
+     * @return string
      */
-    public function getCurrentLogFile(){
-
+    public function getCurrentLogFile()
+    {
         $sql  = 'select @@log_bin_basename';
         $data = $this->db_handler->row( $sql );
         $path = pathinfo( $data["@@log_bin_basename"],PATHINFO_DIRNAME );
@@ -138,11 +180,12 @@ class BinLog{
     }
 
     /**
-     * @检测是否已开启binlog功能
+     * 检测是否已开启binlog功能
      *
      * @return bool
      */
-    public function isOpen(){
+    public function isOpen()
+    {
         $sql  = 'select @@sql_log_bin';
         $data = $this->db_handler->row( $sql );
         return isset( $data["@@sql_log_bin"] ) && $data["@@sql_log_bin"] == 1;
@@ -150,59 +193,70 @@ class BinLog{
 
 
     /**
-     * @设置存储最后操作的binlog名称
+     * 设置存储最后操作的binlog名称--游标，请勿删除mysql.last
+     *
+     * @param string $binlog
      */
-    public function setLastBinLog( $binlog ){
+    public function setLastBinLog($binlog)
+    {
         return file_put_contents(dirname(dirname(__DIR__))."/mysql.last",$binlog);
     }
 
     /**
-     * @获取最后操作的binlog文件名称
+     * 获取最后操作的binlog文件名称
+     *
+     * @return string
      */
-    public function getLastBinLog(){
+    public function getLastBinLog()
+    {
         return file_get_contents(dirname(dirname(__DIR__))."/mysql.last");
     }
 
     /**
-     * @设置最后的读取位置
+     * 设置最后的读取位置--游标，请勿删除mysql.pos
      *
      * @param int $start_pos
      * @param int $end_pos
      * @return bool
      */
-    public function setLastPosition( $start_pos, $end_pos ){
+    public function setLastPosition($start_pos,$end_pos )
+    {
         return file_put_contents(dirname(dirname(__DIR__))."/mysql.pos",$start_pos.":".$end_pos);
     }
 
     /**
-     * @获取最后的读取位置
+     * 获取最后的读取位置
+     *
      * @return array
      */
-    public function getLastPosition(){
+    public function getLastPosition()
+    {
         $pos = file_get_contents(dirname(dirname(__DIR__))."/mysql.pos");
         $res = explode(":",$pos);
-        if( !is_array($res) || count($res) != 2 )
+        if (!is_array($res) || count($res) != 2)
             return [0,0];
         return $res;
     }
 
     /**
-     * @获取binlog事件，请只在意第一第二个参数
+     * 获取binlog事件，请只在意第一第二个参数
      *
      * @return array
      */
-    public function getEvents($current_binlog,$last_end_pos, $limit = 10000){
+    public function getEvents($current_binlog,$last_end_pos, $limit = 10000)
+    {
         $sql   = 'show binlog events in "' . $current_binlog . '" from ' . $last_end_pos.' limit '.$limit;
         $datas = $this->db_handler->query($sql);
         return $datas;
     }
 
     /**
-     * @获取session元数据--直接存储于cache_file
+     * 获取session元数据--直接存储于cache_file
      *
-     * @return string cache_file path
+     * @return string 缓存文件路径
      */
-    public function getSessions( $start_pos, $end_pos ){
+    public function getSessions( $start_pos, $end_pos )
+    {
         //当前使用的binlog文件路径
         $current_binlog_file = $this->getCurrentLogFile();
 
@@ -228,8 +282,4 @@ class BinLog{
         unset($command);
         return $cache_file;
     }
-
-
-
-
 }

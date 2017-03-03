@@ -5,11 +5,25 @@
  * @created 2016/11/25 22:23
  * @email 297341015@qq.com
  * @property \PDO $pdo
+ *
+ * 数据库操作pdo实现
+ *
  */
 class PDO implements DbInterface
 {
+    /**
+     * @var \PDO
+     */
     private $pdo;
+
+    /**
+     * @var \PDOStatement
+     */
     private $sQuery;
+
+    /**
+     * @var bool
+     */
     private $bconnected = false;
     private $parameters;
     private $host;
@@ -62,7 +76,8 @@ class PDO implements DbInterface
     /**
      * @链接数据库
      */
-    private function connect(){
+    private function connect()
+    {
         $dsn = 'mysql:dbname=' . $this->dbname . ';host=' . $this->host . '';
         try {
             $this->pdo = new \PDO($dsn, $this->user, $this->password, [\PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"]);
@@ -97,20 +112,20 @@ class PDO implements DbInterface
     private function init($query, $parameters = null)
     {
 
-        if( $parameters && !is_array($parameters) )
+        if ($parameters && !is_array($parameters))
             $parameters = [$parameters];
 
         $this->lastSql = $query;
-        if( $parameters )
+        if ($parameters)
             $this->lastSql .= " with raw data : ".json_encode( $parameters,JSON_UNESCAPED_UNICODE);
 
         if (!$this->bconnected) {
             $this->connect();
         }
         try {
-            if( $this->pdo )
+            if ($this->pdo)
                 $this->sQuery = $this->pdo->prepare($query);
-            if( $this->sQuery )
+            if ($this->sQuery)
                 $this->sQuery->execute($parameters);
         }
         catch (\PDOException $e) {
@@ -130,7 +145,7 @@ class PDO implements DbInterface
      * @param  int    $fetchmode
      * @return mixed
      */
-    public function query( $query, $params = null, $fetchmode = \PDO::FETCH_ASSOC )
+    public function query($query, $params = null, $fetchmode = \PDO::FETCH_ASSOC)
     {
         $query = preg_replace("/\s+|\t+|\n+/", " ", $query);
 
@@ -138,24 +153,24 @@ class PDO implements DbInterface
 
         try {
             $rawStatement = explode(" ", $query);
-            $statement = strtolower($rawStatement[0]);
+            $statement    = strtolower($rawStatement[0]);
 
             if ($statement === 'select' || $statement === 'show') {
-                if( $this->sQuery )
+                if ($this->sQuery)
                     return $this->sQuery->fetchAll($fetchmode);
                 else
                     return null;
             }
 
             if ($statement === 'insert') {
-                if( $this->pdo )
+                if ($this->pdo)
                     return $this->pdo->lastInsertId();
                 else
                     return 0;
             }
 
             if ($statement === 'update' || $statement === 'delete') {
-                if( $this->sQuery )
+                if ($this->sQuery)
                     return $this->sQuery->rowCount();
                 else
                     return 0;
@@ -176,12 +191,12 @@ class PDO implements DbInterface
      */
     public function lastInsertId()
     {
-        try{
-            if( $this->pdo )
+        try {
+            if ($this->pdo)
                 return $this->pdo->lastInsertId();
             else
                 return 0;
-        }catch(\PDOException $e){
+        } catch (\PDOException $e){
             var_dump($e->errorInfo);
             $this->close();
             $this->connect();
@@ -196,10 +211,10 @@ class PDO implements DbInterface
      */
     public function startTransaction()
     {
-        try{
-            if( $this->pdo )
+        try {
+            if ($this->pdo)
                 return $this->pdo->beginTransaction();
-        }catch(\PDOException $e){
+        } catch (\PDOException $e){
             var_dump($e->errorInfo);
             $this->close();
             $this->connect();
@@ -214,10 +229,10 @@ class PDO implements DbInterface
      */
     public function commit()
     {
-        try{
-            if( $this->pdo )
+        try {
+            if ($this->pdo)
                 return $this->pdo->commit();
-        }catch(\PDOException $e){
+        } catch (\PDOException $e){
             var_dump($e->errorInfo);
             $this->close();
             $this->connect();
@@ -233,9 +248,9 @@ class PDO implements DbInterface
     public function rollBack()
     {
         try {
-            if( $this->pdo )
+            if ($this->pdo)
                 return $this->pdo->rollBack();
-        }catch(\PDOException $e){
+        } catch (\PDOException $e){
             var_dump($e->errorInfo);
             $this->close();
             $this->connect();
@@ -256,12 +271,12 @@ class PDO implements DbInterface
     {
         try {
             $this->init($query, $params);
-            if($this->sQuery) {
+            if ($this->sQuery) {
                 $result = $this->sQuery->fetch($fetchmode);
                 $this->sQuery->closeCursor();
                 return $result;
             }
-        }catch(\PDOException $e){
+        } catch (\PDOException $e) {
             var_dump($e->errorInfo);
             $this->close();
             $this->connect();
@@ -274,7 +289,8 @@ class PDO implements DbInterface
      *
      * @return string
      */
-    public function getLastSql(){
+    public function getLastSql()
+    {
         return $this->lastSql;
     }
 }
