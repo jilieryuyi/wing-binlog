@@ -9,7 +9,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @created 2016/12/2 22:11
  * @email 297341015@qq.com
  */
-class UnitTest extends Command{
+class UnitTest extends Command
+{
     protected function configure()
     {
         $this

@@ -3,7 +3,8 @@
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ServerStop extends ServerBase{
+class ServerStop extends ServerBase
+{
     protected function configure()
     {
         $this

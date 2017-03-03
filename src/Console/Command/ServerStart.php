@@ -4,7 +4,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ServerStart extends ServerBase{
+class ServerStart extends ServerBase
+{
     protected function configure()
     {
         $this
@@ -24,6 +25,7 @@ class ServerStart extends ServerBase{
         $clear       = $input->getOption("clear");
 
         $workers     = $input->getOption("n");
-        $this->start( $deamon, $workers, $debug, $clear );
+
+        $this->start($deamon, $workers, $debug, $clear);
     }
 }
