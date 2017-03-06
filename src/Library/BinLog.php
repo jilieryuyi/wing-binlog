@@ -6,21 +6,9 @@ use Wing\FileSystem\WDir;
  * User: yuyi
  * Date: 17/2/10
  * Time: 10:23
- *
- * mysql数据变化监控实现，cache默认使用redis
- * demo
- * $bin = new \Seals\Library\BinLog(
-        new \Seals\Library\PDO("root","123456","localhost","activity")
-   );
-    $bin->onChange(function($database_name, $table_name, $event_data){
-        echo "数据库：",$database_name,"\r\n";
-        echo "数据表：",$table_name,"\r\n";
-        echo "改变数据：";var_dump($event_data);
-        echo "\r\n\r\n\r\n";
-    });
  */
-class BinLog{
-
+class BinLog
+{
     /**
      * @var DbInterface
      */
