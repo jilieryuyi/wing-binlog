@@ -380,6 +380,7 @@ class Worker implements Process
 
     public function setBusy($queue_name, $busy)
     {
+        $queue_name = str_replace(":","_",$queue_name);
         $cache_file = $this->cache_dir."/busy_".$queue_name;
         $file       = new WFile($cache_file);
 
@@ -390,6 +391,7 @@ class Worker implements Process
 
     public function isBusy($queue_name)
     {
+        $queue_name = str_replace(":","_",$queue_name);
         $cache_file = $this->cache_dir."/busy_".$queue_name;
         $file       = new WFile($cache_file);
 
