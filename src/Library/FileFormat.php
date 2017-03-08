@@ -57,11 +57,15 @@ class FileFormat
         {
             return false;
         }
-
+        $file_size = filesize($this->file);
+        $read_size = 0;
         $lines = [];
         while(!feof($fh)) {
 
             $line  = fgets($fh);
+
+            $read_size += sizeof($line);
+
             $_line = ltrim($line,"#");
             $_line = trim($_line);
 
@@ -84,6 +88,9 @@ class FileFormat
 
             $lines[] = $line;
             unset($line);
+
+            if ($read_size >= $file_size)
+                break;
         }
 
         if ($lines) {
