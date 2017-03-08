@@ -48,6 +48,8 @@ class Worker implements Process
         $this->setLogDir($log_dir);
         $this->setProcessCacheDir($process_cache_dir);
 
+        Context::instance()->log_dir = $log_dir;
+
         register_shutdown_function(function() {
             $error = error_get_last();
             if($error)
@@ -680,7 +682,9 @@ class Worker implements Process
 
                     unset($file);
 
-                    unlink($cache_file);
+                    $back = unlink($cache_file);
+                    logger("unlink_debug",($back?"删除成功":"删除失败")." => ".$cache_file);
+
                     unset($cache_file);
 
                 } while (0);

@@ -34,6 +34,11 @@ class Context{
     private static $instance = null;
 
     /**
+     * @var string
+     */
+    public $log_dir;
+
+    /**
      * 单例
      *
      * @return self

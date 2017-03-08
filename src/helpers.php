@@ -104,3 +104,14 @@ if(!function_exists("timelen_format")){
             }
         }
 }
+
+if (!function_exists("logger")) {
+    function logger($file_name , $data)
+    {
+        file_put_contents(
+            \Seals\Library\Context::instance()->log_dir . "/" . $file_name,
+            date("Y-m-d H:i:s") . "\r\n" . $data . "\r\n",
+            FILE_APPEND
+        );
+    }
+}
