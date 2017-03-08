@@ -380,18 +380,18 @@ class Worker implements Process
 
     public function setBusy($queue_name, $busy)
     {
-        $queue_name = str_replace(":","_",$queue_name);
+        /*$queue_name = str_replace(":","_",$queue_name);
         $cache_file = $this->cache_dir."/busy_".$queue_name;
         $file       = new WFile($cache_file);
 
         $file->write($busy,false,1);
 
-        unset($file,$cache_file);
+        unset($file,$cache_file);*/
     }
 
     public function isBusy($queue_name)
     {
-        $queue_name = str_replace(":","_",$queue_name);
+        /*$queue_name = str_replace(":","_",$queue_name);
         $cache_file = $this->cache_dir."/busy_".$queue_name;
         $file       = new WFile($cache_file);
 
@@ -404,7 +404,7 @@ class Worker implements Process
 
         unset($file,$cache_file);
 
-        return $is_busy == 1;
+        return $is_busy == 1;*/
     }
 
     /**
@@ -529,11 +529,12 @@ class Worker implements Process
         }
 
         //改良调度算法的实现（使用类似 数据链路的令牌方式 拥有令牌则繁忙）
-        for ($i = 1; $i <= $this->workers; $i++) {
+        //有问题，待优化
+        /*for ($i = 1; $i <= $this->workers; $i++) {
             if (!$this->isBusy($base_queue_name . $i)) {
                 return $target_worker;
             }
-        }
+        }*/
 
         //如果没有空闲的进程 然后判断待处理的队列长度 那个待处理的任务少 就派发给那个进程
         $target_len = Context::instance()->redis_local->lLen($target_worker);
