@@ -27,7 +27,10 @@ return [
     //在指定--clear参数后 在重启或者停止进程后将全部被删除
     //在设定目录和使用--clear参数时请注意
 
-    "process_cache_dir" => __APP_DIR__."/process_cache"
+    "process_cache_dir" => __APP_DIR__."/process_cache",
     //生成的一些进程控制的缓存文件目录
+
+    "mysqlbinlog_bin"   => "mysqlbinlog"
+    //如果mysqlbinlog没有加到环境变量或者无法识别，这里可以写上绝对路径
 
 ];

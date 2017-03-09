@@ -22,6 +22,7 @@ class Worker implements Process
     protected $memory_limit     = "10240M";
     protected $binlog_cache_dir;
     protected $deamon           = false;
+    protected $mysqlbinlog_bin  = "mysqlbinlog";
 
 
     //队列名称
@@ -35,7 +36,8 @@ class Worker implements Process
         $memory_limit      = "10240M",
         $log_dir           = __APP_DIR__."/logs",
         $process_cache_dir = __APP_DIR__."/process_cache",
-        $binlog_cache_dir  = __APP_DIR__."/cache"
+        $binlog_cache_dir  = __APP_DIR__."/cache",
+        $mysqlbinlog_bin   = "mysqlbinlog"
    ) {
         gc_enable();
 
@@ -43,6 +45,7 @@ class Worker implements Process
         $this->app_id           = $app_id;
         $this->memory_limit     = $memory_limit;
         $this->binlog_cache_dir = $binlog_cache_dir;
+        $this->mysqlbinlog_bin  = $mysqlbinlog_bin;
 
         $this->setWorkDir(dirname(dirname(__DIR__)));
         $this->setLogDir($log_dir);
@@ -571,6 +574,7 @@ class Worker implements Process
        );
         $bin->setCacheDir($this->binlog_cache_dir);
         $bin->setDebug($this->debug);
+        $bin->setMysqlbinlog($this->mysqlbinlog_bin);
 
         //$dispatcher = new DispatchQueue($this);
 
@@ -728,6 +732,7 @@ class Worker implements Process
        );
         $bin->setCacheDir($this->binlog_cache_dir);
         $bin->setDebug($this->debug);
+        $bin->setMysqlbinlog($this->mysqlbinlog_bin);
 
         $limit = 10000;
         while (1) {

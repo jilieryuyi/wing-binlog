@@ -40,7 +40,8 @@ class ServerBase extends Command
             $app_config["memory_limit"],
             $app_config["log_dir"],
             $app_config["process_cache_dir"],
-            $app_config["binlog_cache_dir"]
+            $app_config["binlog_cache_dir"],
+            $app_config["mysqlbinlog_bin"]
        );
 
         if ($workers > 0)
