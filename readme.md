@@ -62,7 +62,7 @@ mysqlbinlog事件采集系统
     //重启
 
 ###注意
-最后强调一下，仅支持mysqlbinlog的row格式
+最后强调一下，仅支持mysqlbinlog的row格式，并且mysql版本必须大于等于5.6.2
 
 ###如何使用？
 * 1、首先复制config目录下的.php.example为.php文件，也就是全部去掉.example
