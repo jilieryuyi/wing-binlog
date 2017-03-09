@@ -263,7 +263,6 @@ class BinLog
             $start_pos . " --stop-position=" .
             $end_pos . "  \"" . $current_binlog_file . "\" > ".$cache_file ;
 
-        echo $command,"\r\n";
         unset($current_binlog_file);
 
         system($command);
