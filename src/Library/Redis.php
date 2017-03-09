@@ -55,7 +55,6 @@ class Redis implements RedisInterface
             return call_user_func_array([$this->redis, $name], $arguments);
         } catch (\Exception $e) {
             echo $name,"=>",var_dump($arguments);
-            echo "\r\n";
             var_dump($e->getMessage());
             $this->connect();
         }
