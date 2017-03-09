@@ -53,14 +53,16 @@ class FileFormat
     public function parse($callback)
     {
         $fh = fopen($this->file, 'r');
-        if(!$fh || !is_resource($fh))
-        {
+
+        if (!$fh || !is_resource($fh)) {
             return false;
         }
+
         $file_size = filesize($this->file);
         $read_size = 0;
-        $lines = [];
-        while(!feof($fh)) {
+        $lines     = [];
+
+        while (!feof($fh)) {
 
             $line  = fgets($fh);
 
@@ -77,9 +79,9 @@ class FileFormat
                 $e == "insert" ||
                 $e == "update" ||
                 $e == "delete"
-           ) {
+            ) {
 
-                if($lines) {
+                if ($lines) {
                     $this->linesParse($lines,$callback);
                 }
                 unset($lines);
@@ -174,7 +176,7 @@ class FileFormat
                 $callback($database_name, $table_name, $event);
                 echo "事件次数", $this->events_times, "\r\n\r\n";
             }
-        }while(0);
+        } while (0);
     }
 
     /**
