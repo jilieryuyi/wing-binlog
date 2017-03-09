@@ -43,9 +43,15 @@ class Worker implements Process
 
         $this->start_time       = time();
         $this->app_id           = $app_id;
-        $this->memory_limit     = $memory_limit;
-        $this->binlog_cache_dir = $binlog_cache_dir;
-        $this->mysqlbinlog_bin  = $mysqlbinlog_bin;
+
+        if ($memory_limit)
+            $this->memory_limit     = $memory_limit;
+
+        if ($binlog_cache_dir)
+            $this->binlog_cache_dir = $binlog_cache_dir;
+
+        if ($mysqlbinlog_bin)
+            $this->mysqlbinlog_bin  = $mysqlbinlog_bin;
 
         $this->setWorkDir(dirname(dirname(__DIR__)));
         $this->setLogDir($log_dir);
@@ -794,8 +800,15 @@ class Worker implements Process
                     //如果没有查找到一个事务 $limit x 2 直到超过 100000 行
                     if (!$has_session) {
                         $limit = 2*$limit;
-                        if ($limit > 100000)
+                        echo "没有找到事务，更新limit=",$limit,"\r\n";
+                        if ($limit >= 80000) {
+                            //如果超过8万 仍然没有找到事务的结束点 放弃采集 直接更新游标
+                            $row = array_pop($data);
+                            echo "查询超过8万，没有找到事务，直接更新游标";
+                            echo $start_pos, "=>", $row["End_log_pos"],"\r\n";
+                            $bin->setLastPosition($start_pos, $row["End_log_pos"]);
                             $limit = 10000;
+                        }
                     } else {
                         $limit = 10000;
                     }

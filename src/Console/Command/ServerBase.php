@@ -10,17 +10,22 @@ class ServerBase extends Command
 
     protected function clear($log_dir, $binlog_cache_dir)
     {
-        $dir   = new WDir($binlog_cache_dir);
-        $files = $dir->scandir();
-        array_map(function($file) {
-            unlink($file);
-        }, $files);
+        if ($binlog_cache_dir) {
+            $dir = new WDir($binlog_cache_dir);
 
-        $dir   = new WDir($log_dir);
-        $files = $dir->scandir();
-        array_map(function($file) {
-            unlink($file);
-        }, $files);
+            $files = $dir->scandir();
+            array_map(function ($file) {
+                unlink($file);
+            }, $files);
+        }
+
+        if ($log_dir) {
+            $dir = new WDir($log_dir);
+            $files = $dir->scandir();
+            array_map(function ($file) {
+                unlink($file);
+            }, $files);
+        }
     }
     protected function start($deamon, $workers, $debug = false, $clear = false)
     {
@@ -31,9 +36,23 @@ class ServerBase extends Command
         $app_config = include __APP_DIR__."/config/app.php";
 
 
+        if (!isset($app_config["mysqlbinlog_bin"]))
+            $app_config["mysqlbinlog_bin"] = "";
+
+        if (!isset($app_config["binlog_cache_dir"]))
+            $app_config["binlog_cache_dir"] = "";
+
+        if (!isset($app_config["memory_limit"]))
+            $app_config["memory_limit"] = 0;
+
+        if (!isset($app_config["log_dir"]))
+            $app_config["log_dir"] = "";
+
+        if (!isset($app_config["process_cache_dir"]))
+            $app_config["process_cache_dir"] = "";
+
         if ($clear)
             $this->clear($app_config["log_dir"],$app_config["binlog_cache_dir"]);
-
 
         $worker    = new Worker(
             $app_config["app_id"],
