@@ -55,6 +55,11 @@ class Redis implements RedisInterface
             return call_user_func_array([$this->redis, $name], $arguments);
         } catch (\Exception $e) {
             echo $name,"=>",var_dump($arguments);
+            trigger_error("call ".$name." with params : ".
+                json_encode($arguments,JSON_UNESCAPED_UNICODE).", error happened :".
+                $e->getMessage()
+            );
+
             var_dump($e->getMessage());
             $this->connect();
         }

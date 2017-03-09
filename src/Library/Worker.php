@@ -619,6 +619,8 @@ class Worker implements Process
                 $this->checkStopSignal();
 
             } catch (\Exception $e) {
+                trigger_error($e->getMessage());
+
                 var_dump($e->getMessage());
                 unset($e);
             }
@@ -702,6 +704,8 @@ class Worker implements Process
                 $this->checkStopSignal();
 
             } catch (\Exception $e) {
+                trigger_error($e->getMessage());
+
                 var_dump($e->getMessage());
                 unset($e);
             }
@@ -816,6 +820,7 @@ class Worker implements Process
                 } while (0);
                 $this->checkStopSignal();
             } catch (\Exception $e) {
+                trigger_error($e->getMessage());
                 var_dump($e->getMessage());
                 unset($e);
             }
