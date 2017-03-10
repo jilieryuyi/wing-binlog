@@ -378,7 +378,7 @@ class Worker implements Process
         foreach ($res as $v)
             $str.=  $v["process_id"].
                 "  ". $v["start_time"].
-                "     ". $v["work_len"].
+                "  ". sprintf("%-6d", $v["work_len"]).
                 "       ". $v["run_time"].
                 "  ". $v["name"]."\r\n";
         return $str;
