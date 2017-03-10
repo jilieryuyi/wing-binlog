@@ -310,8 +310,15 @@ class Worker implements Process
         foreach ($files as $file) {
             $name = pathinfo($file,PATHINFO_FILENAME);
             list($name, $process_id) = explode("_",$name);
-            if ($name == "status")
+            if ($name == "status") {
+                //如果状态文件超过60秒 清理
+                $last_modify = filemtime($file);
+                if ((time() - $last_modify) > 60) {
+                    unlink($file);
+                    continue;
+                }
                 $arr[$process_id] = file_get_contents($file) ;
+            }
         }
 
         foreach ($arr as $process_id => $josn) {
