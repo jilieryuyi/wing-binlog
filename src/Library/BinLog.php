@@ -281,20 +281,20 @@ class BinLog
             " -p".$this->password.
             " -h".$this->host.
             " -P".$this->port.
-            " --read-from-remote-server".
+            //" --read-from-remote-server".
             " --base64-output=DECODE-ROWS -v".
             " --start-position=" . $start_pos .
             " --stop-position=" . $end_pos .
             "  \"" . $current_binlog_file . "\" > ".$cache_file;
 
-
-        $command    = $this->mysqlbinlog . " --base64-output=DECODE-ROWS -v --start-position=" .
+        echo preg_replace("/\-p[\s\S]{1,}?\s/","-p****** ",$command,1),"\r\n";
+        /*$command    = $this->mysqlbinlog . " --base64-output=DECODE-ROWS -v --start-position=" .
             $start_pos . " --stop-position=" .
             $end_pos . "  \"" . $current_binlog_file . "\" > ".$cache_file ;
+        */
+        //echo $command,"\r\n";
 
         unset($current_binlog_file);
-
-        echo $command,"\r\n";
         system($command);
 
         unset($command);
