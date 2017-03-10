@@ -278,7 +278,7 @@ class BinLog
         //mysqlbinlog -uroot -proot -h127.0.0.1 -P3306 --read-from-remote-server mysql-bin.000001 --base64-output=decode-rows -v > 1
         $command    = $this->mysqlbinlog .
             " -u".$this->user.
-            " -p".$this->password.
+            " -p\"".$this->password."\"".
             " -h".$this->host.
             " -P".$this->port.
             //" --read-from-remote-server".
