@@ -11,6 +11,7 @@ use Wing\FileSystem\WFile;
 
 class Worker implements Process
 {
+    protected $version         = "1.0";
     protected $work_dir;
     protected $log_dir;
     protected $debug            = false;
