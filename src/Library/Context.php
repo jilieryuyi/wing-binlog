@@ -38,6 +38,9 @@ class Context{
      */
     public $log_dir;
 
+    private $app_config;
+    private $db_config;
+
     /**
      * 单例
      *
@@ -83,12 +86,26 @@ class Context{
             $redis_config["password"]
        );
 
-        $configs = require __DIR__."/../../config/db.php";
+        $configs = $this->db_config = require __DIR__."/../../config/db.php";
         $this->activity_pdo  = new \Seals\Library\PDO(
             $configs["user"],
             $configs["password"],
             $configs["host"],
-            $configs["db_name"]
+            $configs["db_name"],
+            $configs["port"]
        );
+
+        $this->app_config = include __APP_DIR__."/config/app.php";
+
+    }
+
+    public function getAppConfig($key)
+    {
+        return $this->app_config[$key];
+    }
+
+    public function getDbConfig($key)
+    {
+        return $this->db_config[$key];
     }
 }

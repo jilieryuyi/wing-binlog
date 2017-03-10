@@ -24,11 +24,17 @@ class BinLog
      * @var string
      */
     private $cache_dir;
+    private $log_dir;
 
     /**
      * @var bool
      */
     private $debug       = false;
+
+    private $host;
+    private $password;
+    private $user;
+    private $port = 3306;
 
     /**
      * 构造函数
@@ -50,6 +56,12 @@ class BinLog
             echo "仅支持row格式\r\n";
             exit;
         }
+
+        $this->host     = $db_handler->getHost();
+        $this->user     = $db_handler->getUser();
+        $this->password = $db_handler->getPassword();
+        $this->port     = $db_handler->getPort();
+        $this->log_dir  = Context::instance()->getAppConfig("log_dir");
     }
 
 
@@ -263,6 +275,19 @@ class BinLog
 
         unset($str1,$str2,$str3);
 
+        //mysqlbinlog -uroot -proot -h127.0.0.1 -P3306 --read-from-remote-server mysql-bin.000001 --base64-output=decode-rows -v > 1
+        $command    = $this->mysqlbinlog .
+            " -u".$this->user.
+            " -p".$this->password.
+            " -h".$this->host.
+            " -P".$this->port.
+            " --read-from-remote-server".
+            " --base64-output=DECODE-ROWS -v".
+            " --start-position=" . $start_pos .
+            " --stop-position=" . $end_pos .
+            "  \"" . $current_binlog_file . "\" > ".$cache_file;
+
+
         $command    = $this->mysqlbinlog . " --base64-output=DECODE-ROWS -v --start-position=" .
             $start_pos . " --stop-position=" .
             $end_pos . "  \"" . $current_binlog_file . "\" > ".$cache_file ;
@@ -271,6 +296,43 @@ class BinLog
 
         echo $command,"\r\n";
         system($command);
+        /*$handle = popen($command,"w");
+        fputs($handle,$this->password);
+        fclose($handle);*/
+//
+//        global $STDIN;
+//        fwrite($STDIN,$this->password);
+
+        //////////////////
+     /*   $descriptorspec = array(
+            0 => array("pipe", "r"),  // 标准输入，子进程从此管道中读取数据
+            1 => array("pipe", "w"),  // 标准输出，子进程向此管道中写入数据
+            2 => array("file", $this->log_dir."/mysqlbinlog_error.log", "a+") // 标准错误，写入到一个文件
+        );
+
+        $cwd = null;//'/tmp';
+        $env = null;//array('some_option' => 'aeiou');
+
+
+        $process = proc_open($command, $descriptorspec, $pipes, $cwd, $env);
+
+            if (is_resource($process)) {
+                // $pipes 现在看起来是这样的：
+                // 0 => 可以向子进程标准输入写入的句柄
+                // 1 => 可以从子进程标准输出读取的句柄
+                // 错误输出将被追加到文件 /tmp/error-output.txt
+
+//                foreach ($pipes as $pipe) {
+//                    stream_set_blocking($pipe, 0);
+//                }
+                fwrite($pipes[0], $this->password);
+                fclose($pipes[0]);
+                fclose($pipes[1]);
+                proc_close($process);
+
+            }
+*/
+        ////////////////////
 
         unset($command);
         return $cache_file;

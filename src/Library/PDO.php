@@ -31,6 +31,7 @@ class PDO implements DbInterface
     private $password;
     private $user;
     private $lastSql = "";
+    private $port = 3306;
 
     /**
      * @构造函数
@@ -41,13 +42,16 @@ class PDO implements DbInterface
      * @param string $dbname
      * @return void
      */
-    public function __construct($user,$password,$host,$dbname)
+    public function __construct($user, $password, $host, $dbname, $port = 3306)
     {
         $this->parameters = array();
         $this->dbname     = $dbname;
         $this->host       = $host;
         $this->password   = $password;
         $this->user       = $user;
+
+        if ($port)
+            $this->port   = $port;
 
         $this->connect();
     }
@@ -64,6 +68,23 @@ class PDO implements DbInterface
     {
         // TODO: Implement getDatabaseName() method.
         return $this->dbname;
+    }
+
+    public function getHost()
+    {
+        return $this->host;
+    }
+    public function getUser()
+    {
+        return $this->user;
+    }
+    public function getPassword()
+    {
+        return $this->password;
+    }
+    public function getPort()
+    {
+        return $this->port;
     }
 
     public function getTables()
