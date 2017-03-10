@@ -8,7 +8,8 @@
  * 事件通知接口实现
  *
  */
-interface Notify{
+interface Notify
+{
     /**
      * 发送通知
      *

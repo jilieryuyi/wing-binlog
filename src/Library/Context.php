@@ -44,7 +44,7 @@ class Context{
      * @return self
      */
     public static function instance(){
-        if(!self::$instance)
+        if (!self::$instance)
             self::$instance = new self();
         return self::$instance;
     }
@@ -63,8 +63,8 @@ class Context{
     public function reset()
     {
 
-        $this->redis = null;
-        $this->redis_local = null;
+        $this->redis        = null;
+        $this->redis_local  = null;
         $this->activity_pdo = null;
 
         $redis_config = require __DIR__."/../../config/redis.php";

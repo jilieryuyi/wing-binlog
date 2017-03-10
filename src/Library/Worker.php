@@ -403,35 +403,6 @@ class Worker implements Process
 
     }
 
-    public function setBusy($queue_name, $busy)
-    {
-        /*$queue_name = str_replace(":","_",$queue_name);
-        $cache_file = $this->cache_dir."/busy_".$queue_name;
-        $file       = new WFile($cache_file);
-
-        $file->write($busy,false,1);
-
-        unset($file,$cache_file);*/
-    }
-
-    public function isBusy($queue_name)
-    {
-        /*$queue_name = str_replace(":","_",$queue_name);
-        $cache_file = $this->cache_dir."/busy_".$queue_name;
-        $file       = new WFile($cache_file);
-
-        if (!$file->exists()) {
-            unset($file,$cache_file);
-            return 0;
-        }
-
-        $is_busy = $file->read();
-
-        unset($file,$cache_file);
-
-        return $is_busy == 1;*/
-    }
-
     /**
      * @重置标准错误和标准输出，linux支持
      *
@@ -546,20 +517,11 @@ class Worker implements Process
      */
     public function getWorker($base_queue_name)
     {
-        //$base_queue_name self::QUEUE_NAME. ":ep
         $target_worker = $base_queue_name."1";
 
         if ($this->workers <= 1) {
             return $target_worker;
         }
-
-        //改良调度算法的实现（使用类似 数据链路的令牌方式 拥有令牌则繁忙）
-        //有问题，待优化
-        /*for ($i = 1; $i <= $this->workers; $i++) {
-            if (!$this->isBusy($base_queue_name . $i)) {
-                return $target_worker;
-            }
-        }*/
 
         //如果没有空闲的进程 然后判断待处理的队列长度 那个待处理的任务少 就派发给那个进程
         $target_len = Context::instance()->redis_local->lLen($target_worker);
@@ -614,7 +576,6 @@ class Worker implements Process
                     if (!$res)
                         break;
 
-                    $this->setBusy($queue_name, 1);
                     echo "pos => ",$res,"\r\n";
                     list($start_pos, $end_pos) = explode(":",$res);
 
@@ -631,7 +592,6 @@ class Worker implements Process
                     unset($target_worker,$cache_path);
 
                     unset($cache_path);
-                    $this->setBusy($queue_name, 0);
 
                 } while (0);
 
@@ -715,8 +675,6 @@ class Worker implements Process
                         break;
                     }
 
-                    $this->setBusy($queue_name,1);
-
                     echo "parse cache file => ",$cache_file,"\r\n";
                     $file = new FileFormat($cache_file,\Seals\Library\Context::instance()->activity_pdo);
 
@@ -728,8 +686,6 @@ class Worker implements Process
                             "app_id"        => $this->app_id
                         ]);
                     });
-                    $this->setBusy($queue_name,0);
-
 
                     unset($file);
 

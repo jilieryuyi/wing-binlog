@@ -117,13 +117,12 @@ class BinLog
      *
      * @return array 一维
      *    array(5) {
-                ["File"] => string(16) "mysql-bin.000005"
-                ["Position"] => int(8840)
-                ["Binlog_Do_DB"] => string(0) ""
-                ["Binlog_Ignore_DB"] => string(0) ""
-                ["Executed_Gtid_Set"] => string(0) ""
-          }
-
+     *           ["File"] => string(16) "mysql-bin.000005"
+     *           ["Position"] => int(8840)
+     *           ["Binlog_Do_DB"] => string(0) ""
+     *           ["Binlog_Ignore_DB"] => string(0) ""
+     *           ["Executed_Gtid_Set"] => string(0) ""
+     *     }
      */
     public function getCurrentLogInfo()
     {

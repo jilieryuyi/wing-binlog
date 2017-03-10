@@ -27,15 +27,12 @@ class Command
     /***
      * 检测是否支持命令
      *
-     * @return bool
+     * @return bool 支持，返回true
      */
     public function check()
     {
         $res = $this->run();
-        if (strpos($res, "command not found") !== false) {
-            return false;
-        }
-        return true;
+        return strpos($res, "command not found") === false;
     }
 
     /**
@@ -46,6 +43,10 @@ class Command
     public function run(){
 
         $handle = popen($this->command ,"r");
+
+        if (!$handle)
+            return null;
+
         $result = '';
 
         while (1) {

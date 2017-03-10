@@ -20,7 +20,7 @@ class Queue implements QueueInterface
     public function __construct($queue_name, RedisInterface $redis)
     {
         $this->queue_name = $queue_name;
-        $this->redis = $redis;
+        $this->redis      = $redis;
     }
 
     public function getQueueName()
@@ -28,7 +28,8 @@ class Queue implements QueueInterface
         return $this->queue_name;
     }
 
-    public function getAll(){
+    public function getAll()
+    {
         return $this->redis->lRange($this->queue_name, 0, -1);
     }
 
@@ -48,20 +49,20 @@ class Queue implements QueueInterface
     /**
      * @弹出队列首部数据
      *
-     * @return array
+     * @return mixed
      */
     public function pop()
     {
 
         $data = $this->redis->lPop($this->queue_name);
 
-//        if ($data === false)
-//            return null;
-//
-//        $arr = @json_decode($data,true);
-//        if (is_array($arr)) {
-//            return $arr;
-//        }
+        if ($data === false)
+            return null;
+
+        $arr = @json_decode($data,true);
+        if (is_array($arr)) {
+            return $arr;
+        }
 
         return $data;
     }

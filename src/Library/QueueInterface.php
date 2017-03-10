@@ -8,7 +8,8 @@
  * 队列接口
  *
  */
-interface QueueInterface{
+interface QueueInterface
+{
 
     /**
      * @加入到队列

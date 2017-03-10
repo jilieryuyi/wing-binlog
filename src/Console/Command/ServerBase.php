@@ -31,7 +31,13 @@ class ServerBase extends Command
     {
 
         $file = new WFile(__APP_DIR__."/seals.pid");
-        $file->write(($deamon?1:0).":".$workers.":".($debug?1:0).":".($clear?1:0), false);
+        $file->write(
+            ($deamon?1:0).":".
+            $workers.":".
+            ($debug?1:0).":".
+            ($clear?1:0),
+            false
+        );
 
         $app_config = include __APP_DIR__."/config/app.php";
 
@@ -67,13 +73,15 @@ class ServerBase extends Command
             $worker->setWorkersNum($workers);
 
         $handlers_config = include __APP_DIR__."/config/notify.php";
-        $handler_class = $handlers_config["handler"];
+        $handler_class   = $handlers_config["handler"];
+
         if (!class_exists($handler_class)) {
             exit($handler_class." class not found");
         }
 
-        $len = count($handlers_config["params"]);
-        $handler = null;//new $handler_class;
+        $len     = count($handlers_config["params"]);
+        $handler = null;
+
         switch ($len) {
             case 0:
                 $handler = new $handler_class;

@@ -265,8 +265,7 @@ class FileFormat
                     } else {
                         $new_data[$columns[$index]] = $target_line;
                     }
-                }
-                else {
+                } else {
                     $set_data[$columns[$index]] = $target_line;
                 }
                 $index++;
@@ -280,7 +279,6 @@ class FileFormat
         }
 
         if ($event_type == "update_rows") {
-
             //这里忽略空数据
             if (count($old_data) <= 0 || count($new_data) <= 0) {
                 return null;
@@ -290,8 +288,7 @@ class FileFormat
                 "old_data" => $old_data,
                 "new_data" => $new_data
             ];
-        }
-        else {
+        } else {
             //这里忽略空数据
             if (count($set_data) <= 0) {
                 return null;

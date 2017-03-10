@@ -15,7 +15,7 @@ class Cpu{
      */
     public function __construct()
     {
-        switch(PHP_OS) {
+        switch (PHP_OS) {
             case "Linux":
                 $this->sysLinux();
                 break;
@@ -39,24 +39,28 @@ class Cpu{
 
         $this->cpu_num = intval($this->cpu_num);
 
-        if($this->cpu_num <= 0)
+        if ($this->cpu_num <= 0)
             $this->cpu_num = 1;
     }
 
     /**
      * linux cpu数量解析获取
      */
-    private function sysLinux() {
+    private function sysLinux()
+    {
         if (false === ($str = @file("/proc/cpuinfo"))) {
             $this->cpu_num = 1;
             return;
         }
+
         $str = implode("", $str);
         @preg_match_all("/model\s+name\s{0,}\:+\s{0,}([\w\s\)\(\@.-]+)([\r\n]+)/s", $str, $model);
-        if (false !== is_array($model[1]))    {
+
+        if (false !== is_array($model[1])) {
             $this->cpu_num  = sizeof($model[1]);
             return;
         }
+
         $this->cpu_num = 1;
     }
 

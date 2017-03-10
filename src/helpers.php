@@ -4,7 +4,7 @@
  * @created 2016/12/4 9:13
  * @email 297341015@qq.com
  */
-if(!function_exists("get_millisecond")) {
+if (!function_exists("get_millisecond")) {
     function get_millisecond()
     {
         $time = explode(' ', microtime());
@@ -15,14 +15,14 @@ if(!function_exists("get_millisecond")) {
 
 $__start_time = 0;
 
-if(!function_exists("set_start_time")) {
+if (!function_exists("set_start_time")) {
     function set_start_time($start)
     {
         global $__start_time;
         $__start_time = $start;
     }
 }
-if(!function_exists("get_start_time")) {
+if (!function_exists("get_start_time")) {
     function get_start_time()
     {
         global $__start_time;
@@ -30,13 +30,14 @@ if(!function_exists("get_start_time")) {
     }
 }
 
-if(!function_exists("enable_time_test")) {
+if (!function_exists("enable_time_test")) {
     function enable_time_test()
     {
         set_start_time(get_millisecond());
     }
 }
-if(!function_exists("time_test_dump")) {
+
+if (!function_exists("time_test_dump")) {
     function time_test_dump($msg = "")
     {
         $time = get_millisecond();
@@ -60,8 +61,8 @@ if(!function_exists("str_is_email")) {
     }
 }
 
-if(!function_exists("timelen_format")){
-    function timelen_format($time_len){
+if (!function_exists("timelen_format")) {
+    function timelen_format($time_len) {
             if ($time_len < 60)
                 return $time_len . "秒";
             else if ($time_len < 3600 && $time_len >= 60) {
@@ -73,7 +74,6 @@ if(!function_exists("timelen_format")){
                 $s = $time_len - $h * 3600;
                 if ($s >= 60) {
                     $m = intval($s / 60);
-
                 } else {
                     $m = 0;
                 }
@@ -82,7 +82,6 @@ if(!function_exists("timelen_format")){
             } else {
                 $d = intval($time_len / (24 * 3600));
                 $s = $time_len - $d * (24 * 3600);
-
                 $h = 0;
                 $m = 0;
 

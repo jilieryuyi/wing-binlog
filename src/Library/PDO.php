@@ -88,6 +88,7 @@ class PDO implements DbInterface
             $this->bconnected = true;
         }
         catch (\PDOException $e) {
+            trigger_error(json_encode($e->errorInfo,JSON_UNESCAPED_UNICODE));
             var_dump($e->errorInfo);
         }
     }
@@ -127,10 +128,10 @@ class PDO implements DbInterface
                 $this->sQuery = $this->pdo->prepare($query);
             if ($this->sQuery)
                 $this->sQuery->execute($parameters);
-        }
-        catch (\PDOException $e) {
+        } catch (\PDOException $e) {
             $this->close();
             $this->connect();
+            trigger_error(json_encode($e->errorInfo,JSON_UNESCAPED_UNICODE));
             var_dump($e->errorInfo);
         }
         $this->parameters = array();
@@ -175,7 +176,8 @@ class PDO implements DbInterface
                 else
                     return 0;
             }
-        }catch(\PDOException $e){
+        } catch (\PDOException $e) {
+            trigger_error(json_encode($e->errorInfo,JSON_UNESCAPED_UNICODE));
             var_dump($e->errorInfo);
             $this->close();
             $this->connect();
@@ -196,7 +198,8 @@ class PDO implements DbInterface
                 return $this->pdo->lastInsertId();
             else
                 return 0;
-        } catch (\PDOException $e){
+        } catch (\PDOException $e) {
+            trigger_error(json_encode($e->errorInfo,JSON_UNESCAPED_UNICODE));
             var_dump($e->errorInfo);
             $this->close();
             $this->connect();
@@ -214,7 +217,8 @@ class PDO implements DbInterface
         try {
             if ($this->pdo)
                 return $this->pdo->beginTransaction();
-        } catch (\PDOException $e){
+        } catch (\PDOException $e) {
+            trigger_error(json_encode($e->errorInfo,JSON_UNESCAPED_UNICODE));
             var_dump($e->errorInfo);
             $this->close();
             $this->connect();
@@ -232,7 +236,8 @@ class PDO implements DbInterface
         try {
             if ($this->pdo)
                 return $this->pdo->commit();
-        } catch (\PDOException $e){
+        } catch (\PDOException $e) {
+            trigger_error(json_encode($e->errorInfo,JSON_UNESCAPED_UNICODE));
             var_dump($e->errorInfo);
             $this->close();
             $this->connect();
@@ -250,7 +255,8 @@ class PDO implements DbInterface
         try {
             if ($this->pdo)
                 return $this->pdo->rollBack();
-        } catch (\PDOException $e){
+        } catch (\PDOException $e) {
+            trigger_error(json_encode($e->errorInfo,JSON_UNESCAPED_UNICODE));
             var_dump($e->errorInfo);
             $this->close();
             $this->connect();
@@ -277,6 +283,7 @@ class PDO implements DbInterface
                 return $result;
             }
         } catch (\PDOException $e) {
+            trigger_error(json_encode($e->errorInfo,JSON_UNESCAPED_UNICODE));
             var_dump($e->errorInfo);
             $this->close();
             $this->connect();
