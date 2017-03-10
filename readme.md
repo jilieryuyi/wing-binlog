@@ -62,7 +62,9 @@ mysqlbinlog事件采集系统
     //重启
 
 ###注意
-最后强调一下，仅支持mysqlbinlog的row格式，并且mysql版本必须大于等于5.6.2
+* 1、仅支持mysqlbinlog的row格式
+* 2、mysql版本必须大于等于5.6.2
+* 3、必须与需要采集数据的mysql运行在同一台服务器
 
 ###如何使用？
 * 1、首先复制config目录下的.php.example为.php文件，也就是全部去掉.example
@@ -70,3 +72,7 @@ mysqlbinlog事件采集系统
 * 3、redis默认事件队列为 seals:event:list
 * 4、不要忘了 composer install
 * 5、已支持redis队列和http两种方式的事件通知方式
+
+###常见问题
+* 1、redis "read error on connection"
+     此错误客户可以忽略

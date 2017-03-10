@@ -61,13 +61,20 @@ class Worker implements Process
 
         register_shutdown_function(function() {
             $error = error_get_last();
-            if($error)
-                file_put_contents($this->log_dir."/shutdown_".date("Ymd")."_".self::getCurrentProcessId().".log",date("Y-m-d H:i:s")."\r\n".json_encode($error,JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND);
+            if($error) {
+                file_put_contents($this->log_dir . "/shutdown_" . date("Ymd") . ".log",
+                    date("Y-m-d H:i:s") . "\r\nprocess_id => " . self::getCurrentProcessId() . "\r\n" .
+                    json_encode($error, JSON_UNESCAPED_UNICODE) . "\r\n\r\n", FILE_APPEND
+                );
+            }
             $this->clear();
         });
 
         set_error_handler(function($errno, $errstr, $errfile, $errline) {
-            file_put_contents($this->log_dir."/error_".date("Ymd")."_".self::getCurrentProcessId().".log",date("Y-m-d H:i:s")."\r\n".json_encode(func_get_args(),JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND);
+            file_put_contents($this->log_dir."/error_".date("Ymd").".log",
+                date("Y-m-d H:i:s")."\r\nprocess_id => ".self::getCurrentProcessId()."\r\n".
+                json_encode(func_get_args(),JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND
+            );
         });
 
         $cpu = new Cpu();
@@ -601,7 +608,11 @@ class Worker implements Process
                         break;
 
                     $this->setBusy($queue_name, 1);
+                    echo "pos => ",$res,"\r\n";
                     list($start_pos, $end_pos) = explode(":",$res);
+
+                    if (!$start_pos || !$end_pos)
+                        break;
 
                     $cache_path = $bin->getSessions($start_pos, $end_pos);
                     unset($end_pos,$start_pos);

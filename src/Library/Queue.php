@@ -55,13 +55,13 @@ class Queue implements QueueInterface
 
         $data = $this->redis->lPop($this->queue_name);
 
-        if ($data === false)
-            return null;
-
-        $arr = @json_decode($data,true);
-        if (is_array($arr)) {
-            return $arr;
-        }
+//        if ($data === false)
+//            return null;
+//
+//        $arr = @json_decode($data,true);
+//        if (is_array($arr)) {
+//            return $arr;
+//        }
 
         return $data;
     }
