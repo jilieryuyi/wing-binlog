@@ -28,6 +28,10 @@ class Queue implements QueueInterface
         return $this->queue_name;
     }
 
+    public function getAll(){
+        return $this->redis->lRange($this->queue_name, 0, -1);
+    }
+
     /**
      * @加入到队列
      *

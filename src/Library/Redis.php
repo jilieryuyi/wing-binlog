@@ -27,7 +27,6 @@ class Redis implements RedisInterface
      */
     public function __construct($host, $port, $password = null)
     {
-        $this->redis    = new \Redis();
         $this->host     = $host;
         $this->port     = $port;
         $this->password = $password;
@@ -40,6 +39,8 @@ class Redis implements RedisInterface
      */
     private function connect()
     {
+        $this->redis    = null;
+        $this->redis    = new \Redis();
         $this->redis->connect($this->host, $this->port);
         if ($this->password) {
             $this->redis->auth($this->password);

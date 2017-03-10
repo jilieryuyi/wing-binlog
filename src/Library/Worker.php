@@ -608,6 +608,7 @@ class Worker implements Process
 
                     //进程调度 看看该把cache_file扔给那个进程处理
                     $target_worker = $this->getWorker(self::QUEUE_NAME);
+                    echo "cache file => ",$cache_path,"\r\n";
                     Context::instance()->redis_local->rPush($target_worker, $cache_path);
                     unset($target_worker,$cache_path);
 
@@ -672,13 +673,23 @@ class Worker implements Process
                     unset($len);
 
                     $cache_file = $queue->pop();
-                    echo $cache_file,"\r\n";
-                    if (!$cache_file||!file_exists(	$cache_file) || !is_file($cache_file)) {
+
+                    if (!$cache_file) {
+                        unset($cache_file);
+                        break;
+                    }
+
+                    if (!file_exists($cache_file) || !is_file($cache_file)) {
+                        echo "cache file error => ",$cache_file,"\r\n";
+                        echo "queue => ",$queue->getQueueName(),"\r\n";
+                        var_dump($queue->getAll());
                         unset($cache_file);
                         break;
                     }
 
                     $this->setBusy($queue_name,1);
+
+                    echo "parse cache file => ",$cache_file,"\r\n";
                     $file = new FileFormat($cache_file,\Seals\Library\Context::instance()->activity_pdo);
 
                     $file->parse(function ($database_name, $table_name, $event) {
@@ -694,7 +705,9 @@ class Worker implements Process
 
                     unset($file);
 
+                    echo "unlink cache file => ",$cache_file,"\r\n";
                     $back = unlink($cache_file);
+                    echo ($back?"unlink success\r\n":"unlink failure\r\n");
                     logger("unlink_debug",($back?"删除成功":"删除失败")." => ".$cache_file);
 
                     unset($cache_file);
