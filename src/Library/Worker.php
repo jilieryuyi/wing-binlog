@@ -589,7 +589,12 @@ class Worker implements Process
                     //进程调度 看看该把cache_file扔给那个进程处理
                     $target_worker = $this->getWorker(self::QUEUE_NAME);
                     echo "cache file => ",$cache_path,"\r\n";
-                    Context::instance()->redis_local->rPush($target_worker, $cache_path);
+                    $success = Context::instance()->redis_local->rPush($target_worker, $cache_path);
+
+                    if (!$success) {
+                        trigger_error(" redis rPush error => ".$cache_path);
+                    }
+
                     unset($target_worker,$cache_path);
 
                     unset($cache_path);
@@ -600,7 +605,6 @@ class Worker implements Process
 
             } catch (\Exception $e) {
                 trigger_error($e->getMessage());
-
                 var_dump($e->getMessage());
                 unset($e);
             }
