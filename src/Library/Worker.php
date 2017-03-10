@@ -693,7 +693,17 @@ class Worker implements Process
                     if (!file_exists($cache_file) || !is_file($cache_file)) {
                         echo "cache file error => ",$cache_file,"\r\n";
                         echo "queue => ",$queue->getQueueName(),"\r\n";
-                        var_dump($queue->getAll());
+                        $queue_all  = $queue->getAll();
+
+                        $error_info = "redis pop error => ". $cache_file ."\r\n".$this->getQueueName()."\r\n";
+
+                        if (is_array($queue_all))
+                            $error_info .= json_encode($queue_all,JSON_UNESCAPED_UNICODE);
+                        else
+                            $error_info .= $queue_all;
+
+                        trigger_error($error_info);
+
                         unset($cache_file);
                         break;
                     }
