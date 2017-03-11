@@ -5,11 +5,7 @@
  * @author yuyi
  * @created 2016/9/23 8:38
  * @email 297341015@qq.com
- *
  * @property \Redis $redis
- * @可靠的redis消息队列实现
- * @先进先出队列 使用redis list
- * @可以通过 XSL::instance()->queue 访问，如 XSL::instance()->queue->pop()
  */
 class Queue implements QueueInterface
 {
