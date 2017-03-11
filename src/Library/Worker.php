@@ -337,8 +337,7 @@ class Worker implements Process
             @fclose(STDERR);
             $STDOUT = fopen($file->get(), "a+");
             $STDERR = fopen($file->get(), "a+");
-        }
-        else {
+        } else {
             throw new \Exception('can not open stdoutFile ' . $file->get());
         }
     }
