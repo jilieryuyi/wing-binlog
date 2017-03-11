@@ -37,7 +37,7 @@ class Local implements LoggerInterface {
             $this->log_dir."/".$name."_".date("Ymd").".log",
             date("Y-m-d H:i:s")."\r\n".
             $message."\r\n".
-            json_encode($context,JSON_UNESCAPED_UNICODE),
+            json_encode($context,JSON_UNESCAPED_UNICODE)."\r\n\r\n",
             FILE_APPEND
         );
     }
