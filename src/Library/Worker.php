@@ -11,7 +11,7 @@ use Wing\FileSystem\WFile;
 
 class Worker implements Process
 {
-    protected $version         = "1.0";
+    protected $version         = "1.08";
     protected $app_id           = "wing-binlog";
 
     protected $debug            = false;
