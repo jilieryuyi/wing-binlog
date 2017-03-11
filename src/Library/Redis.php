@@ -39,11 +39,16 @@ class Redis implements RedisInterface
      */
     private function connect()
     {
-        $this->redis    = null;
-        $this->redis    = new \Redis();
-        $this->redis->connect($this->host, $this->port);
-        if ($this->password) {
-            $this->redis->auth($this->password);
+        try {
+            $this->redis = null;
+            $this->redis = new \Redis();
+            $this->redis->connect($this->host, $this->port);
+            if ($this->password) {
+                $this->redis->auth($this->password);
+            }
+        } catch (\Exception $e) {
+            Context::instance()->logger->error("redis connect error => ".$e->getMessage());
+            var_dump($e->getMessage());
         }
     }
 
@@ -60,7 +65,6 @@ class Redis implements RedisInterface
                 json_encode($arguments,JSON_UNESCAPED_UNICODE).", error happened :".
                 $e->getMessage()
             );
-
             var_dump($e->getMessage());
             $this->connect();
         }
@@ -77,7 +81,6 @@ class Redis implements RedisInterface
                 json_encode(func_get_args(),JSON_UNESCAPED_UNICODE).", error happened :".
                 $e->getMessage()
             );
-
             var_dump($e->getMessage());
             $this->connect();
             return false;
@@ -93,7 +96,6 @@ class Redis implements RedisInterface
                 json_encode(func_get_args(),JSON_UNESCAPED_UNICODE).", error happened :".
                 $e->getMessage()
             );
-
             var_dump($e->getMessage());
             $this->connect();
             return false;
@@ -110,7 +112,6 @@ class Redis implements RedisInterface
                 json_encode(func_get_args(),JSON_UNESCAPED_UNICODE).", error happened :".
                 $e->getMessage()
             );
-
             var_dump($e->getMessage());
             $this->connect();
             return 0;
@@ -126,7 +127,6 @@ class Redis implements RedisInterface
                 json_encode(func_get_args(),JSON_UNESCAPED_UNICODE).", error happened :".
                 $e->getMessage()
             );
-
             var_dump($e->getMessage());
             $this->connect();
             return null;
@@ -142,7 +142,6 @@ class Redis implements RedisInterface
                 json_encode(func_get_args(),JSON_UNESCAPED_UNICODE).", error happened :".
                 $e->getMessage()
             );
-
             var_dump($e->getMessage());
             $this->connect();
             return null;
