@@ -17,6 +17,9 @@ class ServerVersion extends ServerBase
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        echo "wing-binlog version ",$this->version(),"\r\n";
+        echo "wing-binlog版本号 =>",$this->version(),"\r\n";
+        echo "作者 yuyi\r\n";
+        echo "邮箱 297341015@qq.com\r\n";
+        echo "QQ群 535218312\r\n";
     }
 }
