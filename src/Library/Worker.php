@@ -147,9 +147,9 @@ class Worker implements Process
      * @设置进程缓存路径
      * @param string $dir 目录路径
      */
-    public function setProcessCache(CacheInterface $dir)
+    public function setProcessCache(CacheInterface $cache)
     {
-        $this->process_cache = $dir;
+        $this->process_cache = $cache;
     }
 
 
