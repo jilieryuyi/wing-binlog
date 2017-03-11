@@ -60,22 +60,27 @@ class Worker implements Process
 
         Context::instance()->log_dir = $log_dir;
 
-        register_shutdown_function(function() {
+        register_shutdown_function(function()
+        {
             $error = error_get_last();
-            if($error) {
-                file_put_contents($this->log_dir . "/shutdown_" . date("Ymd") . ".log",
-                    date("Y-m-d H:i:s") . "\r\nprocess_id => " . self::getCurrentProcessId() . "\r\n" .
-                    json_encode($error, JSON_UNESCAPED_UNICODE) . "\r\n\r\n", FILE_APPEND
-                );
+            if ($error) {
+                Context::instance()->logger->notice("process is shutdown", [
+                    "process_id" => self::getCurrentProcessId(),
+                    "errors"     => $error
+                ]);
             }
             $this->clear();
         });
 
-        set_error_handler(function($errno, $errstr, $errfile, $errline) {
-            file_put_contents($this->log_dir."/error_".date("Ymd").".log",
-                date("Y-m-d H:i:s")."\r\nprocess_id => ".self::getCurrentProcessId()."\r\n".
-                json_encode(func_get_args(),JSON_UNESCAPED_UNICODE)."\r\n\r\n",FILE_APPEND
-            );
+        set_error_handler(function($errno, $errstr, $errfile, $errline)
+        {
+            Context::instance()->logger->notice("error happened",[
+                "process_id"    => self::getCurrentProcessId(),
+                "error_no"      => $errno,
+                "error_message" => $errstr,
+                "error_file"    => $errfile,
+                "error_line"    => $errline
+            ]);
         });
 
         $cpu = new Cpu();
