@@ -66,4 +66,86 @@ class Redis implements RedisInterface
         }
         return null;
     }
+
+    public function set($key, $value)
+    {
+        try {
+            return $this->redis->set($key, $value);
+        } catch (\Exception $e) {
+            echo __FUNCTION__,"=>",var_dump(func_get_args());
+            trigger_error("call ".__FUNCTION__." with params : ".
+                json_encode(func_get_args(),JSON_UNESCAPED_UNICODE).", error happened :".
+                $e->getMessage()
+            );
+
+            var_dump($e->getMessage());
+            $this->connect();
+            return false;
+        }
+    }
+    public function expire($key, $timeout)
+    {
+        try {
+            return $this->redis->expire($key, $timeout);
+        } catch (\Exception $e) {
+            echo __FUNCTION__,"=>",var_dump(func_get_args());
+            trigger_error("call ".__FUNCTION__." with params : ".
+                json_encode(func_get_args(),JSON_UNESCAPED_UNICODE).", error happened :".
+                $e->getMessage()
+            );
+
+            var_dump($e->getMessage());
+            $this->connect();
+            return false;
+        }
+
+    }
+    public function del($key)
+    {
+        try {
+            return $this->redis->del($key);
+        } catch (\Exception $e) {
+            echo __FUNCTION__,"=>",var_dump(func_get_args());
+            trigger_error("call ".__FUNCTION__." with params : ".
+                json_encode(func_get_args(),JSON_UNESCAPED_UNICODE).", error happened :".
+                $e->getMessage()
+            );
+
+            var_dump($e->getMessage());
+            $this->connect();
+            return 0;
+        }
+    }
+    public function get($key)
+    {
+        try {
+            return $this->redis->get($key);
+        } catch (\Exception $e) {
+            echo __FUNCTION__,"=>",var_dump(func_get_args());
+            trigger_error("call ".__FUNCTION__." with params : ".
+                json_encode(func_get_args(),JSON_UNESCAPED_UNICODE).", error happened :".
+                $e->getMessage()
+            );
+
+            var_dump($e->getMessage());
+            $this->connect();
+            return null;
+        }
+    }
+    public function keys($p)
+    {
+        try {
+            return $this->redis->keys($p);
+        } catch (\Exception $e) {
+            echo __FUNCTION__,"=>",var_dump(func_get_args());
+            trigger_error("call ".__FUNCTION__." with params : ".
+                json_encode(func_get_args(),JSON_UNESCAPED_UNICODE).", error happened :".
+                $e->getMessage()
+            );
+
+            var_dump($e->getMessage());
+            $this->connect();
+            return null;
+        }
+    }
 }

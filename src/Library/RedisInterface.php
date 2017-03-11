@@ -10,5 +10,9 @@
  */
 interface RedisInterface
 {
-
+    public function set($key, $value);
+    public function expire($key, $timeout);
+    public function del($key);
+    public function get($key);
+    public function keys($p);
 }
