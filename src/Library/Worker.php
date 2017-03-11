@@ -81,6 +81,11 @@ class Worker implements Process
         $this->clear();
     }
 
+    public function getVersion()
+    {
+        return $this->version;
+    }
+
     /**
      * 事件通知方式实现
      *
