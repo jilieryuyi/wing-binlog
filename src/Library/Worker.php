@@ -695,10 +695,14 @@ class Worker implements Process
                     unset($file);
 
                     echo "unlink cache file => ",$cache_file,"\r\n";
-                    $back = unlink($cache_file);
-                    echo ($back?"unlink success\r\n":"unlink failure\r\n");
-                    logger("unlink_debug",($back?"删除成功":"删除失败")." => ".$cache_file);
+                    $success = unlink($cache_file);
 
+                    if (!$success) {
+                        echo "unlink failure \r\n";
+                        trigger_error("unlink failure => ".$cache_file);
+                    } else {
+                        echo "unlink success \r\n";
+                    }
                     unset($cache_file);
 
                 } while (0);
