@@ -66,7 +66,6 @@ class PDO implements DbInterface
 
     public function getDatabaseName()
     {
-        // TODO: Implement getDatabaseName() method.
         return $this->dbname;
     }
 
@@ -106,8 +105,7 @@ class PDO implements DbInterface
             $this->pdo->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
 
             $this->bconnected = true;
-        }
-        catch (\PDOException $e) {
+        } catch (\PDOException $e) {
             trigger_error("pdo connect error => ".json_encode($e->errorInfo,JSON_UNESCAPED_UNICODE));
             var_dump("pdo ".__FUNCTION__,$e->errorInfo);
         }

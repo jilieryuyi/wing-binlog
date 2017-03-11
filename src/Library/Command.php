@@ -53,8 +53,7 @@ class Command
             $res = fgets($handle, 1024);
             if ($res) {
                 $result.=$res;
-            }
-            else {
+            } else {
                 break;
             }
         }
