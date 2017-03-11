@@ -13,7 +13,6 @@ class Worker implements Process
 {
     protected $version         = "1.0";
     protected $work_dir;
-    protected $log_dir;
     protected $debug            = false;
     protected $start_time       = 0;
     protected $workers          = 1;
@@ -35,7 +34,6 @@ class Worker implements Process
     public function __construct(
         $app_id            = "",
         $memory_limit      = "10240M",
-        $log_dir           = __APP_DIR__."/logs",
         $process_cache_dir = __APP_DIR__."/process_cache",
         $binlog_cache_dir  = __APP_DIR__."/cache",
         $mysqlbinlog_bin   = "mysqlbinlog"
@@ -45,20 +43,20 @@ class Worker implements Process
         $this->start_time       = time();
         $this->app_id           = $app_id;
 
-        if ($memory_limit)
+        if ($memory_limit) {
             $this->memory_limit     = $memory_limit;
+        }
 
-        if ($binlog_cache_dir)
+        if ($binlog_cache_dir) {
             $this->binlog_cache_dir = $binlog_cache_dir;
+        }
 
-        if ($mysqlbinlog_bin)
+        if ($mysqlbinlog_bin) {
             $this->mysqlbinlog_bin  = $mysqlbinlog_bin;
+        }
 
         $this->setWorkDir(dirname(dirname(__DIR__)));
-        $this->setLogDir($log_dir);
         $this->setProcessCacheDir($process_cache_dir);
-
-        Context::instance()->log_dir = $log_dir;
 
         register_shutdown_function(function()
         {
@@ -186,20 +184,6 @@ class Worker implements Process
         $dir = rtrim($dir,"/");
         $this->cache_dir = $dir;
         $dir = new WDir($this->cache_dir);
-        $dir->mkdir();
-        unset($dir);
-    }
-
-    /**
-     * @设置日志目录
-     * @param string $dir 目录路径
-     */
-    public function setLogDir($dir)
-    {
-        $dir = str_replace("\\","/",$dir);
-        $dir = rtrim($dir,"/");
-        $this->log_dir = $dir;
-        $dir = new WDir($this->log_dir);
         $dir->mkdir();
         unset($dir);
     }
@@ -423,7 +407,7 @@ class Worker implements Process
 
         global $STDOUT, $STDERR;
 
-        $file   = new WFile($this->log_dir . "/seals_output_".date("Ymd")."_".self::getCurrentProcessId().".log");
+        $file   = new WFile(Context::instance()->log_dir . "/seals_output_".date("Ymd")."_".self::getCurrentProcessId().".log");
         $file->touch();
 
         $handle = fopen($file->get(), "a+");
@@ -613,16 +597,15 @@ class Worker implements Process
                 var_dump($e->getMessage());
                 unset($e);
             }
-            $output = null;
 
-            if ($this->debug)
-                $output = ob_get_contents();
+            $output = ob_get_contents();
+            Context::instance()->logger->info($output);
             ob_end_clean();
 
             if ($output && $this->debug) {
                 echo $output;
-                unset($output);
             }
+            unset($output);
             usleep(10000);
         }
 
@@ -716,22 +699,20 @@ class Worker implements Process
 
             } catch (\Exception $e) {
                 trigger_error($e->getMessage());
-
                 var_dump($e->getMessage());
                 unset($e);
             }
 
-            $content = null;
-            if ($this->debug) {
-                $content = ob_get_contents();
-            }
+            $output = ob_get_contents();
+            Context::instance()->logger->info($output);
             ob_end_clean();
             usleep(10000);
 
-            if ($content && $this->debug) {
-                echo $content;
-                unset($content);
+            if ($output && $this->debug) {
+                echo $output;
             }
+            unset($output);
+
         }
     }
     /**
@@ -835,16 +816,15 @@ class Worker implements Process
                 var_dump($e->getMessage());
                 unset($e);
             }
-            $output = null;
 
-            if ($this->debug)
-                $output = ob_get_contents();
+            $output = ob_get_contents();
+            Context::instance()->logger->info($output);
             ob_end_clean();
 
             if ($output && $this->debug) {
                 echo $output;
-                unset($output);
             }
+            unset($output);
             usleep(10000);
         }
     }
