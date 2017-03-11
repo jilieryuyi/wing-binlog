@@ -67,15 +67,16 @@ mysqlbinlog事件采集系统
 * 3、必须与需要采集数据的mysql运行在同一台服务器
 
 ###如何使用？
-* 1、首先复制config目录下的.php.example为.php文件，也就是全部去掉.example
+* 1、执行 php seals config 初始化配置文件
 * 2、修改config目录下的配置文件为自己的服务器参数
-* 3、redis默认事件队列为 seals:event:list
-* 4、不要忘了 composer install
-* 5、已支持redis队列和http两种方式的事件通知方式
+* 3、不要忘了 composer install
+* 4、已支持redis队列和http两种方式的事件通知方式，修改config/notify.php 更改通知方式，需要重启进程，默认为redis队列
 
 ###常见问题
 * 1、redis "read error on connection"
      此错误客户可以忽略
+* 2、什么情况下事件会丢失
+     redis写入异常或者http请求异常、一个事务相关的数据超过8万行，不过发生这种情况的概率很小罢了
 
     
 ###wing-binlog的实现原理以及简单的概念介绍
