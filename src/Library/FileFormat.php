@@ -192,12 +192,12 @@ class FileFormat
             return [false,false];
         }
 
-        list($database_name,$table_name) = explode(".",$match_tables[0][0]);
+        list($database_name, $table_name) = explode(".",$match_tables[0][0]);
 
         $database_name = trim($database_name,"`");
         $table_name    = trim($table_name,"`");
 
-        return [$database_name,$table_name];
+        return [$database_name, $table_name];
     }
 
     /**
@@ -214,13 +214,13 @@ class FileFormat
             $_item = trim($_item);
 
             $e = strtolower(substr($_item,0,6));
-            if($e == "insert")
+            if ($e == "insert")
                 return "write_rows";
 
-            if($e == "update")
+            if ($e == "update")
                 return "update_rows";
 
-            if($e == "delete")
+            if ($e == "delete")
                 return "delete_rows";
 
             return $this->event_type;
