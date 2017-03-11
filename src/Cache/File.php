@@ -59,7 +59,7 @@ class File implements CacheInterface
     }
     public function del($key)
     {
-        if (is_string($key)) {
+        if (!is_array($key)) {
             $file = $this->cache_dir."/".$key;
 
             if (!is_file($file) || !file_exists($file))
@@ -68,7 +68,7 @@ class File implements CacheInterface
             if ($success)
                 return 1;
             return 0;
-        } elseif (is_array($key)) {
+        } else {
             $count = 0;
             foreach ($key as $_key) {
                 $file = $this->cache_dir."/".$_key;
@@ -82,7 +82,6 @@ class File implements CacheInterface
             }
             return $count;
         }
-        return 0;
     }
 
     public function keys($p = ".*")
