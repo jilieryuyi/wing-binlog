@@ -158,7 +158,6 @@ class Worker implements Process
      */
     private function clear()
     {
-
         $process_id = self::getCurrentProcessId();
 
         $this->process_cache->del("running_".$process_id);
@@ -209,6 +208,7 @@ class Worker implements Process
     {
         $process_id = self::getCurrentProcessId();
         $is_stop    = $this->process_cache->get("stop_".$process_id) == 1;
+
         if ($is_stop) {
             echo $process_id," get stop signal\r\n";
             exit(0);
@@ -259,7 +259,7 @@ class Worker implements Process
             $time_len = timelen_format(time() - $status["start_time"]);
             $index    = preg_replace("/\D/","",$status["name"]);
 
-            if (strpos($status["name"],"dispatch") !== false) {
+            if (strpos($status["name"], "dispatch") !== false) {
                 $queue = new Queue(self::QUEUE_NAME .":ep". $index, Context::instance()->redis_local);
                 $wlen  = $queue->length();
                 unset($queue);
@@ -310,7 +310,7 @@ class Worker implements Process
     public function setStatus($name)
     {
         $process_id = self::getCurrentProcessId();
-        $this->process_cache->set("status_".$process_id,[
+        $this->process_cache->set("status_".$process_id, [
             "process_id" => $process_id,
             "start_time" => $this->start_time,
             "name"       => $name,
@@ -343,7 +343,7 @@ class Worker implements Process
             $STDOUT = fopen($file->get(), "a+");
             $STDERR = fopen($file->get(), "a+");
         } else {
-            throw new \Exception('can not open stdoutFile ' . $file->get());
+            throw new \Exception('can not open stdout file ' . $file->get());
         }
     }
 
@@ -407,8 +407,7 @@ class Worker implements Process
         $pid = pcntl_fork();
         if (-1 === $pid) {
             throw new \Exception('fork fail');
-        }
-        elseif ($pid > 0) {
+        } elseif ($pid > 0) {
             //父进程直接退出
             exit(0);
         }
@@ -420,7 +419,6 @@ class Worker implements Process
 
         //修改掩码
         umask(0);
-
     }
 
     /**
