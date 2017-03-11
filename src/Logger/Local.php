@@ -30,18 +30,27 @@ class Local implements LoggerInterface {
     {
         //如果是非定义记录的级别 不采取任何操作
         if (!in_array($name,$this->levels)) {
-            echo $name," is not defined level\r\n";
             return;
         }
-        if ($message || $context) {
-            file_put_contents(
-                $this->log_dir . "/" . $name . "_" . date("Ymd") . ".log",
-                date("Y-m-d H:i:s") . "\r\n" .
-                $message . "\r\n" .
-                json_encode($context, JSON_UNESCAPED_UNICODE) . "\r\n\r\n",
-                FILE_APPEND
-            );
+        if ( !$message && !$context) {
+            return;
         }
+
+        $content = date("Y-m-d H:i:s") . "\r\n";
+
+        if ($message)
+            $content .= $message."\r\n";
+
+        if ($context)
+            $content .= json_encode($context, JSON_UNESCAPED_UNICODE)."\r\n";
+
+        $content .= "\r\n";
+
+        file_put_contents(
+            $this->log_dir . "/" . $name . "_" . date("Ymd") . ".log",
+            $content,
+            FILE_APPEND
+        );
     }
 
 
