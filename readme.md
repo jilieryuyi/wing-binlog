@@ -75,7 +75,7 @@ mysqlbinlog事件采集系统
 ###常见问题
 * 1、redis "read error on connection"
      此错误客户可以忽略
-* 2、什么情况下事件会丢失
+* 2、什么情况下事件会丢失？
      redis写入异常或者http请求异常、一个事务相关的数据超过8万行，不过发生这种情况的概率很小罢了
 * 3、不想记录这么日志怎么处理？
      修改config/app.php下的log_levels，去掉一些不想记录的错误级别即可
