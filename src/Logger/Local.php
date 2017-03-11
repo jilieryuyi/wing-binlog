@@ -9,7 +9,8 @@ use Wing\FileSystem\WDir;
  * Time: 08:59
  * 本地日志存储实现
  */
-class Local implements LoggerInterface {
+class Local implements LoggerInterface
+{
 
     private $log_dir;
     private $levels;
