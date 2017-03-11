@@ -498,7 +498,7 @@ class Worker implements Process
                     $success = $target_worker->push($cache_path);
 
                     if (!$success) {
-                        trigger_error(" redis rPush error => ".$cache_path);
+                        Context::instance()->logger->error(" redis rPush error => ".$cache_path);
                     }
 
                     unset($target_worker,$cache_path);
@@ -510,7 +510,7 @@ class Worker implements Process
                 $this->checkStopSignal();
 
             } catch (\Exception $e) {
-                trigger_error($e->getMessage());
+                Context::instance()->logger->error($e->getMessage());
                 var_dump($e->getMessage());
                 unset($e);
             }
@@ -578,7 +578,7 @@ class Worker implements Process
                         else
                             $error_info .= $queue_all;
 
-                        trigger_error($error_info);
+                        Context::instance()->logger->error($error_info);
 
                         unset($cache_file);
                         break;
@@ -603,7 +603,7 @@ class Worker implements Process
 
                     if (!$success) {
                         echo "unlink failure \r\n";
-                        trigger_error("unlink failure => ".$cache_file);
+                        Context::instance()->logger->error("unlink failure => ".$cache_file);
                     } else {
                         echo "unlink success \r\n";
                     }
@@ -614,7 +614,7 @@ class Worker implements Process
                 $this->checkStopSignal();
 
             } catch (\Exception $e) {
-                trigger_error($e->getMessage());
+                Context::instance()->logger->error($e->getMessage());
                 var_dump($e->getMessage());
                 unset($e);
             }
@@ -724,7 +724,7 @@ class Worker implements Process
                 } while (0);
                 $this->checkStopSignal();
             } catch (\Exception $e) {
-                trigger_error($e->getMessage());
+                Context::instance()->logger->error($e->getMessage());
                 var_dump($e->getMessage());
                 unset($e);
             }

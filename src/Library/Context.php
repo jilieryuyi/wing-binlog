@@ -10,7 +10,7 @@ use Psr\Log\LoggerInterface;
  * 上下文支持
  *
  * @property PDO $activity_pdo
- * @property \Redis $redis
+ * @property RedisInterface $redis
  * @property RedisInterface $redis_local
  * @property LoggerInterface $logger
  */
