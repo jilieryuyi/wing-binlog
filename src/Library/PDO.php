@@ -89,9 +89,6 @@ class PDO implements DbInterface
 
     public function getTables()
     {
-        echo "call ".__FUNCTION__,"\r\n";
-
-        // TODO: Implement getTables() method.
         $datas = $this->query("show tables");
         return $datas;
     }
@@ -101,10 +98,7 @@ class PDO implements DbInterface
      */
     private function connect()
     {
-        echo "call ".__FUNCTION__,"\r\n";
-
         $dsn = 'mysql:dbname=' . $this->dbname . ';host=' . $this->host . '';
-        //echo $dsn,"->",$this->user,"->",$this->password,"\r\n";
         try {
             $this->pdo = new \PDO($dsn, $this->user, $this->password, [\PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"]);
 
@@ -139,8 +133,6 @@ class PDO implements DbInterface
      */
     private function init($query, $parameters = null)
     {
-        echo "call ".__FUNCTION__,"\r\n";
-
         if ($parameters && !is_array($parameters))
             $parameters = [$parameters];
 
@@ -176,8 +168,6 @@ class PDO implements DbInterface
      */
     public function query($query, $params = null, $fetchmode = \PDO::FETCH_ASSOC)
     {
-        echo "call ".__FUNCTION__,"\r\n";
-        echo $query,"\r\n";
         $query = preg_replace("/\s+|\t+|\n+/", " ", $query);
 
         $this->init($query, $params);
