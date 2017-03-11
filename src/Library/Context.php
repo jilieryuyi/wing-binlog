@@ -106,8 +106,25 @@ class Context{
 
         $this->log_dir = $this->app_config["log_dir"];
 
+        if (!isset($this->app_config["logger"]))
+            $this->app_config["logger"] = \Seals\Logger\Local::class;
+
+        if (!isset($this->app_config["log_levels"]) && !is_array($this->app_config["log_levels"])) {
+            $this->app_config["log_levels"] = [
+                \Psr\Log\LogLevel::ALERT,
+                \Psr\Log\LogLevel::CRITICAL,
+                \Psr\Log\LogLevel::DEBUG,
+                \Psr\Log\LogLevel::EMERGENCY,
+                \Psr\Log\LogLevel::ERROR,
+                \Psr\Log\LogLevel::INFO,
+                \Psr\Log\LogLevel::NOTICE,
+                \Psr\Log\LogLevel::WARNING
+            ];
+        }
+
         if (!class_exists($this->app_config["logger"])) {
-            exit($this->app_config["logger"]." class not found");
+            $this->app_config["logger"] = \Seals\Logger\Local::class;
+            trigger_error($this->app_config["logger"]." class not found");
         }
 
         $this->logger  = new $this->app_config["logger"]($this->log_dir, $this->app_config["log_levels"]);
