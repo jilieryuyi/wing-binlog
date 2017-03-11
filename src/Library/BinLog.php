@@ -288,9 +288,11 @@ class BinLog
             "  \"" . $current_binlog_file . "\" > ".$cache_file;
 
        // echo preg_replace("/\-p[\s\S]{1,}?\s/","-p****** ",$command,1),"\r\n";
-        $command    = $this->mysqlbinlog . " --base64-output=DECODE-ROWS -v --start-position=" .
-            $start_pos . " --stop-position=" .
-            $end_pos . "  \"" . $current_binlog_file . "\" > ".$cache_file ;
+        $command    =
+            $this->mysqlbinlog .
+            " --base64-output=DECODE-ROWS -v".
+            " --start-position=" . $start_pos .
+            " --stop-position=" . $end_pos . "  \"" . $current_binlog_file . "\" > ".$cache_file ;
 
         echo $command,"\r\n";
 
