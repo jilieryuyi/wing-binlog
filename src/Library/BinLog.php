@@ -42,10 +42,10 @@ class BinLog
      * @param DbInterface $db_handler
      * @param string $mysqlbinlog
      */
-    public function __construct(DbInterface $db_handler,$mysqlbinlog = "mysqlbinlog")
+    public function __construct(DbInterface $db_handler)
     {
         $this->db_handler  = $db_handler;
-        $this->mysqlbinlog = $mysqlbinlog;
+        $this->mysqlbinlog = Context::instance()->mysqlbinlog_bin;
 
         if (!$this->isOpen()) {
             echo "请开启mysql binlog日志\r\n";
@@ -96,15 +96,6 @@ class BinLog
         $this->debug = $debug;
     }
 
-    /**
-     * 设置mysqlbinlog命令路径
-     *
-     * @param string $mysqlbinlog
-     */
-    public function setMysqlbinlog($mysqlbinlog)
-    {
-        $this->mysqlbinlog = $mysqlbinlog;
-    }
 
     /**
      * 获取所有的logs

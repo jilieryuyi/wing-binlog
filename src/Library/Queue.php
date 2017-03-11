@@ -36,8 +36,7 @@ class Queue implements QueueInterface
     /**
      * @加入到队列
      *
-     * @param $event_id string 事件id标示
-     * @param $data array 事件依附的数据
+     * @param mixed $data 事件数据
      * @return bool
      */
     public function push($data)

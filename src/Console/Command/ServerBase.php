@@ -61,16 +61,13 @@ class ServerBase extends Command
             $this->clear($app_config["log_dir"],$app_config["binlog_cache_dir"]);
 
         $worker    = new Worker(
-            $app_config["app_id"],
-            $app_config["memory_limit"],
-            //$app_config["log_dir"],
-            $app_config["process_cache_dir"],
-            $app_config["binlog_cache_dir"],
-            $app_config["mysqlbinlog_bin"]
+            $app_config["app_id"]
        );
 
         if ($workers > 0)
             $worker->setWorkersNum($workers);
+
+        $worker->setProcessCache(new \Seals\Cache\File($app_config["process_cache_dir"]));
 
         $handlers_config = include __DIR__."/../../../config/notify.php";
         $handler_class   = $handlers_config["handler"];
@@ -173,6 +170,22 @@ class ServerBase extends Command
     protected function stop()
     {
         $worker    = new Worker();
+        if (!isset($app_config["mysqlbinlog_bin"]))
+            $app_config["mysqlbinlog_bin"] = "";
+
+        if (!isset($app_config["binlog_cache_dir"]))
+            $app_config["binlog_cache_dir"] = "";
+
+        if (!isset($app_config["memory_limit"]))
+            $app_config["memory_limit"] = 0;
+
+        if (!isset($app_config["log_dir"]))
+            $app_config["log_dir"] = "";
+
+        if (!isset($app_config["process_cache_dir"]))
+            $app_config["process_cache_dir"] = "";
+        $worker->setProcessCache(new \Seals\Cache\File($app_config["process_cache_dir"]));
+
         $worker->stop();
     }
 
@@ -194,6 +207,26 @@ class ServerBase extends Command
     protected function status()
     {
         $worker = new Worker();
+
+        $app_config = include __APP_DIR__."/config/app.php";
+
+
+        if (!isset($app_config["mysqlbinlog_bin"]))
+            $app_config["mysqlbinlog_bin"] = "";
+
+        if (!isset($app_config["binlog_cache_dir"]))
+            $app_config["binlog_cache_dir"] = "";
+
+        if (!isset($app_config["memory_limit"]))
+            $app_config["memory_limit"] = 0;
+
+        if (!isset($app_config["log_dir"]))
+            $app_config["log_dir"] = "";
+
+        if (!isset($app_config["process_cache_dir"]))
+            $app_config["process_cache_dir"] = "";
+        $worker->setProcessCache(new \Seals\Cache\File($app_config["process_cache_dir"]));
+
         return $worker->getStatus();
     }
 

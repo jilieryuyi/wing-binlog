@@ -11,7 +11,7 @@ use Psr\Log\LoggerInterface;
  *
  * @property PDO $activity_pdo
  * @property \Redis $redis
- * @property \Redis $redis_local
+ * @property RedisInterface $redis_local
  * @property LoggerInterface $logger
  */
 class Context{
@@ -40,10 +40,14 @@ class Context{
      * @var string
      */
     public $log_dir;
+    public $binlog_cache_dir  = __APP_DIR__."/cache";
+    public $mysqlbinlog_bin   = "mysqlbinlog";
+
 
     private $app_config;
     private $db_config;
     public $logger;
+    public $memory_limit = "10240M";
     /**
      * 单例
      *
@@ -108,6 +112,14 @@ class Context{
 
         $this->logger  = new $this->app_config["logger"]($this->log_dir, $this->app_config["log_levels"]);
 
+        if (isset($this->app_config["binlog_cache_dir"]) && $this->app_config["binlog_cache_dir"])
+            $this->binlog_cache_dir  = $this->app_config["binlog_cache_dir"];
+
+        if (isset($this->app_config["mysqlbinlog_bin"]) && $this->app_config["mysqlbinlog_bin"])
+            $this->mysqlbinlog_bin   = $this->app_config["mysqlbinlog_bin"];
+
+        if (isset($this->app_config["memory_limit"]) && $this->app_config["memory_limit"])
+            $this->memory_limit = $this->app_config["memory_limit"];
     }
 
     public function getAppConfig($key)
