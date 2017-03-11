@@ -282,7 +282,7 @@ class BinLog
             " -h".$this->host.
             " -P".$this->port.
             //" --read-from-remote-server".
-            " --base64-output=DECODE-ROWS -v".
+            " --base64-output=DECODE-ROWS -v". //-vv
             " --start-position=" . $start_pos .
             " --stop-position=" . $end_pos .
             "  \"" . $current_binlog_file . "\" > ".$cache_file;

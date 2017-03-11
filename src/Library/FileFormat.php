@@ -257,6 +257,14 @@ class FileFormat
             //所有的字段开始的字符都是@
             if (substr($target_line, 0, 1) == "@") {
                 $target_line = preg_replace("/@[0-9]{1,}=/", "", $target_line);
+                /*
+                if (strpos($target_line,"/*")) {
+                    $temp = explode("/*",$target_line);
+                    $target_line = $temp[0];
+                    unset($temp);
+                    $target_line = trim($target_line);
+                }
+                */
                 $target_line = trim($target_line, "'");
                 //如果是update操作 有两组数据 一组是旧数据 一组是新数据
                 if ($event_type == "update_rows") {
