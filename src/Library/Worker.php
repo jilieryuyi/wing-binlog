@@ -467,6 +467,7 @@ class Worker implements Process
         $bin = new \Seals\Library\BinLog(Context::instance()->activity_pdo);
         $bin->setCacheDir(Context::instance()->binlog_cache_dir);
         $bin->setDebug($this->debug);
+        $bin->setCacheHandler(new \Seals\Cache\File(__APP_DIR__));
 
         $queue = new Queue(self::QUEUE_NAME. ":ep".$i, Context::instance()->redis_local);
 
@@ -648,6 +649,7 @@ class Worker implements Process
         $bin = new \Seals\Library\BinLog(Context::instance()->activity_pdo);
         $bin->setCacheDir(Context::instance()->binlog_cache_dir);
         $bin->setDebug($this->debug);
+        $bin->setCacheHandler(new \Seals\Cache\File(__APP_DIR__));
 
         $limit = 10000;
         while (1) {

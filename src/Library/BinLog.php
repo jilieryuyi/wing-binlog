@@ -6,6 +6,7 @@ use Wing\FileSystem\WDir;
  * User: yuyi
  * Date: 17/2/10
  * Time: 10:23
+ * @property CacheInterface $cache_handler
  */
 class BinLog
 {
@@ -25,6 +26,7 @@ class BinLog
      */
     private $cache_dir;
     private $log_dir;
+    private $cache_handler;
 
     /**
      * @var bool
@@ -85,6 +87,11 @@ class BinLog
         }
 
         unset($dir);
+    }
+
+    public function setCacheHandler(CacheInterface $cache)
+    {
+        $this->cache_handler = $cache;
     }
 
     /**
@@ -189,7 +196,7 @@ class BinLog
      */
     public function setLastBinLog($binlog)
     {
-        return file_put_contents(dirname(dirname(__DIR__))."/mysql.last",$binlog);
+        return $this->cache_handler->set("mysql.last", $binlog);
     }
 
     /**
@@ -199,7 +206,7 @@ class BinLog
      */
     public function getLastBinLog()
     {
-        return file_get_contents(dirname(dirname(__DIR__))."/mysql.last");
+        return $this->cache_handler->get("mysql.last");
     }
 
     /**
@@ -211,7 +218,7 @@ class BinLog
      */
     public function setLastPosition($start_pos,$end_pos)
     {
-        return file_put_contents(dirname(dirname(__DIR__))."/mysql.pos",$start_pos.":".$end_pos);
+        return $this->cache_handler->set("mysql.pos", [$start_pos,$end_pos]);
     }
 
     /**
@@ -221,11 +228,7 @@ class BinLog
      */
     public function getLastPosition()
     {
-        $pos = file_get_contents(dirname(dirname(__DIR__))."/mysql.pos");
-        $res = explode(":",$pos);
-        if (!is_array($res) || count($res) != 2)
-            return [0,0];
-        return $res;
+        return $this->cache_handler->get("mysql.pos");
     }
 
     /**
@@ -267,7 +270,7 @@ class BinLog
         unset($str1,$str2,$str3);
 
         //mysqlbinlog -uroot -proot -h127.0.0.1 -P3306 --read-from-remote-server mysql-bin.000001 --base64-output=decode-rows -v > 1
-        $command    = $this->mysqlbinlog .
+        /*$command    = $this->mysqlbinlog .
             " -u".$this->user.
             " -p\"".$this->password."\"".
             " -h".$this->host.
@@ -277,7 +280,7 @@ class BinLog
             " --start-position=" . $start_pos .
             " --stop-position=" . $end_pos .
             "  \"" . $current_binlog_file . "\" > ".$cache_file;
-
+       */
        // echo preg_replace("/\-p[\s\S]{1,}?\s/","-p****** ",$command,1),"\r\n";
         $command    =
             $this->mysqlbinlog .
