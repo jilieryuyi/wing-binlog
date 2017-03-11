@@ -220,14 +220,14 @@ class Worker implements Process
 
         $files = $this->process_cache->keys("running.*");
 
+        if (!$files)
+            return;
+
         $process_ids = [];
         foreach ($files as $file) {
             list(, $process_id) = explode("_",$file);
             $process_ids[] = $process_id;
         }
-
-        if (!$process_ids)
-            return;
 
         foreach ($process_ids as $process_id) {
             $this->process_cache->set("stop_".$process_id,1);
@@ -258,8 +258,7 @@ class Worker implements Process
                 $queue = new Queue(self::QUEUE_NAME .":ep". $index, Context::instance()->redis_local);
                 $wlen  = $queue->length();
                 unset($queue);
-            }
-            else {
+            } else {
                 $queue = new Queue(self::QUEUE_NAME . $index, Context::instance()->redis_local);
                 $wlen  = $queue->length();
                 unset($queue);
@@ -278,11 +277,9 @@ class Worker implements Process
 
             if (strpos($status["name"],"dispatch") !== false) {
                 $names[] = $index+1;
-            }
-            elseif (strpos($status["name"],"workers") !== false) {
+            } elseif (strpos($status["name"],"workers") !== false) {
                 $names[] = $index+100;
-            }
-            else {
+            } else {
                 $names[] = 0;
             }
         }
