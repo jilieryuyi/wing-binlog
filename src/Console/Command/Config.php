@@ -10,6 +10,7 @@ class Config extends ServerBase
     {
         $this
             ->setName('config')
+            ->setAliases(["init"])
             ->setDescription('自动初始化配置');
     }
 

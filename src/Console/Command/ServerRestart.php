@@ -9,6 +9,7 @@ class ServerRestart extends ServerBase
     {
         $this
             ->setName('server:restart')
+            ->setAliases(["restart"])
             ->setDescription('重新启动');
     }
 

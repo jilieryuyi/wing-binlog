@@ -9,6 +9,7 @@ class ServerStatus extends ServerBase
     {
         $this
             ->setName('server:status')
+            ->setAliases(["status"])
             ->setDescription('服务状态');
 
     }

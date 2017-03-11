@@ -9,6 +9,7 @@ class ServerStop extends ServerBase
     {
         $this
             ->setName('server:stop')
+            ->setAliases(["stop"])
             ->setDescription('停止服务');
 
     }
