@@ -6,8 +6,10 @@
  * Time: 09:06
  */
 include __DIR__."/../vendor/autoload.php";
+define("__APP_DIR__",dirname(__DIR__));
+$sql = 'show tables;';
+$data = \Seals\Library\Context::instance()->activity_pdo->getTables();
 
-$sql = 'select * from x_fee where 1;show tables;';
-$data = \Wing\Binlog\Library\Context::instance()->pdo->query( $sql );
-
+//$pdo = new \Seals\Library\PDO("root","123456","127.0.0.1","ylb_activity",3306);
+//$data = $pdo->getTables();
 var_dump($data);

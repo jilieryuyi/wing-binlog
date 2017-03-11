@@ -29,8 +29,10 @@ class Local implements LoggerInterface {
     private function write($name, $message, array $context)
     {
         //如果是非定义记录的级别 不采取任何操作
-        if (!in_array($name,$this->levels))
+        if (!in_array($name,$this->levels)) {
+            echo $name," is not defined level\r\n";
             return;
+        }
         file_put_contents(
             $this->log_dir."/".$name."_".date("Ymd").".log",
             date("Y-m-d H:i:s")."\r\n".

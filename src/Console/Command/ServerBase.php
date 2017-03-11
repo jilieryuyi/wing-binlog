@@ -72,7 +72,7 @@ class ServerBase extends Command
         if ($workers > 0)
             $worker->setWorkersNum($workers);
 
-        $handlers_config = include __APP_DIR__."/config/notify.php";
+        $handlers_config = include __DIR__."/../../../config/notify.php";
         $handler_class   = $handlers_config["handler"];
 
         if (!class_exists($handler_class)) {

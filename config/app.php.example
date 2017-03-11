@@ -30,7 +30,22 @@ return [
     "process_cache_dir" => __APP_DIR__."/process_cache",
     //生成的一些进程控制的缓存文件目录
 
-    "mysqlbinlog_bin"   => "mysqlbinlog"
+    "mysqlbinlog_bin"   => "mysqlbinlog",
     //如果mysqlbinlog没有加到环境变量或者无法识别，这里可以写上绝对路径
+
+    "logger"     => \Seals\Logger\Local::class,
+    //日志实现，可以自定义 必须继承psr/log标准的日志实现
+    //比如需要将日志推送到别的服务器等需求 可以自定义日志的实现
+    "log_levels" => [
+        \Psr\Log\LogLevel::ALERT,
+        \Psr\Log\LogLevel::CRITICAL,
+        \Psr\Log\LogLevel::DEBUG,
+        \Psr\Log\LogLevel::EMERGENCY,
+        \Psr\Log\LogLevel::ERROR,
+        \Psr\Log\LogLevel::INFO,
+        \Psr\Log\LogLevel::NOTICE,
+        \Psr\Log\LogLevel::WARNING
+    ],
+    //记录那些级别的日志
 
 ];

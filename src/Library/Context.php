@@ -13,7 +13,6 @@ use Psr\Log\LoggerInterface;
  * @property \Redis $redis
  * @property \Redis $redis_local
  * @property LoggerInterface $logger
- * @property Notify $notify
  */
 class Context{
 
@@ -45,8 +44,6 @@ class Context{
     private $app_config;
     private $db_config;
     public $logger;
-    public $notify;
-
     /**
      * 单例
      *
@@ -101,7 +98,7 @@ class Context{
             $configs["port"]
        );
 
-        $this->app_config = include __APP_DIR__."/config/app.php";
+        $this->app_config = include __DIR__."/../../config/app.php";
 
         $this->log_dir = $this->app_config["log_dir"];
 
@@ -110,93 +107,6 @@ class Context{
         }
 
         $this->logger  = new $this->app_config["logger"]($this->log_dir, $this->app_config["log_levels"]);
-
-        $handlers_config = include __APP_DIR__."/config/notify.php";
-        $handler_class   = $handlers_config["handler"];
-
-        if (!class_exists($handler_class)) {
-            exit($handler_class." class not found");
-        }
-
-        $len     = count($handlers_config["params"]);
-        $handler = null;
-
-        switch ($len) {
-            case 0:
-                $handler = new $handler_class;
-                break;
-            case 1:
-                $handler = new $handler_class($handlers_config["params"][0]);
-                break;
-            case 2:
-                $handler = new $handler_class(
-                    $handlers_config["params"][0],
-                    $handlers_config["params"][1]
-                );
-                break;
-            case 3:
-                $handler = new $handler_class(
-                    $handlers_config["params"][0],
-                    $handlers_config["params"][1],
-                    $handlers_config["params"][2]
-                );
-                break;
-            case 4:
-                $handler = new $handler_class(
-                    $handlers_config["params"][0],
-                    $handlers_config["params"][1],
-                    $handlers_config["params"][2],
-                    $handlers_config["params"][3]
-                );
-                break;
-            case 5:
-                $handler = new $handler_class(
-                    $handlers_config["params"][0],
-                    $handlers_config["params"][1],
-                    $handlers_config["params"][2],
-                    $handlers_config["params"][3],
-                    $handlers_config["params"][4]
-                );
-                break;
-            case 6:
-                $handler = new $handler_class(
-                    $handlers_config["params"][0],
-                    $handlers_config["params"][1],
-                    $handlers_config["params"][2],
-                    $handlers_config["params"][3],
-                    $handlers_config["params"][4],
-                    $handlers_config["params"][5]
-                );
-                break;
-            case 7:
-                $handler = new $handler_class(
-                    $handlers_config["params"][0],
-                    $handlers_config["params"][1],
-                    $handlers_config["params"][2],
-                    $handlers_config["params"][3],
-                    $handlers_config["params"][4],
-                    $handlers_config["params"][5],
-                    $handlers_config["params"][6]
-                );
-                break;
-            case 8:
-                $handler = new $handler_class(
-                    $handlers_config["params"][0],
-                    $handlers_config["params"][1],
-                    $handlers_config["params"][2],
-                    $handlers_config["params"][3],
-                    $handlers_config["params"][4],
-                    $handlers_config["params"][5],
-                    $handlers_config["params"][6],
-                    $handlers_config["params"][7]
-                );
-                break;
-            default:
-                $handler = new $handler_class;
-                break;
-        }
-
-        $this->notify = $handler;
 
     }
 
