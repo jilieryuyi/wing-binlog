@@ -33,13 +33,15 @@ class Local implements LoggerInterface {
             echo $name," is not defined level\r\n";
             return;
         }
-        file_put_contents(
-            $this->log_dir."/".$name."_".date("Ymd").".log",
-            date("Y-m-d H:i:s")."\r\n".
-            $message."\r\n".
-            json_encode($context,JSON_UNESCAPED_UNICODE)."\r\n\r\n",
-            FILE_APPEND
-        );
+        if ($message || $context) {
+            file_put_contents(
+                $this->log_dir . "/" . $name . "_" . date("Ymd") . ".log",
+                date("Y-m-d H:i:s") . "\r\n" .
+                $message . "\r\n" .
+                json_encode($context, JSON_UNESCAPED_UNICODE) . "\r\n\r\n",
+                FILE_APPEND
+            );
+        }
     }
 
 
