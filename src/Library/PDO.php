@@ -108,8 +108,7 @@ class PDO implements DbInterface
             $this->bconnected = true;
         }
         catch (\PDOException $e) {
-            if ($e->errorInfo)
-                trigger_error("pdo connect error => ".json_encode($e->errorInfo,JSON_UNESCAPED_UNICODE));
+            trigger_error("pdo connect error => ".json_encode($e->errorInfo,JSON_UNESCAPED_UNICODE));
             var_dump("pdo ".__FUNCTION__,$e->errorInfo);
         }
     }
