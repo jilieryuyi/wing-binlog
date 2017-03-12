@@ -53,6 +53,10 @@ class Rabbitmq implements \Seals\Library\Notify
     public function send(array $event_data)
     {
         try {
+            if (!$this->channel) {
+                Context::instance()->logger->error("rabbitmq is not connect");
+                return false;
+            }
             $this->channel->queue_declare($this->queue_name, false, true, false, false);
             $this->channel->exchange_declare($this->exchange_name, 'direct', false, true, false);
             $this->channel->queue_bind($this->queue_name, $this->exchange_name);
