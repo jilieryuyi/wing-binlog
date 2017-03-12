@@ -65,6 +65,7 @@ mysqlbinlog事件采集系统
 * 1、仅支持mysqlbinlog的row格式
 * 2、mysql版本必须大于等于5.6.2
 * 3、必须与需要采集数据的mysql运行在同一台服务器
+* 4、进行分布式部署时，config/redis.php和config/redis_local.php一定不能使用相同的redis，以避免资源冲突
 
 ###如何使用？
 * 1、执行 php seals config 初始化配置文件
