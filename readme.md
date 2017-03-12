@@ -70,7 +70,7 @@ mysqlbinlog事件采集系统
 * 1、执行 php seals config 初始化配置文件
 * 2、修改config目录下的配置文件为自己的服务器参数
 * 3、不要忘了 composer install
-* 4、已支持redis队列和http两种方式的事件通知方式，修改config/notify.php 更改通知方式，需要重启进程，默认为redis队列
+* 4、已支持redis队列、http和rabbitmq三种方式的事件通知方式，修改config/notify.php 更改通知方式，需要重启进程，默认为redis队列
 
 ###常见问题
 * 1、redis "read error on connection"
