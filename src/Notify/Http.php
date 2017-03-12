@@ -63,7 +63,7 @@ class Http implements Notify
 
             $output = curl_exec($ch);
             curl_close($ch);
-            return $output;
+            return true;
         } catch (\Exception $e) {
             Context::instance()->logger->error(
                 $e->getMessage(),
