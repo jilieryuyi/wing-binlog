@@ -4,6 +4,9 @@
  * User: yuyi
  * Date: 17/2/18
  * Time: 10:26
+ * 一个简单的http服务器 http://127.0.0.1:9998/
+ * 脚本位于tests/consumers/http.php
+ * 运行此脚本即可简单的测试http协议消费端
  */
 return [
     //接收事件通知的实现
@@ -14,6 +17,6 @@ return [
 //使用http发起事件通知
 /*return [
     "handler" => \Seals\Notify\Http::class,
-    "params"  => ["http://www.test.com/binlog"]
+    "params"  => ["http://127.0.0.1:9998/"]
 ];
 */

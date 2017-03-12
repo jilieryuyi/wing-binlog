@@ -6,7 +6,7 @@
  * Time: 07:40
  * 一个简单的http消费端接收测试
  */
-set_time_limit( 0 );
+set_time_limit(0);
 ob_implicit_flush();
 $socket = socket_create( AF_INET, SOCK_STREAM, SOL_TCP );
 socket_bind( $socket, '127.0.0.1', 9998 );
