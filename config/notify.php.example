@@ -4,6 +4,7 @@
  * User: yuyi
  * Date: 17/2/18
  * Time: 10:26
+ * tests/consumers目录为消费端的测试脚本
  * 一个简单的http服务器 http://127.0.0.1:9998/
  * 脚本位于tests/consumers/http.php
  * 运行此脚本即可简单的测试http协议消费端
@@ -20,3 +21,8 @@ return [
     "params"  => ["http://127.0.0.1:9998/"]
 ];
 */
+//使用rabbitmq通知 'wing-binlog-exchange' 是交换机名称
+/*[
+    "handler" => \Seals\Notify\Rabbitmq::class,
+    "params"  => ['wing-binlog-exchange','wing-binlog-queue']
+];*/

@@ -83,7 +83,8 @@ mysqlbinlog事件采集系统
      日志的实现默认为 \Seals\Logger\Local::class ，修改config/app.php下的logger即可，实现必须遵循psr/log日志标准，即必须实现Psr\Log\LoggerInterface接口
 * 5、怎么增加新的通知方式？如：想要把通知方式修改为mq，怎么处理？
      通知方式的配置为config/notify.php，修改次配置文件即可实现通知方式的自定义化，另外新增加的通知必须实现Seals\Library\Notify接口
-    
+* 6、ACCESS_REFUSED - Login was refused using authentication mechanism AMQPLAIN，此错误的解决方式为，添加一个新的用户，如admin，admin，然后服务端使用admin发布队列消息，客户端依然可以使用默认的guest登录接收消息
+
 ###wing-binlog的实现原理以及简单的概念介绍
 数据实时分析系统与业务系统彻底解耦，一个完整的实时分析系统的基础架构大概如下
 

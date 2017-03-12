@@ -44,9 +44,10 @@ class Context{
     public $mysqlbinlog_bin   = "mysqlbinlog";
 
 
-    private $app_config;
-    private $db_config;
-    public $redis_config;
+    private $app_config     = [];
+    private $db_config      = [];
+    public $redis_config    = [];
+    public $rabbitmq_config = [];
 
     public $logger;
     public $memory_limit = "10240M";
@@ -79,13 +80,13 @@ class Context{
         $this->redis_local  = null;
         $this->activity_pdo = null;
 
-        $this->redis_config = require __DIR__."/../../config/redis.php";
+        //事件通知redis 可选
+        if (file_exists(__DIR__."/../../config/redis.php"))
+            $this->redis_config    = require __DIR__."/../../config/redis.php";
 
-//        $this->redis  = new Redis(
-//            $redis_config["host"],
-//            $redis_config["port"],
-//            $redis_config["password"]
-//       );
+        //rabbitmq 通知配置 可选
+        if (file_exists(__DIR__."/../../config/rabbitmq.php"))
+            $this->rabbitmq_config = require __DIR__."/../../config/rabbitmq.php";
 
         $redis_config = require __DIR__."/../../config/redis_local.php";
 
