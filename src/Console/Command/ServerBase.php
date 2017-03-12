@@ -1,5 +1,6 @@
 <?php namespace Seals\Console\Command;
 
+use Seals\Cache\File;
 use Seals\Library\Worker;
 use Symfony\Component\Console\Command\Command;
 use Wing\FileSystem\WDir;
@@ -11,61 +12,68 @@ class ServerBase extends Command
     protected function clear($log_dir, $binlog_cache_dir)
     {
         if ($binlog_cache_dir) {
-            $dir = new WDir($binlog_cache_dir);
-
+            $dir   = new WDir($binlog_cache_dir);
             $files = $dir->scandir();
+
             array_map(function ($file) {
                 unlink($file);
             }, $files);
         }
 
         if ($log_dir) {
-            $dir = new WDir($log_dir);
+            $dir   = new WDir($log_dir);
             $files = $dir->scandir();
+
             array_map(function ($file) {
                 unlink($file);
             }, $files);
         }
     }
-    protected function start($deamon, $workers, $debug = false, $clear = false)
+
+    protected function getAppConfig()
     {
-
-        $file = new WFile(__APP_DIR__."/seals.pid");
-        $file->write(
-            ($deamon?1:0).":".
-            $workers.":".
-            ($debug?1:0).":".
-            ($clear?1:0),
-            false
-        );
-
         $app_config = include __APP_DIR__."/config/app.php";
 
 
-        if (!isset($app_config["mysqlbinlog_bin"]))
+        if (!isset($app_config["mysqlbinlog_bin"])) {
             $app_config["mysqlbinlog_bin"] = "";
+        }
 
-        if (!isset($app_config["binlog_cache_dir"]))
+        if (!isset($app_config["binlog_cache_dir"])) {
             $app_config["binlog_cache_dir"] = "";
+        }
 
-        if (!isset($app_config["memory_limit"]))
+        if (!isset($app_config["memory_limit"])) {
             $app_config["memory_limit"] = 0;
+        }
 
-        if (!isset($app_config["log_dir"]))
+        if (!isset($app_config["log_dir"])) {
             $app_config["log_dir"] = "";
+        }
 
-        if (!isset($app_config["process_cache_dir"]))
+        if (!isset($app_config["process_cache_dir"])) {
             $app_config["process_cache_dir"] = "";
+        }
 
-        if ($clear)
-            $this->clear($app_config["log_dir"],$app_config["binlog_cache_dir"]);
+        return $app_config;
+    }
 
-        $worker    = new Worker(
-            $app_config["app_id"]
-       );
+    protected function start($deamon, $workers, $debug = false, $clear = false)
+    {
 
-        if ($workers > 0)
+        $app_config = $this->getAppConfig();
+        $cache      = new File(__APP_DIR__);
+        $worker     = new Worker($app_config["app_id"]);
+
+        $cache->set("seals.pid",[$deamon, $workers, $debug, $clear]);
+
+        if ($clear) {
+            $this->clear($app_config["log_dir"], $app_config["binlog_cache_dir"]);
+        }
+
+        if ($workers > 0) {
             $worker->setWorkersNum($workers);
+        }
 
         $worker->setProcessCache(new \Seals\Cache\File($app_config["process_cache_dir"]));
 
@@ -156,36 +164,25 @@ class ServerBase extends Command
 
         $worker->setNotify($handler);
 
-        if ($debug)
+        if ($debug) {
             $worker->enabledDebug();
-        else
+        } else {
             $worker->disabledDebug();
+        }
 
-        if ($deamon)
+        if ($deamon) {
             $worker->enableDeamon();
+        }
 
         $worker->start();
     }
 
     protected function stop()
     {
-        $worker    = new Worker();
-        if (!isset($app_config["mysqlbinlog_bin"]))
-            $app_config["mysqlbinlog_bin"] = "";
+        $worker     = new Worker();
+        $app_config = $this->getAppConfig();
 
-        if (!isset($app_config["binlog_cache_dir"]))
-            $app_config["binlog_cache_dir"] = "";
-
-        if (!isset($app_config["memory_limit"]))
-            $app_config["memory_limit"] = 0;
-
-        if (!isset($app_config["log_dir"]))
-            $app_config["log_dir"] = "";
-
-        if (!isset($app_config["process_cache_dir"]))
-            $app_config["process_cache_dir"] = "";
         $worker->setProcessCache(new \Seals\Cache\File($app_config["process_cache_dir"]));
-
         $worker->stop();
     }
 
@@ -193,66 +190,28 @@ class ServerBase extends Command
     {
         $this->stop();
 
-        $res = new WFile(__APP_DIR__."/seals.pid");
+        $cache = new File(__APP_DIR__);
 
-        list($deamon, $workers, $debug, $clear) = explode(":",$res->read());
-
-        $deamon = $deamon == 1;
-        $debug  = $debug == 1;
-        $clear  = $clear == 1;
+        list($deamon, $workers, $debug, $clear) = $cache->get("seals.pid");
 
         $this->start($deamon, $workers, $debug, $clear);
     }
 
     protected function status()
     {
-        $worker = new Worker();
+        $worker     = new Worker();
+        $app_config = $this->getAppConfig();
 
-        $app_config = include __APP_DIR__."/config/app.php";
-
-
-        if (!isset($app_config["mysqlbinlog_bin"]))
-            $app_config["mysqlbinlog_bin"] = "";
-
-        if (!isset($app_config["binlog_cache_dir"]))
-            $app_config["binlog_cache_dir"] = "";
-
-        if (!isset($app_config["memory_limit"]))
-            $app_config["memory_limit"] = 0;
-
-        if (!isset($app_config["log_dir"]))
-            $app_config["log_dir"] = "";
-
-        if (!isset($app_config["process_cache_dir"]))
-            $app_config["process_cache_dir"] = "";
         $worker->setProcessCache(new \Seals\Cache\File($app_config["process_cache_dir"]));
-
         return $worker->getStatus();
     }
 
     protected function version()
     {
-        $worker = new Worker();
+        $worker     = new Worker();
+        $app_config = $this->getAppConfig();
 
-        $app_config = include __APP_DIR__."/config/app.php";
-
-
-        if (!isset($app_config["mysqlbinlog_bin"]))
-            $app_config["mysqlbinlog_bin"] = "";
-
-        if (!isset($app_config["binlog_cache_dir"]))
-            $app_config["binlog_cache_dir"] = "";
-
-        if (!isset($app_config["memory_limit"]))
-            $app_config["memory_limit"] = 0;
-
-        if (!isset($app_config["log_dir"]))
-            $app_config["log_dir"] = "";
-
-        if (!isset($app_config["process_cache_dir"]))
-            $app_config["process_cache_dir"] = "";
         $worker->setProcessCache(new \Seals\Cache\File($app_config["process_cache_dir"]));
-
         return $worker->getVersion();
     }
 
