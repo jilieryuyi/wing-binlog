@@ -70,8 +70,12 @@ class Queue implements QueueInterface
     public function peek()
     {
         $data =  $this->redis->lRange( $this->queue_name, 0, 1);
-        if (isset($data[0]))
+        if (isset($data[0])) {
+            $res = @json_decode($data[0],true);
+            if (is_array($res))
+                return $res;
             return $data[0];
+        }
         return null;
     }
 

@@ -543,10 +543,11 @@ class Worker implements Process
         //设置进程标题 mac 会有warning 直接忽略
         $this->setProcessTitle($process_name);
 
-        $queue = new Queue(self::QUEUE_NAME.$i, Context::instance()->redis_local);
-
         //由于是多进程 redis和pdo等连接资源 需要重置
         Context::instance()->reset();
+
+        $queue = new Queue(self::QUEUE_NAME.$i, Context::instance()->redis_local);
+        $failure_queue = new Queue(self::QUEUE_NAME.":failure:events", Context::instance()->redis_local);
 
         while (1) {
             ob_start();
@@ -555,6 +556,13 @@ class Worker implements Process
                 $this->setIsRunning();
 
                 do {
+
+                    //最后一个进程做失败重发操作
+                    if (!$i == $this->workers) {
+                        //尝试发送失败的事件
+                        $this->failureEventsSendRetry();
+                    }
+
                     $len = $queue->length();
                     if ($len <= 0) {
                         unset($len);
@@ -591,13 +599,18 @@ class Worker implements Process
                     echo "parse cache file => ",$cache_file,"\r\n";
                     $file = new FileFormat($cache_file,\Seals\Library\Context::instance()->activity_pdo);
 
-                    $file->parse(function ($database_name, $table_name, $event) {
-                        $this->notify->send([
+                    $file->parse(function ($database_name, $table_name, $event) use($failure_queue) {
+                        $params = [
                             "database_name" => $database_name,
                             "table_name"    => $table_name,
                             "event_data"    => $event,
                             "app_id"        => $this->app_id
-                        ]);
+                        ];
+                        $success = $this->notify->send($params);
+                        if (!$success) {
+                            Context::instance()->logger->error(get_class($this->notify)." send failure",$params);
+                            $failure_queue->push($params);
+                        }
                     });
 
                     unset($file);
@@ -635,6 +648,28 @@ class Worker implements Process
 
         }
     }
+
+    protected function failureEventsSendRetry()
+    {
+        $failure_queue = new Queue(self::QUEUE_NAME.":failure:events", Context::instance()->redis_local);
+        $len = $failure_queue->length();
+        if ($len <= 0)
+            return;
+        echo "正在尝试重新发送失败的事件，请确保接收事件的服务可用...\r\n";
+
+        for($i = 0; $i < $len; $i++) {
+            $event = $failure_queue->peek();
+            $success = $this->notify->send($event);
+            if (!$success) {
+                echo "重新尝试失败\r\n";
+                Context::instance()->logger->error("failure events send fail", $event);
+            } else {
+                $failure_queue->pop();
+            }
+        }
+        echo "失败事件重新发送完毕\r\n";
+    }
+
     /**
      * 事件分配进程
      */
@@ -797,6 +832,10 @@ class Worker implements Process
         }
         echo "process queue dispatch is running \r\n";
         ini_set("memory_limit", Context::instance()->memory_limit);
+
+        //尝试发送失败的事件
+        $this->failureEventsSendRetry();
+
         //基础事件采集进程
         $this->eventProcess();
     }
