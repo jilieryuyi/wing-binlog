@@ -27,6 +27,26 @@ class Zookeeper
 
     }
 
+    public function setLastBinlog()
+    {
+
+    }
+
+    public function getLastBinlog()
+    {
+
+    }
+
+    public function setLastPos($start_pos, $end_pos)
+    {
+
+    }
+
+    public function getLastPos($start_pos, $end_pos)
+    {
+
+    }
+
     /**
      * 获取数据库是否已被监听，防止重复监听，分布式锁的实现
      */
