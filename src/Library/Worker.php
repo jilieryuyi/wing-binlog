@@ -56,7 +56,7 @@ class Worker implements Process
 
         set_error_handler(function($errno, $errstr, $errfile, $errline)
         {
-            Context::instance()->logger->notice("error happened",[
+            Context::instance()->logger->error("error happened",[
                 "process_id"    => self::getCurrentProcessId(),
                 "error_no"      => $errno,
                 "error_message" => $errstr,
@@ -184,7 +184,7 @@ class Worker implements Process
     public function setIsRunning()
     {
         $process_id = self::getCurrentProcessId();
-        $this->process_cache->set("running_".$process_id,1);
+        $this->process_cache->set("running_".$process_id, 1, 60);
         return $this;
     }
 
@@ -235,7 +235,7 @@ class Worker implements Process
         }
 
         foreach ($process_ids as $process_id) {
-            $this->process_cache->set("stop_".$process_id,1);
+            $this->process_cache->set("stop_".$process_id,1,60);
         }
     }
 
