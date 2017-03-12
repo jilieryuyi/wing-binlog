@@ -44,6 +44,7 @@ class Http implements Notify
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_HEADER, 0);
             curl_setopt($ch, CURLOPT_USERAGENT, "wing-binlog");
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array("Expect:"));
 
             if (strpos($this->url, "https://") === 0) {
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);

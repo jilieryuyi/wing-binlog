@@ -11,11 +11,15 @@ use Seals\Library\Queue;
  *
  * redis事件通知的实现
  *
+ * @property Queue $queue
+ *
  */
 class Redis implements Notify
 {
 
     private $queue;
+    private $redis;
+    private $list_name;
 
     /**
      * 构造函数
@@ -24,7 +28,13 @@ class Redis implements Notify
      */
     public function __construct($list_name)
     {
-        $this->queue = new Queue($list_name, Context::instance()->redis);
+        $this->list_name = $list_name;
+        $this->redis  = new \Seals\Library\Redis(
+            Context::instance()->redis_config["host"],
+            Context::instance()->redis_config["port"],
+            Context::instance()->redis_config["password"]
+        );
+        $this->queue = new Queue($this->list_name, $this->redis);
     }
 
     /**

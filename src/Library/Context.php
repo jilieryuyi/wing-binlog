@@ -9,8 +9,8 @@ use Psr\Log\LoggerInterface;
  *
  * 上下文支持
  *
+ * @property array $redis_config
  * @property PDO $activity_pdo
- * @property RedisInterface $redis
  * @property RedisInterface $redis_local
  * @property LoggerInterface $logger
  */
@@ -19,7 +19,7 @@ class Context{
     /**
      * @var RedisInterface
      */
-    public $redis;
+    //public $redis;
 
     /**
      * @var RedisInterface
@@ -46,6 +46,8 @@ class Context{
 
     private $app_config;
     private $db_config;
+    public $redis_config;
+
     public $logger;
     public $memory_limit = "10240M";
     /**
@@ -77,13 +79,13 @@ class Context{
         $this->redis_local  = null;
         $this->activity_pdo = null;
 
-        $redis_config = require __DIR__."/../../config/redis.php";
+        $this->redis_config = require __DIR__."/../../config/redis.php";
 
-        $this->redis  = new Redis(
-            $redis_config["host"],
-            $redis_config["port"],
-            $redis_config["password"]
-       );
+//        $this->redis  = new Redis(
+//            $redis_config["host"],
+//            $redis_config["port"],
+//            $redis_config["password"]
+//       );
 
         $redis_config = require __DIR__."/../../config/redis_local.php";
 
