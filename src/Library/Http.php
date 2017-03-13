@@ -244,11 +244,11 @@ class Http implements Process
 
         array_multisort($names, SORT_ASC, $res);
 
-        $str = "进程id    开始时间            运行时长\r\n";
+        $str = "进程id    开始时间              运行时长\r\n";
         foreach ($res as $v) {
             $str .= $v["process_id"] .
                 "  " . $v["start_time"] .
-                "       " . $v["run_time"] .
+                "   " . $v["run_time"] .
                 "  " . $v["name"] . "\r\n";
         }
         return $str;
@@ -367,6 +367,23 @@ class Http implements Process
             $this->resetStd();
         }
 
+        $process_name = "wing-binlog http service";
+
+        //启用一个timer做信号服务
+        $base  = event_base_new();
+        $event = event_timer_new();
+        event_timer_set($event, function() use($process_name){
+            $this->setStatus($process_name);
+            $this->setIsRunning();
+            $this->checkStopSignal();
+
+            $args = func_get_args();
+            event_add($args[2][0], 1000000);
+
+        }, [$event, $base]);
+        event_base_set($event, $base);
+        event_add($event, 1000000);
+        event_base_loop($base);
 
         $http = new Server($this->ip, $this->port);
 
