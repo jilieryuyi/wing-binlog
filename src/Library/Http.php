@@ -393,6 +393,7 @@ class Http implements Process
 
             $response  = "404 not fund";
             $resource  = $data->getResource();
+            $mime_type = "text/html";
 
             if (file_exists($this->home_path.$resource)) {
                 $mime_type = MimeType::getMimeType($this->home_path . $resource);
