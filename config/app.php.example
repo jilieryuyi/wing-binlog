@@ -36,6 +36,8 @@ return [
     "logger"     => \Seals\Logger\Local::class,
     //日志实现，可以自定义 必须继承psr/log标准的日志实现
     //比如需要将日志推送到别的服务器等需求 可以自定义日志的实现
+
+
     "log_levels" => [
         \Psr\Log\LogLevel::ALERT,
         \Psr\Log\LogLevel::CRITICAL,
@@ -47,5 +49,13 @@ return [
         \Psr\Log\LogLevel::WARNING
     ],
     //记录那些级别的日志
+
+    "filter" => [
+        //如不想监听 test数据库的变化，可以写为，注意正则表达式的开始和结束均为 / 斜线
+        "test"  => ["/.*/"],
+        //不监听test1库下的log和user表
+        "test1" => ["log","user"]
+    ]
+    //过滤器 如不想监听 test数据库的变化 可以写为
 
 ];

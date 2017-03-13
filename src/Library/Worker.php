@@ -546,8 +546,10 @@ class Worker implements Process
         //由于是多进程 redis和pdo等连接资源 需要重置
         Context::instance()->reset();
 
-        $queue = new Queue(self::QUEUE_NAME.$i, Context::instance()->redis_local);
+        $queue         = new Queue(self::QUEUE_NAME.$i, Context::instance()->redis_local);
         $failure_queue = new Queue(self::QUEUE_NAME.":failure:events", Context::instance()->redis_local);
+        $filter        = Context::instance()->getAppConfig("filter");
+
 
         while (1) {
             ob_start();
@@ -599,7 +601,47 @@ class Worker implements Process
                     echo "parse cache file => ",$cache_file,"\r\n";
                     $file = new FileFormat($cache_file,\Seals\Library\Context::instance()->activity_pdo);
 
-                    $file->parse(function ($database_name, $table_name, $event) use($failure_queue) {
+                    $file->parse(function ($database_name, $table_name, $event) use($failure_queue, $filter) {
+
+                        $continue = false;
+                        //过滤器支持
+                        if (is_array($filter) && count($filter) > 0) {
+                            foreach ($filter as $_database_name => $tables ) {
+                                /*if (strpos($_database_name,"/") !== false ) {
+                                    $p = str_replace("/","",$_database_name);
+                                    if (preg_match("/".$p."/", $database_name)) {
+                                        $continue = true;
+                                        break;
+                                    }
+                                } else {
+                                    if($database_name == $_database_name) {
+                                        $continue = true;
+                                        break;
+                                    }
+                                }*/
+
+                                foreach ($tables as $table) {
+                                    if (strpos($table, "/") !== false ) {
+                                        $p = str_replace("/", "", $table);
+                                        if (preg_match("/".$p."/", $table_name)) {
+                                            $continue = true;
+                                            break;
+                                        }
+                                    } else {
+                                        if($table_name == $table) {
+                                            $continue = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if ($continue) {
+                            echo $database_name,"=>",$table_name,"已设置为忽略\r\n";
+                            return;
+                        }
+
                         $params = [
                             "database_name" => $database_name,
                             "table_name"    => $table_name,

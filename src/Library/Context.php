@@ -146,11 +146,15 @@ class Context{
 
     public function getAppConfig($key)
     {
+        if (!isset($this->app_config[$key]))
+            return null;
         return $this->app_config[$key];
     }
 
     public function getDbConfig($key)
     {
+        if (!isset($this->db_config[$key]))
+            return null;
         return $this->db_config[$key];
     }
 }
