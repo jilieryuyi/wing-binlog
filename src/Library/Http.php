@@ -395,7 +395,7 @@ class Http implements Process
                 "Connection: Close",
                 "Server: wing-binlog-http",
                 "Date: " . gmdate("D,d M Y H:m:s")." GMT",
-                "Content-Type: text/html",
+                "Content-Type: ".$mime_type,
                 "Content-Length: " . strlen($response)
             ];
 
