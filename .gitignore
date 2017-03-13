@@ -16,3 +16,5 @@
 /mysql.last
 /mysql.pos
 /logs
+/http_process_cache
+/http_process_cache/*
