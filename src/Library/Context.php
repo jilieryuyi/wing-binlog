@@ -114,7 +114,7 @@ class Context{
         if (!isset($this->app_config["logger"]))
             $this->app_config["logger"] = \Seals\Logger\Local::class;
 
-        if (!isset($this->app_config["log_levels"]) && !is_array($this->app_config["log_levels"])) {
+        if (!isset($this->app_config["log_levels"]) || !is_array($this->app_config["log_levels"])) {
             $this->app_config["log_levels"] = [
                 \Psr\Log\LogLevel::ALERT,
                 \Psr\Log\LogLevel::CRITICAL,
