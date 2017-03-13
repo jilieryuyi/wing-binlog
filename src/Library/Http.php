@@ -380,7 +380,10 @@ class Http implements Process
             if (file_exists($this->home_path.$resource)) {
                 $mime_type = MimeType::getMimeType($this->home_path . $resource);
                 if (in_array($mime_type, ["text/x-php", "text/html"])) {
-                    $response = include $this->home_path . $resource;
+                    ob_start();
+                    include $this->home_path . $resource;
+                    $response = ob_get_contents();
+                    ob_end_clean();
                 } else {
                     $response = file_get_contents($this->home_path . $resource);
                 }
@@ -396,8 +399,12 @@ class Http implements Process
                 "Content-Length: " . strlen($response)
             ];
 
+            var_dump(implode("\r\n",$headers)."\r\n\r\n".$response);
             $http->send($buffer, implode("\r\n",$headers)."\r\n\r\n".$response);
+            $content = ob_get_contents();
             ob_end_clean();
+
+            echo $content;
         });
 
         $http->start();
