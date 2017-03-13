@@ -97,6 +97,8 @@ class Context{
        );
 
         $configs = $this->db_config = require __DIR__."/../../config/db.php";
+        if (!isset($configs["port"]) || !$configs["port"])
+            $configs["port"] = 3306;
         $this->activity_pdo  = new \Seals\Library\PDO(
             $configs["user"],
             $configs["password"],

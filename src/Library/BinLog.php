@@ -238,6 +238,9 @@ class BinLog
      */
     public function getEvents($current_binlog,$last_end_pos, $limit = 10000)
     {
+        if (!$last_end_pos)
+            $last_end_pos = 0;
+
         $sql   = 'show binlog events in "' . $current_binlog . '" from ' . $last_end_pos.' limit '.$limit;
         $datas = $this->db_handler->query($sql);
 
