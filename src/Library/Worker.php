@@ -607,6 +607,8 @@ class Worker implements Process
                         //过滤器支持
                         if (is_array($filter) && count($filter) > 0) {
                             foreach ($filter as $_database_name => $tables ) {
+                                if ($_database_name != $database_name)
+                                    continue;
                                 /*if (strpos($_database_name,"/") !== false ) {
                                     $p = str_replace("/","",$_database_name);
                                     if (preg_match("/".$p."/", $database_name)) {
