@@ -5,20 +5,24 @@
  * Date: 17/3/13
  * Time: 12:55
  */
-class HttpData
+class HttpResponse
 {
     protected $method;
     protected $host;
     protected $port;
     protected $resource;
     protected $http_protocol;
+    protected $buffer;
+    protected $home;
 
     protected $get     = [];
     protected $post    = [];
     protected $headers = [];
 
-    public function __construct($data)
+    public function __construct($home, $buffer, $data)
     {
+        $this->buffer = $buffer;
+        $this->home   = $home;
         list($headers, $content) = explode("\r\n\r\n", $data, 2);
 
         $headers = explode("\r\n", $headers);
@@ -179,5 +183,36 @@ class HttpData
         if (!isset($this->headers["accept"]))
             return null;
         return explode(",",$this->headers["accept"]);
+    }
+
+    public function response()
+    {
+        $response  = "404 not fund";
+        $resource  = $this->getResource();
+        $mime_type = "text/html";
+
+        if (file_exists($this->home.$resource)) {
+            $mime_type = MimeType::getMimeType($this->home . $resource);
+            if (in_array($mime_type, ["text/x-php", "text/html"])) {
+                ob_start();
+                include $this->home . $resource;
+                $response = ob_get_contents();
+                ob_end_clean();
+            } else {
+                $response = file_get_contents($this->home . $resource);
+            }
+        }
+
+        //输出http headers
+        $headers            = [
+            "HTTP/1.1 200 OK",
+            "Connection: Close",
+            "Server: wing-binlog-http",
+            "Date: " . gmdate("D,d M Y H:m:s")." GMT",
+            "Content-Type: ".$mime_type,
+            "Content-Length: " . strlen($response)
+        ];
+        unset($response);
+        return event_buffer_write($this->buffer, implode("\r\n",$headers)."\r\n\r\n".$response);
     }
 }

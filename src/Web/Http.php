@@ -11,12 +11,14 @@ class Http extends Tcp
 
     protected $http_host;
     protected $http_port;
+    protected $home;
 
-    public function __construct($ip = "0.0.0.0", $port = 9998)
+    public function __construct($home, $ip = "0.0.0.0", $port = 9998)
     {
         parent::__construct($ip, $port);
         $this->on(self::ON_WRITE,   [$this, "onWrite"]);
         $this->on(self::ON_RECEIVE, [$this, "onReceive"]);
+        $this->home = $home;
     }
 
     //http协议在发送后要关闭连接
@@ -31,7 +33,7 @@ class Http extends Tcp
 
     public function onReceive($client, $buffer, $id, $data)
     {
-        $this->call(self::ON_HTTP_RECEIVE, [$this, $buffer, new HttpData($data), $data]);
+        $this->call(self::ON_HTTP_RECEIVE, [new HttpResponse($this->home, $buffer,$data)]);
     }
 
     public function send($buffer, $data)

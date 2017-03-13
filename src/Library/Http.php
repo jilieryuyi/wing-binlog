@@ -5,7 +5,7 @@ use Seals\Web\MimeType;
 use Wing\FileSystem\WDir;
 use Wing\FileSystem\WFile;
 use Seals\Web\Http as Server;
-use Seals\Web\HttpData;
+use Seals\Web\HttpResponse;
 
 /**
  * Created by PhpStorm.
@@ -385,44 +385,11 @@ class Http implements Process
         event_add($event, 1000000);
         event_base_loop($base);
 
-        $http = new Server($this->ip, $this->port);
+        $http = new Server($this->home_path, $this->ip, $this->port);
 
-        $http->on(Server::ON_HTTP_RECEIVE,function(Server $http, $buffer, HttpData $data, $content){
-
-            ob_start();
-
-            $response  = "404 not fund";
-            $resource  = $data->getResource();
-            $mime_type = "text/html";
-
-            if (file_exists($this->home_path.$resource)) {
-                $mime_type = MimeType::getMimeType($this->home_path . $resource);
-                if (in_array($mime_type, ["text/x-php", "text/html"])) {
-                    ob_start();
-                    include $this->home_path . $resource;
-                    $response = ob_get_contents();
-                    ob_end_clean();
-                } else {
-                    $response = file_get_contents($this->home_path . $resource);
-                }
-            }
-
-            //输出http headers
-            $headers            = [
-                "HTTP/1.1 200 OK",
-                "Connection: Close",
-                "Server: wing-binlog-http",
-                "Date: " . gmdate("D,d M Y H:m:s")." GMT",
-                "Content-Type: ".$mime_type,
-                "Content-Length: " . strlen($response)
-            ];
-
-            var_dump(implode("\r\n",$headers)."\r\n\r\n".$response);
-            $http->send($buffer, implode("\r\n",$headers)."\r\n\r\n".$response);
-            $content = ob_get_contents();
-            ob_end_clean();
-
-            echo $content;
+        $http->on(Server::ON_HTTP_RECEIVE, function(HttpResponse $response){
+            $response->response();
+            unset($response);
         });
 
         $http->start();
