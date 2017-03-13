@@ -72,6 +72,7 @@ mysqlbinlog事件采集系统
 * 2、修改config目录下的配置文件为自己的服务器参数
 * 3、不要忘了 composer install
 * 4、已支持redis队列、http和rabbitmq三种方式的事件通知方式，修改config/notify.php 更改通知方式，需要重启进程，默认为redis队列
+* 5、一直吃数据表过滤，那些数据不感兴趣可以过滤采集
 
 ###常见问题
 * 1、什么情况下事件会丢失？
