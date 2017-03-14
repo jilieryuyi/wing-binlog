@@ -144,8 +144,8 @@ class Context{
         }
 
         if (!class_exists($this->app_config["logger"])) {
-            $this->app_config["logger"] = \Seals\Logger\Local::class;
             trigger_error($this->app_config["logger"]." class not found");
+            $this->app_config["logger"] = \Seals\Logger\Local::class;
         }
 
         $this->logger  = new $this->app_config["logger"]($this->log_dir, $this->app_config["log_levels"]);
