@@ -7,7 +7,7 @@ use Psr\Log\LoggerInterface;
  * Date: 17/2/7
  * Time: 18:26
  *
- * 上下文支持
+ * context support
  *
  * @property array $redis_config
  * @property PDO $activity_pdo
@@ -59,7 +59,7 @@ class Context{
     }
 
     /**
-     * 构造函数
+     * __construct, init configs and local redis
      */
     public function __construct()
     {
@@ -67,6 +67,11 @@ class Context{
         $this->initRedisLocal();
     }
 
+    /**
+     * init local redis source
+     *
+     * @return self
+     */
     public function initRedisLocal()
     {
         $this->redis_local  = null;
@@ -80,6 +85,11 @@ class Context{
         return $this;
     }
 
+    /**
+     * init context pdo source
+     *
+     * @return self
+     */
     public function initPdo()
     {
         $this->activity_pdo = null;
@@ -101,7 +111,7 @@ class Context{
     }
 
     /**
-     * 重置所有的资源，多进程编程支持
+     * config init
      */
     public function init()
     {
@@ -160,9 +170,15 @@ class Context{
 
         if (!isset($this->zookeeper_config["enable"]))
             $this->zookeeper_config["enable"] = false;
-
+        return $this;
     }
 
+    /**
+     * get app config
+     *
+     * @param string $key
+     * @return mixed
+     */
     public function getAppConfig($key)
     {
         if (!isset($this->app_config[$key]))
@@ -170,6 +186,12 @@ class Context{
         return $this->app_config[$key];
     }
 
+    /**
+     * get database config
+     *
+     * @param string $key
+     * @return mixed
+     */
     public function getDbConfig($key)
     {
         if (!isset($this->db_config[$key]))
