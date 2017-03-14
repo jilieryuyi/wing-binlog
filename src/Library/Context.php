@@ -43,6 +43,7 @@ class Context{
     private $db_config      = [];
     public $redis_config    = [];
     public $rabbitmq_config = [];
+    public $zookeeper_config= [];
 
     public $logger;
     public $memory_limit = "10240M";
@@ -147,6 +148,19 @@ class Context{
 
         if (isset($this->app_config["memory_limit"]) && $this->app_config["memory_limit"])
             $this->memory_limit = $this->app_config["memory_limit"];
+
+        $this->zookeeper_config = [
+            "enable"   => false,
+            "host"     => "127.0.0.1",
+            "port"     => 6379,
+            "password" => null
+        ];
+        if (file_exists(__DIR__."/../../config/zookeeper.php"))
+            $this->zookeeper_config = require __DIR__."/../../config/zookeeper.php";
+
+        if (!isset($this->zookeeper_config["enable"]))
+            $this->zookeeper_config["enable"] = false;
+
     }
 
     public function getAppConfig($key)

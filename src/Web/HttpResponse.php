@@ -14,21 +14,28 @@ class HttpResponse
     protected $http_protocol;
     protected $buffer;
     protected $home;
+    protected $http;
 
     protected $get     = [];
     protected $post    = [];
     protected $headers = [];
 
-    public function __construct($home, $buffer, $data)
+    public function __construct(Http $http,$home, $buffer, $data)
     {
         $this->buffer = $buffer;
         $this->home   = $home;
+        $this->http   = $http;
+
         list($headers, $content) = explode("\r\n\r\n", $data, 2);
 
         $headers = explode("\r\n", $headers);
         $line1   = array_shift($headers);
 
-        list($this->method, $resource, $this->http_protocol) = explode(" ", $line1);
+        $temp = explode(" ", $line1);
+        $this->method        = isset($temp[0])?$temp[0]:"unknown";
+        $resource            = isset($temp[1])?$temp[1]:"";
+        $this->http_protocol = isset($temp[2])?$temp[2]:"unknown";
+        unset($temp,$line1);
 
         foreach ($headers as $header) {
             list($key, $value) = explode(":",$header,2);
@@ -36,6 +43,8 @@ class HttpResponse
         }
 
         list(,$this->host,$this->port) = explode(":",$headers[0]);//$line2;
+        unset($headers);
+
         $this->host = trim($this->host);
         if (!$this->port)
             $this->port = 80;
@@ -47,13 +56,17 @@ class HttpResponse
         if (isset($arr["query"])) {
             $query  = $arr["query"];
             $querys = preg_split("/\&+/", $query);
+            unset($query);
 
             foreach ($querys as $query) {
                 $query = trim($query);
                 list($key, $value) = explode("=", $query);
+                unset($query);
                 $this->get[$key] = $value;
             }
+            unset($querys);
         }
+        unset($arr);
 
         //post数据解析
         if ($content) {
@@ -71,7 +84,9 @@ class HttpResponse
 
                 $key    = trim($m[0],"\"");
                 $this->post[$key] = isset($temp[1])?$temp[1]:"";
+                unset($temp, $key, $query);
             }
+            unset($querys);
         }
     }
 
@@ -191,6 +206,10 @@ class HttpResponse
         $resource  = $this->getResource();
         $mime_type = "text/html";
 
+        $_GET     = $this->getAll();
+        $_POST    = $this->postAll();
+        $_REQUEST = array($_GET,$_POST);
+
         if (file_exists($this->home.$resource)) {
             $mime_type = MimeType::getMimeType($this->home . $resource);
             if (in_array($mime_type, ["text/x-php", "text/html"])) {
@@ -202,6 +221,7 @@ class HttpResponse
                 $response = file_get_contents($this->home . $resource);
             }
         }
+        unset($_GET,$_POST,$_REQUEST);
 
         //输出http headers
         $headers            = [
@@ -213,8 +233,6 @@ class HttpResponse
             "Content-Length: " . strlen($response)
         ];
 
-        var_dump(implode("\r\n",$headers)."\r\n\r\n".$response);
-
-        return event_buffer_write($this->buffer, implode("\r\n",$headers)."\r\n\r\n".$response);
+        return $this->http->send($this->buffer, implode("\r\n",$headers)."\r\n\r\n".$response);
     }
 }

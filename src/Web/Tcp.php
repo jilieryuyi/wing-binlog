@@ -21,6 +21,10 @@ class Tcp
 
     protected $ip;
     protected $port;
+    protected $error_times  = 0;
+    protected $send_fail_times = 0;
+    protected $accept_times = 0;
+    protected $start_time = 0;
 
     /**
      * 构造函数
@@ -39,6 +43,7 @@ class Tcp
      */
     public function start()
     {
+        $this->start_time = time();
         $this->socket = stream_socket_server('tcp://'.$this->ip.':'.$this->port, $errno, $errstr);
 
         if (!$this->socket) {
@@ -130,6 +135,7 @@ class Tcp
         $this->call(self::ON_CONNECT, [$connection, $buffer, $this->index]);
 
         $this->index++;
+        $this->accept_times++;
     }
 
     /**
@@ -137,6 +143,8 @@ class Tcp
      */
     public function error($buffer, $error, $params)
     {
+        echo "send error free\r\n";
+
         event_buffer_disable($buffer, EV_READ | EV_WRITE);
         event_buffer_free($buffer);
 
@@ -145,6 +153,7 @@ class Tcp
         fclose($params[0]);
         unset($this->clients[$params[1]], $this->buffers[$params[1]]);
         $this->index--;
+        $this->error_times++;
     }
 
     /**
@@ -164,5 +173,10 @@ class Tcp
     public function write($buffer, $params)
     {
         $this->call(self::ON_WRITE,[$params[0], $buffer, $params[1]]);
+    }
+
+    public function debug()
+    {
+        echo "请求次数/失败次数/发送失败/每秒处理 ==> ".$this->accept_times."/".$this->error_times."/".$this->send_fail_times."/".($this->accept_times/(time()-$this->start_time))."\r\n";
     }
 }
