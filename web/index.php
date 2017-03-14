@@ -25,7 +25,12 @@ foreach ($services as $group_id => $groups) {
                 if ($time_span >= 10 && $time_span <= 20) echo 'background: #f00;'; ?>"><?php
                     if ($is_leader)
                         echo "leader:";
-                    echo $session_id; ?></li>
+                    echo $session_id;
+                    if ($is_leader) {
+                        $res = \Seals\Library\Zookeeper::getGroupLastPost($group_id);
+                        echo "=>", $res[0],":",$res[1];
+                    }
+                    ?></li>
                 <?php
             }
         ?>

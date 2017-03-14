@@ -48,6 +48,7 @@ class Context{
 
     public $logger;
     public $memory_limit = "10240M";
+    public $session_id;
 
     protected $static_instances = [];
     /**
@@ -78,6 +79,15 @@ class Context{
      */
     public function __construct()
     {
+        $str1 = md5(rand(0,999999));
+        $str2 = md5(rand(0,999999));
+        $str3 = md5(rand(0,999999));
+
+        $this->session_id = time()."-".
+        substr($str1,rand(0,strlen($str1)-16),16).
+        substr($str2,rand(0,strlen($str2)-16),16).
+        substr($str3,rand(0,strlen($str3)-16),16);
+
         $this->init();
         $this->initRedisLocal();
     }
@@ -190,9 +200,6 @@ class Context{
 
     public function zookeeperInit()
     {
-        if (!$this->zookeeper_config["enable"])
-            return $this;
-
         if (!isset($this->zookeeper_config["host"]) || !isset($this->zookeeper_config["port"]))
             return $this;
 

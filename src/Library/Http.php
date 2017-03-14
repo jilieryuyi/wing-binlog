@@ -378,6 +378,9 @@ class Http implements Process
                     }
                 }
                 foreach ($groups as $session_id => $last_updated) {
+                    //if group is not enable
+                    if (Zookeeper::isClose($group_id, $session_id))
+                        continue;
                     if (!$leader_id) {
                         //重新设置leader
                         echo "设置leader=>",$group_id,"=>",$session_id,"\r\n";

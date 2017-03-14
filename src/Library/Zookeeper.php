@@ -12,7 +12,7 @@ class Zookeeper
     protected $redis;
     protected $session_id;
 
-    const SERVICE_KEY = "wing-binlog-services";
+    const SERVICE_KEY       = "wing-binlog-services";
     const NOTIFY_TYPE_REDIS = "redis";
     const NOTIFY_TYPE_HTTP  = "http";
     const NOTIFY_TYPE_MQ    = "rabbitmq";
@@ -20,7 +20,7 @@ class Zookeeper
     public function __construct($redis)
     {
         $this->redis      = $redis;
-        $this->session_id = $this->createSessionId();
+        $this->session_id = Context::instance()->session_id;//$this->createSessionId();
     }
 
     /**
@@ -45,8 +45,11 @@ class Zookeeper
      */
     public function serviceReport()
     {
-        if (!Context::instance()->zookeeper_config["enable"])
-            return false;
+        echo $this->session_id,"\r\n";
+        echo Context::instance()->session_id,"\r\n";
+        $key = self::SERVICE_KEY.":is_close:". Context::instance()->zookeeper_config["group_id"].":".$this->session_id;
+        $this->redis->set($key,Context::instance()->zookeeper_config["enable"]?0:1);
+        $this->redis->expire($key,10);
 
         if (!$this->redis)
             return false;
@@ -55,6 +58,76 @@ class Zookeeper
             $this->session_id,
             time()
         );
+    }
+
+    /**
+     * if group is enable , set leader's last binlog to all group node
+     */
+    public function setLastBinlog($last_binlog)
+    {
+        //onle leader can report last pos
+        if (!$this->isLeader() || !Context::instance()->zookeeper_config["enable"])
+            return;
+        $key = self::SERVICE_KEY.":last:binlog:". Context::instance()->zookeeper_config["group_id"];
+        $this->redis->set($key, $last_binlog);
+        $this->redis->expire($key,10);
+    }
+
+    public function getLastBinlog()
+    {
+        $key = self::SERVICE_KEY.":last:binlog:". Context::instance()->zookeeper_config["group_id"];
+        return  $this->redis->get($key);
+    }
+
+    /**
+     * if group is enable , set leader's last pos to all group node
+     */
+    public function setLastPost($start_pos, $end_pos)
+    {
+        //onle leader can report last pos
+        if (!$this->isLeader() || !Context::instance()->zookeeper_config["enable"])
+            return;
+        $key = self::SERVICE_KEY.":last:pos:". Context::instance()->zookeeper_config["group_id"];
+        $this->redis->set($key, $start_pos.":".$end_pos);
+        $this->redis->expire($key,10);
+    }
+
+    public function getLastPost()
+    {
+        $key = self::SERVICE_KEY.":last:pos:". Context::instance()->zookeeper_config["group_id"];
+        $res = $this->redis->get($key);
+        return explode(":", $res);
+    }
+
+    public static function getGroupLastPost($group_id)
+    {
+        if (!Context::instance()->redis_zookeeper)
+            return false;
+        $key = self::SERVICE_KEY.":last:pos:". $group_id;
+        $res = Context::instance()->redis_zookeeper->get($key);
+        return explode(":", $res);
+    }
+
+
+    public static function getGroupLastBinlog($group_id)
+    {
+        if (!Context::instance()->redis_zookeeper)
+            return "";
+        $key = self::SERVICE_KEY.":last:binlog:". $group_id;
+        return Context::instance()->redis_zookeeper->get($key);
+    }
+
+    /**
+     * is close group
+     *
+     * @return bool if return true, it means that group is close
+     */
+    public static function isClose($group_id, $session_id)
+    {
+        if (!Context::instance()->redis_zookeeper)
+            return true;
+        $key = self::SERVICE_KEY.":is_close:". $group_id.":".$session_id;
+        return Context::instance()->redis_zookeeper->get($key);
     }
 
     public static function delSessionId($group_id, $session_id)

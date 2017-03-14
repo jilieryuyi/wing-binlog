@@ -757,9 +757,24 @@ class Worker implements Process
 
                     if (!$zookeeper->isLeader()) {
                         echo "不是leader，不进行采集操作\r\n";
+                        //if the current node is not leader and group is enable
+                        //we need to get the last pos and last binlog from leader
+                        //then save it to local
+                        if (Context::instance()->zookeeper_config["enable"]) {
+                            $last_res = $zookeeper->getLastPost();
+                            if (is_array($last_res) && count($last_res) == 2) {
+                                if ($last_res[0] && $last_res[1])
+                                   $bin->setLastPosition($last_res[0], $last_res[1]);
+                            }
+                            $last_binlog = $zookeeper->getLastBinlog();
+                            if ($last_binlog) {
+                                $bin->setLastBinLog($last_binlog);
+                            }
+                        }
                         break;
                     }
 
+                    //just debug info
                     if (Context::instance()->zookeeper_config["enable"])
                         echo "启用群集，是leader\r\n";
                     else
@@ -767,18 +782,24 @@ class Worker implements Process
 
                     //最后操作的binlog文件
                     $last_binlog         = $bin->getLastBinLog();
+                    $zookeeper->setLastBinlog($last_binlog);
+
                     //当前使用的binlog 文件
                     $current_binlog      = $bin->getCurrentLogInfo()["File"];
 
                     //获取最后读取的位置
                     list($last_start_pos, $last_end_pos) = $bin->getLastPosition();
+                    $zookeeper->setLastPost($last_start_pos, $last_end_pos);
 
                     //binlog切换时，比如 .00001 切换为 .00002，重启mysql时会切换
                     //重置读取起始的位置
                     if ($last_binlog != $current_binlog) {
                         $bin->setLastBinLog($current_binlog);
+                        $zookeeper->setLastBinlog($current_binlog);
+
                         $last_start_pos = $last_end_pos = 0;
                         $bin->setLastPosition($last_start_pos, $last_end_pos);
+                        $zookeeper->setLastPost($last_start_pos, $last_end_pos);
                     }
 
                     unset($last_binlog);
@@ -805,6 +826,7 @@ class Worker implements Process
                             unset($queue);
                             //设置最后读取的位置
                             $bin->setLastPosition($start_pos, $row["End_log_pos"]);
+                            $zookeeper->setLastPost($start_pos, $row["End_log_pos"]);
 
                             $has_session = true;
                             $start_pos = $row["End_log_pos"];
@@ -820,7 +842,10 @@ class Worker implements Process
                             $row = array_pop($data);
                             echo "查询超过8万，没有找到事务，直接更新游标";
                             echo $start_pos, "=>", $row["End_log_pos"],"\r\n";
+
                             $bin->setLastPosition($start_pos, $row["End_log_pos"]);
+                            $zookeeper->setLastPost($start_pos, $row["End_log_pos"]);
+
                             $limit = 10000;
                         }
                     } else {
@@ -843,7 +868,7 @@ class Worker implements Process
                 echo $output;
             }
             unset($output);
-            usleep(10000);
+            usleep(100000);
         }
     }
 
