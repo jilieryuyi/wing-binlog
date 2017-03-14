@@ -367,11 +367,9 @@ class Http implements Process
             $this->resetStd();
         }
 
-        $process_name = "wing-binlog http service";
-
         $http = new Server($this->home_path, $this->ip, $this->port);
 
-        $http->on(Server::ON_HTTP_RECEIVE, function(HttpResponse $response){
+        $http->on(Server::ON_HTTP_RECEIVE, function(HttpResponse $response) {
             $response->response();
             unset($response);
         });

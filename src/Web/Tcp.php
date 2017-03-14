@@ -101,7 +101,7 @@ class Tcp
      */
     public function __destruct()
     {
-        socket_close($this->socket);
+        fclose($this->socket);
     }
 
     /**
