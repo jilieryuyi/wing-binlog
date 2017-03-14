@@ -19,7 +19,8 @@ class Context{
     /**
      * @var RedisInterface
      */
-    public $redis_local;
+    public $redis_local = null;
+    public $redis_zookeeper = null;
 
     /**
      * @var PDO
@@ -47,6 +48,8 @@ class Context{
 
     public $logger;
     public $memory_limit = "10240M";
+
+    protected $static_instances = [];
     /**
      * 单例
      *
@@ -56,6 +59,18 @@ class Context{
         if (!self::$instance)
             self::$instance = new self();
         return self::$instance;
+    }
+
+    public function get($key)
+    {
+        if (!$this->static_instances[$key])
+            return null;
+        return $this->static_instances[$key];
+    }
+
+    public function set($key, $value){
+        $this->static_instances[$key] = $value;
+        return $this;
     }
 
     /**
@@ -170,6 +185,26 @@ class Context{
 
         if (!isset($this->zookeeper_config["enable"]))
             $this->zookeeper_config["enable"] = false;
+        return $this;
+    }
+
+    public function zookeeperInit()
+    {
+        if (!$this->zookeeper_config["enable"])
+            return $this;
+
+        if (!isset($this->zookeeper_config["host"]) || !isset($this->zookeeper_config["port"]))
+            return $this;
+
+        if (!isset($this->zookeeper_config["password"]))
+            $this->zookeeper_config["password"] = null;
+
+        $this->redis_zookeeper  = null;
+        $this->redis_zookeeper  = new Redis(
+            $this->zookeeper_config["host"],
+            $this->zookeeper_config["port"],
+            $this->zookeeper_config["password"]
+        );
         return $this;
     }
 

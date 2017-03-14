@@ -147,4 +147,73 @@ class Redis implements RedisInterface
             return null;
         }
     }
+
+    public function hset($key, $hash_key, $value)
+    {
+        try {
+            if (is_array($value))
+                $value = json_encode($value);
+            return $this->redis->hSet($key, $hash_key, $value);
+        } catch (\Exception $e) {
+            echo __FUNCTION__,"=>",var_dump(func_get_args());
+            trigger_error("call ".__FUNCTION__." with params : ".
+                json_encode(func_get_args(),JSON_UNESCAPED_UNICODE).", error happened :".
+                $e->getMessage()
+            );
+            var_dump($e->getMessage());
+            $this->connect();
+            return null;
+        }
+    }
+
+    public function rpush($key, $value)
+    {
+        try {
+            if (is_array($value))
+                $value = json_encode($value);
+            return $this->redis->rPush($key, $value);
+        } catch (\Exception $e) {
+            echo __FUNCTION__,"=>",var_dump(func_get_args());
+            trigger_error("call ".__FUNCTION__." with params : ".
+                json_encode(func_get_args(),JSON_UNESCAPED_UNICODE).", error happened :".
+                $e->getMessage()
+            );
+            var_dump($e->getMessage());
+            $this->connect();
+            return null;
+        }
+    }
+
+    public function hkeys($key)
+    {
+        try {
+            return $this->redis->hKeys($key);
+        } catch (\Exception $e) {
+            echo __FUNCTION__,"=>",var_dump(func_get_args());
+            trigger_error("call ".__FUNCTION__." with params : ".
+                json_encode(func_get_args(),JSON_UNESCAPED_UNICODE).", error happened :".
+                $e->getMessage()
+            );
+            var_dump($e->getMessage());
+            $this->connect();
+            return null;
+        }
+    }
+
+    public function hgetall($key)
+    {
+        try {
+            return $this->redis->hGetAll($key);
+        } catch (\Exception $e) {
+            echo __FUNCTION__,"=>",var_dump(func_get_args());
+            trigger_error("call ".__FUNCTION__." with params : ".
+                json_encode(func_get_args(),JSON_UNESCAPED_UNICODE).", error happened :".
+                $e->getMessage()
+            );
+            var_dump($e->getMessage());
+            $this->connect();
+            return null;
+        }
+    }
+
 }

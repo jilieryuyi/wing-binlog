@@ -733,12 +733,15 @@ class Worker implements Process
         //由于是多进程 redis和pdo等连接资源 需要重置
         Context::instance()
             ->initRedisLocal()
-            ->initPdo();
+            ->initPdo()
+            ->zookeeperInit();
 
         $bin = new \Seals\Library\BinLog(Context::instance()->activity_pdo);
         $bin->setCacheDir(Context::instance()->binlog_cache_dir);
         $bin->setDebug($this->debug);
         $bin->setCacheHandler(new \Seals\Cache\File(__APP_DIR__));
+
+        $zookeeper = new Zookeeper(Context::instance()->redis_zookeeper);
 
         $limit = 10000;
         while (1) {
@@ -749,6 +752,8 @@ class Worker implements Process
                 do {
                     $this->setStatus($process_name);
                     $this->setIsRunning();
+                    //服务发现
+                    $zookeeper->serviceReport();
 
                     //最后操作的binlog文件
                     $last_binlog         = $bin->getLastBinLog();

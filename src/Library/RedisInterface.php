@@ -15,4 +15,8 @@ interface RedisInterface
     public function del($key);
     public function get($key);
     public function keys($p);
+    public function hset($key, $hash_key, $value);
+    public function rpush($key, $value);
+    public function hkeys($key);
+    public function hgetall($key);
 }

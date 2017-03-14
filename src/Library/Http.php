@@ -366,6 +366,8 @@ class Http implements Process
             self::daemonize();
             $this->resetStd();
         }
+        Context::instance()->zookeeperInit();
+        Context::instance()->set("zookeeper",new Zookeeper(Context::instance()->redis_zookeeper));
 
         $http = new Server($this->home_path, $this->ip, $this->port);
 

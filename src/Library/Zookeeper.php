@@ -9,66 +9,72 @@
 class Zookeeper
 {
     protected $redis;
+    protected $session_id;
 
+    const SERVICE_KEY = "wing-binlog-services";
     const NOTIFY_TYPE_REDIS = "redis";
     const NOTIFY_TYPE_HTTP  = "http";
     const NOTIFY_TYPE_MQ    = "rabbitmq";
 
     public function __construct(RedisInterface $redis)
     {
-        $this->redis = $redis;
+        $this->redis      = $redis;
+        $this->session_id = $this->createSessionId();
     }
 
     /**
-     * 设置数据库已被监听
+     * create a rand session id
+     *
+     * @return string
      */
-    public function setDatabaseIsWatch($database_name)
+    protected function createSessionId()
     {
+        $str1 = md5(rand(0,999999));
+        $str2 = md5(rand(0,999999));
+        $str3 = md5(rand(0,999999));
 
-    }
-
-    public function setLastBinlog()
-    {
-
-    }
-
-    public function getLastBinlog()
-    {
-
-    }
-
-    public function setLastPos($start_pos, $end_pos)
-    {
-
-    }
-
-    public function getLastPos($start_pos, $end_pos)
-    {
-
+        return time()."-".
+            substr($str1,rand(0,strlen($str1)-16),16).
+            substr($str2,rand(0,strlen($str2)-16),16).
+            substr($str3,rand(0,strlen($str3)-16),16);
     }
 
     /**
-     * 获取数据库是否已被监听，防止重复监听，分布式锁的实现
+     * service report
      */
-    public function getDatabaseIsWatch($database_name)
+    public function serviceReport()
     {
+        if (!Context::instance()->zookeeper_config["enable"])
+            return false;
 
+        if (!$this->redis)
+            return false;
+        return $this->redis->hset(
+            self::SERVICE_KEY.":". Context::instance()->zookeeper_config["group_id"],
+            $this->session_id,
+            time()
+        );
     }
 
     /**
-     * 服务上报
+     * get all services
+     *
+     * @return array like this
+     *  [
+     *     session_id => 1489478544
+     *  ]
      */
-    public function setService($app_id)
+    public static function getServices()
     {
-
-    }
-
-    /**
-     * 获取已有的服务
-     */
-    public function getServices()
-    {
-
+        $services = Context::instance()->redis_zookeeper->keys(self::SERVICE_KEY."*");
+        $res = [];
+        foreach ($services as $service) {
+            $temp = explode(":",$service);
+            $key  = str_replace($temp[0].":", "", $service);
+            $res[$key] = Context::instance()->redis_zookeeper->hgetall($service);
+            unset($temp,$key);
+        }
+        return $res;
     }
 
     /**
