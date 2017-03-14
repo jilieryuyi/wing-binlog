@@ -755,6 +755,16 @@ class Worker implements Process
                     //服务发现
                     $zookeeper->serviceReport();
 
+                    if (!$zookeeper->isLeader()) {
+                        echo "不是leader，不进行采集操作\r\n";
+                        break;
+                    }
+
+                    if (Context::instance()->zookeeper_config["enable"])
+                        echo "启用群集，是leader\r\n";
+                    else
+                        echo "禁用群集，开始采集\r\n";
+
                     //最后操作的binlog文件
                     $last_binlog         = $bin->getLastBinLog();
                     //当前使用的binlog 文件

@@ -5,6 +5,7 @@
  * Date: 17/3/12
  * Time: 21:36
  * beta-分布式，配置管理、服务发现，使用redis实现
+ * @property RedisInterface $redis
  */
 class Zookeeper
 {
@@ -16,7 +17,7 @@ class Zookeeper
     const NOTIFY_TYPE_HTTP  = "http";
     const NOTIFY_TYPE_MQ    = "rabbitmq";
 
-    public function __construct(RedisInterface $redis)
+    public function __construct($redis)
     {
         $this->redis      = $redis;
         $this->session_id = $this->createSessionId();
@@ -50,8 +51,19 @@ class Zookeeper
         if (!$this->redis)
             return false;
         return $this->redis->hset(
-            self::SERVICE_KEY.":". Context::instance()->zookeeper_config["group_id"],
+            self::SERVICE_KEY.":services:". Context::instance()->zookeeper_config["group_id"],
             $this->session_id,
+            time()
+        );
+    }
+
+    public static function delSessionId($group_id, $session_id)
+    {
+        if (!Context::instance()->redis_zookeeper)
+            return false;
+        return Context::instance()->redis_zookeeper->hDel(
+            self::SERVICE_KEY.":services:". Context::instance()->zookeeper_config["group_id"],
+            $session_id,
             time()
         );
     }
@@ -66,15 +78,76 @@ class Zookeeper
      */
     public static function getServices()
     {
-        $services = Context::instance()->redis_zookeeper->keys(self::SERVICE_KEY."*");
+        if (!Context::instance()->redis_zookeeper)
+            return [];
+        $services = Context::instance()->redis_zookeeper->keys(self::SERVICE_KEY.":services:*");
         $res = [];
         foreach ($services as $service) {
             $temp = explode(":",$service);
-            $key  = str_replace($temp[0].":", "", $service);
-            $res[$key] = Context::instance()->redis_zookeeper->hgetall($service);
-            unset($temp,$key);
+            $key  = array_pop($temp);
+
+            $data = Context::instance()->redis_zookeeper->hgetall($service);
+
+            if (!$data) {
+                continue;
+            }
+
+            if (!isset($res[$key]))
+                $res[$key] = [];
+            
+            foreach ($data as $session_id => $last_updated) {
+                if ((time()-$last_updated)<=20) {
+                    $res[$key][$session_id] = $last_updated;
+                }
+            }
+
+            if (count($res[$key]) <= 0)
+                unset($res[$key]);
+            unset($temp,$key,$data);
         }
         return $res;
+    }
+
+    /**
+     * check current node is leader
+     */
+    public function isLeader()
+    {
+        //没有启用群集功能 不判断leader
+        if (!Context::instance()->zookeeper_config["enable"])
+            return true;
+
+        if (!$this->redis)
+            return true;
+
+        $key = self::SERVICE_KEY.":leader:". Context::instance()->zookeeper_config["group_id"];
+        return $this->redis->get($key) == $this->session_id;
+    }
+
+    /**
+     * check group has leader
+     *
+     * @return string current leader session_id
+     */
+    public static function getLeader($group_id)
+    {
+        if (!Context::instance()->redis_zookeeper)
+            return null;
+        return Context::instance()->redis_zookeeper->get(self::SERVICE_KEY.":leader:".$group_id);
+    }
+
+    public static function delLeader($group_id)
+    {
+        if (!Context::instance()->redis_zookeeper)
+            return false;
+        return Context::instance()->redis_zookeeper->del(self::SERVICE_KEY.":leader:".$group_id);
+    }
+
+    public static function setLeader($group_id, $session_id)
+    {
+        if (!Context::instance()->redis_zookeeper)
+            return false;
+        return Context::instance()->redis_zookeeper->set(self::SERVICE_KEY.":leader:".$group_id, $session_id);
     }
 
     /**

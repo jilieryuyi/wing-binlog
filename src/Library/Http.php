@@ -356,6 +356,40 @@ class Http implements Process
         umask(0);
     }
 
+
+    public function leaderDispatchProcess()
+    {
+        Context::instance()->zookeeperInit();
+        Context::instance()->set("zookeeper",new Zookeeper(Context::instance()->redis_zookeeper));
+
+        while (1) {
+            $services = Zookeeper::getServices();
+            foreach ($services as $group_id => $groups) {
+                //获取当前群集的leader
+                $leader_id = Zookeeper::getLeader($group_id);
+                if ($leader_id ) {
+                    //如果存在
+                    $last_updated = time() - $groups[$leader_id];
+                    //如果不在群集里面 或者已经超时 则删除
+                    if (!isset($groups[$leader_id]) || $last_updated > 10) {
+                        Zookeeper::delLeader($group_id);
+                        Zookeeper::delSessionId($group_id, $leader_id);
+                        $leader_id = null;
+                    }
+                }
+                foreach ($groups as $session_id => $last_updated) {
+                    if (!$leader_id) {
+                        //重新设置leader
+                        echo "设置leader=>",$group_id,"=>",$session_id,"\r\n";
+                        Zookeeper::setLeader($group_id, $session_id);
+                        break;
+                    }
+                }
+            }
+            sleep(1);
+        }
+    }
+
     /**
      * @启动进程 入口函数
      */
@@ -366,6 +400,17 @@ class Http implements Process
             self::daemonize();
             $this->resetStd();
         }
+
+        $process_id = pcntl_fork();
+        if ($process_id == 0) {
+            //调度进程
+            if ($this->deamon) {
+                $this->resetStd();
+            }
+
+            $this->leaderDispatchProcess();
+        }
+
         Context::instance()->zookeeperInit();
         Context::instance()->set("zookeeper",new Zookeeper(Context::instance()->redis_zookeeper));
 

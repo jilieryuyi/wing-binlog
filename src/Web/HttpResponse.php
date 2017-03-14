@@ -204,6 +204,10 @@ class HttpResponse
     {
         $response  = "404 not fund";
         $resource  = $this->getResource();
+
+        if (!$resource || $resource == "/")
+            $resource = "/index.php";
+
         $mime_type = "text/html";
 
         $_GET     = $this->getAll();
