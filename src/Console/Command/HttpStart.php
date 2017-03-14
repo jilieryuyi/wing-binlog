@@ -4,6 +4,7 @@ use Seals\Library\Http;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Command\Command;
 
 /**
  * Created by PhpStorm.
@@ -11,7 +12,7 @@ use Symfony\Component\Console\Input\InputOption;
  * Date: 17/3/13
  * Time: 21:05
  */
-class HttpStart extends ServerBase
+class HttpStart extends Command
 {
     protected function configure()
     {

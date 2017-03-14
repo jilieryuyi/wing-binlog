@@ -369,22 +369,6 @@ class Http implements Process
 
         $process_name = "wing-binlog http service";
 
-        //启用一个timer做信号服务
-        $base  = event_base_new();
-        $event = event_timer_new();
-        event_timer_set($event, function() use($process_name){
-            $this->setStatus($process_name);
-            $this->setIsRunning();
-            $this->checkStopSignal();
-
-            $args = func_get_args();
-            event_add($args[2][0], 1000000);
-
-        }, [$event, $base]);
-        event_base_set($event, $base);
-        event_add($event, 1000000);
-        event_base_loop($base);
-
         $http = new Server($this->home_path, $this->ip, $this->port);
 
         $http->on(Server::ON_HTTP_RECEIVE, function(HttpResponse $response){

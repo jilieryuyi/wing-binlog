@@ -212,7 +212,9 @@ class HttpResponse
             "Content-Type: ".$mime_type,
             "Content-Length: " . strlen($response)
         ];
-        unset($response);
+
+        var_dump(implode("\r\n",$headers)."\r\n\r\n".$response);
+
         return event_buffer_write($this->buffer, implode("\r\n",$headers)."\r\n\r\n".$response);
     }
 }

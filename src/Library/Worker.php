@@ -465,7 +465,10 @@ class Worker implements Process
         $this->setProcessTitle($process_name);
 
         //由于是多进程 redis和pdo等连接资源 需要重置
-        Context::instance()->reset();
+        Context::instance()
+            ->initRedisLocal()
+            ->initPdo();
+
 
         $bin = new \Seals\Library\BinLog(Context::instance()->activity_pdo);
         $bin->setCacheDir(Context::instance()->binlog_cache_dir);
@@ -544,7 +547,9 @@ class Worker implements Process
         $this->setProcessTitle($process_name);
 
         //由于是多进程 redis和pdo等连接资源 需要重置
-        Context::instance()->reset();
+        Context::instance()
+            ->initRedisLocal()
+            ->initPdo();
 
         $queue         = new Queue(self::QUEUE_NAME.$i, Context::instance()->redis_local);
         $failure_queue = new Queue(self::QUEUE_NAME.":failure:events", Context::instance()->redis_local);
@@ -726,7 +731,9 @@ class Worker implements Process
         $this->setProcessTitle($process_name);
 
         //由于是多进程 redis和pdo等连接资源 需要重置
-        Context::instance()->reset();
+        Context::instance()
+            ->initRedisLocal()
+            ->initPdo();
 
         $bin = new \Seals\Library\BinLog(Context::instance()->activity_pdo);
         $bin->setCacheDir(Context::instance()->binlog_cache_dir);

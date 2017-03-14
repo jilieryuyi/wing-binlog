@@ -1,5 +1,7 @@
 #!/usr/bin/env php
 <?php
+declare(ticks = 1);
+
 require __DIR__.'/vendor/autoload.php';
 define("__APP_DIR__",__DIR__);
 date_default_timezone_set("PRC");

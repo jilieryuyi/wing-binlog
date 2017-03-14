@@ -19,11 +19,6 @@ class Context{
     /**
      * @var RedisInterface
      */
-    //public $redis;
-
-    /**
-     * @var RedisInterface
-     */
     public $redis_local;
 
     /**
@@ -67,49 +62,59 @@ class Context{
      */
     public function __construct()
     {
-        $this->reset();
+        $this->init();
+        $this->initRedisLocal();
     }
 
-    /**
-     * 重置所有的资源，多进程编程支持
-     */
-    public function reset()
+    public function initRedisLocal()
     {
-
-        $this->redis        = null;
         $this->redis_local  = null;
-        $this->activity_pdo = null;
-
-        //事件通知redis 可选
-        if (file_exists(__DIR__."/../../config/redis.php"))
-            $this->redis_config    = require __DIR__."/../../config/redis.php";
-
-        //rabbitmq 通知配置 可选
-        if (file_exists(__DIR__."/../../config/rabbitmq.php"))
-            $this->rabbitmq_config = require __DIR__."/../../config/rabbitmq.php";
-
-        $redis_config = require __DIR__."/../../config/redis_local.php";
+        $redis_config       = require __DIR__."/../../config/redis_local.php";
 
         $this->redis_local  = new Redis(
             $redis_config["host"],
             $redis_config["port"],
             $redis_config["password"]
-       );
+        );
+        return $this;
+    }
 
-        $configs = $this->db_config = require __DIR__."/../../config/db.php";
-        if (!isset($configs["port"]) || !$configs["port"])
+    public function initPdo()
+    {
+        $this->activity_pdo = null;
+        $configs            = $this->db_config
+                            = require __DIR__."/../../config/db.php";
+
+        if (!isset($configs["port"]) || !$configs["port"]) {
             $configs["port"] = 3306;
+        }
+
         $this->activity_pdo  = new \Seals\Library\PDO(
             $configs["user"],
             $configs["password"],
             $configs["host"],
             $configs["db_name"],
             $configs["port"]
-       );
+        );
+        return $this;
+    }
 
-        $this->app_config = include __DIR__."/../../config/app.php";
+    /**
+     * 重置所有的资源，多进程编程支持
+     */
+    public function init()
+    {
+        //rabbitmq 通知配置 可选
+        if (file_exists(__DIR__."/../../config/rabbitmq.php"))
+            $this->rabbitmq_config = require __DIR__."/../../config/rabbitmq.php";
 
-        $this->log_dir = $this->app_config["log_dir"];
+        //事件通知redis 可选
+        if (file_exists(__DIR__."/../../config/redis.php"))
+            $this->redis_config    = require __DIR__."/../../config/redis.php";
+
+        $this->app_config   = include __DIR__."/../../config/app.php";
+
+        $this->log_dir      = $this->app_config["log_dir"];
 
         if (!isset($this->app_config["logger"]))
             $this->app_config["logger"] = \Seals\Logger\Local::class;
