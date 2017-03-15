@@ -24,6 +24,7 @@ class Master implements Process
     protected $ip               = "0.0.0.0";
     protected $port             = 9998;
     protected $home_path        = __APP_DIR__."/web";
+    protected $pid              = "master.pid";
     /**
      * @构造函数
      */
@@ -405,7 +406,7 @@ class Master implements Process
             self::daemonize();
             $this->resetStd();
         }
-
+        $processes = [];
         $process_id = pcntl_fork();
         if ($process_id == 0) {
             //调度进程
@@ -414,7 +415,13 @@ class Master implements Process
             }
 
             $this->leaderDispatchProcess();
+        } else {
+            $processes[] = $process_id;
         }
+
+        $processes[] = self::getCurrentProcessId();
+
+        (new File(__APP_DIR__))->set($this->pid, $processes);
 
         Context::instance()->zookeeperInit();
         Context::instance()->set("zookeeper",new Zookeeper(Context::instance()->redis_zookeeper));

@@ -23,9 +23,9 @@ try {
         \Seals\Console\Command\ServerRestart::class,
         \Seals\Console\Command\Help::class,
         \Seals\Console\Command\Config::class,
-        \Seals\Console\Command\HttpStart::class,
-        \Seals\Console\Command\HttpStop::class,
-        \Seals\Console\Command\HttpStatus::class
+        \Seals\Console\Command\MasterStart::class,
+        \Seals\Console\Command\MasterStop::class,
+        \Seals\Console\Command\MasterStatus::class
 
     ];
     foreach ($commands as $command) {
