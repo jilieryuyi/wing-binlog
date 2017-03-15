@@ -162,6 +162,10 @@ class Zookeeper
             $data = Context::instance()->redis_zookeeper->hgetall($service);
 
             if (!$data) {
+                //clear node cache
+                Context::instance()->redis_zookeeper->del($service);
+                //clear leader cache
+                Context::instance()->redis_zookeeper->del(self::SERVICE_KEY.":leader:".$key);
                 continue;
             }
 
@@ -174,8 +178,11 @@ class Zookeeper
                 }
             }
 
-            if (count($res[$key]) <= 0)
+            if (count($res[$key]) <= 0) {
+                Context::instance()->redis_zookeeper->del($service);
+                Context::instance()->redis_zookeeper->del(self::SERVICE_KEY.":leader:".$key);
                 unset($res[$key]);
+            }
             unset($temp,$key,$data);
         }
         return $res;

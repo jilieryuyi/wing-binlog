@@ -34,15 +34,21 @@ class Http extends Tcp
 
     public function onReceive($client, $buffer, $id, $data)
     {
-        $this->call(self::ON_HTTP_RECEIVE, [new HttpResponse($this,$this->home, $buffer,$data)]);
+        $this->call(self::ON_HTTP_RECEIVE, [new HttpResponse($this, $this->home, $buffer, $data, $client, $id)]);
         $this->debug();
     }
 
-    public function send($buffer, $data)
+    public function send($buffer, $data, $client, $id)
     {
         $success = event_buffer_write($buffer,$data);
-        if (!$success)
+        if (!$success) {
             $this->send_fail_times++;
+            fclose($client);
+            event_buffer_free($buffer);
+            unset($this->clients[$id]);
+            unset($this->buffers[$id]);
+            $this->index--;
+        }
         return $success;
     }
 }

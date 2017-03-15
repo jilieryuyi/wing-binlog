@@ -1,4 +1,5 @@
 <?php namespace Seals\Web;
+
 /**
  * Created by PhpStorm.
  * User: yuyi
@@ -21,10 +22,10 @@ class Tcp
 
     protected $ip;
     protected $port;
-    protected $error_times  = 0;
+    protected $error_times     = 0;
     protected $send_fail_times = 0;
-    protected $accept_times = 0;
-    protected $start_time = 0;
+    protected $accept_times    = 0;
+    protected $start_time      = 0;
 
     /**
      * 构造函数
@@ -36,6 +37,22 @@ class Tcp
     {
         $this->ip   = $ip;
         $this->port = $port;
+
+        $this->start_time = time();
+        $context_option['socket']['so_reuseport'] = 1;
+        $context = stream_context_create($context_option);
+        $this->socket = stream_socket_server(
+            'tcp://' . $this->ip . ':' . $this->port, $errno, $errstr,
+            STREAM_SERVER_BIND | STREAM_SERVER_LISTEN, $context
+        );
+
+        if (!$this->socket) {
+            var_dump($errno,$errstr);
+            die("create socket error => ip:" . $this->ip . " port:" . $this->port."\r\n");
+        }
+
+        stream_set_blocking($this->socket, 0);
+
     }
 
     /**
@@ -43,15 +60,6 @@ class Tcp
      */
     public function start()
     {
-        $this->start_time = time();
-        $this->socket = stream_socket_server('tcp://'.$this->ip.':'.$this->port, $errno, $errstr);
-
-        if (!$this->socket) {
-            die("create socket error => ip:".$this->ip." port:".$this->port);
-        }
-
-        stream_set_blocking($this->socket, 0);
-
         $base  = event_base_new();
         $event = event_new();
 
@@ -115,27 +123,41 @@ class Tcp
      * @param resource $socket
      * @param mixed $flag
      * @param resource $base
+     * @return bool
      */
     public function accept($socket, $flag, $base)
     {
-        $connection = stream_socket_accept($socket);
-        stream_set_blocking($connection, 0);
+        try {
+            if (!$socket) {
+                return false;
+            }
+            $connection = @stream_socket_accept($socket);
+            if (!$connection) {
+                return false;
+            }
+            stream_set_blocking($connection, 0);
 
-        $buffer = event_buffer_new($connection, [$this, 'read'], [$this, 'write'], [$this, 'error'], [$connection,$this->index]);
+            $buffer = event_buffer_new($connection, [$this, 'read'], [$this, 'write'], [$this, 'error'], [$connection, $this->index]);
+            if (!$buffer && !is_resource($buffer)) {
+                return false;
+            }
+            event_buffer_base_set($buffer, $base);
+            event_buffer_timeout_set($buffer, 30, 30);
+            event_buffer_watermark_set($buffer, EV_READ, 0, 0xffffff);
+            event_buffer_priority_set($buffer, 10);
+            event_buffer_enable($buffer, EV_READ | EV_PERSIST);
 
-        event_buffer_base_set($buffer, $base);
-        event_buffer_timeout_set($buffer, 30, 30);
-        event_buffer_watermark_set($buffer, EV_READ, 0, 0xffffff);
-        event_buffer_priority_set($buffer, 10);
-        event_buffer_enable($buffer, EV_READ | EV_PERSIST);
+            $this->clients[$this->index] = $connection;
+            $this->buffers[$this->index] = $buffer;
 
-        $this->clients[$this->index] = $connection;
-        $this->buffers[$this->index] = $buffer;
+            $this->call(self::ON_CONNECT, [$connection, $buffer, $this->index]);
 
-        $this->call(self::ON_CONNECT, [$connection, $buffer, $this->index]);
-
-        $this->index++;
-        $this->accept_times++;
+            $this->index++;
+            $this->accept_times++;
+        } catch(\Exception $e) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -177,6 +199,10 @@ class Tcp
 
     public function debug()
     {
-        echo "请求次数/失败次数/发送失败/每秒处理 ==> ".$this->accept_times."/".$this->error_times."/".$this->send_fail_times."/".($this->accept_times/(time()-$this->start_time))."\r\n";
+        $s = 0;
+        if (time() > $this->start_time)
+            $s = $this->accept_times/(time()-$this->start_time);
+        echo "请求次数/失败次数/发送失败/每秒处理 ==> ".$this->accept_times."/".$this->error_times."/".$this->send_fail_times."/".$s."\r\n";
+        echo "当前连接数",count($this->clients),"-buffers数量",count($this->buffers),"\r\n";
     }
 }

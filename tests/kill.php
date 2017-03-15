@@ -8,7 +8,7 @@
 //posix_kill($argv[1],SIGQUIT);
 include __DIR__."/../vendor/autoload.php";
 
-$res = (new \Seals\Library\Command("ps aux | grep server:start"))->run();
+$res = (new \Seals\Library\Command("ps aux | grep master:start"))->run();
 $lines = explode("\n",$res);
 var_dump($lines);
 foreach ($lines as $line){

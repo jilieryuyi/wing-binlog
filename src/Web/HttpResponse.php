@@ -8,49 +8,65 @@
 class HttpResponse
 {
     protected $method;
-    protected $host;
-    protected $port;
+    protected $host = "";
+    protected $port = 80;
     protected $resource;
     protected $http_protocol;
     protected $buffer;
     protected $home;
     protected $http;
+    protected $id;
+    protected $client;
 
     protected $get     = [];
     protected $post    = [];
     protected $headers = [];
 
-    public function __construct(Http $http,$home, $buffer, $data)
+    public function __construct(Http $http,$home, $buffer, $data, $client, $id)
     {
         $this->buffer = $buffer;
         $this->home   = $home;
         $this->http   = $http;
+        $this->id     = $id;
+        $this->client = $client;
 
-        list($headers, $content) = explode("\r\n\r\n", $data, 2);
+        $temp    = explode("\r\n\r\n", $data, 2);
+        $headers = isset($temp[0])?$temp[0]:"";
+        $content = isset($temp[1])?$temp[1]:"";
+        unset($temp);
 
         $headers = explode("\r\n", $headers);
         $line1   = array_shift($headers);
+        $temp    = explode(" ", $line1);
+        unset($line1);
 
-        $temp = explode(" ", $line1);
         $this->method        = isset($temp[0])?$temp[0]:"unknown";
         $resource            = isset($temp[1])?$temp[1]:"";
         $this->http_protocol = isset($temp[2])?$temp[2]:"unknown";
-        unset($temp,$line1);
+        unset($temp);
 
         foreach ($headers as $header) {
-            list($key, $value) = explode(":",$header,2);
+            $temp   = explode(":",$header,2);
+            $key    = isset($temp[0])?$temp[0]:"";
+            $value  = isset($temp[1])?$temp[1]:"";
+            unset($temp);
             $this->headers[trim(strtolower($key))] = trim($value);
         }
 
-        list(,$this->host,$this->port) = explode(":",$headers[0]);//$line2;
+        if (isset($headers[0])) {
+            $temp = explode(":",$headers[0]);
+            $this->host = isset($temp[1])?trim($temp[1]):"";
+            $this->port = isset($temp[2])?trim($temp[2]):80;
+            unset($temp);
+        }
         unset($headers);
 
-        $this->host = trim($this->host);
-        if (!$this->port)
+        if (!$this->port) {
             $this->port = 80;
+        }
 
         $arr = parse_url($resource);
-        $this->resource = $arr["path"];
+        $this->resource = isset($arr["path"])?$arr["path"]:"";
 
         //get参数解析
         if (isset($arr["query"])) {
@@ -237,6 +253,6 @@ class HttpResponse
             "Content-Length: " . strlen($response)
         ];
 
-        return $this->http->send($this->buffer, implode("\r\n",$headers)."\r\n\r\n".$response);
+        return $this->http->send($this->buffer, implode("\r\n",$headers)."\r\n\r\n".$response, $this->client, $this->id);
     }
 }

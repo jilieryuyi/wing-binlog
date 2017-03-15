@@ -25,6 +25,7 @@ class Master implements Process
     protected $port             = 9998;
     protected $home_path        = __APP_DIR__."/web";
     protected $pid              = "master.pid";
+    protected $workers          = 1;
     /**
      * @构造函数
      */
@@ -41,6 +42,9 @@ class Master implements Process
         $this->home_path  = $home_path;
 
         chdir($this->home_path);
+        $cpu = new Cpu();
+        $this->setWorkers($cpu->cpu_num);
+        unset($cpu);
 
         $dir = new WDir($this->process_cache);
         $dir->mkdir();
@@ -78,6 +82,11 @@ class Master implements Process
     public function __destruct()
     {
         $this->clear();
+    }
+
+    public function setWorkers($workers)
+    {
+        $this->workers = $workers;
     }
 
     /**
@@ -205,6 +214,7 @@ class Master implements Process
 
         $processes = (new File(__APP_DIR__))->get($this->pid);
         foreach ($processes as $process) {
+            echo "kill ".$process["process_id"],"\r\n";
             system("kill ".$process["process_id"]);
         }
     }
@@ -251,7 +261,7 @@ class Master implements Process
      * @param string $output_name  可选参数，主要为了区分不同进程的输出
      * @throws \Exception
      */
-    protected function resetStd()
+    public function resetStd()
     {
         if (strtolower(substr(php_uname('s'),0,3)) == "win") {
             return;
@@ -375,8 +385,11 @@ class Master implements Process
      */
     public function start(){
 
+        echo "start...\r\n";
+        var_dump($this->workers);
         //设置守护进程模式
         if ($this->deamon) {
+            echo "deamon enable\r\n";
             self::daemonize();
             $this->resetStd();
         }
@@ -397,26 +410,20 @@ class Master implements Process
             ];
         }
 
-        $this->setProcessTitle("seals >> master http server process");
-
         $processes[] = [
             "process_id" => self::getCurrentProcessId(),
             "created"    => time(),
             "name"       => "seals >> master http server process"
         ];
-
         (new File(__APP_DIR__))->set($this->pid, $processes);
 
-        Context::instance()->zookeeperInit();
-        Context::instance()->set("zookeeper",new Zookeeper(Context::instance()->redis_zookeeper));
-
         $http = new Http($this->home_path, $this->ip, $this->port);
-
         $http->on(Http::ON_HTTP_RECEIVE, function(HttpResponse $response) {
             $response->response();
             unset($response);
         });
 
         $http->start();
+
     }
 }

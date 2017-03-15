@@ -19,16 +19,30 @@ class MasterStart extends Command
         $this
             ->setName('master:start')
             ->addOption("d", null, InputOption::VALUE_NONE, "守护进程")
-            ->setDescription('启动master服务');
+            ->setDescription('启动master服务')
+            ->addOption("debug", null, InputOption::VALUE_NONE, "调试模式")
+            ->addOption("n", null, InputOption::VALUE_REQUIRED, "进程数量", 0);
+
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $deamon = $input->getOption("d");
-        $http   = new Master();
+        $deamon  = $input->getOption("d");
+        $debug   = $input->getOption("debug");
+        $workers = $input->getOption("n");
+
+        $http    = new Master();
 
         if ($deamon) {
             $http->enableDeamon();
+        }
+
+        if ($workers > 0) {
+            $http->setWorkers($workers);
+        }
+
+        if ($debug) {
+            $http->enabledDebug();
         }
 
         $http->start();
