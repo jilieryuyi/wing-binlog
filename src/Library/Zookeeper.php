@@ -47,8 +47,10 @@ class Zookeeper
     {
         echo $this->session_id,"\r\n";
         echo Context::instance()->session_id,"\r\n";
-        $key = self::SERVICE_KEY.":is_close:". Context::instance()->zookeeper_config["group_id"].":".$this->session_id;
-        $this->redis->set($key,Context::instance()->zookeeper_config["enable"]?0:1);
+
+        //report current node is enable group or not
+        $key = self::SERVICE_KEY.":is:enable:". Context::instance()->zookeeper_config["group_id"].":".$this->session_id;
+        $this->redis->set($key,Context::instance()->zookeeper_config["enable"]?1:0);
         $this->redis->expire($key,10);
 
         if (!$this->redis)
@@ -120,13 +122,13 @@ class Zookeeper
     /**
      * is close group
      *
-     * @return bool if return true, it means that group is close
+     * @return bool if return true, it means that group is enable
      */
-    public static function isClose($group_id, $session_id)
+    public static function isEnable($group_id, $session_id)
     {
         if (!Context::instance()->redis_zookeeper)
             return true;
-        $key = self::SERVICE_KEY.":is_close:". $group_id.":".$session_id;
+        $key = self::SERVICE_KEY.":is:enable:". $group_id.":".$session_id;
         return Context::instance()->redis_zookeeper->get($key);
     }
 
