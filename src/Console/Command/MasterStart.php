@@ -1,6 +1,6 @@
 <?php namespace Seals\Console\Command;
 
-use Seals\Library\Http;
+use Seals\Library\Master;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -12,12 +12,12 @@ use Symfony\Component\Console\Command\Command;
  * Date: 17/3/13
  * Time: 21:05
  */
-class HttpStart extends Command
+class MasterStart extends Command
 {
     protected function configure()
     {
         $this
-            ->setName('http:start')
+            ->setName('master:start')
             ->addOption("d", null, InputOption::VALUE_NONE, "守护进程")
             ->setDescription('启动http服务');
     }
@@ -25,7 +25,7 @@ class HttpStart extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $deamon = $input->getOption("d");
-        $http   = new Http();
+        $http   = new Master();
 
         if ($deamon) {
             $http->enableDeamon();

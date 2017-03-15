@@ -4,7 +4,7 @@ use Seals\Cache\File;
 use Seals\Web\MimeType;
 use Wing\FileSystem\WDir;
 use Wing\FileSystem\WFile;
-use Seals\Web\Http as Server;
+use Seals\Web\Http;
 use Seals\Web\HttpResponse;
 
 /**
@@ -15,7 +15,7 @@ use Seals\Web\HttpResponse;
  */
 
 
-class Http implements Process
+class Master implements Process
 {
     protected $debug            = false;
     protected $start_time       = 0;
@@ -356,7 +356,9 @@ class Http implements Process
         umask(0);
     }
 
-
+    /**
+     * leader dispatch process
+     */
     public function leaderDispatchProcess()
     {
         Context::instance()->zookeeperInit();
@@ -365,12 +367,12 @@ class Http implements Process
         while (1) {
             $services = Zookeeper::getServices();
             foreach ($services as $group_id => $groups) {
-                //获取当前群集的leader
+                //get current group leader
                 $leader_id = Zookeeper::getLeader($group_id);
                 if ($leader_id ) {
-                    //如果存在
+                    //if leader does not exists
                     $last_updated = time() - $groups[$leader_id];
-                    //如果不在群集里面 或者已经超时 则删除
+                    //if not in the group or timeout, delete it from group
                     if (!isset($groups[$leader_id]) || $last_updated > 10) {
                         Zookeeper::delLeader($group_id);
                         Zookeeper::delSessionId($group_id, $leader_id);
@@ -382,7 +384,7 @@ class Http implements Process
                     if (Zookeeper::isClose($group_id, $session_id))
                         continue;
                     if (!$leader_id) {
-                        //重新设置leader
+                        //reset a new leader
                         echo "设置leader=>",$group_id,"=>",$session_id,"\r\n";
                         Zookeeper::setLeader($group_id, $session_id);
                         break;
@@ -417,9 +419,9 @@ class Http implements Process
         Context::instance()->zookeeperInit();
         Context::instance()->set("zookeeper",new Zookeeper(Context::instance()->redis_zookeeper));
 
-        $http = new Server($this->home_path, $this->ip, $this->port);
+        $http = new Http($this->home_path, $this->ip, $this->port);
 
-        $http->on(Server::ON_HTTP_RECEIVE, function(HttpResponse $response) {
+        $http->on(Http::ON_HTTP_RECEIVE, function(HttpResponse $response) {
             $response->response();
             unset($response);
         });

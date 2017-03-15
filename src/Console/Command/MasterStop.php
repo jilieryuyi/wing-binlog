@@ -1,6 +1,6 @@
 <?php namespace Seals\Console\Command;
 
-use Seals\Library\Http;
+use Seals\Library\Master;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -11,19 +11,18 @@ use Symfony\Component\Console\Input\InputOption;
  * Date: 17/3/13
  * Time: 21:05
  */
-class HttpStatus extends ServerBase
+class MasterStop extends ServerBase
 {
     protected function configure()
     {
         $this
-            ->setName('http:status')
-            ->setDescription('http服务运行状态');
+            ->setName('master:stop')
+            ->setDescription('停止http服务');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $http   = new Http();
-
-        echo $http->status();
+        $http   = new Master();
+        $http->stop();
     }
 }
