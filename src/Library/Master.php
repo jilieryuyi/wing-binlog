@@ -188,7 +188,7 @@ class Master implements Process
     public function stop()
     {
 
-        $files = $this->process_cache->keys("running.*");
+        /*$files = $this->process_cache->keys("running.*");
 
         if (!$files)
             return;
@@ -201,6 +201,11 @@ class Master implements Process
 
         foreach ($process_ids as $process_id) {
             $this->process_cache->set("stop_".$process_id,1,60);
+        }*/
+
+        $processes = (new File(__APP_DIR__))->get($this->pid);
+        foreach ($processes as $process) {
+            system("kill ".$process["process_id"]);
         }
     }
 
@@ -211,48 +216,17 @@ class Master implements Process
      */
     public function getStatus(){
 
-        $arr   = [];
-        $files = $this->process_cache->keys("status.*");
-
-        foreach ($files as $file) {
-            list(, $process_id) = explode("_",$file);
-            $arr[$process_id]   = $this->process_cache->get($file) ;
-        }
-
-        $res = [];
-        foreach ($arr as $process_id => $status) {
-            $time_len = timelen_format(time() - $status["start_time"]);
-            $index    = preg_replace("/\D/","",$status["name"]);
-
-            $res[] = [
-                "process_id" => sprintf("%-8d",$status["process_id"]),
-                "start_time" => date("Y-m-d H:i:s", $status["start_time"]),
-                "run_time"   => $time_len,
-                "name"       => $status["name"]
-            ];
-
-            if (!is_numeric($index))
-                $index = 0;
-
-            if (strpos($status["name"],"dispatch") !== false) {
-                $names[] = $index+1;
-            } elseif (strpos($status["name"],"workers") !== false) {
-                $names[] = $index+100;
-            } else {
-                $names[] = 0;
-            }
-        }
-
-        array_multisort($names, SORT_ASC, $res);
+        $processes = (new File(__APP_DIR__))->get($this->pid);
 
         $str = "进程id    开始时间              运行时长\r\n";
-        foreach ($res as $v) {
+        foreach ($processes as $v) {
             $str .= $v["process_id"] .
-                "  " . $v["start_time"] .
-                "   " . $v["run_time"] .
+                "  " . date("Y-m-d H:i:s",$v["created"]) .
+                "   " . timelen_format(time()-$v["created"]) .
                 "  " . $v["name"] . "\r\n";
         }
         return $str;
+
     }
 
     /**
@@ -413,13 +387,23 @@ class Master implements Process
             if ($this->deamon) {
                 $this->resetStd();
             }
-
+            $this->setProcessTitle("seals >> master dispatch process");
             $this->leaderDispatchProcess();
         } else {
-            $processes[] = $process_id;
+            $processes[] = [
+                "process_id" => $process_id,
+                "created"    => time(),
+                "name"       => "seals >> master dispatch process"
+            ];
         }
 
-        $processes[] = self::getCurrentProcessId();
+        $this->setProcessTitle("seals >> master http server process");
+
+        $processes[] = [
+            "process_id" => self::getCurrentProcessId(),
+            "created"    => time(),
+            "name"       => "seals >> master http server process"
+        ];
 
         (new File(__APP_DIR__))->set($this->pid, $processes);
 
