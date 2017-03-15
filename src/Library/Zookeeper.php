@@ -120,7 +120,7 @@ class Zookeeper
     }
 
     /**
-     * is close group
+     * is enable group
      *
      * @return bool if return true, it means that group is enable
      */
