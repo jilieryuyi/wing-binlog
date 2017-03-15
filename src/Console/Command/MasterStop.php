@@ -17,7 +17,7 @@ class MasterStop extends ServerBase
     {
         $this
             ->setName('master:stop')
-            ->setDescription('停止http服务');
+            ->setDescription('停止master服务');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

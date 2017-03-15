@@ -17,7 +17,7 @@ class MasterStatus extends ServerBase
     {
         $this
             ->setName('master:status')
-            ->setDescription('http服务运行状态');
+            ->setDescription('master服务运行状态');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

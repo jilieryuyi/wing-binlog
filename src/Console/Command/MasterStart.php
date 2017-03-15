@@ -19,7 +19,7 @@ class MasterStart extends Command
         $this
             ->setName('master:start')
             ->addOption("d", null, InputOption::VALUE_NONE, "守护进程")
-            ->setDescription('启动http服务');
+            ->setDescription('启动master服务');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
