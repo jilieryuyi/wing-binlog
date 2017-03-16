@@ -5,11 +5,12 @@
 /**
  * refresh node
  *
+ * @param v
  * @param group_id
  * @param session_id
  * @return void
  */
-function nodeRefresh(group_id, session_id)
+function nodeRefresh(v, group_id, session_id)
 {
     $.ajax({
         type : "POST",
@@ -230,7 +231,7 @@ $(document).ready(function(){
         $(".nodes-list .node").each(function(i,v){
             var group_id   = $(v).attr("data-group-id");
             var session_id = $(v).attr("data-session-id");
-            nodeRefresh(group_id, session_id);
+            nodeRefresh(v, group_id, session_id);
         });
     },1000);
 });
