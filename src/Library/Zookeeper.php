@@ -62,6 +62,11 @@ class Zookeeper
         );
     }
 
+    public static function getLastReport($group_id, $session_id)
+    {
+        return Context::instance()->redis_zookeeper->hget(self::SERVICE_KEY.":services:".$group_id, $session_id);
+    }
+
     /**
      * if group is enable , set leader's last binlog to all group node
      */

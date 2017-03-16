@@ -86,23 +86,38 @@ class HttpResponse
 
         //post数据解析
         if ($content) {
-            $querys = preg_split("/--------------------------[\S\s]{1,}?\n/", $content);
-            foreach ($querys as $query) {
+            if (preg_match("/--------------------------[\S\s]{1,}?\n/",$content)) {
+                $querys = preg_split("/--------------------------[\S\s]{1,}?\n/", $content);
+                foreach ($querys as $query) {
 
-                if (!$query) {
-                    continue;
+                    if (!$query) {
+                        continue;
+                    }
+
+                    $query = trim($query);
+                    $temp = explode("\r\n\r\n", $query);
+
+                    preg_match("/\"[\s\S]{1,}?\"/", $temp[0], $m);
+
+                    $key = trim($m[0], "\"");
+                    $this->post[$key] = isset($temp[1]) ? $temp[1] : "";
+                    unset($temp, $key, $query);
                 }
+                unset($querys);
+            } else {
+                $querys = preg_split("/\&+/", $content);
+                unset($query);
 
-                $query  = trim($query);
-                $temp   = explode("\r\n\r\n", $query);
-
-                preg_match("/\"[\s\S]{1,}?\"/",$temp[0], $m);
-
-                $key    = trim($m[0],"\"");
-                $this->post[$key] = isset($temp[1])?$temp[1]:"";
-                unset($temp, $key, $query);
+                foreach ($querys as $query) {
+                    if (!$query)
+                        continue;
+                    $query = trim($query);
+                    list($key, $value) = explode("=", $query);
+                    unset($query);
+                    $this->post[$key] = $value;
+                }
+                unset($querys);
             }
-            unset($querys);
         }
     }
 
@@ -120,7 +135,7 @@ class HttpResponse
 
     public function getMethod()
     {
-        return $this->method;
+        return strtolower(trim($this->method));
     }
 
     public function post($key)
@@ -237,9 +252,14 @@ class HttpResponse
                 include $this->home . $resource;
                 $response = ob_get_contents();
                 ob_end_clean();
+                $mime_type = "text/html";
             } else {
                 $response = file_get_contents($this->home . $resource);
             }
+        } else {
+            $route    = new Route($this, $resource);
+            $response = $route->parse();
+            unset($route);
         }
         unset($_GET,$_POST,$_REQUEST);
 

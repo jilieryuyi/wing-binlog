@@ -3,66 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title>wing-binlog</title>
-    <style>
-        .title {
-            font-weight: bold;
-        }
-        div.item {
-            height: 25px;
-        }
-        li {
-            list-style: none;
-            border-bottom: #ccc solid 1px;
-            height: 25px;
-        }
-        li span {
-            display: inline-block;
-            height: 25px;
-            word-wrap: break-word;
-            word-break: break-all;
-            float:left;
-        }
-        span.group-id {
-            width: 150px;
-        }
-        span.node-count {
-            width:80px;
-        }
-        span a:hover {
-            text-decoration: underline;
-            font-weight: bold;
-        }
-        span a {
-            cursor: pointer;
-            color: #0000ff;
-            text-decoration:none;
-        }
-        span.node-id {
-            width: 180px;
-            padding-right: 6px;
-            overflow: hidden;
-        }
-        span.is-enable {
-            width: 80px;
-        }
-        span.last-pos {
-            width: 220px;
-        }
-        span.edit {
-            width: 80px;
-        }
-        .nodes-list {
-            padding-top: 15px;
-        }
-        span.is-leader {
-            width:80px;
-        }
-    </style>
+    <link type="text/css" rel="stylesheet" href="css/index.css">
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/index.js"></script>
 </head>
 <body>
 <?php $services = \Seals\Library\Zookeeper::getServices();//\Seals\Library\Context::instance()->get("zookeeper")->getServices();
-var_dump($services); ?>
-<h2 style="border-bottom: #4cae4c solid 3px;">服务列表 群集>群集节点</h2>
+ ?>
+<div style="border-bottom: #4cae4c solid 3px;height: 56px;">
+<h2 style="padding-right: 20px; float: left;">服务列表 群集>群集节点</h2>
+<div class="right-tool" style="">
+    <span onclick="refresh()" class="bth-refresh">刷新</span>
+</div>
+</div>
 <ul>
     <li class="title">
         <span class="group-id">群组</span>
@@ -99,7 +52,10 @@ foreach ($services as $group_id => $groups) {
             $is_leader = $leader_id == $session_id;
             $time_span = time() - $last_updated;
                 ?>
-                <li style="<?php
+                <li class="node"
+                    data-group-id="<?php echo $group_id; ?>"
+                    data-session-id="<?php echo $session_id; ?>"
+                    style="<?php
                 if ($time_span >= 10 && $time_span <= 20) echo 'background: #f00;'; ?>">
                     <span class="node-id" title="<?php echo $session_id; ?>"><?php echo ($index++),"、",$session_id; ?></span>
                     <span class="is-enable"><?php
@@ -122,7 +78,11 @@ foreach ($services as $group_id => $groups) {
                     ?>
                 </span>
                     <span class="edit">
-                        <a>下线</a>
+                        <a
+                            data-group-id="<?php echo $group_id; ?>"
+                            data-session-id="<?php echo $session_id; ?>"
+                            onclick="nodeDown(this)"
+                        >下线</a>
                     </span>
                 </li>
                 <?php

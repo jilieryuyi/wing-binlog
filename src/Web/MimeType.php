@@ -11,21 +11,31 @@ final class MimeType
     {
         $mime_type = "text/html";
 
-        if (!class_exists("finfo") && !function_exists("mime_content_type")) {
-            echo "Warning : class \"finfo\" and function \"mime_content_type\" are not found";
-        }
+//        if (!class_exists("finfo") && !function_exists("mime_content_type")) {
+//            echo "Warning : class \"finfo\" and function \"mime_content_type\" are not found";
+//        }
+//
+//        if( class_exists("finfo") ) {
+//            $fi = new \finfo(FILEINFO_MIME_TYPE);
+//            $mime_type = $fi->file($path);
+//            unset($fi);
+//            return $mime_type;
+//        }
+//
+//        if( function_exists("mime_content_type") ) {
+//            $mime_type = mime_content_type($path);
+//            return $mime_type;
+//        }
+        $types = [
+            "js"  => "application/javascript",
+            "css" => "text/css",
+            "php" => "text/x-php"
+        ];
 
-        if( class_exists("finfo") ) {
-            $fi = new \finfo(FILEINFO_MIME_TYPE);
-            $mime_type = $fi->file($path);
-            unset($fi);
-            return $mime_type;
-        }
+        $ext = strtolower(pathinfo($path,PATHINFO_EXTENSION));
+        if (isset($types[$ext]))
+            $mime_type = $types[$ext];
 
-        if( function_exists("mime_content_type") ) {
-            $mime_type = mime_content_type($path);
-            return $mime_type;
-        }
         return $mime_type;
     }
 }
