@@ -22,7 +22,7 @@ function nodeRefresh(v, group_id, session_id)
         success:function(msg){
             if (msg == "")
                 return;
-            console.log(msg);
+            //console.log(msg);
             var data   = JSON.parse(msg);
 
             if (data.enable == 1) {
@@ -165,7 +165,7 @@ function appendNode(group_id, session_id, node)
  */
 function appendGroup(group_id, nodes)
 {
-    console.log(nodes);
+    //console.log(nodes);
     var length = count(nodes);
 
 
@@ -208,20 +208,20 @@ $(document).ready(function(){
         //refresh list
         getAllServices(function(msg){
             var data = JSON.parse(msg);
-            console.log(data);
+            //console.log(data);
             for (var group_id in data) {
                 if (!data.hasOwnProperty(group_id))
                     continue;
-                console.log(group_id);
+                //console.log(group_id);
                 if ($(".group-"+group_id).length <= 0) {
                     //如果群组不存在，新增的，追加到列表
                     appendGroup(group_id, data[group_id]);
                 }
-                console.log(data[group_id]);
+                //console.log(data[group_id]);
                 for (var session_id in data[group_id]) {
                     if (!data[group_id].hasOwnProperty(session_id))
                         continue;
-                    console.log(session_id);
+                    //console.log(session_id);
                     if ($(".node-"+session_id).length <= 0) {
                         appendNode(group_id, data[group_id][session_id]);
                     }
