@@ -136,6 +136,7 @@ class Tcp
      */
     public function start()
     {
+        //if libevent support, then use it
         if (function_exists("event_base_new")) {
             $base  = event_base_new();
             $event = event_new();
@@ -145,6 +146,7 @@ class Tcp
             event_add($event);
             event_base_loop($base);
         } else {
+            //if not, use the socket select mode
             $_w = $_e = null;
             while (1) {
                 $read   = $this->clients;
@@ -204,7 +206,12 @@ class Tcp
     }
 
     /**
+     * send data to a client socket
      *
+     * @param resource $socket
+     * @param string $data
+     *
+     * @return int
      */
     public function sendSocket($socket, $data)
     {
