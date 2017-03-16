@@ -31,13 +31,14 @@ function nodeRefresh(v, group_id, session_id)
                 $(v).find(".is-enable").html("禁用");
             }
             if (data.is_leader == 1) {
+                $(v).find(".last-pos").html(data.last_binlog+" => "+data.last_pos);
                 $(v).find(".is-leader").html("是");
             } else {
+                $(v).find(".last-pos").html('');
                 $(v).find(".is-leader").html("否");
             }
 
             //mysql-bin.000031 => 154
-            $(v).find(".last-pos").html(data.last_binlog+" => "+data.last_pos);
             if (data.last_updated > 10 && data.last_updated < 20) {
                 $(v).css("background","#f00");
             }
@@ -122,6 +123,7 @@ function count(obj)
 function appendNode(group_id, session_id, node)
 {
     var index = $(".group-"+group_id+" li").length;
+
     var html =
         '<li class="node node-'+session_id+'" '+
         'data-group-id="'+group_id+'" '+
@@ -139,13 +141,21 @@ function appendNode(group_id, session_id, node)
         '</span>'+
         '<span class="is-leader">';
     if (parseInt(node.is_leader) == 1) {
+        last_read = node.last_binlog+" => "+node.last_pos;
         html += "是";
     } else {
         html += "否";
     }
     html +=
         '</span>'+
-        '<span class="last-pos">'+node.last_binlog+" => "+node.last_pos+'</span>'+
+        '<span class="last-pos">';
+    if (parseInt(node.is_leader) == 1) {
+        html += node.last_binlog+" => "+node.last_pos;
+    } else {
+        html += "";
+    }
+        html +=
+            '</span>'+
         '<span class="edit">'+
         '<a '+
         'data-group-id="'+group_id+'" '+
@@ -223,7 +233,7 @@ $(document).ready(function(){
                         continue;
                     //console.log(session_id);
                     if ($(".node-"+session_id).length <= 0) {
-                        appendNode(group_id, data[group_id][session_id]);
+                        appendNode(group_id, session_id, data[group_id][session_id]);
                     }
                 }
             }
