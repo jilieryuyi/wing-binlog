@@ -410,6 +410,7 @@ class Master implements Process
             ];
         }
 
+        $this->setProcessTitle("seals >> master http server process");
         $processes[] = [
             "process_id" => self::getCurrentProcessId(),
             "created"    => time(),
