@@ -204,11 +204,6 @@ function appendGroup(group_id, nodes)
 
 $(document).ready(function(){
     window.setInterval(function(){
-        $(".nodes-list .node").each(function(i,v){
-            var group_id   = $(v).attr("data-group-id");
-            var session_id = $(v).attr("data-session-id");
-            nodeRefresh(group_id, session_id);
-        });
         //refresh list
         getAllServices(function(msg){
             var data = JSON.parse(msg);
@@ -231,6 +226,11 @@ $(document).ready(function(){
                     }
                 }
             }
+        });
+        $(".nodes-list .node").each(function(i,v){
+            var group_id   = $(v).attr("data-group-id");
+            var session_id = $(v).attr("data-session-id");
+            nodeRefresh(group_id, session_id);
         });
     },1000);
 });
