@@ -16,6 +16,12 @@ class Node
         $group_id   = $response->post("group_id");
         $session_id = $response->post("session_id");
 
+        return self::getInfo($group_id, $session_id);
+
+    }
+
+    public static function getInfo($group_id, $session_id)
+    {
         $last_binlog       = Zookeeper::getGroupLastBinlog($group_id);
         list(, $last_pos)  = Zookeeper::getGroupLastPost($group_id);
         $is_enable         = Zookeeper::isEnable($group_id, $session_id);

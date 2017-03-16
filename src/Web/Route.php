@@ -1,4 +1,5 @@
 <?php namespace Seals\Web;
+use Seals\Web\Logic\Service;
 
 /**
  * Created by PhpStorm.
@@ -14,7 +15,8 @@ class Route
 
     static $routes = [
         "post" => [
-            "/service/node/refresh" => "\\Seals\\Web\\Logic\\Node::info"
+            "/service/node/refresh" => "\\Seals\\Web\\Logic\\Node::info",
+            "/service/all" => "\\Seals\\Web\\Logic\\Service::getAll"
         ]
     ];
 
@@ -34,7 +36,7 @@ class Route
                 $data = json_encode($data);
 
             if (!is_scalar($data))
-                return "error type";
+                return "";
 
             return $data;
         }
