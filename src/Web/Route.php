@@ -16,7 +16,7 @@ class Route
     static $routes = [
         "post" => [
             "/service/node/refresh" => "\\Seals\\Web\\Logic\\Node::info",
-            "/service/all" => "\\Seals\\Web\\Logic\\Service::getAll"
+            "/service/all"          => "\\Seals\\Web\\Logic\\Service::getAll"
         ]
     ];
 
@@ -27,9 +27,6 @@ class Route
     }
     public function parse()
     {
-        if (strpos($this->resource,"/service") !== 0)
-            return "404 not found";
-
         if (isset(self::$routes[$this->response->getMethod()][$this->resource]) && is_callable(self::$routes[$this->response->getMethod()][$this->resource])) {
             $data = call_user_func_array(self::$routes[$this->response->getMethod()][$this->resource],[$this->response]);
 
@@ -52,6 +49,7 @@ class Route
     }
 
     /**
+     * register get route
      * the url must start with /service
      *
      * @param string $url
@@ -62,6 +60,7 @@ class Route
     }
 
     /**
+     * register post route
      * the url must start with /service
      *
      * @param string $url
