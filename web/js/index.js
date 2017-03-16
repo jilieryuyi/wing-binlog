@@ -38,6 +38,8 @@ function nodeRefresh(v, group_id, session_id)
                 $(v).find(".is-leader").html("否");
             }
 
+            $(v).find(".time-len").html(data.time_len);
+
             //mysql-bin.000031 => 154
             if (data.last_updated > 10 && data.last_updated < 20) {
                 $(v).css("background","#f00");
@@ -164,7 +166,10 @@ function appendNode(group_id, session_id, node)
     }
         html +=
             '</span>'+
-        '<span class="edit">'+
+            '<span class="start-time">'+node.created+'</span>' +
+            '<span class="time-len">'+node.time_len+'</span>' +
+
+            '<span class="edit">'+
         '<a '+
         'data-group-id="'+group_id+'" '+
         'data-session-id="'+session_id+'" '+
@@ -204,6 +209,8 @@ function appendGroup(group_id, nodes)
             '<span class="is-enable">启用群组</span>' +
             '<span class="is-leader">leader</span>' +
             '<span class="last-pos">最后读取</span>' +
+            '<span class="start-time">启动时间</span>' +
+            '<span class="time-len">运行时长</span>' +
             '<span class="group-edit edit">操作</span>' +
             '</li>';
     }

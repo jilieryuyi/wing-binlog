@@ -356,7 +356,7 @@ class Master implements Process
                 $leader_id = Zookeeper::getLeader($group_id);
                 if ($leader_id ) {
                     //if leader does not exists
-                    $last_updated = time() - $groups[$leader_id];
+                    $last_updated = time() - $groups[$leader_id]["updated"];
                     //if not in the group or timeout, delete it from group
                     if (!isset($groups[$leader_id]) || $last_updated > 10) {
                         Zookeeper::delLeader($group_id);
@@ -364,7 +364,7 @@ class Master implements Process
                         $leader_id = null;
                     }
                 }
-                foreach ($groups as $session_id => $last_updated) {
+                foreach ($groups as $session_id => $row) {
                     //if group is not enable
                     if (!Zookeeper::isEnable($group_id, $session_id))
                         continue;

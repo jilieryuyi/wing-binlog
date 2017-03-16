@@ -71,3 +71,10 @@ span.is-leader {
 .hide {
     display: none;
 }
+
+span.start-time {
+    width:165px;
+}
+span.time-len {
+    width:165px;
+}

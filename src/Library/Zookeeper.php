@@ -11,6 +11,7 @@ class Zookeeper
 {
     protected $redis;
     protected $session_id;
+    protected $start_time;
 
     const SERVICE_KEY       = "wing-binlog-services";
     const NOTIFY_TYPE_REDIS = "redis";
@@ -20,6 +21,7 @@ class Zookeeper
     public function __construct($redis)
     {
         $this->redis      = $redis;
+        $this->start_time = time();
         $this->session_id = Context::instance()->session_id;//$this->createSessionId();
     }
 
@@ -58,13 +60,20 @@ class Zookeeper
         return $this->redis->hset(
             self::SERVICE_KEY.":services:". Context::instance()->zookeeper_config["group_id"],
             $this->session_id,
-            time()
+            json_encode([
+                "created" => $this->start_time,
+                "updated" => time()
+            ])
         );
     }
 
+    /**
+     * @return array
+     */
     public static function getLastReport($group_id, $session_id)
     {
-        return Context::instance()->redis_zookeeper->hget(self::SERVICE_KEY.":services:".$group_id, $session_id);
+        $json = Context::instance()->redis_zookeeper->hget(self::SERVICE_KEY.":services:".$group_id, $session_id);
+        return json_decode($json, true);
     }
 
     /**
@@ -142,9 +151,7 @@ class Zookeeper
         if (!Context::instance()->redis_zookeeper)
             return false;
         return Context::instance()->redis_zookeeper->hDel(
-            self::SERVICE_KEY.":services:". Context::instance()->zookeeper_config["group_id"],
-            $session_id,
-            time()
+            self::SERVICE_KEY.":services:". $group_id, $session_id
         );
     }
 
@@ -179,10 +186,12 @@ class Zookeeper
 
             if (!isset($res[$key]))
                 $res[$key] = [];
-            
-            foreach ($data as $session_id => $last_updated) {
-                if ((time()-$last_updated)<=20) {
-                    $res[$key][$session_id] = $last_updated;
+
+            //var_dump($data);
+            foreach ($data as $session_id => $_row) {
+                $row = json_decode($_row, true);
+                if ((time()-$row["updated"])<=20) {
+                    $res[$key][$session_id] = $row;
                 }
             }
 
@@ -195,6 +204,7 @@ class Zookeeper
             }
             unset($temp,$key,$data);
         }
+        //var_dump($res);
         return $res;
     }
 

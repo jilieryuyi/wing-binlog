@@ -17,18 +17,21 @@ class Node
         $session_id = $response->post("session_id");
 
         return self::getInfo($group_id, $session_id);
-
     }
 
     public static function getInfo($group_id, $session_id)
     {
         $last_binlog       = Zookeeper::getGroupLastBinlog($group_id);
-        list(, $last_pos)  = Zookeeper::getGroupLastPost($group_id);
+        $res               = Zookeeper::getGroupLastPost($group_id);
+        $last_pos          = isset($res[1]) ? $res[1] : 0;
         $is_enable         = Zookeeper::isEnable($group_id, $session_id);
         $is_leader         = Zookeeper::getLeader($group_id) == $session_id ? 1 : 0;
-        $last_report       = time() - Zookeeper::getLastReport($group_id, $session_id);
+        $res               =  Zookeeper::getLastReport($group_id, $session_id);
+        $last_report       = time() - $res["updated"];
 
         return [
+            "created"      => $res["created"],
+            "time_len"     => timelen_format(time()-$res["created"]),
             "enable"       => $is_enable,   //node is enable group
             "is_leader"    => $is_leader,   //node is leader
             "last_updated" => $last_report, //node last report timestamp
