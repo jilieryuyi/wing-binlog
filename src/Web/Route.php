@@ -32,8 +32,15 @@ class Route
 
         if (isset(self::$routes[$this->response->getMethod()][$this->resource]) && is_callable(self::$routes[$this->response->getMethod()][$this->resource])) {
             $data = call_user_func_array(self::$routes[$this->response->getMethod()][$this->resource],[$this->response]);
+
             if (is_array($data))
                 $data = json_encode($data);
+
+            if ($data === false)
+                $data = 0;
+
+            if ($data === true)
+                $data = 1;
 
             if (!is_scalar($data))
                 return "";
