@@ -4,6 +4,9 @@
  * User: yuyi
  * Date: 17/3/13
  * Time: 11:55
+ *
+ * http server
+ *
  */
 class Http extends Tcp
 {
@@ -13,40 +16,68 @@ class Http extends Tcp
     protected $http_port;
     protected $home;
 
+    /**
+     * construct
+     *
+     * @param string $home web home path
+     * @param string $ip
+     * @param int $port
+     */
     public function __construct($home, $ip = "0.0.0.0", $port = 9998)
     {
         parent::__construct($ip, $port);
-        $this->on(self::ON_WRITE,   [$this, "onWrite"]);
-        $this->on(self::ON_RECEIVE, [$this, "onReceive"]);
+        $this->on(self::ON_WRITE,   [$this, "_onWrite"]);
+        $this->on(self::ON_RECEIVE, [$this, "_onReceive"]);
         $this->home = $home;
     }
 
-    //http协议在发送后要关闭连接
-    public function onWrite($client, $buffer, $id)
+    /**
+     * http send msg callback
+     */
+    protected function _onWrite($client, $buffer, $id)
     {
         echo "send ok free\r\n";
         fclose($client);
-        event_buffer_free($buffer);
+        if ($buffer) {
+            event_buffer_free($buffer);
+            unset($this->buffers[$id]);
+        }
         unset($this->clients[$id]);
-        unset($this->buffers[$id]);
+
         $this->index--;
     }
 
-    public function onReceive($client, $buffer, $id, $data)
+    /**
+     * http on receive
+     *
+     * @param resource $client
+     * @param resource $buffer
+     * @param int $id
+     * @param string $data
+     */
+    protected function _onReceive($client, $buffer, $id, $data)
     {
         $this->call(self::ON_HTTP_RECEIVE, [new HttpResponse($this, $this->home, $buffer, $data, $client, $id)]);
         $this->debug();
     }
 
+    /**
+     * http send msg
+     */
     public function send($buffer, $data, $client, $id)
     {
-        $success = event_buffer_write($buffer,$data);
+        if ($buffer)
+            $success = event_buffer_write($buffer,$data);
+        else
+            $success = $this->sendSocket($client, $data);
         if (!$success) {
             $this->send_fail_times++;
             fclose($client);
-            event_buffer_free($buffer);
+            if ($buffer) {
+                event_buffer_free($buffer);
+                unset($this->buffers[$id]);
+            }
             unset($this->clients[$id]);
-            unset($this->buffers[$id]);
             $this->index--;
         }
         return $success;
