@@ -37,19 +37,19 @@ span.node-id {
     overflow: hidden;
 }
 span.is-enable {
-    width: 80px;
+    width: 45px;
 }
 span.last-pos {
     width: 220px;
 }
 span.edit {
-    width: 80px;
+    width: 150px;
 }
 .nodes-list {
     padding-top: 15px;
 }
 span.is-leader {
-    width:80px;
+    width:55px;
 }
 .right-tool {
     float: left;
@@ -77,4 +77,8 @@ span.start-time {
 }
 span.time-len {
     width:165px;
+}
+span.edit a {
+    margin-left: 3px;
+    border: #ccc solid 1px;
 }

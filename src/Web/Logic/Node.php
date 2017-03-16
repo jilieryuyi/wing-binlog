@@ -30,7 +30,7 @@ class Node
         $last_report       = time() - $res["updated"];
 
         return [
-            "created"      => $res["created"],
+            "created"      => date("Y-m-d H:i:s", $res["created"]),
             "time_len"     => timelen_format(time()-$res["created"]),
             "enable"       => $is_enable,   //node is enable group
             "is_leader"    => $is_leader,   //node is leader

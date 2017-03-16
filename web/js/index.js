@@ -170,11 +170,20 @@ function appendNode(group_id, session_id, node)
             '<span class="time-len">'+node.time_len+'</span>' +
 
             '<span class="edit">'+
-        '<a '+
-        'data-group-id="'+group_id+'" '+
-        'data-session-id="'+session_id+'" '+
-        'onclick="nodeDown(this)" >下线</a>'+
-        '</span>'+
+                '<a '+
+                'data-group-id="'+group_id+'" '+
+                'data-session-id="'+session_id+'" '+
+                'onclick="nodeConfig(this)" >配置</a>'+
+                '<a '+
+                'data-group-id="'+group_id+'" '+
+                'data-session-id="'+session_id+'" '+
+                'onclick="nodeDown(this)" >下线</a>'+
+            '<a '+
+            'data-group-id="'+group_id+'" '+
+            'data-session-id="'+session_id+'" '+
+            'onclick="" >报表</a>'+
+
+            '</span>'+
         '</li>';
 
     $(".group-"+group_id+ " ul").append(html);
@@ -191,8 +200,6 @@ function appendGroup(group_id, nodes)
     //console.log(nodes);
     var length = count(nodes);
 
-
-
     var html   =
         '<li class="group-'+group_id+'">'+
             '<div class="item">'+
@@ -206,7 +213,7 @@ function appendGroup(group_id, nodes)
     if (length > 0) {
         html += '<li class="title">' +
             '<span class="node-id">节点</span>' +
-            '<span class="is-enable">启用群组</span>' +
+            '<span class="is-enable">群组</span>' +
             '<span class="is-leader">leader</span>' +
             '<span class="last-pos">最后读取</span>' +
             '<span class="start-time">启动时间</span>' +
@@ -227,6 +234,16 @@ function appendGroup(group_id, nodes)
 
 }
 
+/**
+ * jump to node config page
+ */
+function nodeConfig(dom)
+{
+    var group_id   = $(dom).attr("data-group-id");
+    var session_id = $(dom).attr("data-session-id");
+
+    window.location.href="node.config.php?group_id="+group_id+"&session_id="+session_id;
+}
 
 $(document).ready(function(){
     window.setInterval(function(){

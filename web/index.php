@@ -11,7 +11,7 @@
 <div style="border-bottom: #4cae4c solid 3px;height: 56px;">
 <h2 style="padding-right: 20px; float: left;">服务列表 集群>>集群节点</h2>
 <div class="right-tool" style="">
-    <span onclick="refresh()" class="bth-refresh">刷新</span>
+    <span class="bth-refresh">全局配置</span>
 </div>
 </div>
 <ul class="groups">
