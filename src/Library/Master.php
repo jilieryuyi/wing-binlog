@@ -366,7 +366,7 @@ class Master implements Process
                 }
                 foreach ($groups as $session_id => $last_updated) {
                     //if group is not enable
-                    if (Zookeeper::isClose($group_id, $session_id))
+                    if (!Zookeeper::isEnable($group_id, $session_id))
                         continue;
                     if (!$leader_id) {
                         //reset a new leader
@@ -416,6 +416,9 @@ class Master implements Process
             "name"       => "seals >> master http server process"
         ];
         (new File(__APP_DIR__))->set($this->pid, $processes);
+
+        Context::instance()->zookeeperInit();
+        Context::instance()->set("zookeeper",new Zookeeper(Context::instance()->redis_zookeeper));
 
         $http = new Http($this->home_path, $this->ip, $this->port);
         $http->on(Http::ON_HTTP_RECEIVE, function(HttpResponse $response) {
