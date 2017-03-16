@@ -44,9 +44,17 @@ function nodeRefresh(v, group_id, session_id)
             }
 
             if (data.last_updated >= 20 )
-                $(v).hide();
+                $(v).addClass("hide");
             else
-                $(v).show();
+                $(v).removeClass("hide");
+
+            var index = 1;
+            $(".nodes-list .node").each(function(){
+                if (!$(this).hasClass("hide")) {
+                    $(this).find(".index").html(index);
+                    index++;
+                }
+            });
         }
     });
 }
@@ -129,7 +137,7 @@ function appendNode(group_id, session_id, node)
         'data-group-id="'+group_id+'" '+
         'data-session-id="'+session_id+'" '+
         '>'+
-        '<span class="node-id" title="'+session_id+'">'+index+'、'+session_id+'</span>'+
+        '<span class="node-id" title="'+session_id+'"><label class="index">'+index+'</label>、'+session_id+'</span>'+
         '<span class="is-enable">';
 
     if (parseInt(node.enable) == 1) {

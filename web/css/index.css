@@ -68,3 +68,6 @@ span.is-leader {
     background: #4B780A;
     color: #fff;
 }
+.hide {
+    display: none;
+}
