@@ -43,7 +43,7 @@ function nodeRefresh(v, group_id, session_id)
                 $(v).css("background","#f00");
             }
 
-            if (data.last_updated >= 20 && data.last_updated < 86400)
+            if (data.last_updated >= 20 )
                 $(v).hide();
             else
                 $(v).show();
