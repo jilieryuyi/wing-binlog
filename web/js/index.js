@@ -170,18 +170,33 @@ function appendNode(group_id, session_id, node)
             '<span class="time-len">'+node.time_len+'</span>' +
 
             '<span class="edit">'+
-                '<a '+
-                'data-group-id="'+group_id+'" '+
-                'data-session-id="'+session_id+'" '+
-                'onclick="nodeConfig(this)" >配置</a>'+
-                '<a '+
-                'data-group-id="'+group_id+'" '+
-                'data-session-id="'+session_id+'" '+
-                'onclick="nodeDown(this)" >下线</a>'+
-            '<a '+
+            '<a class="bg-normal" style="margin-left: 0;" '+
+            'data-group-id="'+group_id+'" '+
+            'data-session-id="'+session_id+'" '+
+            'onclick="nodeConfig(this)" >配置</a>'+
+            '<a class="bg-red" '+
+            'data-group-id="'+group_id+'" '+
+            'data-session-id="'+session_id+'" '+
+            'onclick="nodeDown(this)" >下线</a>'+
+            '<a class="bg-normal"  '+
             'data-group-id="'+group_id+'" '+
             'data-session-id="'+session_id+'" '+
             'onclick="" >报表</a>'+
+
+            '<a class="bg-red"  '+
+            'data-group-id="'+group_id+'" '+
+            'data-session-id="'+session_id+'" '+
+            'onclick="" >重启</a>'+
+
+            '<a class="bg-normal"  '+
+            'data-group-id="'+group_id+'" '+
+            'data-session-id="'+session_id+'" '+
+            'onclick="" >更新组件</a>'+
+
+            '<a class="bg-normal"  '+
+            'data-group-id="'+group_id+'" '+
+            'data-session-id="'+session_id+'" '+
+            'onclick="" >更新版本</a>'+
 
             '</span>'+
         '</li>';

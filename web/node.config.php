@@ -65,6 +65,26 @@
         <div><input type="button" value="更新运行时配置"/><input type="button" value="更新持久化配置"/></div>
 
     </div>
+    <div>
+        <div>群集配置</div>
+        <div><span>启用</span><label>是</label><label>否</label></div>
+        <div><span>组名称</span><input type="text"/></div>
+        <div><span>ip</span><input type="text"/></div>
+        <div><span>端口</span><input type="text"/></div>
+        <div><span>密码</span><input type="text"/></div>
+        <div><input type="button" value="更新运行时配置"/><input type="button" value="更新持久化配置"/></div>
+
+    </div>
+
+    <div>
+        <div>数据库配置</div>
+        <div><span>ip</span><input type="text"/></div>
+        <div><span>端口</span><input type="text"/></div>
+        <div><span>用户</span><input type="text"/></div>
+        <div><span>密码</span><input type="text"/></div>
+        <div><span>数据库</span><input type="text"/></div>
+        <div><input type="button" value="更新运行时配置"/><input type="button" value="更新持久化配置"/></div>
+    </div>
 </div>
 </body>
 </html>

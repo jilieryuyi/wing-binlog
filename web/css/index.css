@@ -23,7 +23,6 @@ span.node-count {
     width:80px;
 }
 span a:hover {
-    text-decoration: underline;
     font-weight: bold;
 }
 span a {
@@ -43,7 +42,7 @@ span.last-pos {
     width: 220px;
 }
 span.edit {
-    width: 150px;
+    width: auto;
 }
 .nodes-list {
     padding-top: 15px;
@@ -79,6 +78,17 @@ span.time-len {
     width:165px;
 }
 span.edit a {
-    margin-left: 3px;
-    border: #ccc solid 1px;
+    margin-left: 6px;
+    /*border: #ccc solid 1px;*/
+    padding: 1px 6px;
+    font-size: 14px;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 3px;
+}
+.bg-normal {
+    background: #4B780A;
+}
+.bg-red {
+    background: #f00;
 }

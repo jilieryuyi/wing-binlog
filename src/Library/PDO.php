@@ -126,7 +126,7 @@ class PDO implements DbInterface
      *
      * @param string $query
      * @param array $parameters
-     * @return void
+     * @return bool
      */
     private function init($query, $parameters = null)
     {
@@ -141,10 +141,17 @@ class PDO implements DbInterface
             $this->connect();
         }
         try {
-            if ($this->pdo)
-                $this->sQuery = $this->pdo->prepare($query);
-            if ($this->sQuery)
-                $this->sQuery->execute($parameters);
+            if ($this->pdo) {
+                if (!$this->sQuery = $this->pdo->prepare($query))
+                    return false;
+            } else {
+                return false;
+            }
+            if ($this->sQuery) {
+                return $this->sQuery->execute($parameters);
+            } else {
+                return false;
+            }
         } catch (\PDOException $e) {
             $this->close();
             $this->connect();
@@ -152,6 +159,7 @@ class PDO implements DbInterface
             var_dump("pdo ".__FUNCTION__,$e->errorInfo);
         }
         $this->parameters = array();
+        return false;
     }
 
 
@@ -167,7 +175,7 @@ class PDO implements DbInterface
     {
         $query = preg_replace("/\s+|\t+|\n+/", " ", $query);
 
-        $this->init($query, $params);
+        $init_res = $this->init($query, $params);
 
         try {
             $rawStatement = explode(" ", $query);
@@ -200,7 +208,7 @@ class PDO implements DbInterface
             $this->connect();
         }
 
-        return NULL;
+        return $init_res;
     }
 
     /**
