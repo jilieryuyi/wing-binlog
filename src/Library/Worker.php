@@ -24,7 +24,11 @@ class Worker implements Process
      */
     protected $process_cache;
 
-    protected $deamon           = false;
+    protected $deamon             = false;
+    protected static $server_pid         = __APP_DIR__."/server.pid";
+    protected $processes          = [];
+    protected $parse_processes    = [];
+    protected $dispatch_processes = [];
 
 
     //队列名称
@@ -220,28 +224,20 @@ class Worker implements Process
         }
     }
 
+    public function stop()
+    {
+        self::stopAll();
+    }
     /**
      * @停止进程
      *
      * @return void
      */
-    public function stop()
+    public static function stopAll()
     {
 
-        $files = $this->process_cache->keys("running.*");
-
-        if (!$files)
-            return;
-
-        $process_ids = [];
-        foreach ($files as $file) {
-            list(, $process_id) = explode("_",$file);
-            $process_ids[] = $process_id;
-        }
-
-        foreach ($process_ids as $process_id) {
-            $this->process_cache->set("stop_".$process_id,1,60);
-        }
+        $server_id = file_get_contents(self::$server_pid);
+        posix_kill($server_id, SIGINT);
     }
 
     /**
@@ -464,6 +460,8 @@ class Worker implements Process
     protected function dispatchProcess($i)
     {
 
+        ini_set("memory_limit", Context::instance()->memory_limit);
+
         $process_name = "php seals >> events collector - dispatch - ".$i;
 
         //设置进程标题 mac 会有warning 直接忽略
@@ -488,6 +486,7 @@ class Worker implements Process
 
             try {
                 do {
+                    pcntl_signal_dispatch();
                     $this->setStatus($process_name);
                     $this->setIsRunning();
 
@@ -546,6 +545,9 @@ class Worker implements Process
     protected function parseProcess($i)
     {
 
+        echo "process queue dispatch ".$i." is running \r\n";
+        ini_set("memory_limit", Context::instance()->memory_limit);
+
         $process_name = "php seals >> events collector - workers - ".$i;
 
         //设置进程标题 mac 会有warning 直接忽略
@@ -564,6 +566,7 @@ class Worker implements Process
         while (1) {
             ob_start();
             try {
+                pcntl_signal_dispatch();
                 $this->setStatus($process_name);
                 $this->setIsRunning();
 
@@ -712,7 +715,7 @@ class Worker implements Process
         echo "正在尝试重新发送失败的事件，请确保接收事件的服务可用...\r\n";
 
         for($i = 0; $i < $len; $i++) {
-            $event = $failure_queue->peek();
+            $event   = $failure_queue->peek();
             $success = $this->notify->send($event);
             if (!$success) {
                 echo "重新尝试失败\r\n";
@@ -730,6 +733,7 @@ class Worker implements Process
     protected function eventProcess()
     {
 
+        ini_set("memory_limit", Context::instance()->memory_limit);
         $process_name = "php seals >> events collector - ep";
 
         //设置进程标题 mac 会有warning 直接忽略
@@ -755,6 +759,7 @@ class Worker implements Process
 
             try {
                 do {
+                    pcntl_signal_dispatch();
                     $this->setStatus($process_name);
                     $this->setIsRunning();
                     //服务发现
@@ -874,9 +879,126 @@ class Worker implements Process
     }
 
     /**
+     * rpc api
+     */
+    public static function restart()
+    {
+        self::stopAll();
+        $command = new Command("cd ".__APP_DIR__." && php seals server:restart");
+        $command->run();
+        unset($command);
+        exit;
+    }
+
+    /**
+     * rpc api
+     */
+    public static function update()
+    {
+        $command = new Command("cd ".__APP_DIR__." && git pull origin master && composer update && php seals server:restart");
+        $command->run();
+        unset($command);
+        return 1;
+    }
+
+
+    public function signalHandler($signal)
+    {
+        switch ($signal) {
+            // Stop.
+            case SIGINT:
+                echo "stop all\r\n";
+
+                $server_id = file_get_contents(self::$server_pid);
+
+                if ($server_id == self::getCurrentProcessId()) {
+                    var_dump($this->processes);
+                    foreach ($this->processes as $id => $pid) {
+                        posix_kill($pid, SIGINT);
+                    }
+                    $start = time();
+                    while (1) {
+                        $pid = pcntl_waitpid(-1, $status, WNOHANG);
+                        if ($pid > 0) {
+                            $id = array_search($pid, $this->processes);
+                            unset($this->processes[$id]);
+
+                            if (count($this->processes) <= 0)
+                                break;
+
+                            if (time() - $start > 3) {
+                                echo "kill timeout\r\n";
+                                break;
+                            }
+                        }
+                    }
+                }
+                exit(0);
+                break;
+            // Reload.
+            case SIGUSR1:
+                self::restart();
+                exit(0);
+                break;
+            // Show status.
+            case SIGUSR2:
+                //update status;
+                break;
+        }
+    }
+
+    protected function forkParseWorker($i)
+    {
+        $process_id = pcntl_fork();
+        if ($process_id == 0) {
+            if ($this->deamon) {
+                $this->resetStd();
+            }
+            $this->parseProcess($i);
+        } else {
+            $this->processes[] = $process_id;
+            $this->parse_processes[$i] = $process_id;
+        }
+    }
+
+    protected function forkDispatchWorker($i)
+    {
+        $process_id = pcntl_fork();
+        if ($process_id == 0) {
+            //调度进程
+            if ($this->deamon) {
+                $this->resetStd();
+            }
+            $this->dispatchProcess($i);
+        } else {
+            $this->processes[] = $process_id;
+            $this->dispatch_processes[$i] = $process_id;
+        }
+    }
+
+    protected function forkEventWorker()
+    {
+        if ($this->deamon) {
+            $this->resetStd();
+        }
+        //基础事件采集进程
+        $this->eventProcess();
+    }
+
+    /**
      * @启动进程 入口函数
      */
     public function start(){
+
+
+        //stop
+        pcntl_signal(SIGINT,  [$this, 'signalHandler'], false);
+        //reload
+        pcntl_signal(SIGUSR1, [$this, 'signalHandler'], false);
+        //status
+        pcntl_signal(SIGUSR2, [$this, 'signalHandler'], false);
+        //ignore
+        pcntl_signal(SIGPIPE, SIG_IGN, false);
 
         echo "帮助：\r\n";
         echo "启动服务：php seals server:start\r\n";
@@ -894,64 +1016,58 @@ class Worker implements Process
 
         //启动元数据解析进程
         for ($i = 1; $i <= $this->workers; $i++) {
-            $process_id = pcntl_fork();
-            if ($process_id == 0) {
-                if ($this->deamon) {
-                    $this->resetStd();
-                }
-                echo "process ",$i," is running \r\n";
-                ini_set("memory_limit", Context::instance()->memory_limit);
-                $this->parseProcess($i);
-            }
+            $this->forkParseWorker($i);
+            $this->forkDispatchWorker($i);
         }
-
-        //启动调度进程 负责生成缓存文件
-        for ($i = 1; $i <= $this->workers; $i++) {
-            $process_id = pcntl_fork();
-            if ($process_id == 0) {
-                //调度进程
-                if ($this->deamon) {
-                    $this->resetStd();
-                }
-                echo "process queue dispatch ".$i." is running \r\n";
-                ini_set("memory_limit", Context::instance()->memory_limit);
-                $this->dispatchProcess($i);
-            }
-        }
-
-        if ($this->deamon) {
-            $this->resetStd();
-        }
-        echo "process queue dispatch is running \r\n";
-        ini_set("memory_limit", Context::instance()->memory_limit);
 
         //尝试发送失败的事件
         $this->failureEventsSendRetry();
 
-        //基础事件采集进程
-        $this->eventProcess();
+        $process_id = pcntl_fork();
+        if ($process_id == 0) {
+            $this->forkEventWorker();
+        } else {
+            $this->processes[] = $process_id;
+        }
+
+        file_put_contents(self::$server_pid, self::getCurrentProcessId());
+        while (1) {
+            // Calls signal handlers for pending signals.
+            pcntl_signal_dispatch();
+            // Suspends execution of the current process until a child has exited, or until a signal is delivered
+            $status = 0;
+            $pid    = pcntl_wait($status, WUNTRACED);
+            // Calls signal handlers for pending signals again.
+            pcntl_signal_dispatch();
+            // If a child has already exited.
+            if ($pid > 0) {
+                // Find out witch worker process exited.
+                Context::instance()->logger->notice($pid." process shutdown, try create a new process");
+                $id = array_search($pid, $this->processes);
+                unset($this->processes[$id]);
+
+                //if is the parse process
+                $id = array_search($pid, $this->parse_processes);
+                if ($id) {
+                    unset($this->parse_processes[$id]);
+                    //$this->forkParseWorker($id);
+                    continue;
+                }
+
+                //if is the dispatch process
+                $id = array_search($pid, $this->dispatch_processes);
+                if ($id) {
+                    unset($this->dispatch_processes[$id]);
+                   // $this->forkDispatchWorker($id);
+                    continue;
+                }
+
+                //if is the event process
+                //$this->forkEventWorker();
+            }
+        }
+
+        echo "service shutdown\r\n";
     }
 
-    /**
-     * rpc api
-     */
-    public static function restart()
-    {
-        $command = new Command("php ".__APP_DIR__."/seals server:restart");
-        $command->run();
-        unset($command);
-        return 1;
-    }
-
-
-    /**
-     * rpc api
-     */
-    public static function update()
-    {
-        $command = new Command("cd ".__APP_DIR__." && git pull origin master && composer update && php seals server:restart");
-        $command->run();
-        unset($command);
-        return 1;
-    }
 }
