@@ -35,6 +35,7 @@ function nodeRefresh(v, group_id, session_id)
 
             $(v).find(".time-len").html(data.time_len);
 
+            $(v).css("background","#fff");
             //mysql-bin.000031 => 154
             if (data.last_updated > 10 && data.last_updated < 20) {
                 $(v).css("background","#f00");
@@ -153,6 +154,8 @@ function appendNode(group_id, session_id, node)
     }
         html +=
             '</span>'+
+            '<span class="version">'+node.version+'</span>' +
+
             '<span class="start-time">'+node.created+'</span>' +
             '<span class="time-len">'+node.time_len+'</span>' +
             '</div><div>'+
@@ -173,18 +176,13 @@ function appendNode(group_id, session_id, node)
             '<a class="bg-red"  '+
             'data-group-id="'+group_id+'" '+
             'data-session-id="'+session_id+'" '+
-            'onclick="" >重启</a>'+
+            'onclick="nodeRestart(this)" >重启</a>'+
 
-            '<a class="bg-normal"  '+
+            '<a class="bg-normal" title="git pull origin master"  '+
             'data-group-id="'+group_id+'" '+
             'data-session-id="'+session_id+'" '+
-            'onclick="" >更新组件</a>'+
-
-            '<a class="bg-normal"  '+
-            'data-group-id="'+group_id+'" '+
-            'data-session-id="'+session_id+'" '+
-            'onclick="" >更新版本</a>'+
-
+            'onclick="nodeUpdate(this)" >更新</a>'+
+            '<label class="error-info"></label>'+
             '</span></div>'+
         '</li>';
 
@@ -217,6 +215,8 @@ function appendGroup(group_id, nodes)
             '<span class="node-id">节点</span>' +
             '<span class="is-leader">leader</span>' +
             '<span class="last-pos">最后读取</span>' +
+            '<span class="version">版本号</span>' +
+
             '<span class="start-time">启动时间</span>' +
             '<span class="time-len">运行时长</span>' +
             '</li>';
@@ -243,6 +243,64 @@ function nodeConfig(dom)
     var session_id = $(dom).attr("data-session-id");
 
     window.location.href="node.config.php?group_id="+group_id+"&session_id="+session_id;
+}
+
+function nodeRestart(dom)
+{
+    var group_id   = $(dom).attr("data-group-id");
+    var session_id = $(dom).attr("data-session-id");
+    $(dom).html("正在重启...");
+    $.ajax({
+        type: "POST",
+        url : "/service/node/restart",
+        data : {
+            "group_id"  : group_id,
+            "session_id": session_id
+        },
+        success:function(msg){
+            //var data = JSON.parse(msg);
+        }
+    });
+
+    var error = $(dom).parent().find(".error-info");
+    window.setTimeout(function(){
+        $(dom).html("重启");
+        error.html("重启成功，右边的运行时长会发生明显变化");
+        window.setTimeout(function(){
+            error.hide("slow");
+        },5000);
+    },2000);
+
+}
+
+function nodeUpdate(dom)
+{
+    if (!window.confirm("确定更新？更新时间可能比较长一些，还请耐心等待~"))
+        return;
+    var group_id   = $(dom).attr("data-group-id");
+    var session_id = $(dom).attr("data-session-id");
+    $(dom).html("正在更新...");
+    $.ajax({
+        type: "POST",
+        url : "/service/node/update",
+        data : {
+            "group_id"  : group_id,
+            "session_id": session_id
+        },
+        success:function(msg){
+            //var data = JSON.parse(msg);
+        }
+    });
+
+    var error = $(dom).parent().find(".error-info");
+    window.setTimeout(function(){
+        $(dom).html("更新");
+        error.html("更新成功后会重启，右边的运行时长会发生明显变化");
+        window.setTimeout(function(){
+            error.hide("slow");
+        },5000);
+    },2000);
+
 }
 
 $(document).ready(function(){

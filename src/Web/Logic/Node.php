@@ -1,4 +1,5 @@
 <?php namespace Seals\Web\Logic;
+use Seals\Library\RPC;
 use Seals\Library\Zookeeper;
 use Seals\Web\HttpResponse;
 
@@ -12,7 +13,6 @@ class Node
 {
     public static function info(HttpResponse $response)
     {
-        var_dump($response->postAll());
         $group_id   = $response->post("group_id");
         $session_id = $response->post("session_id");
 
@@ -29,6 +29,7 @@ class Node
         $last_report       = time() - $res["updated"];
 
         return [
+            "version"      => $res["version"],
             "created"      => date("Y-m-d H:i:s", $res["created"]),
             "time_len"     => timelen_format(time()-$res["created"]),
             "is_leader"    => $is_leader,   //node is leader
@@ -38,4 +39,21 @@ class Node
             "is_down"      => 0,   //is the node is down, only from runtime
         ];
     }
+
+    public static function restart(HttpResponse $response)
+    {
+        $group_id   = $response->post("group_id");
+        $session_id = $response->post("session_id");
+
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::restart");
+    }
+
+    public static function update(HttpResponse $response)
+    {
+        $group_id   = $response->post("group_id");
+        $session_id = $response->post("session_id");
+
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::update");
+    }
+
 }

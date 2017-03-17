@@ -47,8 +47,8 @@ class Zookeeper
      */
     public function serviceReport()
     {
-        echo $this->session_id,"\r\n";
-        echo Context::instance()->session_id,"\r\n";
+       // echo $this->session_id,"\r\n";
+      //  echo Context::instance()->session_id,"\r\n";
 
         if (!$this->redis)
             return false;

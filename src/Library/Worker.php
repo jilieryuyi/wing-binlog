@@ -759,9 +759,11 @@ class Worker implements Process
                     $this->setIsRunning();
                     //服务发现
                     $zookeeper->serviceReport();
+                    //rpc run
+                    RPC::run();
 
                     if (!$zookeeper->isLeader()) {
-                        echo "不是leader，不进行采集操作\r\n";
+                       // echo "不是leader，不进行采集操作\r\n";
                         //if the current node is not leader and group is enable
                         //we need to get the last pos and last binlog from leader
                         //then save it to local
@@ -777,7 +779,7 @@ class Worker implements Process
                         break;
                     }
 
-                    echo "是leader\r\n";
+                   // echo "是leader\r\n";
 
                     //最后操作的binlog文件
                     $last_binlog         = $bin->getLastBinLog();
@@ -928,5 +930,28 @@ class Worker implements Process
 
         //基础事件采集进程
         $this->eventProcess();
+    }
+
+    /**
+     * rpc api
+     */
+    public static function restart()
+    {
+        $command = new Command("php ".__APP_DIR__."/seals server:restart");
+        $command->run();
+        unset($command);
+        return 1;
+    }
+
+
+    /**
+     * rpc api
+     */
+    public static function update()
+    {
+        $command = new Command("cd ".__APP_DIR__." && git pull origin master && composer update && php seals server:restart");
+        $command->run();
+        unset($command);
+        return 1;
     }
 }

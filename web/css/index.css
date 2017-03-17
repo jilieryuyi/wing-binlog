@@ -98,3 +98,11 @@ span.edit a {
 li.node {
     margin-top: 12px;
 }
+.version {
+    width:50px;
+}
+.error-info {
+    font-size: 12px;
+    color: #f00;
+    margin-left: 12px;
+}

@@ -16,7 +16,9 @@ class Route
     static $routes = [
         "post" => [
             "/service/node/refresh" => "\\Seals\\Web\\Logic\\Node::info",
-            "/service/all"          => "\\Seals\\Web\\Logic\\Service::getAll"
+            "/service/all"          => "\\Seals\\Web\\Logic\\Service::getAll",
+            "/service/node/restart" => "\\Seals\\Web\\Logic\\Node::restart",
+            "/service/node/update"  => "\\Seals\\Web\\Logic\\Node::update",
         ]
     ];
 
@@ -27,9 +29,15 @@ class Route
     }
     public function parse()
     {
-        if (isset(self::$routes[$this->response->getMethod()][$this->resource]) && is_callable(self::$routes[$this->response->getMethod()][$this->resource])) {
-            $data = call_user_func_array(self::$routes[$this->response->getMethod()][$this->resource],[$this->response]);
+        echo $this->response->getMethod(),"\r\n";
+        echo $this->resource,"\r\n";
 
+        if (isset(self::$routes[$this->response->getMethod()][$this->resource])) {
+
+            if(is_callable(self::$routes[$this->response->getMethod()][$this->resource]))
+                $data = call_user_func_array(self::$routes[$this->response->getMethod()][$this->resource],[$this->response]);
+            else
+                $data = "";
             if (is_array($data))
                 $data = json_encode($data);
 
