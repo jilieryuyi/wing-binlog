@@ -178,7 +178,7 @@ function appendNode(group_id, session_id, node)
             'data-session-id="'+session_id+'" '+
             'onclick="nodeRestart(this)" >重启</a>'+
 
-            '<a class="bg-normal" title="git pull origin master"  '+
+            '<a class="bg-normal" title="composer update && git pull origin master&& php seals server:restart"  '+
             'data-group-id="'+group_id+'" '+
             'data-session-id="'+session_id+'" '+
             'onclick="nodeUpdate(this)" >更新</a>'+
@@ -265,9 +265,9 @@ function nodeRestart(dom)
     var error = $(dom).parent().find(".error-info");
     window.setTimeout(function(){
         $(dom).html("重启");
-        error.html("重启成功，右边的运行时长会发生明显变化");
+        error.html("重启成功，右边的运行时长会发生明显变化").show();
         window.setTimeout(function(){
-            error.hide("slow");
+            error.hide("slow").html("");
         },5000);
     },2000);
 
@@ -295,9 +295,9 @@ function nodeUpdate(dom)
     var error = $(dom).parent().find(".error-info");
     window.setTimeout(function(){
         $(dom).html("更新");
-        error.html("更新成功后会重启，右边的运行时长会发生明显变化");
+        error.html("更新成功后会重启，右边的运行时长会发生明显变化").show();
         window.setTimeout(function(){
-            error.hide("slow");
+            error.hide("slow").html("");
         },5000);
     },2000);
 
