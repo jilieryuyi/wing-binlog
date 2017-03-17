@@ -147,10 +147,7 @@ class Zookeeper
     /**
      * get all services
      *
-     * @return array like this
-     *  [
-     *     session_id => 1489478544
-     *  ]
+     * @return array
      */
     public static function getServices()
     {
