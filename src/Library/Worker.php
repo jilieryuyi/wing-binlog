@@ -29,6 +29,8 @@ class Worker implements Process
     protected $processes          = [];
     protected $parse_processes    = [];
     protected $dispatch_processes = [];
+    //protected $rpc_process        = 0;
+    protected $event_process      = 0;
 
 
     //队列名称
@@ -404,6 +406,10 @@ class Worker implements Process
 
         if (!function_exists("pcntl_fork"))
             return;
+
+        //修改掩码
+        umask(0);
+
         //创建进程
         $pid = pcntl_fork();
         if (-1 === $pid) {
@@ -418,8 +424,7 @@ class Worker implements Process
             throw new \Exception("setsid fail");
         }
 
-        //修改掩码
-        umask(0);
+
     }
 
     /**
@@ -764,7 +769,6 @@ class Worker implements Process
                     $this->setIsRunning();
                     //服务发现
                     $zookeeper->serviceReport();
-                    //rpc run
                     RPC::run();
 
                     if (!$zookeeper->isLeader()) {
@@ -883,10 +887,7 @@ class Worker implements Process
      */
     public static function restart()
     {
-        self::stopAll();
-        $command = new Command("cd ".__APP_DIR__." && php seals server:restart");
-        $command->run();
-        unset($command);
+        posix_kill(file_get_contents(self::$server_pid),SIGUSR1);
         exit;
     }
 
@@ -904,12 +905,13 @@ class Worker implements Process
 
     public function signalHandler($signal)
     {
+        $server_id = file_get_contents(self::$server_pid);
+
         switch ($signal) {
             // Stop.
             case SIGINT:
                 echo "stop all\r\n";
 
-                $server_id = file_get_contents(self::$server_pid);
 
                 if ($server_id == self::getCurrentProcessId()) {
                     var_dump($this->processes);
@@ -925,19 +927,58 @@ class Worker implements Process
 
                             if (count($this->processes) <= 0)
                                 break;
+                        }
+                        if (time() - $start > 3) {
+                            echo "kill timeout\r\n";
+                            break;
+                        }
+                    }
 
-                            if (time() - $start > 3) {
-                                echo "kill timeout\r\n";
-                                break;
-                            }
+                    if (count($this->processes) > 0) {
+                        foreach ($this->processes as $pid){
+                            echo "do kill process ",$pid,"\r\n";
+                            system("kill ".$pid);
                         }
                     }
                 }
+                echo self::getCurrentProcessId(),"\r\n";
                 exit(0);
                 break;
             // Reload.
             case SIGUSR1:
-                self::restart();
+
+                //system("cd " . __APP_DIR__ . " && php seals server:restart");
+
+                if ($server_id == self::getCurrentProcessId()) {
+                    var_dump($this->processes);
+                    foreach ($this->processes as $id => $pid) {
+                        posix_kill($pid, SIGINT);
+                    }
+                    $start = time();
+                    while (1) {
+                        $pid = pcntl_waitpid(-1, $status, WNOHANG);
+                        if ($pid > 0) {
+                            $id = array_search($pid, $this->processes);
+                            unset($this->processes[$id]);
+
+                            if (count($this->processes) <= 0)
+                                break;
+                        }
+                        if (time() - $start > 3) {
+                            echo "kill timeout\r\n";
+                            break;
+                        }
+                    }
+
+                    if (count($this->processes) > 0) {
+                        foreach ($this->processes as $pid){
+                            echo "do kill process ",$pid,"\r\n";
+                            system("kill ".$pid);
+                        }
+                    }
+                }
+
+                $this->start();
                 exit(0);
                 break;
             // Show status.
@@ -956,6 +997,7 @@ class Worker implements Process
             }
             $this->parseProcess($i);
         } else {
+            echo "parse ",$process_id,"\r\n";
             $this->processes[] = $process_id;
             $this->parse_processes[$i] = $process_id;
         }
@@ -971,6 +1013,8 @@ class Worker implements Process
             }
             $this->dispatchProcess($i);
         } else {
+            echo "dispatch ",$process_id,"\r\n";
+
             $this->processes[] = $process_id;
             $this->dispatch_processes[$i] = $process_id;
         }
@@ -978,12 +1022,36 @@ class Worker implements Process
 
     protected function forkEventWorker()
     {
-        if ($this->deamon) {
-            $this->resetStd();
+        $process_id = pcntl_fork();
+        if ($process_id == 0) {
+            if ($this->deamon) {
+                $this->resetStd();
+            }
+            //基础事件采集进程
+            $this->eventProcess();
+        } else {
+            echo "event ",$process_id,"\r\n";
+            $this->processes[] = $process_id;
+            $this->event_process = $process_id;
         }
-        //基础事件采集进程
-        $this->eventProcess();
+
     }
+
+//    protected function forkRPCWorker()
+//    {
+//        $process_id = pcntl_fork();
+//        if ($process_id == 0) {
+//            if ($this->deamon) {
+//                $this->resetStd();
+//            }
+//            //基础事件采集进程
+//            RPC::run();
+//        } else {
+//            echo "rpc ",$process_id,"\r\n";
+//            $this->processes[] = $process_id;
+//            $this->rpc_process = $process_id;
+//        }
+//    }
 
     /**
      * @启动进程 入口函数
@@ -991,14 +1059,6 @@ class Worker implements Process
     public function start(){
 
 
-        //stop
-        pcntl_signal(SIGINT,  [$this, 'signalHandler'], false);
-        //reload
-        pcntl_signal(SIGUSR1, [$this, 'signalHandler'], false);
-        //status
-        pcntl_signal(SIGUSR2, [$this, 'signalHandler'], false);
-        //ignore
-        pcntl_signal(SIGPIPE, SIG_IGN, false);
 
         echo "帮助：\r\n";
         echo "启动服务：php seals server:start\r\n";
@@ -1014,6 +1074,17 @@ class Worker implements Process
             self::daemonize();
         }
 
+
+        //stop
+        pcntl_signal(SIGINT,  [$this, 'signalHandler'], false);
+        //reload
+        pcntl_signal(SIGUSR1, [$this, 'signalHandler'], false);
+        //status
+        pcntl_signal(SIGUSR2, [$this, 'signalHandler'], false);
+        //ignore
+        pcntl_signal(SIGPIPE, SIG_IGN, false);
+
+
         //启动元数据解析进程
         for ($i = 1; $i <= $this->workers; $i++) {
             $this->forkParseWorker($i);
@@ -1023,13 +1094,11 @@ class Worker implements Process
         //尝试发送失败的事件
         $this->failureEventsSendRetry();
 
-        $process_id = pcntl_fork();
-        if ($process_id == 0) {
-            $this->forkEventWorker();
-        } else {
-            $this->processes[] = $process_id;
-        }
+        //$this->forkRPCWorker();
+        $this->forkEventWorker();
 
+        echo "master ",self::getCurrentProcessId(),"\r\n";
+        var_dump($this->processes);
         file_put_contents(self::$server_pid, self::getCurrentProcessId());
         while (1) {
             // Calls signal handlers for pending signals.
@@ -1046,11 +1115,23 @@ class Worker implements Process
                 $id = array_search($pid, $this->processes);
                 unset($this->processes[$id]);
 
+
+                if ($pid == $this->event_process) {
+                    //if is the event process
+                    $this->forkEventWorker();
+                    continue;
+                }
+
+//                if ($pid == $this->rpc_process) {
+//                    //$this->forkRPCWorker();
+//                    continue;
+//                }
+
                 //if is the parse process
                 $id = array_search($pid, $this->parse_processes);
                 if ($id) {
                     unset($this->parse_processes[$id]);
-                    //$this->forkParseWorker($id);
+                    $this->forkParseWorker($id);
                     continue;
                 }
 
@@ -1058,12 +1139,11 @@ class Worker implements Process
                 $id = array_search($pid, $this->dispatch_processes);
                 if ($id) {
                     unset($this->dispatch_processes[$id]);
-                   // $this->forkDispatchWorker($id);
+                    $this->forkDispatchWorker($id);
                     continue;
                 }
 
-                //if is the event process
-                //$this->forkEventWorker();
+
             }
         }
 

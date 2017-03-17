@@ -70,8 +70,9 @@ class RPC
      */
     public static function run()
     {
-        if (!Context::instance()->redis_zookeeper)
+        if (!Context::instance()->redis_zookeeper) {
             return;
+        }
         $name = self::RPC_LIST.":".Context::instance()->session_id;
         while (1) {
             $len = Context::instance()->redis_zookeeper->lLen($name);
