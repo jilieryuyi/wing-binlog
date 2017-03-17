@@ -25,11 +25,6 @@ function nodeRefresh(v, group_id, session_id)
             //console.log(msg);
             var data   = JSON.parse(msg);
 
-            if (data.enable == 1) {
-                $(v).find(".is-enable").html("启用");
-            } else {
-                $(v).find(".is-enable").html("禁用");
-            }
             if (data.is_leader == 1) {
                 $(v).find(".last-pos").html(data.last_binlog+" => "+data.last_pos);
                 $(v).find(".is-leader").html("是");
@@ -139,16 +134,8 @@ function appendNode(group_id, session_id, node)
         'data-group-id="'+group_id+'" '+
         'data-session-id="'+session_id+'" '+
         '>'+
+            '<div>'+
         '<span class="node-id" title="'+session_id+'"><label class="index">'+index+'</label>、'+session_id+'</span>'+
-        '<span class="is-enable">';
-
-    if (parseInt(node.enable) == 1) {
-        html += "启用";
-    } else {
-        html += "禁用";
-    }
-    html +=
-        '</span>'+
         '<span class="is-leader">';
     if (parseInt(node.is_leader) == 1) {
         last_read = node.last_binlog+" => "+node.last_pos;
@@ -168,7 +155,7 @@ function appendNode(group_id, session_id, node)
             '</span>'+
             '<span class="start-time">'+node.created+'</span>' +
             '<span class="time-len">'+node.time_len+'</span>' +
-
+            '</div><div>'+
             '<span class="edit">'+
             '<a class="bg-normal" style="margin-left: 0;" '+
             'data-group-id="'+group_id+'" '+
@@ -198,7 +185,7 @@ function appendNode(group_id, session_id, node)
             'data-session-id="'+session_id+'" '+
             'onclick="" >更新版本</a>'+
 
-            '</span>'+
+            '</span></div>'+
         '</li>';
 
     $(".group-"+group_id+ " ul").append(html);
@@ -226,14 +213,12 @@ function appendGroup(group_id, nodes)
 
 
     if (length > 0) {
-        html += '<li class="title">' +
+        html += '<li class="title" style="height: 25px;">' +
             '<span class="node-id">节点</span>' +
-            '<span class="is-enable">群组</span>' +
             '<span class="is-leader">leader</span>' +
             '<span class="last-pos">最后读取</span>' +
             '<span class="start-time">启动时间</span>' +
             '<span class="time-len">运行时长</span>' +
-            '<span class="group-edit edit">操作</span>' +
             '</li>';
     }
 

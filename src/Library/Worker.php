@@ -11,7 +11,7 @@ use Wing\FileSystem\WFile;
 
 class Worker implements Process
 {
-    protected $version         = "1.08";
+    protected static $version   = "1.13";
     protected $app_id           = "wing-binlog";
 
     protected $debug            = false;
@@ -83,7 +83,12 @@ class Worker implements Process
 
     public function getVersion()
     {
-        return $this->version;
+        return self::$version;
+    }
+
+    public static function version()
+    {
+        return self::$version;
     }
 
     /**
@@ -760,25 +765,19 @@ class Worker implements Process
                         //if the current node is not leader and group is enable
                         //we need to get the last pos and last binlog from leader
                         //then save it to local
-                        if (Context::instance()->zookeeper_config["enable"]) {
-                            $last_res = $zookeeper->getLastPost();
-                            if (is_array($last_res) && count($last_res) == 2) {
-                                if ($last_res[0] && $last_res[1])
-                                   $bin->setLastPosition($last_res[0], $last_res[1]);
-                            }
-                            $last_binlog = $zookeeper->getLastBinlog();
-                            if ($last_binlog) {
-                                $bin->setLastBinLog($last_binlog);
-                            }
+                        $last_res = $zookeeper->getLastPost();
+                        if (is_array($last_res) && count($last_res) == 2) {
+                            if ($last_res[0] && $last_res[1])
+                               $bin->setLastPosition($last_res[0], $last_res[1]);
+                        }
+                        $last_binlog = $zookeeper->getLastBinlog();
+                        if ($last_binlog) {
+                            $bin->setLastBinLog($last_binlog);
                         }
                         break;
                     }
 
-                    //just debug info
-                    if (Context::instance()->zookeeper_config["enable"])
-                        echo "启用群集，是leader\r\n";
-                    else
-                        echo "禁用群集，开始采集\r\n";
+                    echo "是leader\r\n";
 
                     //最后操作的binlog文件
                     $last_binlog         = $bin->getLastBinLog();
@@ -868,7 +867,7 @@ class Worker implements Process
                 echo $output;
             }
             unset($output);
-            usleep(100000);
+            usleep(10000);
         }
     }
 

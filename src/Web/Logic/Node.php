@@ -24,7 +24,6 @@ class Node
         $last_binlog       = Zookeeper::getGroupLastBinlog($group_id);
         $res               = Zookeeper::getGroupLastPost($group_id);
         $last_pos          = isset($res[1]) ? $res[1] : 0;
-        $is_enable         = Zookeeper::isEnable($group_id, $session_id);
         $is_leader         = Zookeeper::getLeader($group_id) == $session_id ? 1 : 0;
         $res               =  Zookeeper::getLastReport($group_id, $session_id);
         $last_report       = time() - $res["updated"];
@@ -32,7 +31,6 @@ class Node
         return [
             "created"      => date("Y-m-d H:i:s", $res["created"]),
             "time_len"     => timelen_format(time()-$res["created"]),
-            "enable"       => $is_enable,   //node is enable group
             "is_leader"    => $is_leader,   //node is leader
             "last_updated" => $last_report, //node last report timestamp
             "last_binlog"  => $last_binlog, //the last read  mysqlbinlog filename

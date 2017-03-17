@@ -184,17 +184,10 @@ class Context{
         if (isset($this->app_config["memory_limit"]) && $this->app_config["memory_limit"])
             $this->memory_limit = $this->app_config["memory_limit"];
 
-        $this->zookeeper_config = [
-            "enable"   => false,
-            "host"     => "127.0.0.1",
-            "port"     => 6379,
-            "password" => null
-        ];
+        $this->zookeeper_config = null;
         if (file_exists(__DIR__."/../../config/zookeeper.php"))
             $this->zookeeper_config = require __DIR__."/../../config/zookeeper.php";
 
-        if (!isset($this->zookeeper_config["enable"]))
-            $this->zookeeper_config["enable"] = false;
         return $this;
     }
 

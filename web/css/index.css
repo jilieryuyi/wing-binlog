@@ -6,8 +6,11 @@ div.item {
 }
 li {
     list-style: none;
-    border-bottom: #ccc solid 1px;
+    height: 51px;
+}
+li div {
     height: 25px;
+    border-bottom: #ccc solid 1px;
 }
 li span {
     display: inline-block;
@@ -91,4 +94,7 @@ span.edit a {
 }
 .bg-red {
     background: #f00;
+}
+li.node {
+    margin-top: 12px;
 }

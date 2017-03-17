@@ -366,8 +366,6 @@ class Master implements Process
                 }
                 foreach ($groups as $session_id => $row) {
                     //if group is not enable
-                    if (!Zookeeper::isEnable($group_id, $session_id))
-                        continue;
                     if (!$leader_id) {
                         //reset a new leader
                         echo "设置leader=>",$group_id,"=>",$session_id,"\r\n";
@@ -389,7 +387,6 @@ class Master implements Process
         var_dump($this->workers);
         //设置守护进程模式
         if ($this->deamon) {
-            echo "deamon enable\r\n";
             self::daemonize();
             $this->resetStd();
         }

@@ -50,11 +50,6 @@ class Zookeeper
         echo $this->session_id,"\r\n";
         echo Context::instance()->session_id,"\r\n";
 
-        //report current node is enable group or not
-        $key = self::SERVICE_KEY.":is:enable:". Context::instance()->zookeeper_config["group_id"].":".$this->session_id;
-        $this->redis->set($key,Context::instance()->zookeeper_config["enable"]?1:0);
-        $this->redis->expire($key,10);
-
         if (!$this->redis)
             return false;
         return $this->redis->hset(
@@ -62,7 +57,8 @@ class Zookeeper
             $this->session_id,
             json_encode([
                 "created" => $this->start_time,
-                "updated" => time()
+                "updated" => time(),
+                "version" => Worker::version()
             ])
         );
     }
@@ -72,17 +68,19 @@ class Zookeeper
      */
     public static function getLastReport($group_id, $session_id)
     {
+        if (!Context::instance()->redis_zookeeper)
+            return null;
         $json = Context::instance()->redis_zookeeper->hget(self::SERVICE_KEY.":services:".$group_id, $session_id);
         return json_decode($json, true);
     }
 
     /**
-     * if group is enable , set leader's last binlog to all group node
+     * set leader's last binlog to all group node
      */
     public function setLastBinlog($last_binlog)
     {
         //onle leader can report last pos
-        if (!$this->isLeader() || !Context::instance()->zookeeper_config["enable"])
+        if (!$this->isLeader() || !Context::instance()->zookeeper_config)
             return;
         $key = self::SERVICE_KEY.":last:binlog:". Context::instance()->zookeeper_config["group_id"];
         $this->redis->set($key, $last_binlog);
@@ -91,17 +89,19 @@ class Zookeeper
 
     public function getLastBinlog()
     {
+        if (!$this->redis)
+            return null;
         $key = self::SERVICE_KEY.":last:binlog:". Context::instance()->zookeeper_config["group_id"];
         return  $this->redis->get($key);
     }
 
     /**
-     * if group is enable , set leader's last pos to all group node
+     * set leader's last pos to all group node
      */
     public function setLastPost($start_pos, $end_pos)
     {
         //onle leader can report last pos
-        if (!$this->isLeader() || !Context::instance()->zookeeper_config["enable"])
+        if (!$this->isLeader() || !Context::instance()->zookeeper_config)
             return;
         $key = self::SERVICE_KEY.":last:pos:". Context::instance()->zookeeper_config["group_id"];
         $this->redis->set($key, $start_pos.":".$end_pos);
@@ -110,6 +110,8 @@ class Zookeeper
 
     public function getLastPost()
     {
+        if (!$this->redis)
+            return null;
         $key = self::SERVICE_KEY.":last:pos:". Context::instance()->zookeeper_config["group_id"];
         $res = $this->redis->get($key);
         return explode(":", $res);
@@ -130,19 +132,6 @@ class Zookeeper
         if (!Context::instance()->redis_zookeeper)
             return "";
         $key = self::SERVICE_KEY.":last:binlog:". $group_id;
-        return Context::instance()->redis_zookeeper->get($key);
-    }
-
-    /**
-     * is enable group
-     *
-     * @return bool if return true, it means that group is enable
-     */
-    public static function isEnable($group_id, $session_id)
-    {
-        if (!Context::instance()->redis_zookeeper)
-            return true;
-        $key = self::SERVICE_KEY.":is:enable:". $group_id.":".$session_id;
         return Context::instance()->redis_zookeeper->get($key);
     }
 
@@ -213,13 +202,8 @@ class Zookeeper
      */
     public function isLeader()
     {
-        //没有启用群集功能 不判断leader
-        if (!Context::instance()->zookeeper_config["enable"])
-            return true;
-
         if (!$this->redis)
             return true;
-
         $key = self::SERVICE_KEY.":leader:". Context::instance()->zookeeper_config["group_id"];
         return $this->redis->get($key) == $this->session_id;
     }

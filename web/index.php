@@ -15,7 +15,7 @@
 </div>
 </div>
 <ul class="groups">
-    <li class="title">
+    <li class="title" style="height: 25px;">
         <span class="group-id">群组</span>
         <span class="node-count">节点数</span>
         <span class="group-edit edit">操作</span>
