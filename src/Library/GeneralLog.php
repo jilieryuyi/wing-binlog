@@ -20,10 +20,25 @@ class GeneralLog
     }
     public function getLogPath()
     {
-        $sql = 'select @@general_log_file';
+        $sql  = 'select @@general_log_file';
+        $data = $this->pdo->row($sql);
+
+        if (!isset($data["@@general_log_file"]))
+            return null;
+
+        return $data["@@general_log_file"];
     }
     public function isOpen()
     {
         $sql = 'select @@general_log';
+        $data = $this->pdo->row($sql);
+
+        return isset($data["@@general_log"]) && $data["@@general_log"] == 1;
+    }
+
+    //查询事件解析
+    public function parse()
+    {
+
     }
 }
