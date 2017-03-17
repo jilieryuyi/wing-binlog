@@ -1,5 +1,6 @@
 <?php namespace Seals\Library;
 use Psr\Log\LoggerInterface;
+use Seals\Cache\File;
 
 /**
  * Created by PhpStorm.
@@ -83,10 +84,18 @@ class Context{
         $str2 = md5(rand(0,999999));
         $str3 = md5(rand(0,999999));
 
-        $this->session_id = time()."-".
-        substr($str1,rand(0,strlen($str1)-16),16).
-        substr($str2,rand(0,strlen($str2)-16),16).
-        substr($str3,rand(0,strlen($str3)-16),16);
+        $cache   = new File(__APP_DIR__);
+        $session = $cache->get("session");
+        if (!$session) {
+            $this->session_id = time() . "-" .
+                substr($str1, rand(0, strlen($str1) - 16), 16) .
+                substr($str2, rand(0, strlen($str2) - 16), 16) .
+                substr($str3, rand(0, strlen($str3) - 16), 16);
+            $cache->set("session", $this->session_id);
+        } else {
+            $this->session_id = $session;
+        }
+        unset($cache, $session, $str1, $str2, $str3);
 
         $this->init();
         $this->initRedisLocal();
