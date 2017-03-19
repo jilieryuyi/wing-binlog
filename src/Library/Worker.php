@@ -24,8 +24,6 @@ class Worker implements Process
     protected $parse_processes    = [];
     protected $dispatch_processes = [];
     protected $event_process      = 0;
-    protected static $is_deamon   = false;
-
 
     //队列名称
     const QUEUE_NAME = "seals:events:collector";
@@ -396,13 +394,8 @@ class Worker implements Process
      */
     public static function daemonize()
     {
-        if (self::$is_deamon)
-            return;
-
         if (!function_exists("pcntl_fork"))
             return;
-
-        self::$is_deamon = true;
 
         //修改掩码
         umask(0);
@@ -1003,14 +996,12 @@ class Worker implements Process
         echo "\r\n";
 
 
-        if (!self::$is_deamon) {
-            //stop
-            pcntl_signal(SIGINT, [$this, 'signalHandler'], false);
-            //reload
-            pcntl_signal(SIGUSR1, [$this, 'signalHandler'], false);
-            //ignore
-            pcntl_signal(SIGPIPE, SIG_IGN, false);
-        }
+        //stop
+        pcntl_signal(SIGINT, [$this, 'signalHandler'], false);
+        //restart
+        pcntl_signal(SIGUSR1, [$this, 'signalHandler'], false);
+        //ignore
+        pcntl_signal(SIGPIPE, SIG_IGN, false);
 
         //设置守护进程模式
         if ($this->deamon) {
