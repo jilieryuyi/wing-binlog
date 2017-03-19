@@ -18,7 +18,7 @@ class Worker implements Process
     protected $workers            = 1;
     protected $notify;
     protected $process_cache;
-    protected $deamon             = false;
+    protected $daemon             = false;
     protected static $server_pid  = __APP_DIR__."/server.pid";
     protected $processes          = [];
     protected $parse_processes    = [];
@@ -104,7 +104,7 @@ class Worker implements Process
      */
     public function enableDeamon()
     {
-        $this->deamon = true;
+        $this->daemon = true;
     }
 
     /**
@@ -112,7 +112,7 @@ class Worker implements Process
      */
     public function disableDeamon()
     {
-        $this->deamon = false;
+        $this->daemon = false;
     }
 
     /**
@@ -547,7 +547,7 @@ class Worker implements Process
         }
 
 
-        if ($this->deamon) {
+        if ($this->daemon) {
             $this->resetStd();
         }
 
@@ -732,7 +732,7 @@ class Worker implements Process
             return;
         }
 
-        if ($this->deamon) {
+        if ($this->daemon) {
             $this->resetStd();
         }
 
@@ -832,7 +832,7 @@ class Worker implements Process
             return;
         }
 
-        if ($this->deamon) {
+        if ($this->daemon) {
             $this->resetStd();
         }
 
@@ -1003,18 +1003,18 @@ class Worker implements Process
         //ignore
         pcntl_signal(SIGPIPE, SIG_IGN, false);
 
-        //设置守护进程模式
-        if ($this->deamon) {
+        //set daemon mode
+        if ($this->daemon) {
             self::daemonize();
         }
 
-        //启动元数据解析进程
+        //fork workers process
         for ($i = 1; $i <= $this->workers; $i++) {
             $this->forkParseWorker($i);
             $this->forkDispatchWorker($i);
         }
 
-        //尝试发送失败的事件
+        //try resend fail events
         $this->failureEventsSendRetry();
         $this->forkEventWorker();
 
