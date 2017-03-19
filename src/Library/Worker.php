@@ -1039,14 +1039,14 @@ class Worker implements Process
                 }
 
                 $id = array_search($pid, $this->parse_processes);
-                if ($id) {
+                if ($id !== false) {
                     unset($this->parse_processes[$id]);
                     $this->forkParseWorker($id);
                     continue;
                 }
 
                 $id = array_search($pid, $this->dispatch_processes);
-                if ($id) {
+                if ($id !== false) {
                     unset($this->dispatch_processes[$id]);
                     $this->forkDispatchWorker($id);
                     continue;
