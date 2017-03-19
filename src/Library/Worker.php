@@ -1034,7 +1034,7 @@ class Worker implements Process
             pcntl_signal_dispatch();
 
             $status = 0;
-            $pid    = pcntl_wait($status, WNOHANG);
+            $pid    = pcntl_wait($status, WUNTRACED);
 
             if ($pid > 0) {
 
@@ -1061,8 +1061,6 @@ class Worker implements Process
                     continue;
                 }
             }
-
-            usleep(500000);
         }
 
         echo "service shutdown\r\n";
