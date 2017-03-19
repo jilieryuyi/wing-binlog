@@ -4,11 +4,24 @@ use Seals\Cache\File;
 use Seals\Library\Worker;
 use Symfony\Component\Console\Command\Command;
 use Wing\FileSystem\WDir;
-use Wing\FileSystem\WFile;
+
+/**
+ * @author yuyi
+ * @email 297341015@qq.com
+ *
+ * worker console control
+ */
 
 class ServerBase extends Command
 {
 
+    const PROCESS_INFO = "seals.info";
+    /**
+     * clear binlog cache and logs
+     *
+     * @param string $log_dir
+     * @param string $binlog_cache_dir
+     */
     protected function clear($log_dir, $binlog_cache_dir)
     {
         if ($binlog_cache_dir) {
@@ -30,6 +43,11 @@ class ServerBase extends Command
         }
     }
 
+    /**
+     * get app configs
+     *
+     * @return array
+     */
     protected function getAppConfig()
     {
         $app_config = include __APP_DIR__."/config/app.php";
@@ -58,6 +76,14 @@ class ServerBase extends Command
         return $app_config;
     }
 
+    /**
+     * start process
+     *
+     * @param bool $deamon
+     * @param int $workers
+     * @param bool $debug
+     * @param bool $clear
+     */
     protected function start($deamon, $workers, $debug = false, $clear = false)
     {
 
@@ -65,7 +91,7 @@ class ServerBase extends Command
         $cache      = new File(__APP_DIR__);
         $worker     = new Worker($app_config["app_id"]);
 
-        $cache->set("seals.pid",[$deamon, $workers, $debug, $clear]);
+        $cache->set(self::PROCESS_INFO, [$deamon, $workers, $debug, $clear]);
 
         if ($clear) {
             $this->clear($app_config["log_dir"], $app_config["binlog_cache_dir"]);
@@ -177,26 +203,29 @@ class ServerBase extends Command
         $worker->start();
     }
 
+    /**
+     * stop process
+     */
     protected function stop()
     {
-        $worker     = new Worker();
-        $app_config = $this->getAppConfig();
-
-        $worker->setProcessCache(new \Seals\Cache\File($app_config["process_cache_dir"]));
-        $worker->stop();
+        Worker::stopAll();
     }
 
+    /**
+     * restart process
+     *
+     * @return bool
+     */
     protected function restart()
     {
-        $this->stop();
-
-        $cache = new File(__APP_DIR__);
-
-        list($deamon, $workers, $debug, $clear) = $cache->get("seals.pid");
-
-        $this->start($deamon, $workers, $debug, $clear);
+        return !!Worker::restart();
     }
 
+    /**
+     * get process running status
+     *
+     * @return string
+     */
     protected function status()
     {
         $worker     = new Worker();
@@ -206,13 +235,14 @@ class ServerBase extends Command
         return $worker->getStatus();
     }
 
+    /**
+     * get version
+     *
+     * @return string
+     */
     protected function version()
     {
-        $worker     = new Worker();
-        $app_config = $this->getAppConfig();
-
-        $worker->setProcessCache(new \Seals\Cache\File($app_config["process_cache_dir"]));
-        return $worker->getVersion();
+        return Worker::version();
     }
 
 

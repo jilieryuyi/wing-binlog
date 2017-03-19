@@ -11,7 +11,7 @@ use Wing\FileSystem\WFile;
 
 class Worker implements Process
 {
-    protected static $version     = "1.13";
+    const VERSION                 = "1.13";
     protected $app_id             = "wing-binlog";
     protected $debug              = false;
     protected $start_time         = 0;
@@ -81,14 +81,14 @@ class Worker implements Process
         $this->clear();
     }
 
-    public function getVersion()
+    public static function getVersion()
     {
-        return self::$version;
+        return self::VERSION;
     }
 
     public static function version()
     {
-        return self::$version;
+        return self::VERSION;
     }
 
     /**
@@ -420,8 +420,6 @@ class Worker implements Process
         if (-1 === posix_setsid()) {
             throw new \Exception("setsid fail");
         }
-
-
     }
 
     /**
@@ -532,11 +530,6 @@ class Worker implements Process
                         $this->process_cache->set("stop_".$pid, 1, 10);
                     }
                 }
-                break;
-            //show status
-            case SIGUSR2:
-                file_put_contents(__APP_DIR__."/testttt.log",time(),FILE_APPEND);
-                //update status;
                 break;
         }
     }
@@ -1010,14 +1003,11 @@ class Worker implements Process
         echo "\r\n";
 
 
-        if(!self::$is_deamon)
-        {
+        if (!self::$is_deamon) {
             //stop
             pcntl_signal(SIGINT, [$this, 'signalHandler'], false);
             //reload
             pcntl_signal(SIGUSR1, [$this, 'signalHandler'], false);
-            //status
-            pcntl_signal(SIGUSR2, [$this, 'signalHandler'], false);
             //ignore
             pcntl_signal(SIGPIPE, SIG_IGN, false);
         }
