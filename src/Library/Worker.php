@@ -11,27 +11,20 @@ use Wing\FileSystem\WFile;
 
 class Worker implements Process
 {
-    protected static $version   = "1.13";
-    protected $app_id           = "wing-binlog";
-
-    protected $debug            = false;
-    protected $start_time       = 0;
-    protected $workers          = 1;
+    protected static $version     = "1.13";
+    protected $app_id             = "wing-binlog";
+    protected $debug              = false;
+    protected $start_time         = 0;
+    protected $workers            = 1;
     protected $notify;
-
-    /**
-     * @var string 进程缓存
-     */
     protected $process_cache;
-
     protected $deamon             = false;
-    protected static $server_pid         = __APP_DIR__."/server.pid";
+    protected static $server_pid  = __APP_DIR__."/server.pid";
     protected $processes          = [];
     protected $parse_processes    = [];
     protected $dispatch_processes = [];
-    //protected $rpc_process        = 0;
     protected $event_process      = 0;
-    protected static $is_deamon          = false;
+    protected static $is_deamon   = false;
 
 
     //队列名称
@@ -186,7 +179,6 @@ class Worker implements Process
     {
         return self::QUEUE_NAME;
     }
-
 
     /**
      * @设置进程运行状态
@@ -1045,32 +1037,26 @@ class Worker implements Process
         $this->failureEventsSendRetry();
         $this->forkEventWorker();
 
-        echo "master ",self::getCurrentProcessId(),"\r\n";
-        var_dump($this->processes);
+        //write pid file
         file_put_contents(self::$server_pid, self::getCurrentProcessId());
+
         while (1) {
-            // Calls signal handlers for pending signals.
             pcntl_signal_dispatch();
-            // Suspends execution of the current process until a child has exited, or until a signal is delivered
+
             $status = 0;
             $pid    = pcntl_wait($status, WNOHANG);
-            // Calls signal handlers for pending signals again.
-            pcntl_signal_dispatch();
-            // If a child has already exited.
+
             if ($pid > 0) {
-                // Find out witch worker process exited.
+
                 Context::instance()->logger->notice($pid." process shutdown, try create a new process");
                 $id = array_search($pid, $this->processes);
                 unset($this->processes[$id]);
 
-
                 if ($pid == $this->event_process) {
-                    //if is the event process
                     $this->forkEventWorker();
                     continue;
                 }
 
-                //if is the parse process
                 $id = array_search($pid, $this->parse_processes);
                 if ($id) {
                     unset($this->parse_processes[$id]);
@@ -1078,18 +1064,13 @@ class Worker implements Process
                     continue;
                 }
 
-                //if is the dispatch process
                 $id = array_search($pid, $this->dispatch_processes);
                 if ($id) {
                     unset($this->dispatch_processes[$id]);
                     $this->forkDispatchWorker($id);
                     continue;
                 }
-
-
             }
-            //echo "master..\r\n";
-            pcntl_signal_dispatch();
 
             usleep(500000);
         }
