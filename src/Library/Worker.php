@@ -26,7 +26,7 @@ class Worker implements Process
 
     protected $deamon             = false;
     protected static $server_pid         = __APP_DIR__."/server.pid";
-    protected static $processes          = [];
+    protected $processes          = [];
     protected $parse_processes    = [];
     protected $dispatch_processes = [];
     //protected $rpc_process        = 0;
@@ -464,96 +464,114 @@ class Worker implements Process
     }
 
     /**
-     * 调度进程
-     * @param int $i
+     * try to resend fail events
      */
-    protected function dispatchProcess($i)
+    protected function failureEventsSendRetry()
     {
+        $failure_queue = new Queue(self::QUEUE_NAME.":failure:events", Context::instance()->redis_local);
+        $len = $failure_queue->length();
+        if ($len <= 0)
+            return;
+        echo "正在尝试重新发送失败的事件，请确保接收事件的服务可用...\r\n";
 
-        ini_set("memory_limit", Context::instance()->memory_limit);
-
-        $process_name = "php seals >> events collector - dispatch - ".$i;
-
-        //设置进程标题 mac 会有warning 直接忽略
-        $this->setProcessTitle($process_name);
-
-        //由于是多进程 redis和pdo等连接资源 需要重置
-        Context::instance()
-            ->initRedisLocal()
-            ->initPdo();
-
-
-        $bin = new \Seals\Library\BinLog(Context::instance()->activity_pdo);
-        $bin->setCacheDir(Context::instance()->binlog_cache_dir);
-        $bin->setDebug($this->debug);
-        $bin->setCacheHandler(new \Seals\Cache\File(__APP_DIR__));
-
-        $queue = new Queue(self::QUEUE_NAME. ":ep".$i, Context::instance()->redis_local);
-
-        while (1) {
-            clearstatcache();
-            ob_start();
-
-            try {
-                do {
-                    pcntl_signal_dispatch();
-                    $this->setStatus($process_name);
-                    $this->setIsRunning();
-
-                    $res = $queue->pop();
-                    if (!$res)
-                        break;
-
-                    echo "pos => ",$res,"\r\n";
-                    list($start_pos, $end_pos) = explode(":",$res);
-
-                    if (!$start_pos || !$end_pos)
-                        break;
-
-                    $cache_path = $bin->getSessions($start_pos, $end_pos);
-                    unset($end_pos,$start_pos);
-
-                    //进程调度 看看该把cache_file扔给那个进程处理
-                    $target_worker = $this->getWorker(self::QUEUE_NAME);
-                    echo "cache file => ",$cache_path,"\r\n";
-                    $success = $target_worker->push($cache_path);
-
-                    if (!$success) {
-                        Context::instance()->logger->error(" redis rPush error => ".$cache_path);
-                    }
-
-                    unset($target_worker,$cache_path);
-
-                    unset($cache_path);
-
-                } while (0);
-
-                $this->checkStopSignal();
-
-            } catch (\Exception $e) {
-                Context::instance()->logger->error($e->getMessage());
-                var_dump($e->getMessage());
-                unset($e);
+        for($i = 0; $i < $len; $i++) {
+            $event   = $failure_queue->peek();
+            $success = $this->notify->send($event);
+            if (!$success) {
+                echo "重新尝试失败\r\n";
+                Context::instance()->logger->error("failure events send fail", $event);
+            } else {
+                $failure_queue->pop();
             }
-
-            $output = ob_get_contents();
-            Context::instance()->logger->info($output);
-            ob_end_clean();
-
-            if ($output && $this->debug) {
-                echo $output;
-            }
-            unset($output);
-            usleep(10000);
         }
-
+        echo "失败事件重新发送完毕\r\n";
     }
+
+
+    /**
+     * rpc api for restart
+     *
+     * @return int 1 means success
+     */
+    public static function restart()
+    {
+        posix_kill(file_get_contents(self::$server_pid), SIGUSR1);
+        return 1;
+    }
+
+    /**
+     * rpc api for update system
+     *
+     * @return int 1 means success
+     */
+    public static function update()
+    {
+        $command = new Command("cd ".__APP_DIR__." && git pull origin master && composer update");
+        $command->run();
+        unset($command);
+        self::restart();
+        return 1;
+    }
+
+    /**
+     * signal handler
+     *
+     * @param int $signal
+     */
+    public function signalHandler($signal)
+    {
+        $server_id = file_get_contents(self::$server_pid);
+
+        switch ($signal) {
+            //stop all
+            case SIGINT:
+                if ($server_id == self::getCurrentProcessId()) {
+                    foreach ($this->processes as $id => $pid) {
+                        $this->process_cache->set("stop_".$pid, 1, 10);
+                    }
+                }
+                echo self::getCurrentProcessId()," exit\r\n";
+                exit(0);
+                break;
+            //restart
+            case SIGUSR1:
+                if ($server_id == self::getCurrentProcessId()) {
+                    foreach ($this->processes as $id => $pid) {
+                        $this->process_cache->set("stop_".$pid, 1, 10);
+                    }
+                }
+                break;
+            //show status
+            case SIGUSR2:
+                file_put_contents(__APP_DIR__."/testttt.log",time(),FILE_APPEND);
+                //update status;
+                break;
+        }
+    }
+
     /**
      * 解析进程
      * @param int $i
      */
-    protected function parseProcess($i)
+    protected function forkParseWorker($i)
     {
+        $process_id = pcntl_fork();
+
+        if ($process_id < 0) {
+            echo "fork a process fail\r\n";
+            exit;
+        }
+
+        if ($process_id > 0) {
+            $this->processes[]         = $process_id;
+            $this->parse_processes[$i] = $process_id;
+            return;
+        }
+
+
+        if ($this->deamon) {
+            $this->resetStd();
+        }
 
         echo "process queue dispatch ".$i." is running \r\n";
         ini_set("memory_limit", Context::instance()->memory_limit);
@@ -714,34 +732,131 @@ class Worker implements Process
             unset($output);
 
         }
-    }
 
-    protected function failureEventsSendRetry()
-    {
-        $failure_queue = new Queue(self::QUEUE_NAME.":failure:events", Context::instance()->redis_local);
-        $len = $failure_queue->length();
-        if ($len <= 0)
-            return;
-        echo "正在尝试重新发送失败的事件，请确保接收事件的服务可用...\r\n";
-
-        for($i = 0; $i < $len; $i++) {
-            $event   = $failure_queue->peek();
-            $success = $this->notify->send($event);
-            if (!$success) {
-                echo "重新尝试失败\r\n";
-                Context::instance()->logger->error("failure events send fail", $event);
-            } else {
-                $failure_queue->pop();
-            }
-        }
-        echo "失败事件重新发送完毕\r\n";
     }
 
     /**
-     * 事件分配进程
+     * 调度进程
+     * @param int $i
      */
-    protected function eventProcess()
+    protected function forkDispatchWorker($i)
     {
+        $process_id = pcntl_fork();
+
+        if ($process_id < 0) {
+            echo "fork a process fail\r\n";
+            exit;
+        }
+
+        if ($process_id > 0) {
+            $this->processes[]            = $process_id;
+            $this->dispatch_processes[$i] = $process_id;
+            return;
+        }
+
+        if ($this->deamon) {
+            $this->resetStd();
+        }
+
+        ini_set("memory_limit", Context::instance()->memory_limit);
+
+        $process_name = "php seals >> events collector - dispatch - ".$i;
+
+        //设置进程标题 mac 会有warning 直接忽略
+        $this->setProcessTitle($process_name);
+
+        //由于是多进程 redis和pdo等连接资源 需要重置
+        Context::instance()
+            ->initRedisLocal()
+            ->initPdo();
+
+
+        $bin = new \Seals\Library\BinLog(Context::instance()->activity_pdo);
+        $bin->setCacheDir(Context::instance()->binlog_cache_dir);
+        $bin->setDebug($this->debug);
+        $bin->setCacheHandler(new \Seals\Cache\File(__APP_DIR__));
+
+        $queue = new Queue(self::QUEUE_NAME. ":ep".$i, Context::instance()->redis_local);
+
+        while (1) {
+            clearstatcache();
+            ob_start();
+
+            try {
+                do {
+                    pcntl_signal_dispatch();
+                    $this->setStatus($process_name);
+                    $this->setIsRunning();
+
+                    $res = $queue->pop();
+                    if (!$res)
+                        break;
+
+                    echo "pos => ",$res,"\r\n";
+                    list($start_pos, $end_pos) = explode(":",$res);
+
+                    if (!$start_pos || !$end_pos)
+                        break;
+
+                    $cache_path = $bin->getSessions($start_pos, $end_pos);
+                    unset($end_pos,$start_pos);
+
+                    //进程调度 看看该把cache_file扔给那个进程处理
+                    $target_worker = $this->getWorker(self::QUEUE_NAME);
+                    echo "cache file => ",$cache_path,"\r\n";
+                    $success = $target_worker->push($cache_path);
+
+                    if (!$success) {
+                        Context::instance()->logger->error(" redis rPush error => ".$cache_path);
+                    }
+
+                    unset($target_worker,$cache_path);
+
+                    unset($cache_path);
+
+                } while (0);
+
+                $this->checkStopSignal();
+
+            } catch (\Exception $e) {
+                Context::instance()->logger->error($e->getMessage());
+                var_dump($e->getMessage());
+                unset($e);
+            }
+
+            $output = ob_get_contents();
+            Context::instance()->logger->info($output);
+            ob_end_clean();
+
+            if ($output && $this->debug) {
+                echo $output;
+            }
+            unset($output);
+            usleep(10000);
+        }
+    }
+
+    /**
+     * 基础事件采集进程
+     */
+    protected function forkEventWorker()
+    {
+        $process_id = pcntl_fork();
+
+        if ($process_id < 0) {
+            echo "fork a process fail\r\n";
+            exit;
+        }
+
+        if ($process_id > 0) {
+            $this->processes[]   = $process_id;
+            $this->event_process = $process_id;
+            return;
+        }
+
+        if ($this->deamon) {
+            $this->resetStd();
+        }
 
         ini_set("memory_limit", Context::instance()->memory_limit);
         $process_name = "php seals >> events collector - ep";
@@ -777,14 +892,14 @@ class Worker implements Process
                     RPC::run();
 
                     if (!$zookeeper->isLeader()) {
-                       // echo "不是leader，不进行采集操作\r\n";
+                        // echo "不是leader，不进行采集操作\r\n";
                         //if the current node is not leader and group is enable
                         //we need to get the last pos and last binlog from leader
                         //then save it to local
                         $last_res = $zookeeper->getLastPost();
                         if (is_array($last_res) && count($last_res) == 2) {
                             if ($last_res[0] && $last_res[1])
-                               $bin->setLastPosition($last_res[0], $last_res[1]);
+                                $bin->setLastPosition($last_res[0], $last_res[1]);
                         }
                         $last_binlog = $zookeeper->getLastBinlog();
                         if ($last_binlog) {
@@ -793,7 +908,7 @@ class Worker implements Process
                         break;
                     }
 
-                   // echo "是leader\r\n";
+                    // echo "是leader\r\n";
 
                     //最后操作的binlog文件
                     $last_binlog         = $bin->getLastBinLog();
@@ -885,199 +1000,8 @@ class Worker implements Process
             unset($output);
             usleep(10000);
         }
-    }
-
-    /**
-     * rpc api
-     */
-    public static function restart()
-    {
-        file_put_contents(__APP_DIR__."/restart1.log",file_get_contents(self::$server_pid)."=>".time());
-        posix_kill(file_get_contents(self::$server_pid),SIGUSR1);
-    }
-
-    /**
-     * rpc api
-     */
-    public static function update()
-    {
-        $command = new Command("cd ".__APP_DIR__." && git pull origin master && composer update");
-        $command->run();
-        unset($command);
-        self::restart();
-        return 1;
-    }
-
-
-    public function signalHandler($signal)
-    {
-        $server_id = file_get_contents(self::$server_pid);
-
-        switch ($signal) {
-            // Stop.
-            case SIGINT:
-                echo "stop all\r\n";
-
-
-                if ($server_id == self::getCurrentProcessId()) {
-                    var_dump(self::$processes);
-                    foreach (self::$processes as $id => $pid) {
-                        posix_kill($pid, SIGINT);
-                    }
-                    $start = time();
-                    while (1) {
-                        $pid = pcntl_waitpid(-1, $status, WNOHANG);
-                        if ($pid > 0) {
-                            $id = array_search($pid, self::$processes);
-                            unset(self::$processes[$id]);
-
-                            if (count(self::$processes) <= 0)
-                                break;
-                        }
-                        if (time() - $start > 3) {
-                            echo "kill timeout\r\n";
-                            break;
-                        }
-                    }
-
-                    if (count(self::$processes) > 0) {
-                        foreach (self::$processes as $pid){
-                            echo "do kill process ",$pid,"\r\n";
-                            system("kill ".$pid);
-                        }
-                    }
-                }
-                echo self::getCurrentProcessId()," exit\r\n";
-                exit(0);
-                break;
-            // Reload.
-            case SIGUSR1:
-
-                file_put_contents(__APP_DIR__."/restart.log",self::getCurrentProcessId()."=>".time());
-                //system("cd " . __APP_DIR__ . " && php seals server:restart");
-
-                if ($server_id == self::getCurrentProcessId()) {
-                    var_dump(self::$processes);
-                    foreach (self::$processes as $id => $pid) {
-                        $this->process_cache->set("stop_".$pid, 1, 10);
-                        //posix_kill($pid, SIGINT);
-                    }
-                    //self::$processes= [];
-                }
-                    /*$start = time();
-                    while (1) {
-                        $pid = pcntl_waitpid(-1, $status, WNOHANG);
-                        if ($pid > 0) {
-                            $id = array_search($pid, self::$processes);
-                            unset(self::$processes[$id]);
-
-                            if (count(self::$processes) <= 0)
-                                break;
-                        }
-                        if (time() - $start > 3) {
-                            echo "kill timeout\r\n";
-                            break;
-                        }
-                    }
-
-                    if (count(self::$processes) > 0) {
-                        foreach (self::$processes as $pid){
-                            echo "do kill process ",$pid,"\r\n";
-                            system("kill -9 ".$pid);
-                        }
-                    }
-                    self::$processes = [];
-                }
-
-                for ($i = 1; $i <= $this->workers; $i++) {
-                    $this->forkParseWorker($i);
-                    $this->forkDispatchWorker($i);
-                }
-
-                //尝试发送失败的事件
-                $this->failureEventsSendRetry();
-
-                //$this->forkRPCWorker();
-                $this->forkEventWorker();
-
-                echo "new processes\r\n";
-                var_dump(self::$processes);
-                pcntl_signal_dispatch();*/
-
-                //exit(0);
-                break;
-            // Show status.
-            case SIGUSR2:
-                file_put_contents(__APP_DIR__."/testttt.log",time(),FILE_APPEND);
-                //update status;
-                break;
-        }
-    }
-
-    protected function forkParseWorker($i)
-    {
-        $process_id = pcntl_fork();
-        if ($process_id == 0) {
-            if ($this->deamon) {
-                $this->resetStd();
-            }
-            $this->parseProcess($i);
-        } else {
-            echo "parse ",$process_id,"\r\n";
-            self::$processes[] = $process_id;
-            $this->parse_processes[$i] = $process_id;
-        }
-    }
-
-    protected function forkDispatchWorker($i)
-    {
-        $process_id = pcntl_fork();
-        if ($process_id == 0) {
-            //调度进程
-            if ($this->deamon) {
-                $this->resetStd();
-            }
-            $this->dispatchProcess($i);
-        } else {
-            echo "dispatch ",$process_id,"\r\n";
-
-            self::$processes[] = $process_id;
-            $this->dispatch_processes[$i] = $process_id;
-        }
-    }
-
-    protected function forkEventWorker()
-    {
-        $process_id = pcntl_fork();
-        if ($process_id == 0) {
-            if ($this->deamon) {
-                $this->resetStd();
-            }
-            //基础事件采集进程
-            $this->eventProcess();
-        } else {
-            echo "event ",$process_id,"\r\n";
-            self::$processes[] = $process_id;
-            $this->event_process = $process_id;
-        }
 
     }
-
-//    protected function forkRPCWorker()
-//    {
-//        $process_id = pcntl_fork();
-//        if ($process_id == 0) {
-//            if ($this->deamon) {
-//                $this->resetStd();
-//            }
-//            //基础事件采集进程
-//            RPC::run();
-//        } else {
-//            echo "rpc ",$process_id,"\r\n";
-//            self::$processes[] = $process_id;
-//            $this->rpc_process = $process_id;
-//        }
-//    }
 
     /**
      * @启动进程 入口函数
@@ -1096,7 +1020,6 @@ class Worker implements Process
 
         if(!self::$is_deamon)
         {
-            file_put_contents(__APP_DIR__."/signal.log",time()."\r\n",FILE_APPEND);
             //stop
             pcntl_signal(SIGINT, [$this, 'signalHandler'], false);
             //reload
@@ -1120,12 +1043,10 @@ class Worker implements Process
 
         //尝试发送失败的事件
         $this->failureEventsSendRetry();
-
-        //$this->forkRPCWorker();
         $this->forkEventWorker();
 
         echo "master ",self::getCurrentProcessId(),"\r\n";
-        var_dump(self::$processes);
+        var_dump($this->processes);
         file_put_contents(self::$server_pid, self::getCurrentProcessId());
         while (1) {
             // Calls signal handlers for pending signals.
@@ -1139,8 +1060,8 @@ class Worker implements Process
             if ($pid > 0) {
                 // Find out witch worker process exited.
                 Context::instance()->logger->notice($pid." process shutdown, try create a new process");
-                $id = array_search($pid, self::$processes);
-                unset(self::$processes[$id]);
+                $id = array_search($pid, $this->processes);
+                unset($this->processes[$id]);
 
 
                 if ($pid == $this->event_process) {
@@ -1167,7 +1088,7 @@ class Worker implements Process
 
 
             }
-            echo "master..\r\n";
+            //echo "master..\r\n";
             pcntl_signal_dispatch();
 
             usleep(500000);
