@@ -37,15 +37,11 @@ function nodeRefresh(v, group_id, session_id)
             $(v).find(".set-offline").attr("data-is_offline", data.is_offline);
 
 
-            if (parseInt(data.is_offline) != 1) {
-                $(".online-status img").attr("src", "img/online.png").attr("title", "在线");
-            } else {
-                $(".online-status img").attr("src", "img/offline.png").attr("title", "已下线");
-            }
-
             if (parseInt(data.is_offline) == 1) {
+                $(".online-status img").attr("src", "img/offline.png").attr("title", "已下线");
                 $(v).find(".set-offline").html("上线");
             } else {
+                $(".online-status img").attr("src", "img/online.png").attr("title", "在线");
                 $(v).find(".set-offline").html("下线");
             }
 
