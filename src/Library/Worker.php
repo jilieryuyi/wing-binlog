@@ -31,6 +31,7 @@ class Worker implements Process
 
     //队列名称
     const QUEUE_NAME = "seals:events:collector";
+    const RUNTIME    = "seals.info";
 
     /**
      * @构造函数
@@ -537,7 +538,7 @@ class Worker implements Process
                 }
 
                 $cache = new File(__APP_DIR__);
-                list($deamon, $workers, $debug, $clear) = $cache->get("seals.info");
+                list($deamon, $workers, $debug, $clear) = $cache->get(self::RUNTIME);
 
                 $command = "php ".__APP_DIR__."/seals server:start --n ".$workers;
                 if ($deamon)
@@ -889,6 +890,10 @@ class Worker implements Process
 
         $zookeeper = new Zookeeper(Context::instance()->redis_zookeeper);
 
+        $cache = new File(__APP_DIR__);
+        list(, $workers, $debug, ) = $cache->get(self::RUNTIME);
+
+
         $limit = 10000;
         while (1) {
             clearstatcache();
@@ -900,7 +905,15 @@ class Worker implements Process
                     $this->setStatus($process_name);
                     $this->setIsRunning();
                     //服务发现
-                    $zookeeper->serviceReport(self::$is_offline);
+                    $zookeeper->serviceReport([
+                        "is_offline"   => self::$is_offline,
+                        "version"      => self::VERSION,
+                        "workers"      => $workers,
+                        "debug"        => $debug ? 1 : 0,
+                        "notify"       => Context::instance()->notify_config,
+                        "redis_local"  => Context::instance()->redis_local_config,
+                        "redis_config" => Context::instance()->redis_config
+                    ]);
                     RPC::run();
 
                     if (!$zookeeper->isLeader()) {

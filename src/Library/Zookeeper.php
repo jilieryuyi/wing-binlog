@@ -45,22 +45,21 @@ class Zookeeper
     /**
      * service report
      */
-    public function serviceReport($is_offline)
+    public function serviceReport(array $data)
     {
        // echo $this->session_id,"\r\n";
       //  echo Context::instance()->session_id,"\r\n";
 
         if (!$this->redis)
             return false;
+
+        $data["created"] = $this->start_time;
+        $data["updated"] = time();
+
         return $this->redis->hset(
             self::SERVICE_KEY.":services:". Context::instance()->zookeeper_config["group_id"],
             $this->session_id,
-            json_encode([
-                "created" => $this->start_time,
-                "updated" => time(),
-                "version" => Worker::version(),
-                "is_offline" => $is_offline?1:0
-            ])
+            json_encode($data)
         );
     }
 

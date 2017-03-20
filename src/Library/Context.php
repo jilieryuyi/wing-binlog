@@ -21,6 +21,7 @@ class Context{
      * @var RedisInterface
      */
     public $redis_local = null;
+    public $redis_local_config = [];
     public $redis_zookeeper = null;
 
     /**
@@ -43,9 +44,11 @@ class Context{
 
     private $app_config     = [];
     private $db_config      = [];
+    //事件队列redis
     public $redis_config    = [];
     public $rabbitmq_config = [];
     public $zookeeper_config= [];
+    public $notify_config   = [];
 
     public $logger;
     public $memory_limit = "10240M";
@@ -108,13 +111,13 @@ class Context{
      */
     public function initRedisLocal()
     {
-        $this->redis_local  = null;
-        $redis_config       = require __DIR__."/../../config/redis_local.php";
+        $this->redis_local        = null;
+        $this->redis_local_config = require __DIR__."/../../config/redis_local.php";
 
         $this->redis_local  = new Redis(
-            $redis_config["host"],
-            $redis_config["port"],
-            $redis_config["password"]
+            $this->redis_local_config["host"],
+            $this->redis_local_config["port"],
+            $this->redis_local_config["password"]
         );
         return $this;
     }
@@ -196,6 +199,10 @@ class Context{
         $this->zookeeper_config = null;
         if (file_exists(__DIR__."/../../config/zookeeper.php"))
             $this->zookeeper_config = require __DIR__."/../../config/zookeeper.php";
+
+        if (file_exists(__DIR__."/../../config/notify.php")) {
+            $this->notify_config = require __DIR__."/../../config/notify.php";
+        }
 
         return $this;
     }

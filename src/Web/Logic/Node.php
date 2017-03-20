@@ -28,16 +28,18 @@ class Node
         $res               =  Zookeeper::getLastReport($group_id, $session_id);
         $last_report       = time() - $res["updated"];
 
-        return [
-            "version"      => $res["version"],
+        return array_merge($res, [
+            //"workers"      => $res["workers"],
+            //"debug"        => $res["debug"],
+            //"version"      => $res["version"],
             "created"      => date("Y-m-d H:i:s", $res["created"]),
             "time_len"     => timelen_format(time()-$res["created"]),
             "is_leader"    => $is_leader,           //node is leader
             "last_updated" => $last_report,         //node last report timestamp
             "last_binlog"  => $last_binlog,         //the last read  mysqlbinlog filename
             "last_pos"     => $last_pos,            //the last reas postion from the last mysqlbinlog
-            "is_offline"   => $res["is_offline"],   //is the node is offline, only from runtime
-        ];
+            //"is_offline"   => $res["is_offline"],   //is the node is offline, only from runtime
+        ]);
     }
 
     public static function restart(HttpResponse $response)
