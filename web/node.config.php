@@ -15,7 +15,11 @@ var_dump($node_info);
     <link type="text/css" rel="stylesheet" href="css/config.css">
     <link type="text/css" rel="stylesheet" href="css/all.css">
     <script src="js/jquery-3.1.1.min.js"></script>
-    <script src="js/index.js"></script>
+    <script>
+        var group_id   = "<?php echo $_GET["group_id"]; ?>";
+        var session_id = "<?php echo $_GET["session_id"]; ?>";
+    </script>
+    <script src="js/config.js"></script>
 </head>
 <body>
 <div class="title">
@@ -33,9 +37,9 @@ var_dump($node_info);
 <div>
     <div class="c-item">
         <div class="t">工作进程</div>
-        <div>进程数量<input type="text" value="<?php echo $node_info["workers"]; ?>"/></div>
-        <div><label>开启debug<input type="checkbox" <?php if($node_info["debug"]) echo "checked";?>/></label></div>
-        <div><span class="button button-small button-local">更新配置</span></div>
+        <div>进程数量<input class="workers" type="text" value="<?php echo $node_info["workers"]; ?>"/></div>
+        <div><label>开启debug<input class="debug" type="checkbox" <?php if($node_info["debug"]) echo "checked";?>/></label></div>
+        <div><span class="button button-small button-local" onclick="setRuntimeConfig(this)">更新配置</span></div>
     </div>
     <div class="c-item">
         <div class="t">事件通知</div>
