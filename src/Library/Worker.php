@@ -522,25 +522,21 @@ class Worker implements Process
             case SIGINT:
                 if ($server_id == self::getCurrentProcessId()) {
                     foreach ($this->processes as $id => $pid) {
-                        $this->process_cache->set("stop_".$pid, 1, 10);
+                        posix_kill($pid, SIGINT);
                     }
                 }
-                echo self::getCurrentProcessId()," exit\r\n";
                 exit(0);
                 break;
             //restart
             case SIGUSR1:
                 if ($server_id == self::getCurrentProcessId()) {
                     foreach ($this->processes as $id => $pid) {
-                        $this->process_cache->set("stop_".$pid, 1, 10);
+                        posix_kill($pid,SIGINT);
                     }
                 }
 
                 $cache = new File(__APP_DIR__);
-
-
                 list($deamon, $workers, $debug, $clear) = $cache->get("seals.info");
-
 
                 $command = "php ".__APP_DIR__."/seals server:start --n ".$workers;
                 if ($deamon)
@@ -550,9 +546,15 @@ class Worker implements Process
                 if ($clear)
                     $command .= ' --clear';
 
-                exec($command);
+                $shell = "#!/bin/bash\r\n".$command;
+                file_put_contents(__APP_DIR__."/restart.sh", $shell);
+                $handle = popen("/bin/sh ".__APP_DIR__."/restart.sh >>/tmp/seals_restart.log&","r");
 
-                exit;
+                if ($handle) {
+                    pclose($handle);
+                }
+
+                exit(0);
                 break;
         }
     }
