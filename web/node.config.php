@@ -1,4 +1,8 @@
 <?php
+if (!isset($_GET["group_id"]) || !isset($_GET["session_id"])) {
+    echo "params error";
+    exit;
+}
 $group_id   = $_GET["group_id"];
 $session_id = $_GET["session_id"];
 
