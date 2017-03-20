@@ -67,4 +67,23 @@ class Node
         return RPC::call($session_id, "\\Seals\\Library\\Worker::setNodeOffline", [$is_offline]);
     }
 
+    /**
+     * set runtime config, include workers num and debug open or close
+     */
+    public static function setRuntimeConfig(HttpResponse $response)
+    {
+        $group_id   = $response->post("group_id");
+        $session_id = $response->post("session_id");
+
+        $workers    = $response->post("workers");
+        if (intval($workers) <= 0) {
+            $workers = 1;
+        }
+
+        $debug      = $response->post("debug");
+        $debug      = intval($debug) == 1 ? 1 : 0;
+
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::setRuntimeConfig", [$workers, $debug]);
+
+    }
 }

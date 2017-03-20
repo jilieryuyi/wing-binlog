@@ -43,7 +43,7 @@ class Context{
 
 
     private $app_config     = [];
-    private $db_config      = [];
+    public $db_config      = [];
     //事件队列redis
     public $redis_config    = [];
     public $rabbitmq_config = [];

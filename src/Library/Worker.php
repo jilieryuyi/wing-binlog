@@ -510,6 +510,22 @@ class Worker implements Process
         return 1;
     }
 
+    public static function setRuntimeConfig($_workers, $_debug = false)
+    {
+        $cache = new File(__APP_DIR__);
+        list($deamon, $workers, $debug, $clear) = $cache->get(self::RUNTIME);
+
+        $_workers = intval($_workers) > 0 ? $_workers : $workers;
+
+        $cache->set(self::RUNTIME,[
+            $deamon, $_workers, !!$_debug, $clear
+        ]);
+        unset($cache);
+        //after update, restart node
+        self::restart();
+        return 1;
+    }
+
     /**
      * signal handler
      *
@@ -904,6 +920,19 @@ class Worker implements Process
                     pcntl_signal_dispatch();
                     $this->setStatus($process_name);
                     $this->setIsRunning();
+
+                    $redis_local = Context::instance()->redis_local_config;
+                    unset($redis_local["password"]);
+
+                    $redis_config = Context::instance()->redis_config;
+                    unset($redis_config["password"]);
+
+                    $zookeeper_config = Context::instance()->zookeeper_config;
+                    unset($zookeeper_config["password"]);
+
+                    $db_config = Context::instance()->db_config;
+                    unset($db_config["password"]);
+
                     //服务发现
                     $zookeeper->serviceReport([
                         "is_offline"   => self::$is_offline,
@@ -911,9 +940,13 @@ class Worker implements Process
                         "workers"      => $workers,
                         "debug"        => $debug ? 1 : 0,
                         "notify"       => Context::instance()->notify_config,
-                        "redis_local"  => Context::instance()->redis_local_config,
-                        "redis_config" => Context::instance()->redis_config
+                        "redis_local"  => $redis_local,
+                        "redis_config" => $redis_config,
+                        "zookeeper"    => $zookeeper_config,
+                        "db_config"    => $db_config
                     ]);
+                    unset($redis_local, $redis_config, $zookeeper_config, $db_config);
+
                     RPC::run();
 
                     if (!$zookeeper->isLeader()) {

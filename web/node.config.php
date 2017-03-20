@@ -26,6 +26,7 @@ var_dump($node_info);
 </div>
 <div class="warn-info">
     <div>注意：</div>
+    <div class="c-red">已去除所有的敏感密码信息，密码字段均未返回和填充，如需更新，请正确填写，否则忽略密码字段</div>
     <div class="c-red">节点下线之后将停止一切采集业务，也不会被分配为leader，可以随时恢复上线</div>
     <div class="c-red">持久化配置与运行时配置的区别在于，持久化配置在节点重启之后依然有效，而运行时配置则会失效，即仅在运行当时生效</div>
 </div>
@@ -64,7 +65,9 @@ var_dump($node_info);
         <div>节点本地redis配置</div>
         <div><span>ip</span><input type="text" value="<?php echo $node_info["redis_local"]["host"]; ?>" /></div>
         <div><span>端口</span><input type="text" value="<?php echo $node_info["redis_local"]["port"]; ?>"/></div>
-        <div><span>密码</span><input type="text" value="******"/><span class="c-red" style="font-size: 12px;">如果为空和null（使用 :null表示NULL），即无密码</span></div>
+        <div><span>密码</span><input type="text" value=""/>
+            <span class="c-red" style="font-size: 12px;">如果为空，则忽略密码字段，即不会更新密码字段</span>
+        </div>
         <div><label>持久化<input type="checkbox"/></label></div>
         <div><span class="button button-small button-local">更新配置</span></div>
     </div>
@@ -73,28 +76,32 @@ var_dump($node_info);
         <div>事件队列redis配置</div>
         <div><span>ip</span><input type="text" value="<?php echo $node_info["redis_config"]["host"]; ?>"/></div>
         <div><span>端口</span><input type="text" value="<?php echo $node_info["redis_config"]["port"]; ?>"/></div>
-        <div><span>密码</span><input type="text" value="******"/></div>
+        <div><span>密码</span><input type="text" value=""/>
+            <span class="c-red" style="font-size: 12px;">如果为空，则忽略密码字段，即不会更新密码字段</span>
+        </div>
         <div><label>持久化<input type="checkbox"/></label></div>
         <div><span class="button button-small button-local">更新配置</span></div>
     </div>
 
     <div class="c-item">
         <div>群集配置</div>
-        <div><span>组id</span><input type="text"/></div>
-        <div><span>ip</span><input type="text"/></div>
-        <div><span>端口</span><input type="text"/></div>
-        <div><span>密码</span><input type="text"/></div>
+        <div><span>组id</span><input type="text" value="<?php echo $node_info["zookeeper"]["group_id"]; ?>"/></div>
+        <div><span>ip</span><input type="text" value="<?php echo $node_info["zookeeper"]["host"]; ?>"/></div>
+        <div><span>端口</span><input type="text" value="<?php echo $node_info["zookeeper"]["port"]; ?>"/></div>
+        <div><span>密码</span><input type="text" value=""/>
+            <span class="c-red" style="font-size: 12px;">如果为空，则忽略密码字段，即不会更新密码字段</span>
+        </div>
         <div><label>持久化<input type="checkbox"/></label></div>
         <div><span class="button button-small button-local">更新配置</span></div>
     </div>
 
     <div class="c-item">
         <div>数据库配置</div>
-        <div><span>ip</span><input type="text"/></div>
-        <div><span>端口</span><input type="text"/></div>
-        <div><span>用户</span><input type="text"/></div>
-        <div><span>密码</span><input type="text"/></div>
-        <div><span>数据库</span><input type="text"/></div>
+        <div><span>ip</span><input type="text" value="<?php echo $node_info["db_config"]["host"]; ?>"/></div>
+        <div><span>端口</span><input type="text" value="<?php echo $node_info["db_config"]["port"]; ?>"/></div>
+        <div><span>用户</span><input type="text" value="<?php echo $node_info["db_config"]["user"]; ?>"/></div>
+        <div><span>密码</span><input type="text" value=""/></div>
+        <div><span>数据库</span><input type="text"  value="<?php echo $node_info["db_config"]["db_name"]; ?>"/></div>
         <div><label>持久化<input type="checkbox"/></label></div>
         <div><span class="button button-small button-local">更新配置</span></div>
     </div>

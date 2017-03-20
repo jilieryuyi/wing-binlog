@@ -20,6 +20,7 @@ class Route
             "/service/node/restart" => "\\Seals\\Web\\Logic\\Node::restart",
             "/service/node/update"  => "\\Seals\\Web\\Logic\\Node::update",
             "/service/node/offline" => "\\Seals\\Web\\Logic\\Node::offline",
+            "/service/node/runtime/config/save" => "\\Seals\\Web\\Logic\\Node::setRuntimeConfig",
         ]
     ];
 
