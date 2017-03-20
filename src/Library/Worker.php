@@ -522,6 +522,10 @@ class Worker implements Process
         $cache = new File(__APP_DIR__);
         list($deamon, $workers, $debug, $clear) = $cache->get(self::RUNTIME);
 
+        //if config not change
+        if ($workers == $_workers && !!$debug == !!$_debug )
+            return 1;
+
         $_workers = intval($_workers) > 0 ? $_workers : $workers;
 
         $cache->set(self::RUNTIME,[
