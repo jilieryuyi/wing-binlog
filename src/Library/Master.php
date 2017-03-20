@@ -354,7 +354,7 @@ class Master implements Process
             foreach ($services as $group_id => $groups) {
                 //get current group leader
                 $leader_id = Zookeeper::getLeader($group_id);
-                if ($leader_id ) {
+                if ($leader_id) {
                     //if leader does not exists
                     $last_updated = time() - $groups[$leader_id]["updated"];
                     //if not in the group or timeout, delete it from group
@@ -363,8 +363,22 @@ class Master implements Process
                         Zookeeper::delSessionId($group_id, $leader_id);
                         $leader_id = null;
                     }
+
+                    //if leader is offline
+                    $status = Zookeeper::getLastReport($group_id, $leader_id);
+                    if ($status["is_offline"]) {
+                        Zookeeper::delLeader($group_id);
+                        $leader_id = null;
+                    }
+
                 }
                 foreach ($groups as $session_id => $row) {
+
+                    //if node is offline
+                    $status = Zookeeper::getLastReport($group_id, $session_id);
+                    if ($status["is_offline"]) {
+                        continue;
+                    }
                     //if group is not enable
                     if (!$leader_id) {
                         //reset a new leader
