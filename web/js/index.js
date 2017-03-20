@@ -36,6 +36,13 @@ function nodeRefresh(v, group_id, session_id)
             $(v).find(".time-len").html(data.time_len);
             $(v).find(".set-offline").attr("data-is_offline", data.is_offline);
 
+
+            if (parseInt(data.is_offline) != 1) {
+                $(".online-status img").attr("src", "img/online.png").attr("title", "在线");
+            } else {
+                $(".online-status img").attr("src", "img/offline.png").attr("title", "已下线");
+            }
+
             if (parseInt(data.is_offline) == 1) {
                 $(v).find(".set-offline").html("上线");
             } else {
@@ -105,7 +112,6 @@ function nodeOffline(dom)
     });
 }
 
-
 /**
  * get all services
  *
@@ -152,7 +158,15 @@ function appendNode(group_id, session_id, node)
         'data-session-id="'+session_id+'" '+
         '>'+
             '<div>'+
-        '<span class="node-id" title="'+session_id+'"><label class="index">'+index+'</label>、'+session_id+'</span>'+
+        '<span class="node-id" title="'+session_id+'">' +
+        '<label class="index">'+index+'</label>、'+session_id+'</span>'+
+            '<span class="online-status">';
+    if (parseInt(node.is_offline) == 1) {
+        html += '<img title="在线" src="img/online.png"/>';
+    } else {
+        html += '<img title="已下线" src="img/offline.png"/>';
+    }
+        html +='</span>'+
         '<span class="is-leader">';
     if (parseInt(node.is_leader) == 1) {
         last_read = node.last_binlog+" => "+node.last_pos;
@@ -237,6 +251,7 @@ function appendGroup(group_id, nodes)
     if (length > 0) {
         html += '<li class="title" style="height: 25px;">' +
             '<span class="node-id">节点</span>' +
+            '<span class="online-status">状态</span>'+
             '<span class="is-leader">leader</span>' +
             '<span class="last-pos">最后读取</span>' +
             '<span class="version">版本号</span>' +
