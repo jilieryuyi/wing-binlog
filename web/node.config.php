@@ -15,7 +15,7 @@ var_dump($node_info);
     <meta charset="UTF-8">
     <title>wing-binlog</title>
     <link type="text/css" rel="stylesheet" href="css/public.css">
-    <link type="text/css" rel="stylesheet" href="css/button.css">
+    <link type="text/css" rel="stylesheet" href="css/buttons.css">
     <link type="text/css" rel="stylesheet" href="css/config.css">
     <link type="text/css" rel="stylesheet" href="css/all.css">
     <script src="js/jquery-3.1.1.min.js"></script>
