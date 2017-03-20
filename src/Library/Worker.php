@@ -27,6 +27,7 @@ class Worker implements Process
     protected $event_process      = 0;
     //current is offline, default is false
     protected static  $is_offline    = false;
+    const USLEEP = 100000;
 
     //队列名称
     const QUEUE_NAME = "seals:events:collector";
@@ -734,7 +735,7 @@ class Worker implements Process
             $output = ob_get_contents();
             Context::instance()->logger->info($output);
             ob_end_clean();
-            usleep(10000);
+            usleep(self::USLEEP);
 
             if ($output && $this->debug) {
                 echo $output;
@@ -842,7 +843,7 @@ class Worker implements Process
                 echo $output;
             }
             unset($output);
-            usleep(10000);
+            usleep(self::USLEEP);
         }
     }
 
@@ -919,15 +920,13 @@ class Worker implements Process
                     }
 
 
-                    //if node is offline
-                    if (self::$is_offline) {
-                        break;
-                    }
-                    // echo "是leader\r\n";
-
                     //最后操作的binlog文件
                     $last_binlog         = $bin->getLastBinLog();
                     $zookeeper->setLastBinlog($last_binlog);
+
+                    // echo "是leader\r\n";
+
+
 
                     //当前使用的binlog 文件
                     $current_binlog      = $bin->getCurrentLogInfo()["File"];
@@ -948,6 +947,11 @@ class Worker implements Process
                     }
 
                     unset($last_binlog);
+
+                    //if node is offline
+                    if (self::$is_offline) {
+                        break;
+                    }
 
                     //得到所有的binlog事件 记住这里不允许加limit 有坑
                     $data = $bin->getEvents($current_binlog,$last_end_pos,$limit);
@@ -1013,7 +1017,7 @@ class Worker implements Process
                 echo $output;
             }
             unset($output);
-            usleep(10000);
+            usleep(self::USLEEP);
         }
 
     }

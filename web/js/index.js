@@ -194,7 +194,7 @@ function appendNode(group_id, session_id, node)
             'data-group-id="'+group_id+'" '+
             'data-session-id="'+session_id+'" '+
             'onclick="nodeConfig(this)" >配置</a>'+
-            '<a class="bg-red set-offline" '+
+            '<a class="bg-red set-offline" title="仅运行时有效，重启后失效" '+
             'data-group-id="'+group_id+'" '+
             'data-session-id="'+session_id+'" '+
             'data-is_offline="'+node.is_offline+'" '+
