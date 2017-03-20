@@ -747,7 +747,8 @@ class Worker implements Process
     }
 
     /**
-     * 调度进程
+     * dispatch process
+     *
      * @param int $i
      */
     protected function forkDispatchWorker($i)
