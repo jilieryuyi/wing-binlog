@@ -32,7 +32,6 @@ var_dump($node_info);
     <div>注意：</div>
     <div class="c-red">已去除所有的敏感密码信息，密码字段均未返回和填充，如需更新，请正确填写，否则忽略密码字段</div>
     <div class="c-red">节点下线之后将停止一切采集业务，也不会被分配为leader，可以随时恢复上线</div>
-    <div class="c-red">持久化配置与运行时配置的区别在于，持久化配置在节点重启之后依然有效，而运行时配置则会失效，即仅在运行当时生效</div>
 </div>
 <div>
     <div class="c-item">
@@ -49,10 +48,51 @@ var_dump($node_info);
             </span></div>
         <div>
             <span>通知方式</span>
-            <select class="notify-class">
-                <option value="Seals\\Notify\\Redis" <?php if ($node_info["notify"]["handler"] == "Seals\\Notify\\Redis") echo "selected"; ?>>redis队列</option>
-                <option value="Seals\\Notify\\Http" <?php if ($node_info["notify"]["handler"] == "Seals\\Notify\\Http") echo "selected"; ?>>http</option>
-                <option value="Seals\\Notify\\Rabbitmq" <?php if ($node_info["notify"]["handler"] == "Seals\\Notify\\Rabbitmq") echo "selected"; ?>>rabbitmq</option>
+            <select class="notify-class" onchange="onNotifySelect(this)">
+                <option data-param-1="<?php
+                if ($node_info["notify"]["handler"] == "Seals\\Notify\\Redis")
+                    echo $node_info["notify"]["params"][0];
+                else
+                    echo "seals:event:list";
+                ?>"
+                        data-param-2=""
+                        value="Seals\\Notify\\Redis"
+                    <?php if ($node_info["notify"]["handler"] == "Seals\\Notify\\Redis") echo "selected"; ?>
+                >redis队列</option>
+                <option
+                    data-param-1="<?php
+                    if ($node_info["notify"]["handler"] == "Seals\\Notify\\Http")
+                        echo $node_info["notify"]["params"][0];
+                    else
+                        echo "http://127.0.0.1:9998/";
+                    ?>"
+                    data-param-2="<?php
+                    if ($node_info["notify"]["handler"] == "Seals\\Notify\\Http" &&
+                        isset($node_info["notify"]["params"][1]))
+                        echo $node_info["notify"]["params"][1];
+                    else
+                        echo "http://127.0.0.1:9998/";
+                    ?>"
+                    value="Seals\\Notify\\Http"
+                    <?php if ($node_info["notify"]["handler"] == "Seals\\Notify\\Http") echo "selected"; ?>
+                >http</option>
+                <option
+                    data-param-1="<?php
+                    if ($node_info["notify"]["handler"] == "Seals\\Notify\\Rabbitmq")
+                        echo $node_info["notify"]["params"][0];
+                    else
+                        echo "wing-binlog-exchange";
+                    ?>"
+                    data-param-2="<?php
+                    if ($node_info["notify"]["handler"] == "Seals\\Notify\\Rabbitmq" &&
+                        isset($node_info["notify"]["params"][1]))
+                        echo $node_info["notify"]["params"][1];
+                    else
+                        echo "wing-binlog-queue";
+                    ?>"
+                    value="Seals\\Notify\\Rabbitmq"
+                    <?php if ($node_info["notify"]["handler"] == "Seals\\Notify\\Rabbitmq") echo "selected"; ?>
+                >rabbitmq</option>
             </select>
         </div>
         <div>
@@ -69,7 +109,6 @@ var_dump($node_info);
         <div><span>密码</span><input type="text" value=""/>
             <span class="c-red" style="font-size: 12px;">如果为空，则忽略密码字段，即不会更新密码字段</span>
         </div>
-        <div><label>持久化<input type="checkbox"/></label></div>
         <div><span class="button button-small button-local">更新配置</span></div>
     </div>
 
@@ -80,7 +119,6 @@ var_dump($node_info);
         <div><span>密码</span><input type="text" value=""/>
             <span class="c-red" style="font-size: 12px;">如果为空，则忽略密码字段，即不会更新密码字段</span>
         </div>
-        <div><label>持久化<input type="checkbox"/></label></div>
         <div><span class="button button-small button-local">更新配置</span></div>
     </div>
 
@@ -92,7 +130,6 @@ var_dump($node_info);
         <div><span>密码</span><input type="text" value=""/>
             <span class="c-red" style="font-size: 12px;">如果为空，则忽略密码字段，即不会更新密码字段</span>
         </div>
-        <div><label>持久化<input type="checkbox"/></label></div>
         <div><span class="button button-small button-local">更新配置</span></div>
     </div>
 
@@ -103,7 +140,6 @@ var_dump($node_info);
         <div><span>用户</span><input type="text" value="<?php echo $node_info["db_config"]["user"]; ?>"/></div>
         <div><span>密码</span><input type="text" value=""/></div>
         <div><span>数据库</span><input type="text"  value="<?php echo $node_info["db_config"]["db_name"]; ?>"/></div>
-        <div><label>持久化<input type="checkbox"/></label></div>
         <div><span class="button button-small button-local">更新配置</span></div>
     </div>
 </div>

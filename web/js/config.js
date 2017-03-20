@@ -68,3 +68,14 @@ function setNotifyConfig(dom)
         }
     });
 }
+
+function onNotifySelect(dom)
+{
+    var s = $(dom).find(":selected");
+    var param1 = s.attr("data-param-1");
+    var param2 = s.attr("data-param-2");
+
+    var c = $(dom).parents(".c-item");
+    c.find(".param1").val(param1);
+    c.find(".param2").val(param2);
+}
