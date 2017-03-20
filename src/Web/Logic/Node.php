@@ -97,7 +97,49 @@ class Node
         $param2     = urldecode($response->post("param2"));
 
         if ($param2)
-            return RPC::call($session_id, "\\Seals\\Library\\Worker::setNotifyConfig", [$class, [$param1, $param2]]);
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::setNotifyConfig", [$class, [$param1]]);
+            $params = [$class, [$param1, $param2]];
+        else
+            $params = [$class, [$param1]];
+
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::setNotifyConfig", [$class, $params]);
     }
+
+    public static function setLocalRedisConfig(HttpResponse $response)
+    {
+        $group_id   = $response->post("group_id");
+        $session_id = $response->post("session_id");
+
+        $host      = urldecode($response->post("host"));
+        $port      = urldecode($response->post("port"));
+        $password  = urldecode($response->post("password"));
+
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::setLocalRedisConfig", [$host, $port, $password]);
+    }
+
+    public static function setRedisConfig(HttpResponse $response)
+    {
+        $group_id   = $response->post("group_id");
+        $session_id = $response->post("session_id");
+
+        $host      = urldecode($response->post("host"));
+        $port      = urldecode($response->post("port"));
+        $password  = urldecode($response->post("password"));
+
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::setRedisConfig", [$host, $port, $password]);
+    }
+
+    public static function setRabbitmqConfig(HttpResponse $response)
+    {
+        $group_id   = $response->post("group_id");
+        $session_id = $response->post("session_id");
+
+        $host      = urldecode($response->post("host"));
+        $port      = urldecode($response->post("port"));
+        $user      = urldecode($response->post("user"));
+        $password  = urldecode($response->post("password"));
+        $vhost     = urldecode($response->post("vhost"));
+
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::setRabbitmqConfig", [$host, $port, $user, $password, $vhost]);
+    }
+
 }

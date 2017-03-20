@@ -79,3 +79,113 @@ function onNotifySelect(dom)
     c.find(".param1").val(param1);
     c.find(".param2").val(param2);
 }
+
+var set_local_redis_config_doing = false;
+function setLocalRedisConfig(dom)
+{
+    if (set_local_redis_config_doing)
+        return;
+
+    set_local_redis_config_doing = true;
+    var c_item    = $(dom).parents(".c-item");
+    var host      = c_item.find(".host").val();
+    var port      = c_item.find(".port").val();
+    var password  = c_item.find(".password").val();
+
+    $(dom).addClass("disable").html("正在更新...");
+    window.setTimeout(function(){
+        $(dom).removeClass("disable").html("更新配置");
+        set_local_redis_config_doing = false;
+    },3000);
+
+    $.ajax({
+        type :"POST",
+        url  : "/service/node/local_redis/config/save",
+        data : {
+            "group_id"  : group_id,
+            "session_id": session_id,
+            "host"      : host,
+            "port"      : port,
+            "password"  : password
+        },
+        success:function(msg){
+            // node_offline_doing = false;
+            // $(dom).removeClass("disable");
+        }
+    });
+}
+
+var set_rabbitmq_config_doing = false;
+function setRabbitmqConfig(dom)
+{
+    if (set_rabbitmq_config_doing)
+        return;
+
+    set_rabbitmq_config_doing = true;
+    var c_item    = $(dom).parents(".c-item");
+    var host      = c_item.find(".host").val();
+    var user      = c_item.find(".user").val();
+    var port      = c_item.find(".port").val();
+    var password  = c_item.find(".password").val();
+    var vhost     = c_item.find(".vhost").val();
+
+
+    $(dom).addClass("disable").html("正在更新...");
+    window.setTimeout(function(){
+        $(dom).removeClass("disable").html("更新配置");
+        set_rabbitmq_config_doing = false;
+    },3000);
+
+    $.ajax({
+        type :"POST",
+        url  : "/service/node/rabbitmq/config/save",
+        data : {
+            "group_id"  : group_id,
+            "session_id": session_id,
+            "host"      : host,
+            "port"      : port,
+            "user"      : encodeURIComponent(user),
+            "password"  : encodeURIComponent(password),
+            "vhost"     : encodeURIComponent(vhost)
+        },
+        success:function(msg){
+            // node_offline_doing = false;
+            // $(dom).removeClass("disable");
+        }
+    });
+}
+
+var set_redis_config_doing = false;
+function setRedisConfig(dom)
+{
+    if (set_redis_config_doing)
+        return;
+
+    set_redis_config_doing = true;
+    var c_item    = $(dom).parents(".c-item");
+    var host      = c_item.find(".host").val();
+    var port      = c_item.find(".port").val();
+    var password  = c_item.find(".password").val();
+
+    $(dom).addClass("disable").html("正在更新...");
+    window.setTimeout(function(){
+        $(dom).removeClass("disable").html("更新配置");
+        set_redis_config_doing = false;
+    },3000);
+
+    $.ajax({
+        type :"POST",
+        url  : "/service/node/redis/config/save",
+        data : {
+            "group_id"  : group_id,
+            "session_id": session_id,
+            "host"      : host,
+            "port"      : port,
+            "password"  : password
+        },
+        success:function(msg){
+            // node_offline_doing = false;
+            // $(dom).removeClass("disable");
+        }
+    });
+}

@@ -538,7 +538,7 @@ class Worker implements Process
     }
 
     /**
-     * update notify config
+     * rpc api, update notify config
      *
      * @param string $class
      * @param array $params
@@ -546,23 +546,88 @@ class Worker implements Process
      */
     public static function setNotifyConfig($class, $params)
     {
+        $class = urldecode($class);
         $config_file = __APP_DIR__."/config/notify.php";
 
         $params_str = '[';
         $temp       = [];
         foreach ($params as $param) {
-            $temp[] = '"'.$param.'"';
+            $temp[] = '"'.urldecode($param).'"';
         }
         $params_str .= implode(",", $temp);
         $params_str .= ']';
         $template    = "<?php\r\nreturn [
         \"handler\" => \"".$class."\",
-        \"params\"  => ".$params_str."
-];";
+        \"params\"  => ".$params_str."\r\n];";
         file_put_contents($config_file, $template);
         self::restart();
         return 1;
     }
+
+    public static function setLocalRedisConfig($host, $port, $password = null)
+    {
+        $password = urldecode($password);
+
+        if ($password == ":null" || !$password)
+            $password = "null";
+        elseif ($password == ":empty")
+            $password = "\"\"";
+        else
+            $password = "\"".$password."\"";
+        $config_file = __APP_DIR__."/config/redis_local.php";
+        $config = "<?php\r\nreturn [
+        \"host\"     => \"".$host."\",
+        \"port\"     => ".$port.",
+        \"password\" => ".$password."\r\n];";
+        file_put_contents($config_file, $config);
+        self::restart();
+        return 1;
+    }
+
+    public static function setRedisConfig($host, $port, $password = null)
+    {
+        $password = urldecode($password);
+
+        if ($password == ":null" || !$password)
+            $password = "null";
+        elseif ($password == ":empty")
+            $password = "\"\"";
+        else
+            $password = "\"".$password."\"";
+        $config_file = __APP_DIR__."/config/redis.php";
+        $config = "<?php\r\nreturn [
+        \"host\"     => \"".$host."\",
+        \"port\"     => ".$port.",
+        \"password\" => ".$password."\r\n];";
+        file_put_contents($config_file, $config);
+        self::restart();
+        return 1;
+    }
+
+    public static function setRabbitmqConfig($host, $port, $user, $password, $vhost)
+    {
+        $user     = urldecode($user);
+        $password = urldecode($password);
+        $vhost    = urldecode($vhost);
+
+        if ($password == ":null" || !$password)
+            $password = "null";
+        elseif ($password == ":empty")
+            $password = "\"\"";
+        else
+            $password = "\"".$password."\"";
+        $config_file = __APP_DIR__."/config/rabbitmq.php";
+        $config = "<?php\r\nreturn [
+        \"host\"     => \"".$host."\",
+        \"port\"     => ".$port.",
+        \"user\"     => \"".$user."\",
+        \"vhost\"    => \"".$vhost."\",
+        \"password\" => ".$password."\r\n];";
+        file_put_contents($config_file, $config);
+        self::restart();
+        return 1;
+    }
+
 
     /**
      * signal handler
@@ -971,6 +1036,9 @@ class Worker implements Process
                     $db_config = Context::instance()->db_config;
                     unset($db_config["password"]);
 
+                    $rabbitmq_config = Context::instance()->rabbitmq_config;
+                    unset($rabbitmq_config["password"]);
+
                     //服务发现
                     $zookeeper->serviceReport([
                         "is_offline"   => self::$is_offline?1:0,
@@ -981,9 +1049,11 @@ class Worker implements Process
                         "redis_local"  => $redis_local,
                         "redis_config" => $redis_config,
                         "zookeeper"    => $zookeeper_config,
-                        "db_config"    => $db_config
+                        "db_config"    => $db_config,
+                        "rabbitmq"     => $rabbitmq_config
                     ]);
-                    unset($redis_local, $redis_config, $zookeeper_config, $db_config);
+                    unset($redis_local, $redis_config,
+                        $zookeeper_config, $db_config, $rabbitmq_config);
 
                     RPC::run();
 

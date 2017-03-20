@@ -22,6 +22,9 @@ class Route
             "/service/node/offline" => "\\Seals\\Web\\Logic\\Node::offline",
             "/service/node/runtime/config/save" => "\\Seals\\Web\\Logic\\Node::setRuntimeConfig",
             "/service/node/notify/config/save"  => "\\Seals\\Web\\Logic\\Node::setNotifyConfig",
+            "/service/node/local_redis/config/save"  => "\\Seals\\Web\\Logic\\Node::setLocalRedisConfig",
+            "/service/node/redis/config/save"        => "\\Seals\\Web\\Logic\\Node::setRedisConfig",
+            "/service/node/rabbitmq/config/save"     => "\\Seals\\Web\\Logic\\Node::setRabbitmqConfig",
         ]
     ];
 
