@@ -65,16 +65,30 @@ function nodeRefresh(v, group_id, session_id)
 }
 
 /**
- * just down node
+ * offline a node
  *
  * @param dom
  * @return void
  */
+var node_offline_doing = false;
 function nodeOffline(dom)
 {
+
+    if (node_offline_doing) {
+        return;
+    }
+
+    node_offline_doing = true;
+
     var group_id   = $(dom).attr("data-group-id");
     var session_id = $(dom).attr("data-session-id");
     var is_offline = parseInt($(dom).attr("data-is_offline")) == 1 ? 0 : 1;
+
+    $(dom).html("正在操作...").addClass("disable");
+    window.setTimeout(function(){
+        node_offline_doing = false;
+        $(dom).removeClass("disable")
+    },3000);
 
     $.ajax({
         type :"POST",
@@ -85,17 +99,10 @@ function nodeOffline(dom)
             "is_offline": is_offline
         },
         success:function(msg){
-
+            // node_offline_doing = false;
+            // $(dom).removeClass("disable");
         }
     });
-}
-
-/**
- * page refresh
- */
-function refresh()
-{
-    window.location.reload();
 }
 
 
@@ -262,11 +269,26 @@ function nodeConfig(dom)
     window.location.href="node.config.php?group_id="+group_id+"&session_id="+session_id;
 }
 
+/**
+ * restart node
+ */
+var node_restart_doing = false;
 function nodeRestart(dom)
 {
+    if (node_restart_doing)
+        return;
+
+    node_restart_doing = true;
+
     var group_id   = $(dom).attr("data-group-id");
     var session_id = $(dom).attr("data-session-id");
-    $(dom).html("正在重启...");
+    $(dom).html("正在重启...").addClass("disable");
+
+    window.setTimeout(function(){
+        node_restart_doing = false;
+        $(dom).removeClass("disable");
+    },3000);
+
     $.ajax({
         type: "POST",
         url : "/service/node/restart",
@@ -275,6 +297,8 @@ function nodeRestart(dom)
             "session_id": session_id
         },
         success:function(msg){
+            // node_restart_doing = false;
+            // $(dom).removeClass("disable");
             //var data = JSON.parse(msg);
         }
     });
