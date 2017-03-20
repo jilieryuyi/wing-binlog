@@ -32,11 +32,11 @@ class Node
             "version"      => $res["version"],
             "created"      => date("Y-m-d H:i:s", $res["created"]),
             "time_len"     => timelen_format(time()-$res["created"]),
-            "is_leader"    => $is_leader,   //node is leader
-            "last_updated" => $last_report, //node last report timestamp
-            "last_binlog"  => $last_binlog, //the last read  mysqlbinlog filename
-            "last_pos"     => $last_pos,    //the last reas postion from the last mysqlbinlog
-            "is_down"      => 0,   //is the node is down, only from runtime
+            "is_leader"    => $is_leader,           //node is leader
+            "last_updated" => $last_report,         //node last report timestamp
+            "last_binlog"  => $last_binlog,         //the last read  mysqlbinlog filename
+            "last_pos"     => $last_pos,            //the last reas postion from the last mysqlbinlog
+            "is_offline"   => $res["is_offline"],   //is the node is offline, only from runtime
         ];
     }
 
@@ -54,6 +54,15 @@ class Node
         $session_id = $response->post("session_id");
 
         return RPC::call($session_id, "\\Seals\\Library\\Worker::update");
+    }
+
+    public static function offline(HttpResponse $response)
+    {
+        $group_id   = $response->post("group_id");
+        $session_id = $response->post("session_id");
+        $is_offline = $response->post("is_offline");
+
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::setNodeOffline", [$is_offline]);
     }
 
 }

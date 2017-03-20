@@ -17,6 +17,7 @@ class ServerStart extends ServerBase
             ->addOption("clear", null, InputOption::VALUE_NONE, "自动清理日志和缓存")
             ->addOption("n", null, InputOption::VALUE_REQUIRED, "进程数量", 0);
 
+
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -24,7 +25,6 @@ class ServerStart extends ServerBase
         $deamon      = $input->getOption("d");
         $debug       = $input->getOption("debug");
         $clear       = $input->getOption("clear");
-
         $workers     = $input->getOption("n");
 
         $this->start($deamon, $workers, $debug, $clear);

@@ -34,6 +34,13 @@ function nodeRefresh(v, group_id, session_id)
             }
 
             $(v).find(".time-len").html(data.time_len);
+            $(v).find(".set-offline").attr("data-is_offline", data.is_offline);
+
+            if (parseInt(data.is_offline) == 1) {
+                $(v).find(".set-offline").html("上线");
+            } else {
+                $(v).find(".set-offline").html("下线");
+            }
 
             $(v).css("background","#fff");
             //mysql-bin.000031 => 154
@@ -63,17 +70,19 @@ function nodeRefresh(v, group_id, session_id)
  * @param dom
  * @return void
  */
-function nodeDown(dom)
+function nodeOffline(dom)
 {
     var group_id   = $(dom).attr("data-group-id");
     var session_id = $(dom).attr("data-session-id");
+    var is_offline = parseInt($(dom).attr("data-is_offline")) == 1 ? 0 : 1;
 
     $.ajax({
         type :"POST",
-        url  : "/service/node/down",
+        url  : "/service/node/offline",
         data : {
             "group_id"  : group_id,
-            "session_id": session_id
+            "session_id": session_id,
+            "is_offline": is_offline
         },
         success:function(msg){
 
@@ -164,10 +173,18 @@ function appendNode(group_id, session_id, node)
             'data-group-id="'+group_id+'" '+
             'data-session-id="'+session_id+'" '+
             'onclick="nodeConfig(this)" >配置</a>'+
-            '<a class="bg-red" '+
+            '<a class="bg-red set-offline" '+
             'data-group-id="'+group_id+'" '+
             'data-session-id="'+session_id+'" '+
-            'onclick="nodeDown(this)" >下线</a>'+
+            'data-is_offline="'+node.is_offline+'" '+
+
+            'onclick="nodeOffline(this)" >';
+    if (parseInt(node.is_offline) == 1) {
+        html += '上线';
+    } else {
+        html += '下线';
+    }
+    html +='</a>'+
             '<a class="bg-normal"  '+
             'data-group-id="'+group_id+'" '+
             'data-session-id="'+session_id+'" '+

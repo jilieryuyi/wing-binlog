@@ -45,7 +45,7 @@ class Zookeeper
     /**
      * service report
      */
-    public function serviceReport()
+    public function serviceReport($is_offline)
     {
        // echo $this->session_id,"\r\n";
       //  echo Context::instance()->session_id,"\r\n";
@@ -58,7 +58,8 @@ class Zookeeper
             json_encode([
                 "created" => $this->start_time,
                 "updated" => time(),
-                "version" => Worker::version()
+                "version" => Worker::version(),
+                "is_offline" => $is_offline?1:0
             ])
         );
     }

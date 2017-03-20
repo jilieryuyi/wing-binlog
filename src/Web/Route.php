@@ -19,6 +19,7 @@ class Route
             "/service/all"          => "\\Seals\\Web\\Logic\\Service::getAll",
             "/service/node/restart" => "\\Seals\\Web\\Logic\\Node::restart",
             "/service/node/update"  => "\\Seals\\Web\\Logic\\Node::update",
+            "/service/node/offline" => "\\Seals\\Web\\Logic\\Node::offline",
         ]
     ];
 

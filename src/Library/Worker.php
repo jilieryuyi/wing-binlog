@@ -1,4 +1,5 @@
 <?php namespace Seals\Library;
+use Seals\Cache\File;
 use Wing\FileSystem\WFile;
 
 /**
@@ -24,6 +25,8 @@ class Worker implements Process
     protected $parse_processes    = [];
     protected $dispatch_processes = [];
     protected $event_process      = 0;
+    //current is offline, default is false
+    protected static  $is_offline    = false;
 
     //队列名称
     const QUEUE_NAME = "seals:events:collector";
@@ -483,6 +486,15 @@ class Worker implements Process
     }
 
     /**
+     * rpc api, set current node offline or online
+     */
+    public static function setNodeOffline($is_offline = false)
+    {
+        self::$is_offline = !!$is_offline;
+        return 1;
+    }
+
+    /**
      * rpc api for update system
      *
      * @return int 1 means success
@@ -523,6 +535,24 @@ class Worker implements Process
                         $this->process_cache->set("stop_".$pid, 1, 10);
                     }
                 }
+
+                $cache = new File(__APP_DIR__);
+
+
+                list($deamon, $workers, $debug, $clear) = $cache->get("seals.info");
+
+
+                $command = "php ".__APP_DIR__."/seals server:start --n ".$workers;
+                if ($deamon)
+                    $command .= ' --d';
+                if ($debug)
+                    $command .= ' --debug';
+                if ($clear)
+                    $command .= ' --clear';
+
+                exec($command);
+
+                exit;
                 break;
         }
     }
@@ -866,8 +896,12 @@ class Worker implements Process
                     $this->setStatus($process_name);
                     $this->setIsRunning();
                     //服务发现
-                    $zookeeper->serviceReport();
+                    $zookeeper->serviceReport(self::$is_offline);
                     RPC::run();
+
+                    if (self::$is_offline) {
+                        break;
+                    }
 
                     if (!$zookeeper->isLeader()) {
                         // echo "不是leader，不进行采集操作\r\n";
