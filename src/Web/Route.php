@@ -21,6 +21,7 @@ class Route
             "/service/node/update"  => "\\Seals\\Web\\Logic\\Node::update",
             "/service/node/offline" => "\\Seals\\Web\\Logic\\Node::offline",
             "/service/node/runtime/config/save" => "\\Seals\\Web\\Logic\\Node::setRuntimeConfig",
+            "/service/node/notify/config/save"  => "\\Seals\\Web\\Logic\\Node::setNotifyConfig",
         ]
     ];
 

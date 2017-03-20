@@ -510,6 +510,13 @@ class Worker implements Process
         return 1;
     }
 
+    /**
+     * set workers num and open debug or close debug in runtime
+     *
+     * @param int $_workers
+     * @param bool $_debug
+     * @return int
+     */
     public static function setRuntimeConfig($_workers, $_debug = false)
     {
         $cache = new File(__APP_DIR__);
@@ -522,6 +529,33 @@ class Worker implements Process
         ]);
         unset($cache);
         //after update, restart node
+        self::restart();
+        return 1;
+    }
+
+    /**
+     * update notify config
+     *
+     * @param string $class
+     * @param array $params
+     * @return int
+     */
+    public static function setNotifyConfig($class, $params)
+    {
+        $config_file = __APP_DIR__."/config/notify.php";
+
+        $params_str = '[';
+        $temp       = [];
+        foreach ($params as $param) {
+            $temp[] = '"'.$param.'"';
+        }
+        $params_str .= implode(",", $temp);
+        $params_str .= ']';
+        $template    = "<?php\r\nreturn [
+        \"handler\" => \"".$class."\",
+        \"params\"  => ".$params_str."
+];";
+        file_put_contents($config_file, $template);
         self::restart();
         return 1;
     }

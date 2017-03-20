@@ -86,4 +86,18 @@ class Node
         return RPC::call($session_id, "\\Seals\\Library\\Worker::setRuntimeConfig", [$workers, $debug]);
 
     }
+
+    public static function setNotifyConfig(HttpResponse $response)
+    {
+        $group_id   = $response->post("group_id");
+        $session_id = $response->post("session_id");
+
+        $class      = urldecode($response->post("class"));
+        $param1     = urldecode($response->post("param1"));
+        $param2     = urldecode($response->post("param2"));
+
+        if ($param2)
+            return RPC::call($session_id, "\\Seals\\Library\\Worker::setNotifyConfig", [$class, [$param1, $param2]]);
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::setNotifyConfig", [$class, [$param1]]);
+    }
 }

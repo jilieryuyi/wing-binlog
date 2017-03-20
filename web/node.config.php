@@ -49,21 +49,18 @@ var_dump($node_info);
             </span></div>
         <div>
             <span>通知方式</span>
-            <select>
+            <select class="notify-class">
                 <option value="Seals\\Notify\\Redis" <?php if ($node_info["notify"]["handler"] == "Seals\\Notify\\Redis") echo "selected"; ?>>redis队列</option>
                 <option value="Seals\\Notify\\Http" <?php if ($node_info["notify"]["handler"] == "Seals\\Notify\\Http") echo "selected"; ?>>http</option>
                 <option value="Seals\\Notify\\Rabbitmq" <?php if ($node_info["notify"]["handler"] == "Seals\\Notify\\Rabbitmq") echo "selected"; ?>>rabbitmq</option>
             </select>
         </div>
         <div>
-            <?php foreach ($node_info["notify"]["params"] as $index => $param) {
-                ?>
-                <div>参数<?php echo ($index+1); ?><input type="text" value="<?php echo $param; ?>"/></div>
-            <?php
-            } ?>
+            <div>参数1<input class="param1" type="text" value="<?php echo $node_info["notify"]["params"][0]; ?>"/></div>
+            <div>参数2<input class="param2" type="text" value="<?php if (isset($node_info["notify"]["params"][1]))
+                echo $node_info["notify"]["params"][1]; ?>"/></div>
         </div>
-        <div><label>持久化<input type="checkbox"/></label></div>
-        <div><span class="button button-small button-local">更新配置</span></div>
+        <div><span onclick="setNotifyConfig(this)" class="button button-small button-local">更新配置</span></div>
     </div>
     <div class="c-item">
         <div>节点本地redis配置</div>
