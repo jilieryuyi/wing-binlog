@@ -847,7 +847,7 @@ class Worker implements Process
     }
 
     /**
-     * 基础事件采集进程
+     * base events collector、rpc process
      */
     protected function forkEventWorker()
     {
