@@ -901,10 +901,6 @@ class Worker implements Process
                     $zookeeper->serviceReport(self::$is_offline);
                     RPC::run();
 
-                    if (self::$is_offline) {
-                        break;
-                    }
-
                     if (!$zookeeper->isLeader()) {
                         // echo "不是leader，不进行采集操作\r\n";
                         //if the current node is not leader and group is enable
@@ -922,6 +918,11 @@ class Worker implements Process
                         break;
                     }
 
+
+                    //if node is offline
+                    if (self::$is_offline) {
+                        break;
+                    }
                     // echo "是leader\r\n";
 
                     //最后操作的binlog文件
