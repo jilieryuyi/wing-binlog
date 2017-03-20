@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>wing-binlog</title>
+    <link type="text/css" rel="stylesheet" href="css/public.css">
     <link type="text/css" rel="stylesheet" href="css/index.css">
     <script src="js/jquery-3.1.1.min.js"></script>
     <script src="js/index.js"></script>

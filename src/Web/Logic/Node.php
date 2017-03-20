@@ -62,7 +62,7 @@ class Node
     {
         $group_id   = $response->post("group_id");
         $session_id = $response->post("session_id");
-        $is_offline = $response->post("is_offline");
+        $is_offline = $response->post("is_offline")?1:0;
 
         return RPC::call($session_id, "\\Seals\\Library\\Worker::setNodeOffline", [$is_offline]);
     }

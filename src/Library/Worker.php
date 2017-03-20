@@ -935,7 +935,7 @@ class Worker implements Process
 
                     //服务发现
                     $zookeeper->serviceReport([
-                        "is_offline"   => self::$is_offline,
+                        "is_offline"   => self::$is_offline?1:0,
                         "version"      => self::VERSION,
                         "workers"      => $workers,
                         "debug"        => $debug ? 1 : 0,

@@ -61,3 +61,6 @@
     border-color: #4B780A !important;
     color: #FFF !important;
 }
+.disable {
+    background: #ccc !important;
+}

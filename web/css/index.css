@@ -106,9 +106,7 @@ li.node {
     color: #f00;
     margin-left: 12px;
 }
-.disable {
-    background: #ccc !important;
-}
+
 .online-status {
     width: 40px;
 }

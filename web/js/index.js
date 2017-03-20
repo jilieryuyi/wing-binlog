@@ -39,7 +39,7 @@ function nodeRefresh(v, group_id, session_id)
 
             $(v).find(".start-time").html(data.created);
 
-            if (parseInt(data.is_offline) == 1) {
+            if (data.is_offline) {
                 $(v).find(".online-status").children("img").attr("src", "img/offline.png").attr("title", "已下线");
                 $(v).find(".set-offline").html("上线");
             } else {
