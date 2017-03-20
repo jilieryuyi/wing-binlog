@@ -12,7 +12,7 @@ use Wing\FileSystem\WFile;
 
 class Worker implements Process
 {
-    const VERSION                 = "1.13";
+    const VERSION                 = "1.14";
     protected $app_id             = "wing-binlog";
     protected $debug              = false;
     protected $start_time         = 0;
