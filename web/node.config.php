@@ -122,7 +122,7 @@ var_dump($node_info);
         <div><span>ip</span><input class="host" type="text" value="<?php echo $node_info["rabbitmq"]["host"]; ?>" /></div>
         <div><span>端口</span><input class="port" type="text" value="<?php echo $node_info["rabbitmq"]["port"]; ?>"/></div>
         <div><span>用户</span><input class="user" type="text" value="<?php echo $node_info["rabbitmq"]["user"]; ?>"/></div>
-        <div><span>密码</span><input class="password" type="password" value=""/>
+        <div><span>密码</span><input class="password" type="text" value=""/>
             <span class="c-red" style="font-size: 12px;">如果为空，则忽略密码字段，即不会更新密码字段</span>
         </div>
         <div><span>vhost</span><input class="vhost" type="text" value="<?php echo $node_info["rabbitmq"]["vhost"]; ?>"/></div>
