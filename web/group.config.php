@@ -1,15 +1,14 @@
 <?php
-if (!isset($_GET["group_id"]) || !isset($_GET["session_id"])) {
+if (!isset($_GET["group_id"])) {
     echo "params error";
     return;
 }
 $group_id   = $_GET["group_id"];
-$session_id = $_GET["session_id"];
 
-$node_info = \Seals\Web\Logic\Node::getInfo($group_id, $session_id);
+$node_info = [];//\Seals\Web\Logic\Node::getInfo($group_id, $session_id);
 //var_dump($node_info);
 
-$databases = \Seals\Web\Logic\Node::getDatabases($session_id);
+$databases = [];//\Seals\Web\Logic\Node::getDatabases($session_id);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -22,21 +21,20 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
     <link type="text/css" rel="stylesheet" href="css/all.css">
     <script src="js/jquery-3.1.1.min.js"></script>
     <script>
-        var group_id   = "<?php echo $_GET["group_id"]; ?>";
-        var session_id = "<?php echo $_GET["session_id"]; ?>";
+        var group_id = "<?php echo $_GET["group_id"]; ?>";
     </script>
     <script src="js/config.js"></script>
 </head>
 <body>
 <div class="title">
-    <h2>节点配置<img title="<?php if($node_info["is_offline"])echo "已下线"; else echo "在线"; ?>" style="width: 12px;" src="images/<?php if($node_info["is_offline"])echo "offline.png"; else echo "online.png"; ?>"/></h2>
+    <h2>群组配置<img title="<?php if($node_info["is_offline"])echo "已下线"; else echo "在线"; ?>" style="width: 12px;" src="images/<?php if($node_info["is_offline"])echo "offline.png"; else echo "online.png"; ?>"/></h2>
 <!--    <div class="right-tool">-->
 <!--        <span class="button button-royal button-primary">下线</span>-->
 <!--    </div>-->
 </div>
 <div class="warn-info">
     <div>注意：</div>
-    <div class="c-red">已去除所有的敏感密码信息，密码字段均未返回和填充，如需更新，请正确填写，否则忽略密码字段</div>
+    <div class="c-red">修改群组配置将下发到该群组下的所有节点，修改时请注意</div>
     <div class="c-red">节点下线之后将停止一切采集业务，也不会被分配为leader，可以随时恢复上线</div>
     <div class="c-red">密码字段，null请使用 :null 代替</div>
 </div>
@@ -108,13 +106,6 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                 echo $node_info["notify"]["params"][1]; ?>"/></div>
         </div>
         <div><span onclick="setNotifyConfig(this)" class="button button-small button-local">更新配置</span></div>
-    </div>
-    <div class="c-item">
-        <div>节点本地redis配置</div>
-        <div><span>ip</span><input class="host" type="text" value="<?php echo $node_info["redis_local"]["host"]; ?>" /></div>
-        <div><span>端口</span><input class="port" type="text" value="<?php echo $node_info["redis_local"]["port"]; ?>"/></div>
-        <div><span>密码</span><input class="password" type="text" value=""/></div>
-        <div><span onclick="setLocalRedisConfig(this)" class="button button-small button-local">更新配置</span></div>
     </div>
 
     <div class="c-item">

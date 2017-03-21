@@ -194,7 +194,7 @@ function appendNode(group_id, session_id, node)
             'data-group-id="'+group_id+'" '+
             'data-session-id="'+session_id+'" '+
             'onclick="nodeConfig(this)" >配置</a>'+
-            '<a class="bg-red set-offline" title="仅运行时有效，重启后失效" '+
+            '<a class="bg-red set-offline" title="仅运行时有效，重启后失效。节点下线之后将停止一切采集业务，也不会被分配为leader，可以随时恢复上线" '+
             'data-group-id="'+group_id+'" '+
             'data-session-id="'+session_id+'" '+
             'data-is_offline="'+node.is_offline+'" '+
@@ -243,7 +243,9 @@ function appendGroup(group_id, nodes)
             '<div class="item">'+
                 '<span class="group-id">'+group_id+'</span>'+
                 '<span class="node-count">'+length+'</span>'+
-                '<span class="group-edit edit"><a class="bg-normal" style="margin-left: 0;">配置</a></span>'+
+                '<span class="group-edit edit">' +
+        '<a class="bg-normal" href="group.config.php?group_id='+group_id+'" style="margin-left: 0;">配置</a>' +
+        '</span>'+
             '</div>'+
             '<ul class="nodes-list">';
 
