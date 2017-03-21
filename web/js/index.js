@@ -243,7 +243,7 @@ function appendGroup(group_id, nodes)
             '<div class="item">'+
                 '<span class="group-id">'+group_id+'</span>'+
                 '<span class="node-count">'+length+'</span>'+
-                '<span class="group-edit edit"><a>配置</a></span>'+
+                '<span class="group-edit edit"><a class="bg-normal" style="margin-left: 0;">配置</a></span>'+
             '</div>'+
             '<ul class="nodes-list">';
 
