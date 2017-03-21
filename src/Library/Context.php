@@ -21,9 +21,9 @@ class Context{
     /**
      * @var RedisInterface
      */
-    public $redis_local = null;
+    public $redis_local        = null;
     public $redis_local_config = [];
-    public $redis_zookeeper = null;
+    public $redis_zookeeper    = null;
 
     /**
      * @var PDO
@@ -43,16 +43,16 @@ class Context{
     public $mysqlbinlog_bin   = "mysqlbinlog";
 
 
-    private $app_config     = [];
-    public $db_config      = [];
+    private $app_config      = [];
+    public $db_config        = [];
     //事件队列redis
-    public $redis_config    = [];
-    public $rabbitmq_config = [];
-    public $zookeeper_config= [];
-    public $notify_config   = [];
+    public $redis_config     = [];
+    public $rabbitmq_config  = [];
+    public $zookeeper_config = [];
+    public $notify_config    = [];
 
     public $logger;
-    public $memory_limit = "10240M";
+    public $memory_limit     = "10240M";
     public $session_id;
 
     protected $static_instances = [];

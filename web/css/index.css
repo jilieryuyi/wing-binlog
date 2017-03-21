@@ -8,6 +8,10 @@ li {
     list-style: none;
     height: 51px;
 }
+li.group {
+    height: auto !important;
+    list-style: none;
+}
 li div {
     height: 25px;
     border-bottom: #ccc solid 1px;

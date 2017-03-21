@@ -25,6 +25,8 @@ class Route
             "/service/node/local_redis/config/save"  => "\\Seals\\Web\\Logic\\Node::setLocalRedisConfig",
             "/service/node/redis/config/save"        => "\\Seals\\Web\\Logic\\Node::setRedisConfig",
             "/service/node/rabbitmq/config/save"     => "\\Seals\\Web\\Logic\\Node::setRabbitmqConfig",
+            "/service/node/zookeeper/config/save"    => "\\Seals\\Web\\Logic\\Node::setZookeeperConfig",
+
         ]
     ];
 

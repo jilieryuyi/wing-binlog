@@ -142,4 +142,16 @@ class Node
         return RPC::call($session_id, "\\Seals\\Library\\Worker::setRabbitmqConfig", [$host, $port, $user, $password, $vhost]);
     }
 
+    public static function setZookeeperConfig(HttpResponse $response)
+    {
+        $group_id   = $response->post("group_id");
+        $session_id = $response->post("session_id");
+
+        $host      = urldecode($response->post("host"));
+        $port      = urldecode($response->post("port"));
+        $password  = urldecode($response->post("password"));
+
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::setZookeeperConfig", [$group_id, $host, $port, $password]);
+    }
+
 }

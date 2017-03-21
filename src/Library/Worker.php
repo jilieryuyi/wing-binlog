@@ -546,14 +546,16 @@ class Worker implements Process
      */
     public static function setNotifyConfig($class, $params)
     {
-        $class = urldecode($class);
+        $class       = urldecode($class);
         $config_file = __APP_DIR__."/config/notify.php";
 
         $params_str = '[';
         $temp       = [];
+
         foreach ($params as $param) {
             $temp[] = '"'.urldecode($param).'"';
         }
+
         $params_str .= implode(",", $temp);
         $params_str .= ']';
         $template    = "<?php\r\nreturn [
@@ -601,6 +603,22 @@ class Worker implements Process
             "user" => $user,
             "password" => $password,
             "vhost" => $vhost
+        ]);
+
+        $config->write($config_file);
+        unset($config);
+        self::restart();
+        return 1;
+    }
+
+    public static function setZookeeperConfig($group_id, $host, $port, $password = null)
+    {
+        $config_file = __APP_DIR__."/config/zookeeper.php";
+        $config      = new Config([
+            "group_id" => $group_id,
+            "host"     => $host,
+            "port"     => $port,
+            "password" => $password
         ]);
 
         $config->write($config_file);

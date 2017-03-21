@@ -111,9 +111,7 @@ var_dump($node_info);
         <div>节点本地redis配置</div>
         <div><span>ip</span><input class="host" type="text" value="<?php echo $node_info["redis_local"]["host"]; ?>" /></div>
         <div><span>端口</span><input class="port" type="text" value="<?php echo $node_info["redis_local"]["port"]; ?>"/></div>
-        <div><span>密码</span><input class="password" type="text" value=""/>
-            <span class="c-red" style="font-size: 12px;">如果为空，则忽略密码字段，即不会更新密码字段</span>
-        </div>
+        <div><span>密码</span><input class="password" type="text" value=""/></div>
         <div><span onclick="setLocalRedisConfig(this)" class="button button-small button-local">更新配置</span></div>
     </div>
 
@@ -122,9 +120,7 @@ var_dump($node_info);
         <div><span>ip</span><input class="host" type="text" value="<?php echo $node_info["rabbitmq"]["host"]; ?>" /></div>
         <div><span>端口</span><input class="port" type="text" value="<?php echo $node_info["rabbitmq"]["port"]; ?>"/></div>
         <div><span>用户</span><input class="user" type="text" value="<?php echo $node_info["rabbitmq"]["user"]; ?>"/></div>
-        <div><span>密码</span><input class="password" type="text" value=""/>
-            <span class="c-red" style="font-size: 12px;">如果为空，则忽略密码字段，即不会更新密码字段</span>
-        </div>
+        <div><span>密码</span><input class="password" type="text" value=""/></div>
         <div><span>vhost</span><input class="vhost" type="text" value="<?php echo $node_info["rabbitmq"]["vhost"]; ?>"/></div>
         <div><span onclick="setRabbitmqConfig(this)" class="button button-small button-local">更新配置</span></div>
     </div>
@@ -133,21 +129,17 @@ var_dump($node_info);
         <div>事件队列redis配置</div>
         <div><span>ip</span><input class="host" type="text" value="<?php echo $node_info["redis_config"]["host"]; ?>"/></div>
         <div><span>端口</span><input class="port" type="text" value="<?php echo $node_info["redis_config"]["port"]; ?>"/></div>
-        <div><span>密码</span><input class="password" type="text" value=""/>
-            <span class="c-red" style="font-size: 12px;">如果为空，则忽略密码字段，即不会更新密码字段</span>
-        </div>
+        <div><span>密码</span><input class="password" type="text" value=""/></div>
         <div><span onclick="setRedisConfig(this)" class="button button-small button-local">更新配置</span></div>
     </div>
 
     <div class="c-item">
         <div>群集配置</div>
-        <div><span>组id</span><input type="text" value="<?php echo $node_info["zookeeper"]["group_id"]; ?>"/></div>
-        <div><span>ip</span><input type="text" value="<?php echo $node_info["zookeeper"]["host"]; ?>"/></div>
-        <div><span>端口</span><input type="text" value="<?php echo $node_info["zookeeper"]["port"]; ?>"/></div>
-        <div><span>密码</span><input type="text" value=""/>
-            <span class="c-red" style="font-size: 12px;">如果为空，则忽略密码字段，即不会更新密码字段</span>
-        </div>
-        <div><span class="button button-small button-local">更新配置</span></div>
+        <div><span>组id</span><input class="group_id" type="text" value="<?php echo $node_info["zookeeper"]["group_id"]; ?>"/></div>
+        <div><span>ip</span><input class="host" type="text" value="<?php echo $node_info["zookeeper"]["host"]; ?>"/></div>
+        <div><span>端口</span><input class="port" type="text" value="<?php echo $node_info["zookeeper"]["port"]; ?>"/></div>
+        <div><span>密码</span><input class="password" type="text" value=""/></div>
+        <div><span onclick="setZookeeperConfig(this)" class="button button-small button-local">更新配置</span></div>
     </div>
 
     <div class="c-item">

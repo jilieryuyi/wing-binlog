@@ -239,7 +239,7 @@ function appendGroup(group_id, nodes)
     var length = count(nodes);
 
     var html   =
-        '<li class="group-'+group_id+'">'+
+        '<li class="group group-'+group_id+'">'+
             '<div class="item">'+
                 '<span class="group-id">'+group_id+'</span>'+
                 '<span class="node-count">'+length+'</span>'+
