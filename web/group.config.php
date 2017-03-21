@@ -4,11 +4,12 @@ if (!isset($_GET["group_id"])) {
     return;
 }
 $group_id   = $_GET["group_id"];
+$session_id = \Seals\Library\Zookeeper::getLeader($group_id);
 
-$node_info = [];//\Seals\Web\Logic\Node::getInfo($group_id, $session_id);
+$node_info = \Seals\Web\Logic\Node::getInfo($group_id, $session_id);
 //var_dump($node_info);
 
-$databases = [];//\Seals\Web\Logic\Node::getDatabases($session_id);
+$databases = \Seals\Web\Logic\Node::getDatabases($session_id);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -23,7 +24,7 @@ $databases = [];//\Seals\Web\Logic\Node::getDatabases($session_id);
     <script>
         var group_id = "<?php echo $_GET["group_id"]; ?>";
     </script>
-    <script src="js/config.js"></script>
+    <script src="js/group.config.js"></script>
 </head>
 <body>
 <div class="title">

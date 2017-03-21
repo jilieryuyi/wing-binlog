@@ -63,6 +63,12 @@ class Zookeeper
         );
     }
 
+    public static function getNodes($group_id)
+    {
+        $key = self::SERVICE_KEY.":services:".$group_id;
+        return Context::instance()->redis_zookeeper->hkeys($key);
+    }
+
     /**
      * @return array
      */
