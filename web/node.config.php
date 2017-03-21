@@ -29,7 +29,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
 </head>
 <body>
 <div class="title">
-    <h2>节点配置<img title="<?php if($node_info["is_offline"])echo "已下线"; else echo "在线"; ?>" style="width: 12px;" src="img/<?php if($node_info["is_offline"])echo "offline.png"; else echo "online.png"; ?>"/></h2>
+    <h2>节点配置<img title="<?php if($node_info["is_offline"])echo "已下线"; else echo "在线"; ?>" style="width: 12px;" src="images/<?php if($node_info["is_offline"])echo "offline.png"; else echo "online.png"; ?>"/></h2>
 <!--    <div class="right-tool">-->
 <!--        <span class="button button-royal button-primary">下线</span>-->
 <!--    </div>-->

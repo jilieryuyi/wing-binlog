@@ -40,10 +40,10 @@ function nodeRefresh(v, group_id, session_id)
             $(v).find(".start-time").html(data.created);
 
             if (data.is_offline) {
-                $(v).find(".online-status").children("img").attr("src", "img/offline.png").attr("title", "已下线");
+                $(v).find(".online-status").children("img").attr("src", "images/offline.png").attr("title", "已下线");
                 $(v).find(".set-offline").html("上线");
             } else {
-                $(v).find(".online-status").children("img").attr("src", "img/online.png").attr("title", "在线");
+                $(v).find(".online-status").children("img").attr("src", "images/online.png").attr("title", "在线");
                 $(v).find(".set-offline").html("下线");
             }
 
@@ -162,9 +162,9 @@ function appendNode(group_id, session_id, node)
         '<label class="index">'+index+'</label>、'+session_id+'</span>'+
             '<span class="online-status">';
     if (parseInt(node.is_offline) == 1) {
-        html += '<img title="在线" src="img/online.png"/>';
+        html += '<img title="在线" src="images/online.png"/>';
     } else {
-        html += '<img title="已下线" src="img/offline.png"/>';
+        html += '<img title="已下线" src="images/offline.png"/>';
     }
         html +='</span>'+
         '<span class="is-leader">';

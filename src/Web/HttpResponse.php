@@ -1,4 +1,6 @@
 <?php namespace Seals\Web;
+use Seals\Web\Logic\User;
+
 /**
  * Created by PhpStorm.
  * User: yuyi
@@ -241,6 +243,9 @@ class HttpResponse
 
         $mime_type = "text/html";
 
+        
+        var_dump($this->getCookies());
+        
         $_GET     = $this->getAll();
         $_POST    = $this->postAll();
         $_REQUEST = array($_GET,$_POST);
@@ -249,8 +254,21 @@ class HttpResponse
             $mime_type = MimeType::getMimeType($this->home . $resource);
             if (in_array($mime_type, ["text/x-php", "text/html"])) {
                 ob_start();
-                include $this->home . $resource;
-                $response = ob_get_contents();
+
+                $appid = $this->getCookie("wing-binlog-appid");
+                $token = $this->getCookie("wing-binlog-token");
+                $check_token = User::checkToken($appid, $token);
+                if ($check_token) {
+                    include $this->home . $resource;
+                    $response = ob_get_contents();
+                } else {
+                    if ($this->getResource() == "/login.php") {
+                        include $this->home . $resource;
+                        $response = ob_get_contents();
+                    } else {
+                        $response = "请重新登录，<a href='/login.php'>去登陆</a>";
+                    }
+                }
                 ob_end_clean();
                 $mime_type = "text/html";
             } else {
