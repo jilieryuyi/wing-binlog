@@ -63,9 +63,14 @@ function nodeRefresh(v, group_id, session_id)
 
             $(".open-generallog").attr("data-open",data.generallog);
             if (parseInt(data.generallog) == 1) {
-                $(".open-generallog").html("关闭generallog");
+                $(".open-generallog")
+                    .html("关闭generallog")
+                    .removeClass("bg-normal")
+                    .addClass("bg-red");
             } else {
-                $(".open-generallog").html("开启generallog");
+                $(".open-generallog").html("开启generallog")
+                    .addClass("bg-normal")
+                    .removeClass("bg-red");
             }
             var index = 1;
             $(".nodes-list .node").each(function(){

@@ -627,6 +627,16 @@ class Worker implements Process
         return 1;
     }
 
+    /**
+     * rpc api, set database config
+     *
+     * @param string $db_name
+     * @param string $host
+     * @param string $user
+     * @param string $password
+     * @param int $port
+     * @return int
+     */
     public static function setDbConfig($db_name, $host, $user, $password, $port)
     {
         $config_file = __APP_DIR__."/config/db.php";
@@ -644,11 +654,22 @@ class Worker implements Process
         return 1;
     }
 
+    /**
+     * rpc api, get databases list
+     *
+     * @return array
+     */
     public static function getDatabases()
     {
         return Context::instance()->activity_pdo->getDatabases();
     }
 
+    /**
+     * rpc api, open or close mysql generallog
+     *
+     * @param bool $open
+     * @return int
+     */
     public static function openGenerallog($open)
     {
         $general = new GeneralLog(Context::instance()->activity_pdo);
