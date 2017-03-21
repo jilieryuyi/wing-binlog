@@ -285,7 +285,7 @@ class HttpResponse
                 $response = $route->parse();
                 unset($route);
             } else {
-                $response = "请重新登录，<a href='/login.php'>去登陆</a>";
+                $response = json_encode(["error_msg"=>"请重新登录，<a href='/login.php'>去登陆</a>"]);
             }
         }
         unset($_GET,$_POST,$_REQUEST);
