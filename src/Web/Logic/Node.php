@@ -154,4 +154,18 @@ class Node
         return RPC::call($session_id, "\\Seals\\Library\\Worker::setZookeeperConfig", [$group_id, $host, $port, $password]);
     }
 
+    public static function setDbConfig(HttpResponse $response)
+    {
+        $group_id   = $response->post("group_id");
+        $session_id = $response->post("session_id");
+
+        $host      = urldecode($response->post("host"));
+        $port      = urldecode($response->post("port"));
+        $password  = urldecode($response->post("password"));
+        $db_name   = urldecode($response->post("db_name"));
+        $user      = urldecode($response->post("user"));
+
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::setDbConfig", [$db_name, $host, $user, $password, $port]);
+    }
+
 }

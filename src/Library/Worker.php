@@ -629,7 +629,19 @@ class Worker implements Process
 
     public static function setDbConfig($db_name, $host, $user, $password, $port)
     {
+        $config_file = __APP_DIR__."/config/db.php";
+        $config      = new Config([
+            "db_name"  => $db_name,
+            "host"     => $host,
+            "user"     => $user,
+            "password" => $password,
+            "port"     => $port
+        ]);
 
+        $config->write($config_file);
+        unset($config);
+        self::restart();
+        return 1;
     }
 
 

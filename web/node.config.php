@@ -144,12 +144,12 @@ var_dump($node_info);
 
     <div class="c-item">
         <div>数据库配置</div>
-        <div><span>ip</span><input type="text" value="<?php echo $node_info["db_config"]["host"]; ?>"/></div>
-        <div><span>端口</span><input type="text" value="<?php echo $node_info["db_config"]["port"]; ?>"/></div>
-        <div><span>用户</span><input type="text" value="<?php echo $node_info["db_config"]["user"]; ?>"/></div>
-        <div><span>密码</span><input type="text" value=""/></div>
-        <div><span>数据库</span><input type="text"  value="<?php echo $node_info["db_config"]["db_name"]; ?>"/></div>
-        <div><span class="button button-small button-local">更新配置</span></div>
+        <div><span>ip</span><input class="host" type="text" value="<?php echo $node_info["db_config"]["host"]; ?>"/></div>
+        <div><span>端口</span><input class="port" type="text" value="<?php echo $node_info["db_config"]["port"]; ?>"/></div>
+        <div><span>用户</span><input class="user" type="text" value="<?php echo $node_info["db_config"]["user"]; ?>"/></div>
+        <div><span>密码</span><input class="password" type="text" value=""/></div>
+        <div><span>数据库</span><input class="db_name" type="text"  value="<?php echo $node_info["db_config"]["db_name"]; ?>"/></div>
+        <div><span onclick="setDbConfig(this)" class="button button-small button-local">更新配置</span></div>
     </div>
 </div>
 </body>
