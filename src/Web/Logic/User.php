@@ -31,24 +31,12 @@ class User
         return trim($this->password) == $password;
     }
 
-    public static function createToken()
-    {
-        $str1 = md5(rand(0,999999));
-        $str2 = md5(rand(0,999999));
-        $str3 = md5(rand(0,999999));
-
-        return time()."-".
-        substr($str1,rand(0,strlen($str1)-16),16).
-        substr($str2,rand(0,strlen($str2)-16),16).
-        substr($str3,rand(0,strlen($str3)-16),16);
-    }
-
     public function setToken()
     {
-        $token = \Seals\Web\Logic\User::createToken();
+        $token = createUuid();
         $appid = substr(md5($this->user_name),2,18);
         $file  = new \Seals\Cache\File(__APP_DIR__."/data/user/login");
-        $file->set($appid, $token, 3600);
+        $file->set($appid.".token", [$this->user_name, $token], 3600);
         unset($file);
         return [$appid, $token];
     }
@@ -58,9 +46,19 @@ class User
         if (!$appid || !$token)
             return false;
         $file    = new \Seals\Cache\File(__APP_DIR__."/data/user/login");
-        $success = $file->get($appid) == $token;
-        unset($appid, $file, $token);
-        return $success;
+        list(,$_token) = $file->get($appid.".token");// == $token;
+        unset($appid, $file);
+        return $_token == $token;
+    }
+
+    public static function getUserName($appid)
+    {
+        if (!$appid)
+            return "";
+        $file    = new \Seals\Cache\File(__APP_DIR__."/data/user/login");
+        list($user_name,) = $file->get($appid.".token");
+        unset($appid, $file);
+        return $user_name;
     }
 
 }

@@ -251,13 +251,17 @@ class HttpResponse
         $_REQUEST = array($_GET,$_POST);
 
         if (file_exists($this->home.$resource)) {
-            $mime_type = MimeType::getMimeType($this->home . $resource);
+            $mime_type   = MimeType::getMimeType($this->home . $resource);
+
+            //check is login
+            $appid       = $this->getCookie("wing-binlog-appid");
+            $token       = $this->getCookie("wing-binlog-token");
+            $check_token = User::checkToken($appid, $token);
+            unset($appid, $token);
+
+
             if (in_array($mime_type, ["text/x-php", "text/html"])) {
                 ob_start();
-
-                $appid = $this->getCookie("wing-binlog-appid");
-                $token = $this->getCookie("wing-binlog-token");
-                $check_token = User::checkToken($appid, $token);
                 if ($check_token) {
                     include $this->home . $resource;
                     $response = ob_get_contents();
@@ -272,8 +276,14 @@ class HttpResponse
                 ob_end_clean();
                 $mime_type = "text/html";
             } else {
-                $response = file_get_contents($this->home . $resource);
+                if ($check_token) {
+                    $response = file_get_contents($this->home . $resource);
+                } else {
+                    $response = "请重新登录，<a href='/login.php'>去登陆</a>";
+                }
             }
+            unset($check_token);
+
         } else {
             $route    = new Route($this, $resource);
             $response = $route->parse();

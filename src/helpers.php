@@ -115,3 +115,17 @@ if (!function_exists("logger")) {
         );
     }
 }
+
+if (!function_exists("createUuid")) {
+    function createUuid()
+    {
+        $str1 = md5(rand(0, 999999));
+        $str2 = md5(rand(0, 999999));
+        $str3 = md5(rand(0, 999999));
+
+        return time() . "-" .
+        substr($str1, rand(0, strlen($str1) - 16), 16) .
+        substr($str2, rand(0, strlen($str2) - 16), 16) .
+        substr($str3, rand(0, strlen($str3) - 16), 16);
+    }
+}
