@@ -325,4 +325,14 @@ class PDO implements DbInterface
     {
         return $this->lastSql;
     }
+
+    public function getDatabases()
+    {
+        $data = $this->query('show databases');
+        $res  = [];
+        foreach ($data as $row) {
+            $res[] = $row["Database"];
+        }
+        return $res;
+    }
 }

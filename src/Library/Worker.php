@@ -644,6 +644,11 @@ class Worker implements Process
         return 1;
     }
 
+    public static function getDatabases()
+    {
+        return Context::instance()->activity_pdo->getDatabases();
+    }
+
 
     /**
      * signal handler

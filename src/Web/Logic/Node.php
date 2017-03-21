@@ -168,4 +168,9 @@ class Node
         return RPC::call($session_id, "\\Seals\\Library\\Worker::setDbConfig", [$db_name, $host, $user, $password, $port]);
     }
 
+    public static function getDatabases($session_id)
+    {
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::getDatabases");
+    }
+
 }

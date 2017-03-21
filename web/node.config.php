@@ -7,7 +7,9 @@ $group_id   = $_GET["group_id"];
 $session_id = $_GET["session_id"];
 
 $node_info = \Seals\Web\Logic\Node::getInfo($group_id, $session_id);
-var_dump($node_info);
+//var_dump($node_info);
+
+$databases = \Seals\Web\Logic\Node::getDatabases($session_id);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -148,7 +150,16 @@ var_dump($node_info);
         <div><span>端口</span><input class="port" type="text" value="<?php echo $node_info["db_config"]["port"]; ?>"/></div>
         <div><span>用户</span><input class="user" type="text" value="<?php echo $node_info["db_config"]["user"]; ?>"/></div>
         <div><span>密码</span><input class="password" type="text" value=""/></div>
-        <div><span>数据库</span><input class="db_name" type="text"  value="<?php echo $node_info["db_config"]["db_name"]; ?>"/></div>
+        <div><span>数据库</span>
+            <select class="db_name">
+                <?php foreach ($databases as $database){
+                    $selected = $node_info["db_config"]["db_name"] == $database ? "selected" : "";
+                    ?>
+                <option <?php echo $selected; ?> value="<?php echo $database; ?>"><?php echo $database; ?></option>
+                <?php } ?>
+            </select>
+<!--            <input class="db_name" type="text"  value="--><?php //echo $node_info["db_config"]["db_name"]; ?><!--"/>-->
+        </div>
         <div><span onclick="setDbConfig(this)" class="button button-small button-local">更新配置</span></div>
     </div>
 </div>
