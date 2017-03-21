@@ -252,35 +252,35 @@ function appendGroup(group_id, nodes)
                 '<span class="group-id">'+group_id+'</span>'+
                 '<span class="node-count">'+length+'</span>'+
                 '<span class="group-edit edit">' +
-        '<a class="bg-normal" href="group.config.php?group_id='+group_id+'" style="margin-left: 0;">配置</a>' +
-        '</span>'+
+                    '<a class="bg-normal" href="group.config.php?group_id='+group_id+'" style="margin-left: 0;">配置</a>' +
+                '</span>'+
             '</div>'+
             '<ul class="nodes-list">';
+                if (length > 0) {
+                html +=
+                '<li class="title" style="height: 25px;">' +
+                    '<span class="node-id">节点</span>' +
+                    '<span class="online-status">状态</span>'+
+                    '<span class="is-leader">leader</span>' +
+                    '<span class="last-pos">最后读取</span>' +
+                    '<span class="version">版本号</span>' +
+                    '<span class="start-time">启动时间</span>' +
+                    '<span class="time-len">运行时长</span>' +
+                '</li>';
+                }
 
+            html +=
+            '</ul>';
 
-    if (length > 0) {
-        html += '<li class="title" style="height: 25px;">' +
-            '<span class="node-id">节点</span>' +
-            '<span class="online-status">状态</span>'+
-            '<span class="is-leader">leader</span>' +
-            '<span class="last-pos">最后读取</span>' +
-            '<span class="version">版本号</span>' +
-
-            '<span class="start-time">启动时间</span>' +
-            '<span class="time-len">运行时长</span>' +
-            '</li>';
-    }
-
-    html += '</ul>';
     $(".groups").append(html);
 
     for (var session_id in nodes) {
-        if (!nodes.hasOwnProperty(session_id))
+        if (!nodes.hasOwnProperty(session_id)) {
             continue;
+        }
         var node = nodes[session_id];
         appendNode(group_id, session_id, node);
     }
-
 }
 
 /**
@@ -307,6 +307,7 @@ function nodeRestart(dom)
 
     var group_id   = $(dom).attr("data-group-id");
     var session_id = $(dom).attr("data-session-id");
+
     $(dom).html("正在重启...").addClass("disable");
 
     window.setTimeout(function(){
@@ -322,9 +323,6 @@ function nodeRestart(dom)
             "session_id": session_id
         },
         success:function(msg){
-            // node_restart_doing = false;
-            // $(dom).removeClass("disable");
-            //var data = JSON.parse(msg);
         }
     });
 
@@ -345,7 +343,9 @@ function nodeUpdate(dom)
         return;
     var group_id   = $(dom).attr("data-group-id");
     var session_id = $(dom).attr("data-session-id");
+
     $(dom).html("正在更新...");
+
     $.ajax({
         type: "POST",
         url : "/service/node/update",
@@ -354,7 +354,6 @@ function nodeUpdate(dom)
             "session_id": session_id
         },
         success:function(msg){
-            //var data = JSON.parse(msg);
         }
     });
 
@@ -371,23 +370,20 @@ function nodeUpdate(dom)
 
 $(document).ready(function(){
     window.setInterval(function(){
-        //refresh list
         getAllServices(function(msg){
             var data = JSON.parse(msg);
-            //console.log(data);
             for (var group_id in data) {
-                if (!data.hasOwnProperty(group_id))
+                if (!data.hasOwnProperty(group_id)) {
                     continue;
-                //console.log(group_id);
+                }
                 if ($(".group-"+group_id).length <= 0) {
                     //如果群组不存在，新增的，追加到列表
                     appendGroup(group_id, data[group_id]);
                 }
-                //console.log(data[group_id]);
                 for (var session_id in data[group_id]) {
-                    if (!data[group_id].hasOwnProperty(session_id))
+                    if (!data[group_id].hasOwnProperty(session_id)) {
                         continue;
-                    //console.log(session_id);
+                    }
                     if ($(".node-"+session_id).length <= 0) {
                         appendNode(group_id, session_id, data[group_id][session_id]);
                     }
