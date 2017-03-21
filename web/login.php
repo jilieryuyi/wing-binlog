@@ -58,13 +58,13 @@ if (isset($_POST["user_name"]) && isset($_POST["password"])) {
             Cookies.set('wing-binlog-appid', appid, { expires: 1 });
             Cookies.set('wing-binlog-token', token, { expires: 1 });
             window.location.href = "/";
-        } else {
+        }/* else {
             appid = Cookies.get('wing-binlog-appid');
             token = Cookies.get('wing-binlog-token');
 
             if (appid && token && typeof appid != "undefined" && typeof token != "undefined")
                 window.location.href = "/";
-        }
+        }*/
 
 
     </script>
