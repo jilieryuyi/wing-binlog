@@ -36,7 +36,7 @@ var_dump($node_info);
     <div>注意：</div>
     <div class="c-red">已去除所有的敏感密码信息，密码字段均未返回和填充，如需更新，请正确填写，否则忽略密码字段</div>
     <div class="c-red">节点下线之后将停止一切采集业务，也不会被分配为leader，可以随时恢复上线</div>
-    <div class="c-red">密码字段，null请使用 :null 代替，空值请使用 :empty 代替</div>
+    <div class="c-red">密码字段，null请使用 :null 代替</div>
 </div>
 <div>
     <div class="c-item">

@@ -31,9 +31,11 @@ class Local implements LoggerInterface
     {
         //如果是非定义记录的级别 不采取任何操作
         if (!in_array($name,$this->levels)) {
+            echo "非定义级别\r\n";
             return;
         }
         if ( !$message && !$context) {
+            echo "空日志\r\n";
             return;
         }
 

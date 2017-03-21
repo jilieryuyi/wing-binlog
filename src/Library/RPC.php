@@ -11,7 +11,7 @@ class RPC
 {
     const RPC_LIST = "wing-binlog-rpc-list";
 
-    protected function createEventId()
+    protected static function createEventId()
     {
         $str1 = md5(rand(0,999999));
         $str2 = md5(rand(0,999999));
@@ -29,6 +29,7 @@ class RPC
      * @param string $func only support static func, like \\Seals\\Test::a
      * @param array $params
      * @param int $timeout seconds from timeout wait
+     * @return mixed
      */
     public static function call($session_id, $func, $params = [], $timeout = 3)
     {

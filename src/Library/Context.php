@@ -14,6 +14,7 @@ use Seals\Cache\File;
  * @property PDO $activity_pdo
  * @property RedisInterface $redis_local
  * @property LoggerInterface $logger
+ * @property RedisInterface $redis_zookeeper
  */
 class Context{
 

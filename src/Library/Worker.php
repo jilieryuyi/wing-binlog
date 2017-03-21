@@ -566,64 +566,45 @@ class Worker implements Process
 
     public static function setLocalRedisConfig($host, $port, $password = null)
     {
-        $password = urldecode($password);
-
-        if ($password == ":null" || !$password)
-            $password = "null";
-        elseif ($password == ":empty")
-            $password = "\"\"";
-        else
-            $password = "\"".$password."\"";
         $config_file = __APP_DIR__."/config/redis_local.php";
-        $config = "<?php\r\nreturn [
-        \"host\"     => \"".$host."\",
-        \"port\"     => ".$port.",
-        \"password\" => ".$password."\r\n];";
-        file_put_contents($config_file, $config);
+        $config      = new Config([
+            "host"     => $host,
+            "port"     => $port,
+            "password" =>$password
+        ]);
+        $config->write($config_file);
+
         self::restart();
         return 1;
     }
 
     public static function setRedisConfig($host, $port, $password = null)
     {
-        $password = urldecode($password);
-
-        if ($password == ":null" || !$password)
-            $password = "null";
-        elseif ($password == ":empty")
-            $password = "\"\"";
-        else
-            $password = "\"".$password."\"";
         $config_file = __APP_DIR__."/config/redis.php";
-        $config = "<?php\r\nreturn [
-        \"host\"     => \"".$host."\",
-        \"port\"     => ".$port.",
-        \"password\" => ".$password."\r\n];";
-        file_put_contents($config_file, $config);
+        $config      = new Config([
+            "host" => $host,
+            "port" => $port,
+            "password" =>$password
+        ]);
+        $config->write($config_file);
         self::restart();
         return 1;
     }
 
     public static function setRabbitmqConfig($host, $port, $user, $password, $vhost)
     {
-        $user     = urldecode($user);
-        $password = urldecode($password);
-        $vhost    = urldecode($vhost);
 
-        if ($password == ":null" || !$password)
-            $password = "null";
-        elseif ($password == ":empty")
-            $password = "\"\"";
-        else
-            $password = "\"".$password."\"";
         $config_file = __APP_DIR__."/config/rabbitmq.php";
-        $config = "<?php\r\nreturn [
-        \"host\"     => \"".$host."\",
-        \"port\"     => ".$port.",
-        \"user\"     => \"".$user."\",
-        \"vhost\"    => \"".$vhost."\",
-        \"password\" => ".$password."\r\n];";
-        file_put_contents($config_file, $config);
+        $config      = new Config([
+            "host" => $host,
+            "port" => $port,
+            "user" => $user,
+            "password" => $password,
+            "vhost" => $vhost
+        ]);
+
+        $config->write($config_file);
+        unset($config);
         self::restart();
         return 1;
     }

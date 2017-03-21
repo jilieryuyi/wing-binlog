@@ -71,4 +71,33 @@ class Config
             return [$this->raw];
         }
     }
+
+    public function write($file)
+    {
+        $config = "<?php \r\nreturn [\r\n";
+
+        $temp = [];
+        $arr  = $this->toArray();
+
+        foreach ($arr as $key => $value) {
+            $value     = urldecode($value);
+
+            if ($key == "password") {
+                if ($value == ":null")
+                    $value = "null";
+                elseif ($value == ":empty")
+                    $value = "\"\"";
+                else
+                    $value = "\"".$value."\"";
+            } else {
+                $value = "\"".$value."\"";
+            }
+            $temp[] = "\"".$key."\" => ".$value;
+        }
+
+        $config .= implode(",\r\n", $temp);
+        $config .="\r\n];";
+
+        return file_put_contents($file, $config);
+    }
 }
