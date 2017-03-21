@@ -627,6 +627,11 @@ class Worker implements Process
         return 1;
     }
 
+    public static function setDbConfig($db_name, $host, $user, $password, $port)
+    {
+
+    }
+
 
     /**
      * signal handler

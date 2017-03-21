@@ -97,7 +97,7 @@ class PDO implements DbInterface
      */
     private function connect()
     {
-        $dsn = 'mysql:dbname=' . $this->dbname . ';host=' . $this->host . '';
+        $dsn = 'mysql:dbname=' . $this->dbname . ';host=' . $this->host . ';port='.$this->port;
         try {
             $this->pdo = new \PDO($dsn, $this->user, $this->password, [\PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"]);
 
