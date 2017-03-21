@@ -28,6 +28,9 @@ class Node
         $res               =  Zookeeper::getLastReport($group_id, $session_id);
         $last_report       = time() - $res["updated"];
 
+        if (!is_array($res))
+            $res = [];
+
         return array_merge($res, [
             //"workers"      => $res["workers"],
             //"debug"        => $res["debug"],

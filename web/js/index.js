@@ -253,6 +253,25 @@ function appendGroup(group_id, nodes)
                 '<span class="node-count">'+length+'</span>'+
                 '<span class="group-edit edit">' +
                     '<a class="bg-normal" href="group.config.php?group_id='+group_id+'" style="margin-left: 0;">配置</a>' +
+                    '<a ' +
+                    'class="bg-red set-offline" ' +
+                    'title="下线整个群组！仅运行时有效，重启后失效。' +
+                    '节点下线之后将停止一切采集业务，' +
+                    '也不会被分配为leader，可以随时恢复上线" '+
+                    'data-group-id="'+group_id+'">下线</a>'+
+                    '<a ' +
+                    'class="bg-normal"  '+
+                    'data-group-id="'+group_id+'">报表</a>'+
+
+                    '<a title="重启整个群组" class="bg-red"  '+
+                    'data-group-id="'+group_id+'">重启</a>'+
+
+                    '<a title="更新整个群组" class="bg-normal" ' +
+                    'title="composer update && ' +
+                    'git pull origin master&& ' +
+                    'php seals server:restart"  '+
+                    'data-group-id="'+group_id+'" >更新</a>'+
+                    '<label class="error-info"></label>'+
                 '</span>'+
             '</div>'+
             '<ul class="nodes-list">';

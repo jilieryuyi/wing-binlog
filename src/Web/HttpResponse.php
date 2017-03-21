@@ -242,9 +242,6 @@ class HttpResponse
             $resource = "/index.php";
 
         $mime_type = "text/html";
-
-        
-        var_dump($this->getCookies());
         
         $_GET     = $this->getAll();
         $_POST    = $this->postAll();
@@ -285,7 +282,7 @@ class HttpResponse
                 $response = $route->parse();
                 unset($route);
             } else {
-                $response = json_encode(["error_msg"=>"请重新登录，<a href='/login.php'>去登陆</a>"]);
+                $response = json_encode(["error_code" => 4000, "error_msg"=>"请重新登录，<a href='/login.php'>去登陆</a>"]);
             }
         }
         unset($_GET,$_POST,$_REQUEST);
