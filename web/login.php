@@ -17,17 +17,12 @@ if (isset($_POST["user_name"]) && isset($_POST["password"])) {
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-
-
     <!-- General meta information -->
     <title>Login Wing-binlog</title>
     <meta name="keywords" content="" />
     <meta name="description" content="" />
     <meta name="robots" content="index, follow" />
-    <meta charset="utf-8" />
     <!-- // General meta information -->
-
-
     <!-- Load Javascript -->
     <script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
     <script type="text/javascript" src="js/rainbows.js"></script>
@@ -58,13 +53,7 @@ if (isset($_POST["user_name"]) && isset($_POST["password"])) {
             Cookies.set('wing-binlog-appid', appid, { expires: 1 });
             Cookies.set('wing-binlog-token', token, { expires: 1 });
             window.location.href = "/";
-        }/* else {
-            appid = Cookies.get('wing-binlog-appid');
-            token = Cookies.get('wing-binlog-token');
-
-            if (appid && token && typeof appid != "undefined" && typeof token != "undefined")
-                window.location.href = "/";
-        }*/
+        }
 
 
     </script>
