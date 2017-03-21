@@ -35,6 +35,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
 </div>
 <div class="warn-info">
     <div>注意：</div>
+    <div class="c-red">群组默认展示的是leader的配置</div>
     <div class="c-red">修改群组配置将下发到该群组下的所有节点，修改时请注意</div>
     <div class="c-red">节点下线之后将停止一切采集业务，也不会被分配为leader，可以随时恢复上线</div>
     <div class="c-red">密码字段，null请使用 :null 代替</div>
