@@ -34,9 +34,7 @@ function nodeRefresh(v, group_id, session_id)
             }
 
             $(v).find(".time-len").html(data.time_len);
-            
             $(v).find(".set-offline").attr("data-is_offline", data.is_offline);
-
             $(v).find(".start-time").html(data.created);
 
             if (data.is_offline) {
@@ -48,7 +46,6 @@ function nodeRefresh(v, group_id, session_id)
             }
 
             $(v).find(".version").html(data.version);
-
             $(v).css("background","#fff");
             //mysql-bin.000031 => 154
             if (data.last_updated > 10 && data.last_updated < 20) {
@@ -106,8 +103,6 @@ function nodeOffline(dom)
             "is_offline": is_offline
         },
         success:function(msg){
-            // node_offline_doing = false;
-            // $(dom).removeClass("disable");
         }
     });
 }
@@ -153,75 +148,88 @@ function appendNode(group_id, session_id, node)
     var index = $(".group-"+group_id+" li").length;
 
     var html =
-        '<li class="node node-'+session_id+'" '+
-        'data-group-id="'+group_id+'" '+
-        'data-session-id="'+session_id+'" '+
-        '>'+
+        '<li ' +
+            'class="node node-'+session_id+'" '+
+            'data-group-id="'+group_id+'" '+
+            'data-session-id="'+session_id+'" '+
+            '>'+
             '<div>'+
-        '<span class="node-id" title="'+session_id+'">' +
-        '<label class="index">'+index+'</label>、'+session_id+'</span>'+
-            '<span class="online-status">';
-    if (parseInt(node.is_offline) == 1) {
-        html += '<img title="在线" src="images/online.png"/>';
-    } else {
-        html += '<img title="已下线" src="images/offline.png"/>';
-    }
-        html +='</span>'+
-        '<span class="is-leader">';
-    if (parseInt(node.is_leader) == 1) {
-        last_read = node.last_binlog+" => "+node.last_pos;
-        html += "是";
-    } else {
-        html += "否";
-    }
-    html +=
-        '</span>'+
-        '<span class="last-pos">';
-    if (parseInt(node.is_leader) == 1) {
-        html += node.last_binlog+" => "+node.last_pos;
-    } else {
-        html += "";
-    }
-        html +=
-            '</span>'+
-            '<span class="version">'+node.version+'</span>' +
+                '<span class="node-id" title="'+session_id+'">' +
+                    '<label class="index">'+index+'</label>、'+session_id+
+                '</span>'+
+                '<span class="online-status">';
+                    if (parseInt(node.is_offline) == 1) {
+                        html += '<img title="在线" src="images/online.png"/>';
+                    } else {
+                        html += '<img title="已下线" src="images/offline.png"/>';
+                    }
+                    html +=
+                '</span>'+
+                '<span class="is-leader">';
+                    if (parseInt(node.is_leader) == 1) {
+                        last_read = node.last_binlog+" => "+node.last_pos;
+                        html += "是";
+                    } else {
+                        html += "否";
+                    }
+                    html +=
+                '</span>'+
+                '<span class="last-pos">';
+                    if (parseInt(node.is_leader) == 1) {
+                        html += node.last_binlog+" => "+node.last_pos;
+                    } else {
+                        html += "";
+                    }
+                    html +=
+                '</span>'+
+                '<span class="version">'+node.version+'</span>' +
+                '<span class="start-time">'+node.created+'</span>' +
+                '<span class="time-len">'+node.time_len+'</span>' +
+            '</div>' +
+            '<div>'+
+                '<span class="edit">'+
+                    '<a ' +
+                        'class="bg-normal" ' +
+                        'style="margin-left: 0;" '+
+                        'data-group-id="'+group_id+'" '+
+                        'data-session-id="'+session_id+'" '+
+                        'onclick="nodeConfig(this)" >配置</a>'+
+                    '<a ' +
+                        'class="bg-red set-offline" ' +
+                        'title="仅运行时有效，重启后失效。' +
+                                '节点下线之后将停止一切采集业务，' +
+                                '也不会被分配为leader，可以随时恢复上线" '+
+                        'data-group-id="'+group_id+'" '+
+                        'data-session-id="'+session_id+'" '+
+                        'data-is_offline="'+node.is_offline+'" '+
+                        'onclick="nodeOffline(this)" >';
+                        if (parseInt(node.is_offline) == 1) {
+                            html += '上线';
+                        } else {
+                            html += '下线';
+                        }
+                        html +='</a>'+
+                    '<a ' +
+                        'class="bg-normal"  '+
+                        'data-group-id="'+group_id+'" '+
+                        'data-session-id="'+session_id+'" '+
+                        'onclick="" >报表</a>'+
 
-            '<span class="start-time">'+node.created+'</span>' +
-            '<span class="time-len">'+node.time_len+'</span>' +
-            '</div><div>'+
-            '<span class="edit">'+
-            '<a class="bg-normal" style="margin-left: 0;" '+
-            'data-group-id="'+group_id+'" '+
-            'data-session-id="'+session_id+'" '+
-            'onclick="nodeConfig(this)" >配置</a>'+
-            '<a class="bg-red set-offline" title="仅运行时有效，重启后失效。节点下线之后将停止一切采集业务，也不会被分配为leader，可以随时恢复上线" '+
-            'data-group-id="'+group_id+'" '+
-            'data-session-id="'+session_id+'" '+
-            'data-is_offline="'+node.is_offline+'" '+
+                    '<a class="bg-red"  '+
+                        'data-group-id="'+group_id+'" '+
+                        'data-session-id="'+session_id+'" '+
+                        'onclick="nodeRestart(this)" >重启</a>'+
 
-            'onclick="nodeOffline(this)" >';
-    if (parseInt(node.is_offline) == 1) {
-        html += '上线';
-    } else {
-        html += '下线';
-    }
-    html +='</a>'+
-            '<a class="bg-normal"  '+
-            'data-group-id="'+group_id+'" '+
-            'data-session-id="'+session_id+'" '+
-            'onclick="" >报表</a>'+
-
-            '<a class="bg-red"  '+
-            'data-group-id="'+group_id+'" '+
-            'data-session-id="'+session_id+'" '+
-            'onclick="nodeRestart(this)" >重启</a>'+
-
-            '<a class="bg-normal" title="composer update && git pull origin master&& php seals server:restart"  '+
-            'data-group-id="'+group_id+'" '+
-            'data-session-id="'+session_id+'" '+
-            'onclick="nodeUpdate(this)" >更新</a>'+
-            '<label class="error-info"></label>'+
-            '</span></div>'+
+                    '<a class="bg-normal" ' +
+                        'title="composer update && ' +
+                            'git pull origin master&& ' +
+                            'php seals server:restart"  '+
+                        'data-group-id="'+group_id+'" '+
+                        'data-session-id="'+session_id+'" '+
+                        'onclick="nodeUpdate(this)" >更新</a>'+
+                    '<label class="error-info"></label>'+
+                '</span>' +
+            '</div>'+
         '</li>';
 
     $(".group-"+group_id+ " ul").append(html);
