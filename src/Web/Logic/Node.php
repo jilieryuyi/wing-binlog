@@ -176,4 +176,15 @@ class Node
         return RPC::call($session_id, "\\Seals\\Library\\Worker::getDatabases");
     }
 
+    public static function openGenerallog(HttpResponse $response)
+    {
+        $group_id   = $response->post("group_id");
+        $session_id = $response->post("session_id");
+        $open       = $response->post("open");
+
+        $open       = intval($open);
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::openGenerallog",[$open]);
+
+    }
+
 }

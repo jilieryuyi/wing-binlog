@@ -24,6 +24,10 @@ function nodeRefresh(v, group_id, session_id)
                 return;
             //console.log(msg);
             var data   = JSON.parse(msg);
+            if (typeof data.error_code != "undefined" && data.error_code == 4000) {
+                $(".login-timeout").show();
+                return;
+            }
 
             if (data.is_leader == 1) {
                 $(v).find(".last-pos").html(data.last_binlog+" => "+data.last_pos);
@@ -57,6 +61,12 @@ function nodeRefresh(v, group_id, session_id)
             else
                 $(v).removeClass("hide");
 
+            $(".open-generallog").attr("data-open",data.generallog);
+            if (parseInt(data.generallog) == 1) {
+                $(".open-generallog").html("关闭generallog");
+            } else {
+                $(".open-generallog").html("开启generallog");
+            }
             var index = 1;
             $(".nodes-list .node").each(function(){
                 if (!$(this).hasClass("hide")) {
@@ -90,6 +100,7 @@ function nodeOffline(dom)
 
     $(dom).html("正在操作...").addClass("disable");
     window.setTimeout(function(){
+        $(dom).html("下线");
         node_offline_doing = false;
         $(dom).removeClass("disable")
     },3000);
@@ -101,6 +112,111 @@ function nodeOffline(dom)
             "group_id"  : group_id,
             "session_id": session_id,
             "is_offline": is_offline
+        },
+        success:function(msg){
+        }
+    });
+}
+
+var open_generallog_doing = false;
+function openGenerallog(dom)
+{
+
+    if (open_generallog_doing) {
+        return;
+    }
+
+    open_generallog_doing = true;
+
+    var group_id   = $(dom).attr("data-group-id");
+    var session_id = $(dom).attr("data-session-id");
+    var open       = $(dom).attr("data-open") == "1" ? 0 : 1;
+
+    $(dom).html("正在操作...").addClass("disable");
+    window.setTimeout(function(){
+        if (open == 0)
+            $(dom).html("开启generallog");
+        else
+            $(dom).html("关闭generallog");
+        open_generallog_doing = false;
+        $(dom).removeClass("disable")
+    },3000);
+
+    $.ajax({
+        type :"POST",
+        url  : "/service/generallog/open",
+        data : {
+            "group_id"  : group_id,
+            "session_id": session_id,
+            "open"      : open
+        },
+        success:function(msg){
+        }
+    });
+}
+
+var open_group_generallog_doing = false;
+function openGroupGenerallog(dom, open)
+{
+
+        if (open_group_generallog_doing) {
+            return;
+        }
+
+        open_group_generallog_doing = true;
+
+        var group_id   = $(dom).attr("data-group-id");
+
+        var old_html = $(dom).html();
+        $(dom).html("正在操作...").addClass("disable");
+        window.setTimeout(function(){
+                $(dom).html(old_html);
+            open_group_generallog_doing = false;
+            $(dom).removeClass("disable")
+        },3000);
+
+        $.ajax({
+            type :"POST",
+            url  : "/service/group/generallog/open",
+            data : {
+                "group_id"  : group_id,
+                "open"      : open
+            },
+            success:function(msg){
+            }
+        });
+}
+
+
+
+var group_offline_doing = false;
+function groupOffline(dom, is_offline)
+{
+
+    if (group_offline_doing) {
+        return;
+    }
+
+    group_offline_doing = true;
+
+    var group_id   = $(dom).attr("data-group-id");
+
+    $(dom).html("正在操作...").addClass("disable");
+    window.setTimeout(function(){
+        if (is_offline == 1)
+            $(dom).html("下线");
+        else
+            $(dom).html("上线");
+        group_offline_doing = false;
+        $(dom).removeClass("disable")
+    },3000);
+
+    $.ajax({
+        type :"POST",
+        url  : "/service/group/offline",
+        data : {
+            "group_id"   : group_id,
+            "is_offline" : is_offline
         },
         success:function(msg){
         }
@@ -226,8 +342,22 @@ function appendNode(group_id, session_id, node)
                             'php seals server:restart"  '+
                         'data-group-id="'+group_id+'" '+
                         'data-session-id="'+session_id+'" '+
-                        'onclick="nodeUpdate(this)" >更新</a>'+
-                    '<label class="error-info"></label>'+
+                        'onclick="nodeUpdate(this)" >更新</a>';
+
+     {
+        html += '<a class="bg-normal open-generallog" ' +
+            'data-group-id="' + group_id + '" ' +
+            'data-session-id="' + session_id + '" ' +
+            'data-open="' + node.generallog + '" ' +
+
+            'onclick="openGenerallog(this)" >';
+         if (parseInt(node.generallog) != 1)
+             html+= '开启generallog';
+         else
+             html+= '关闭generallog';
+         html+='</a>';
+    }
+                    html+='<label class="error-info"></label>'+
                 '</span>' +
             '</div>'+
         '</li>';
@@ -258,7 +388,14 @@ function appendGroup(group_id, nodes)
                     'title="下线整个群组！仅运行时有效，重启后失效。' +
                     '节点下线之后将停止一切采集业务，' +
                     '也不会被分配为leader，可以随时恢复上线" '+
-                    'data-group-id="'+group_id+'">下线</a>'+
+                    'data-group-id="'+group_id+'" ' +
+                    'onclick="groupOffline(this,1)">下线</a>'+
+
+                    '<a ' +
+                    'class="bg-normal set-offline" ' +
+                    'title="上线整个群组" '+
+                    'data-group-id="'+group_id+'" ' +
+                    'onclick="groupOffline(this,0)">上线</a>'+
                     '<a ' +
                     'class="bg-normal"  '+
                     'data-group-id="'+group_id+'">报表</a>'+
@@ -271,6 +408,15 @@ function appendGroup(group_id, nodes)
                     'git pull origin master&& ' +
                     'php seals server:restart"  '+
                     'data-group-id="'+group_id+'" >更新</a>'+
+
+         '<a class="bg-normal" ' +
+            'data-group-id="' + group_id + '" ' +
+            'onclick="openGroupGenerallog(this,1)" >开启generallog</a>'+
+
+        '<a class="bg-red" ' +
+        'data-group-id="' + group_id + '" ' +
+        'onclick="openGroupGenerallog(this,0)" >关闭generallog</a>'+
+
                     '<label class="error-info"></label>'+
                 '</span>'+
             '</div>'+

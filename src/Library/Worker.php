@@ -649,6 +649,18 @@ class Worker implements Process
         return Context::instance()->activity_pdo->getDatabases();
     }
 
+    public static function openGenerallog($open)
+    {
+        $general = new GeneralLog(Context::instance()->activity_pdo);
+        if ($open) {
+            $general->open();
+        } else {
+            $general->close();
+        }
+        unset($general);
+        return 1;
+    }
+
 
     /**
      * signal handler
@@ -1022,6 +1034,8 @@ class Worker implements Process
             ->initRedisLocal()
             ->initPdo()
             ->zookeeperInit();
+        $generallog = new GeneralLog(Context::instance()->activity_pdo);
+        //$is_open    = $generallog->isOpen()?1:0;
 
         $bin = new \Seals\Library\BinLog(Context::instance()->activity_pdo);
         $bin->setCacheDir(Context::instance()->binlog_cache_dir);
@@ -1071,7 +1085,8 @@ class Worker implements Process
                         "redis_config" => $redis_config,
                         "zookeeper"    => $zookeeper_config,
                         "db_config"    => $db_config,
-                        "rabbitmq"     => $rabbitmq_config
+                        "rabbitmq"     => $rabbitmq_config,
+                        "generallog"   => $generallog->isOpen()?1:0
                     ]);
                     unset($redis_local, $redis_config,
                         $zookeeper_config, $db_config, $rabbitmq_config);

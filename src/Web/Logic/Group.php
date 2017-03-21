@@ -119,4 +119,33 @@ class Group
         return 1;
     }
 
+    public static function offline(HttpResponse $response)
+    {
+        $group_id   = $response->post("group_id");
+        $is_offline = $response->post("is_offline");
+
+        $nodes      = Zookeeper::getNodes($group_id);
+        foreach ($nodes as $session_id) {
+            RPC::call($session_id, "\\Seals\\Library\\Worker::setNodeOffline", [$is_offline]);
+        }
+        return 1;
+    }
+
+    public static function openGenerallog(HttpResponse $response)
+    {
+        $group_id   = $response->post("group_id");
+        $open       = $response->post("open");
+
+        $open       = intval($open);
+        $nodes      = Zookeeper::getNodes($group_id);
+
+        foreach ($nodes as $session_id) {
+            RPC::call($session_id, "\\Seals\\Library\\Worker::openGenerallog",[$open]);
+        }
+
+        return 1;
+
+    }
+
+
 }

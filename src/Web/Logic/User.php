@@ -36,7 +36,7 @@ class User
         $token = createUuid();
         $appid = substr(md5($this->user_name),2,18);
         $file  = new \Seals\Cache\File(__APP_DIR__."/data/user/login");
-        $file->set($appid.".token", [$this->user_name, $token], 86400);
+        $file->set($appid.".token", [$this->user_name, $token], 7200);
         unset($file);
         return [$appid, $token];
     }

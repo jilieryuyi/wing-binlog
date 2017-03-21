@@ -27,14 +27,15 @@ class Route
             "/service/node/rabbitmq/config/save"     => "\\Seals\\Web\\Logic\\Node::setRabbitmqConfig",
             "/service/node/zookeeper/config/save"    => "\\Seals\\Web\\Logic\\Node::setZookeeperConfig",
             "/service/node/db/config/save"           => "\\Seals\\Web\\Logic\\Node::setDbConfig",
-
+            "/service/generallog/open"               => "\\Seals\\Web\\Logic\\Node::openGenerallog",
             "/service/group/runtime/config/save"     => "\\Seals\\Web\\Logic\\Group::setRuntimeConfig",
             "/service/group/notify/config/save"      => "\\Seals\\Web\\Logic\\Group::setNotifyConfig",
             "/service/group/redis/config/save"       => "\\Seals\\Web\\Logic\\Group::setRedisConfig",
             "/service/group/rabbitmq/config/save"    => "\\Seals\\Web\\Logic\\Group::setRabbitmqConfig",
             "/service/group/zookeeper/config/save"   => "\\Seals\\Web\\Logic\\Group::setZookeeperConfig",
             "/service/group/db/config/save"          => "\\Seals\\Web\\Logic\\Group::setDbConfig",
-
+            "/service/group/offline" => "\\Seals\\Web\\Logic\\Group::offline",
+            "/service/group/generallog/open" => "\\Seals\\Web\\Logic\\Group::openGenerallog",
         ]
     ];
 

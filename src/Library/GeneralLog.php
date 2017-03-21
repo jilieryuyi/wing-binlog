@@ -18,6 +18,12 @@ class GeneralLog
         $sql = 'set @@global.general_log=1';
         return $this->pdo->query($sql);
     }
+
+    public function close()
+    {
+        $sql = 'set @@global.general_log=0';
+        return $this->pdo->query($sql);
+    }
     public function getLogPath()
     {
         $sql  = 'select @@general_log_file';
