@@ -503,7 +503,7 @@ class Worker implements Process
      */
     public static function update()
     {
-        $command = new Command("cd ".__APP_DIR__." && git pull origin master && composer update");
+        $command = new Command("cd ".__APP_DIR__." && git pull origin master");
         $command->run();
         unset($command);
         self::restart();

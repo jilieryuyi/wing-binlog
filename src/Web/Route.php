@@ -34,8 +34,10 @@ class Route
             "/service/group/rabbitmq/config/save"    => "\\Seals\\Web\\Logic\\Group::setRabbitmqConfig",
             "/service/group/zookeeper/config/save"   => "\\Seals\\Web\\Logic\\Group::setZookeeperConfig",
             "/service/group/db/config/save"          => "\\Seals\\Web\\Logic\\Group::setDbConfig",
-            "/service/group/offline" => "\\Seals\\Web\\Logic\\Group::offline",
+            "/service/group/offline"         => "\\Seals\\Web\\Logic\\Group::offline",
             "/service/group/generallog/open" => "\\Seals\\Web\\Logic\\Group::openGenerallog",
+            "/service/master/restart"        => "\\Seals\\Web\\Logic\\Master::restart",
+            "/service/master/update"         => "\\Seals\\Web\\Logic\\Master::update",
         ]
     ];
 

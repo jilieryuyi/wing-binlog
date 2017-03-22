@@ -24,7 +24,7 @@ class Master implements Process
     protected $ip               = "0.0.0.0";
     protected $port             = 9998;
     protected $home_path        = __APP_DIR__."/web";
-    protected $pid              = "master.pid";
+    protected $pid              = "master_1.pid";
     protected $http_processe    = 0;
     protected $master_process   = 0;
     protected $processes        = [];
@@ -230,6 +230,15 @@ class Master implements Process
     public static function restart()
     {
         posix_kill(file_get_contents(self::$master_pid), SIGUSR1);
+        return 1;
+    }
+
+    public static function update()
+    {
+        $command = new Command("cd ".__APP_DIR__." && git pull origin master");
+        $command->run();
+        unset($command);
+        self::restart();
         return 1;
     }
 

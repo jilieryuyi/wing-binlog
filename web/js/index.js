@@ -192,8 +192,6 @@ function openGroupGenerallog(dom, open)
         });
 }
 
-
-
 var group_offline_doing = false;
 function groupOffline(dom, is_offline)
 {
@@ -342,8 +340,7 @@ function appendNode(group_id, session_id, node)
                         'onclick="nodeRestart(this)" >重启</a>'+
 
                     '<a class="bg-normal" ' +
-                        'title="composer update && ' +
-                            'git pull origin master&& ' +
+                        'title="git pull origin master&& ' +
                             'php seals server:restart"  '+
                         'data-group-id="'+group_id+'" '+
                         'data-session-id="'+session_id+'" '+
@@ -507,14 +504,31 @@ function nodeRestart(dom)
 
 }
 
+var node_update_doing = false;
 function nodeUpdate(dom)
 {
+    if (node_update_doing) {
+        return;
+    }
     if (!window.confirm("确定更新？更新时间可能比较长一些，还请耐心等待~"))
         return;
+
+    node_update_doing = true;
+
     var group_id   = $(dom).attr("data-group-id");
     var session_id = $(dom).attr("data-session-id");
 
-    $(dom).html("正在更新...");
+    $(dom).html("正在更新...").addClass("disable");
+
+    window.setTimeout(function(){
+        $(dom).html("更新").removeClass("disable");
+        var error = $(dom).parent().find(".error-info");
+        error.html("更新成功后会重启，右边的运行时长会发生明显变化").show();
+        node_update_doing = false;
+        window.setTimeout(function(){
+            error.hide("slow").html("");
+        },5000);
+    },3000);
 
     $.ajax({
         type: "POST",
@@ -526,22 +540,55 @@ function nodeUpdate(dom)
         success:function(msg){
         }
     });
+}
 
-    var error = $(dom).parent().find(".error-info");
+var master_restart_doing = false;
+function restartMaster(dom) {
+    if (master_restart_doing) {
+        return;
+    }
+
+    $(dom).addClass("disable").html("正在重启...");
     window.setTimeout(function(){
-        $(dom).html("更新");
-        error.html("更新成功后会重启，右边的运行时长会发生明显变化").show();
-        window.setTimeout(function(){
-            error.hide("slow").html("");
-        },5000);
-    },2000);
+        $(dom).removeClass("disable").html("重启master进程");
+        master_restart_doing = false;
+    },3000);
 
+    $.ajax({
+        type:"POST",
+        url:"/service/master/restart",
+        success:function(msg){}
+    })
+}
+
+var master_update_doing = false;
+function updateMaster(dom) {
+    if (master_update_doing) {
+        return;
+    }
+
+    $(dom).addClass("disable").html("正在更新...");
+    window.setTimeout(function(){
+        $(dom).removeClass("disable").html("更新master");
+        master_update_doing = false;
+    },3000);
+
+    $.ajax({
+        type:"POST",
+        url:"/service/master/update",
+        success:function(msg){}
+    })
 }
 
 $(document).ready(function(){
     window.setInterval(function(){
         getAllServices(function(msg){
             var data = JSON.parse(msg);
+
+            if (typeof data.error_code != "undefined" && data.error_code == 4000) {
+                return;
+            }
+
             for (var group_id in data) {
                 if (!data.hasOwnProperty(group_id)) {
                     continue;
