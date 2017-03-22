@@ -29,6 +29,7 @@ class Master implements Process
     protected $master_process   = 0;
     protected $processes        = [];
     protected static $master_pid= __APP_DIR__."/master.pid";
+    protected $version;
     /**
      * @构造函数
      */
@@ -74,6 +75,7 @@ class Master implements Process
                 "error_line"    => $errline
             ]);
         });
+        $this->version = file_get_contents(__APP_DIR__."/version");
     }
 
     /**

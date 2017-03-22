@@ -12,7 +12,7 @@ use Wing\FileSystem\WFile;
 
 class Worker implements Process
 {
-    const VERSION                 = "1.14";
+    protected $version;
     protected $app_id             = "wing-binlog";
     protected $debug              = false;
     protected $start_time         = 0;
@@ -73,7 +73,7 @@ class Worker implements Process
 
         unset($cpu);
         ini_set("memory_limit", Context::instance()->memory_limit);
-
+        $this->version = file_get_contents(__APP_DIR__."/version");
     }
 
     /**
@@ -86,12 +86,12 @@ class Worker implements Process
 
     public static function getVersion()
     {
-        return self::VERSION;
+        return file_get_contents(__APP_DIR__."/version");
     }
 
     public static function version()
     {
-        return self::VERSION;
+        return file_get_contents(__APP_DIR__."/version");
     }
 
     /**
@@ -1098,7 +1098,7 @@ class Worker implements Process
                     //服务发现
                     $zookeeper->serviceReport([
                         "is_offline"   => self::$is_offline?1:0,
-                        "version"      => self::VERSION,
+                        "version"      => $this->version,
                         "workers"      => $workers,
                         "debug"        => $debug ? 1 : 0,
                         "notify"       => Context::instance()->notify_config,
