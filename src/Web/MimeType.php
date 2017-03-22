@@ -18,7 +18,9 @@ final class MimeType
             "gif" => "image/gif",
             "jpg" => "image/jpeg",
             "jpeg"=> "image/jpeg",
-            "png" => "image/png"
+            "png" => "image/png",
+            "woff" => "application/font-woff",
+            "svg"  => "image/svg+xml"
         ];
 
         $ext = strtolower(pathinfo($path,PATHINFO_EXTENSION));

@@ -253,9 +253,12 @@ class HttpResponse
         $check_token = User::checkToken($appid, $token);
         unset($appid, $token);
 
+        echo "resource:",$resource,"\r\n";
+        echo $this->home.$resource,"\r\n";
+
         if (file_exists($this->home.$resource)) {
             $mime_type   = MimeType::getMimeType($this->home . $resource);
-
+            echo $mime_type,"\r\n";
             if (in_array($mime_type, ["text/x-php", "text/html"])) {
                 ob_start();
                 if ($check_token) {
