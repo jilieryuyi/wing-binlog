@@ -1068,7 +1068,17 @@ class Worker implements Process
 //        });
 
 
-
+        $filter = [
+            "select @@general_log",
+            "select @@log_output",
+            "show binlog events in",
+            "show master status",
+            "select @@binlog_format",
+            "select @@sql_log_bin",
+            "set names utf8",
+            "select * from mysql.general_log",
+            "select @@log_output"
+        ];
 
         $type = $general->logOutput();
 
@@ -1095,6 +1105,20 @@ class Worker implements Process
                         if (!$data) break;
 
                         foreach ($data as $row) {
+
+                            $is_ingore = false;
+                            foreach ($filter as $item) {
+                                if (strpos(strtolower($row["argument"]), $item) !== false) {
+                                    $is_ingore = true;
+                                    break;
+                                }
+                            }
+
+                            $event_type = trim($row["command_type"]);
+                            if ($is_ingore || $event_type == "Close" || $event_type == "Close stmt" ||
+                                $event_type == "Connect" || $event_type == "Quit")
+                                continue;
+
                             echo $row["argument"],"\r\n";
                             echo date("Y-m-d H:i:s", strtotime($row["event_time"])),"=>",$row["command_type"],"\r\n";
 
@@ -1122,6 +1146,9 @@ class Worker implements Process
 //            $ignore_size = 0;
             $file_name = $general->getLogPath();
             $fp = fopen($file_name, "r");
+
+
+
             while (1) {
                 try {
                     ob_start();
@@ -1153,13 +1180,26 @@ class Worker implements Process
 
                             $lines = explode("\n", $new_lines);
                             foreach ($lines as $line) {
-                                $temp = preg_split("/[\s]+/", $line);
+                                $temp = preg_split("/[\s]+/", $line, 4);
                                 $datetime = strtotime($temp[0]);
 
                                 if ($datetime <= 0)
                                     continue;
 
+                                $is_ingore = false;
+                                foreach ($filter as $item) {
+                                    if (strpos(strtolower($temp[3]), $item) !== false) {
+                                        $is_ingore = true;
+                                        break;
+                                    }
+                                }
+
                                 $event_type = trim($temp[2]);
+                                if ($is_ingore || $event_type != "Query")
+                                    continue;
+
+                                var_dump($temp);
+
                                 if ($event_type == "Init")
                                     $event_type = "Init DB";
                                 echo date("Y-m-d H:i:s", $datetime), "=>", $event_type, "\r\n";
