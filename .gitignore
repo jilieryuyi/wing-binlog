@@ -28,3 +28,4 @@
 /data/user/login/*.token
 /web/public/*
 /*.info
+/update

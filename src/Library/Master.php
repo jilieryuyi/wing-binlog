@@ -27,6 +27,7 @@ class Master implements Process
     protected $pid              = "master_1.pid";
     protected $http_processe    = 0;
     protected $master_process   = 0;
+    protected $update_process   = 0;
     protected $processes        = [];
     protected static $master_pid= __APP_DIR__."/master.pid";
     protected $version;
@@ -492,6 +493,56 @@ class Master implements Process
         return $processe;
     }
 
+    protected function forkCheckUpdateWorker()
+    {
+        $processe   = [];
+        $process_id = pcntl_fork();
+        if ($process_id == 0) {
+            //调度进程
+            if ($this->deamon) {
+                $this->resetStd();
+            }
+            $this->setProcessTitle("seals >> check update process");
+
+            while (1) {
+                ob_start();
+
+                do {
+                    try {
+                        $update_version = null;
+                        if (file_exists(__APP_DIR__ . "/update")) {
+                            $update_version = file_get_contents(__APP_DIR__ . "/update");
+                        }
+
+                        if ($update_version && $update_version != $this->version) {
+                            //
+                            break;
+                        }
+
+                        //访问网络 从github读取版本文件 然后写到 __APP_DIR__."/update"
+                    } catch(\Exception $e) {
+
+                    }
+
+                } while(0);
+
+                ob_end_clean();
+                sleep(10);
+            }
+
+        } else {
+            $processe = [
+                "process_id" => $process_id,
+                "created"    => time(),
+                "name"       => "seals >> check update process"
+            ];
+            $this->update_process = $process_id;
+            $this->processes[]    = $process_id;
+        }
+        return $processe;
+    }
+
+
     protected function forkHttpWorker()
     {
         $process = null;
@@ -544,6 +595,7 @@ class Master implements Process
         $processes = [];
         $processes[] = $this->forkMasterWorker();
         $processes[] = $this->forkHttpWorker();
+        $processes[] = $this->forkCheckUpdateWorker();
 
         $file = new File(__APP_DIR__);
         $file->set($this->pid, $processes);
@@ -573,6 +625,13 @@ class Master implements Process
                 if ($pid == $this->http_processe) {
                     //fork http process
                     $processes[1] = $this->forkHttpWorker();
+                    $file->set($this->pid, $processes);
+                    continue;
+                }
+
+                if ($pid == $this->update_process) {
+                    //fork check update process
+                    $processes[2] = $this->forkCheckUpdateWorker();
                     $file->set($this->pid, $processes);
                     continue;
                 }

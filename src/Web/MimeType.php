@@ -12,15 +12,17 @@ final class MimeType
         $mime_type = "text/html";
 
         $types = [
-            "js"  => "application/javascript",
-            "css" => "text/css",
-            "php" => "text/x-php",
-            "gif" => "image/gif",
-            "jpg" => "image/jpeg",
-            "jpeg"=> "image/jpeg",
-            "png" => "image/png",
+            "js"   => "application/javascript",
+            "css"  => "text/css",
+            "php"  => "text/x-php",
+            "gif"  => "image/gif",
+            "jpg"  => "image/jpeg",
+            "jpeg" => "image/jpeg",
+            "png"  => "image/png",
             "woff" => "application/font-woff",
-            "svg"  => "image/svg+xml"
+            "svg"  => "image/svg+xml",
+            "ttf"  => "application/octet-stream",
+            "woff2"=> "font/woff2"
         ];
 
         $ext = strtolower(pathinfo($path,PATHINFO_EXTENSION));

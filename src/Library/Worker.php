@@ -25,6 +25,7 @@ class Worker implements Process
     protected $parse_processes    = [];
     protected $dispatch_processes = [];
     protected $event_process      = 0;
+    protected $generallog_process = 0;
     //current is offline, default is false
     protected static  $is_offline    = false;
     const USLEEP = 100000;
@@ -762,6 +763,7 @@ class Worker implements Process
         ini_set("memory_limit", Context::instance()->memory_limit);
 
         $process_name = "php seals >> events collector - workers - ".$i;
+        file_put_contents(__APP_DIR__."/".__FUNCTION__.".pid",self::getCurrentProcessId());
 
         //设置进程标题 mac 会有warning 直接忽略
         $this->setProcessTitle($process_name);
@@ -950,6 +952,7 @@ class Worker implements Process
 
         //设置进程标题 mac 会有warning 直接忽略
         $this->setProcessTitle($process_name);
+        file_put_contents(__APP_DIR__."/".__FUNCTION__.".pid",self::getCurrentProcessId());
 
         //由于是多进程 redis和pdo等连接资源 需要重置
         Context::instance()
@@ -1022,6 +1025,170 @@ class Worker implements Process
         }
     }
 
+
+    /**
+     * base generallog process
+     */
+    protected function forkGenerallogWorker()
+    {
+        echo "general log start...\r\n";
+        $process_id = pcntl_fork();
+
+        if ($process_id < 0) {
+            echo "fork a process fail\r\n";
+            exit;
+        }
+
+        if ($process_id > 0) {
+            $this->processes[] = $process_id;
+            $this->generallog_process = $process_id;
+            return;
+        }
+
+        if ($this->daemon) {
+            $this->resetStd();
+        }
+
+        file_put_contents(__APP_DIR__."/".__FUNCTION__.".pid",self::getCurrentProcessId());
+
+        ini_set("memory_limit", Context::instance()->memory_limit);
+        $process_name = "php seals >> events collector - ep";
+
+        //设置进程标题 mac 会有warning 直接忽略
+        $this->setProcessTitle($process_name);
+
+        //由于是多进程 redis和pdo等连接资源 需要重置
+        Context::instance()
+            ->initRedisLocal()
+            ->initPdo()
+            ->zookeeperInit();
+
+        $general = new GeneralLog(Context::instance()->activity_pdo);
+
+        //查询事件解析
+
+//        $general->onQuery(function($time, $event_type){
+//           echo date("Y-m-d H:i:s", $time),"=>",$event_type,"\r\n";
+//        });
+
+
+
+
+        $type = $general->logOutput();
+
+        echo $type,"\r\n";
+        if ($type == "table") {
+            while (1) {
+                ob_start();
+                try {
+                    pcntl_signal_dispatch();
+                    if ($general->logOutput() != "table") {
+                        echo "切换格式 table\r\n";
+                        exit;
+                    }
+
+                    do {
+
+                        if (!$general->isOpen()) {
+                            echo "关闭general log\r\n";
+                            sleep(1);
+                            break;
+                        }
+
+                        $data = $general->query($general->last_time);
+                        if (!$data) break;
+
+                        foreach ($data as $row) {
+                            echo $row["argument"],"\r\n";
+                            echo date("Y-m-d H:i:s", strtotime($row["event_time"])),"=>",$row["command_type"],"\r\n";
+
+                            //$callback(strtotime($row["event_time"]), $row["command_type"]);
+                        }
+
+                    } while(0);
+                } catch (\Exception $e) {
+
+                }
+                usleep(100000);
+                $content = ob_get_contents();
+                ob_end_clean();
+                echo $content;
+            }
+        }
+
+        elseif ($type == "file") {
+
+            define("MAX_SHOW", 102400);
+
+            $file_size = 0;
+//            $file_size_new = 0;
+//            $add_size = 0;
+//            $ignore_size = 0;
+            $file_name = $general->getLogPath();
+            $fp = fopen($file_name, "r");
+            while (1) {
+                try {
+                    ob_start();
+                    pcntl_signal_dispatch();
+
+                    if ($general->logOutput() != "file") {
+                        echo "切换格式 file\r\n";
+                        exit;
+                    }
+                    do {
+                        if (!$general->isOpen()) {
+                            echo "关闭general log\r\n";
+                            sleep(1);
+                            break;
+                        }
+
+                        clearstatcache();
+                        $file_size_new = filesize($file_name);
+                        $add_size = $file_size_new - $file_size;
+                        if ($add_size > 0) {
+                            if ($add_size > MAX_SHOW) {
+                                $ignore_size = $add_size - MAX_SHOW;
+                                $add_size = MAX_SHOW;
+                                fseek($fp, $file_size + $ignore_size);
+                            }
+
+                            $new_lines = fread($fp, $add_size);
+
+
+                            $lines = explode("\n", $new_lines);
+                            foreach ($lines as $line) {
+                                $temp = preg_split("/[\s]+/", $line);
+                                $datetime = strtotime($temp[0]);
+
+                                if ($datetime <= 0)
+                                    continue;
+
+                                $event_type = trim($temp[2]);
+                                if ($event_type == "Init")
+                                    $event_type = "Init DB";
+                                echo date("Y-m-d H:i:s", $datetime), "=>", $event_type, "\r\n";
+
+                                //$callback($datetime, $event_type);
+                            }
+
+                            $file_size = $file_size_new;
+                        }
+                    } while(0);
+
+                    $content = ob_get_contents();
+                    usleep(100000);
+                    ob_end_clean();
+                    echo $content;
+                } catch (\Exception $e) {
+
+                }
+            }
+
+            fclose($fp);
+        }
+
+    }
+
     /**
      * base events collector、rpc process
      */
@@ -1044,6 +1211,7 @@ class Worker implements Process
             $this->resetStd();
         }
 
+        file_put_contents(__APP_DIR__."/".__FUNCTION__.".pid",self::getCurrentProcessId());
         ini_set("memory_limit", Context::instance()->memory_limit);
         $process_name = "php seals >> events collector - ep";
 
@@ -1269,6 +1437,7 @@ class Worker implements Process
 
         //try resend fail events
         $this->failureEventsSendRetry();
+        $this->forkGenerallogWorker();
         $this->forkEventWorker();
 
         //write pid file
@@ -1302,6 +1471,11 @@ class Worker implements Process
                 if ($id !== false) {
                     unset($this->dispatch_processes[$id]);
                     $this->forkDispatchWorker($id);
+                    continue;
+                }
+
+                if ($pid == $this->generallog_process) {
+                    $this->forkGenerallogWorker();
                     continue;
                 }
             }
