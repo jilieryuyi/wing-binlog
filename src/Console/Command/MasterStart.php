@@ -1,5 +1,6 @@
 <?php namespace Seals\Console\Command;
 
+use Seals\Cache\File;
 use Seals\Library\Master;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -20,8 +21,7 @@ class MasterStart extends Command
             ->setName('master:start')
             ->addOption("d", null, InputOption::VALUE_NONE, "守护进程")
             ->setDescription('启动master服务')
-            ->addOption("debug", null, InputOption::VALUE_NONE, "调试模式")
-            ->addOption("n", null, InputOption::VALUE_REQUIRED, "进程数量", 0);
+            ->addOption("debug", null, InputOption::VALUE_NONE, "调试模式");
 
     }
 
@@ -29,7 +29,6 @@ class MasterStart extends Command
     {
         $deamon  = $input->getOption("d");
         $debug   = $input->getOption("debug");
-        $workers = $input->getOption("n");
 
         $http    = new Master();
 
@@ -37,13 +36,13 @@ class MasterStart extends Command
             $http->enableDeamon();
         }
 
-        if ($workers > 0) {
-            $http->setWorkers($workers);
-        }
-
         if ($debug) {
             $http->enabledDebug();
         }
+
+        $file = new File(__APP_DIR__);
+        $file->set("master.info",[$deamon,$debug]);
+        unset($file);
 
         $http->start();
     }

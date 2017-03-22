@@ -11,17 +11,17 @@ use Symfony\Component\Console\Input\InputOption;
  * Date: 17/3/13
  * Time: 21:05
  */
-class MasterStop extends ServerBase
+class MasterRestart extends ServerBase
 {
     protected function configure()
     {
         $this
-            ->setName('master:stop')
+            ->setName('master:restart')
             ->setDescription('停止master服务');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        Master::stopAll();
+        Master::restart();
     }
 }

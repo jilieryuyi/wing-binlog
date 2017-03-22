@@ -25,7 +25,10 @@ class Master implements Process
     protected $port             = 9998;
     protected $home_path        = __APP_DIR__."/web";
     protected $pid              = "master.pid";
-    protected $workers          = 1;
+    protected $http_processe    = 0;
+    protected $master_process   = 0;
+    protected $processes        = [];
+    protected static $master_pid= __APP_DIR__."/master.pid";
     /**
      * @构造函数
      */
@@ -42,9 +45,6 @@ class Master implements Process
         $this->home_path  = $home_path;
 
         chdir($this->home_path);
-        $cpu = new Cpu();
-        $this->setWorkers($cpu->cpu_num);
-        unset($cpu);
 
         $dir = new WDir($this->process_cache);
         $dir->mkdir();
@@ -82,11 +82,6 @@ class Master implements Process
     public function __destruct()
     {
         $this->clear();
-    }
-
-    public function setWorkers($workers)
-    {
-        $this->workers = $workers;
     }
 
     /**
@@ -189,6 +184,13 @@ class Master implements Process
         }
     }
 
+    public static function stopAll()
+    {
+
+        $server_id = file_get_contents(self::$master_pid);
+        posix_kill($server_id, SIGINT);
+    }
+
     /**
      * @停止进程
      *
@@ -212,11 +214,23 @@ class Master implements Process
             $this->process_cache->set("stop_".$process_id,1,60);
         }*/
 
-        $processes = (new File(__APP_DIR__))->get($this->pid);
-        foreach ($processes as $process) {
-            echo "kill ".$process["process_id"],"\r\n";
-            system("kill ".$process["process_id"]);
-        }
+//        $processes = (new File(__APP_DIR__))->get($this->pid);
+//        foreach ($processes as $process) {
+//            echo "kill ".$process["process_id"],"\r\n";
+//            system("kill ".$process["process_id"]);
+//        }
+        self::stopAll();
+    }
+
+    /**
+     * rpc api for restart
+     *
+     * @return int 1 means success
+     */
+    public static function restart()
+    {
+        posix_kill(file_get_contents(self::$master_pid), SIGUSR1);
+        return 1;
     }
 
     /**
@@ -393,18 +407,60 @@ class Master implements Process
     }
 
     /**
-     * @启动进程 入口函数
+     * signal handler
+     *
+     * @param int $signal
      */
-    public function start(){
+    public function signalHandler($signal)
+    {
+        $server_id = file_get_contents(self::$master_pid);
 
-        echo "start...\r\n";
-        var_dump($this->workers);
-        //设置守护进程模式
-        if ($this->deamon) {
-            self::daemonize();
-            $this->resetStd();
+        switch ($signal) {
+            //stop all
+            case SIGINT:
+                if ($server_id == self::getCurrentProcessId()) {
+                    foreach ($this->processes as $id => $pid) {
+                        //posix_kill($pid, SIGINT);
+                        system("kill -9 ".$pid);
+                    }
+                }
+                exit(0);
+                break;
+            //restart
+            case SIGUSR1:
+                if ($server_id == self::getCurrentProcessId()) {
+                    foreach ($this->processes as $id => $pid) {
+                       // posix_kill($pid,SIGINT);
+                        system("kill -9 ".$pid);
+                    }
+                }
+
+                $cache = new File(__APP_DIR__);
+                list($deamon, $debug) = $cache->get("master.info");
+
+                $command = "php ".__APP_DIR__."/seals master:start ";
+                if ($deamon)
+                    $command .= ' --d';
+                if ($debug)
+                    $command .= ' --debug';
+
+                $shell = "#!/bin/bash\r\n".$command;
+                file_put_contents(__APP_DIR__."/master_restart.sh", $shell);
+                $handle = popen("/bin/sh ".__APP_DIR__."/master_restart.sh >>/tmp/master_restart.log&","r");
+
+                if ($handle) {
+                    pclose($handle);
+                }
+
+                exit(0);
+                break;
         }
-        $processes = [];
+    }
+
+
+    protected function forkMasterWorker()
+    {
+        $processe = [];
         $process_id = pcntl_fork();
         if ($process_id == 0) {
             //调度进程
@@ -414,31 +470,103 @@ class Master implements Process
             $this->setProcessTitle("seals >> master dispatch process");
             $this->leaderDispatchProcess();
         } else {
-            $processes[] = [
+            $processe = [
                 "process_id" => $process_id,
                 "created"    => time(),
                 "name"       => "seals >> master dispatch process"
             ];
+            $this->master_process = $process_id;
+            $this->processes[] = $process_id;
         }
+        return $processe;
+    }
 
-        $this->setProcessTitle("seals >> master http server process");
-        $processes[] = [
-            "process_id" => self::getCurrentProcessId(),
-            "created"    => time(),
-            "name"       => "seals >> master http server process"
-        ];
-        (new File(__APP_DIR__))->set($this->pid, $processes);
+    protected function forkHttpWorker()
+    {
+        $process = null;
+        $process_id = pcntl_fork();
+        if ($process_id == 0) {
+            if ($this->deamon) {
+                $this->resetStd();
+            }
+            $this->setProcessTitle("seals >> master http server process");
 
-        Context::instance()->zookeeperInit();
-        Context::instance()->set("zookeeper",new Zookeeper(Context::instance()->redis_zookeeper));
+            Context::instance()->zookeeperInit();
+            Context::instance()->set("zookeeper", new Zookeeper(Context::instance()->redis_zookeeper));
 
-        $http = new Http($this->home_path, $this->ip, $this->port);
-        $http->on(Http::ON_HTTP_RECEIVE, function(HttpResponse $response) {
-            $response->response();
-            unset($response);
-        });
+            $http = new Http($this->home_path, $this->ip, $this->port);
+            $http->on(Http::ON_HTTP_RECEIVE, function (HttpResponse $response) {
+                $response->response();
+                unset($response);
+            });
 
-        $http->start();
+            $http->start();
+        } else {
+            $this->master_process = $process_id;
+            $this->processes[] = $process_id;
+            $process = [
+                "process_id" => $process_id,
+                "created" => time(),
+                "name" => "seals >> master http server process"
+            ];
+        }
+        return $process;
+    }
+
+    /**
+     * @启动进程 入口函数
+     */
+    public function start(){
+
+        //stop
+        pcntl_signal(SIGINT, [$this, 'signalHandler'], false);
+        //restart
+        pcntl_signal(SIGUSR1, [$this, 'signalHandler'], false);
+        //ignore
+        pcntl_signal(SIGPIPE, SIG_IGN, false);
+
+        //设置守护进程模式
+        if ($this->deamon) {
+            self::daemonize();
+            $this->resetStd();
+        }
+        $processes = [];
+        $processes[] = $this->forkMasterWorker();
+        $processes[] = $this->forkHttpWorker();
+
+        $file = new File(__APP_DIR__);
+        $file->set($this->pid, $processes);
+
+        //write pid file
+        file_put_contents(self::$master_pid, self::getCurrentProcessId());
+
+        while (1) {
+            pcntl_signal_dispatch();
+
+            $status = 0;
+            $pid    = pcntl_wait($status, WUNTRACED);
+
+            if ($pid > 0) {
+
+                Context::instance()->logger->notice($pid." process shutdown, try create a new process");
+                $id = array_search($pid, $this->processes);
+                unset($this->processes[$id]);
+
+                if ($pid == $this->master_process) {
+                    //fork master process
+                    $processes[0] = $this->forkMasterWorker();
+                    $file->set($this->pid, $processes);
+                    continue;
+                }
+
+                if ($pid == $this->http_processe) {
+                    //fork http process
+                    $processes[1] = $this->forkHttpWorker();
+                    $file->set($this->pid, $processes);
+                    continue;
+                }
+            }
+        }
 
     }
 }

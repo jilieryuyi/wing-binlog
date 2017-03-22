@@ -24,7 +24,8 @@ try {
         \Seals\Console\Command\Config::class,
         \Seals\Console\Command\MasterStart::class,
         \Seals\Console\Command\MasterStop::class,
-        \Seals\Console\Command\MasterStatus::class
+        \Seals\Console\Command\MasterStatus::class,
+        \Seals\Console\Command\MasterRestart::class
 
     ];
     foreach ($commands as $command) {
