@@ -27,3 +27,4 @@
 /*.sh
 /data/user/login/*.token
 /web/public/*
+/*.info
