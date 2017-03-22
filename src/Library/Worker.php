@@ -763,7 +763,6 @@ class Worker implements Process
         ini_set("memory_limit", Context::instance()->memory_limit);
 
         $process_name = "php seals >> events collector - workers - ".$i;
-        file_put_contents(__APP_DIR__."/".__FUNCTION__.".pid",self::getCurrentProcessId());
 
         //设置进程标题 mac 会有warning 直接忽略
         $this->setProcessTitle($process_name);
@@ -952,7 +951,6 @@ class Worker implements Process
 
         //设置进程标题 mac 会有warning 直接忽略
         $this->setProcessTitle($process_name);
-        file_put_contents(__APP_DIR__."/".__FUNCTION__.".pid",self::getCurrentProcessId());
 
         //由于是多进程 redis和pdo等连接资源 需要重置
         Context::instance()
@@ -1048,8 +1046,6 @@ class Worker implements Process
         if ($this->daemon) {
             $this->resetStd();
         }
-
-        file_put_contents(__APP_DIR__."/".__FUNCTION__.".pid",self::getCurrentProcessId());
 
         ini_set("memory_limit", Context::instance()->memory_limit);
         $process_name = "php seals >> events collector - ep";
@@ -1211,7 +1207,6 @@ class Worker implements Process
             $this->resetStd();
         }
 
-        file_put_contents(__APP_DIR__."/".__FUNCTION__.".pid",self::getCurrentProcessId());
         ini_set("memory_limit", Context::instance()->memory_limit);
         $process_name = "php seals >> events collector - ep";
 
