@@ -1059,7 +1059,7 @@ class Worker implements Process
             ->initPdo()
             ->zookeeperInit();
 
-        $report  = new Report(Context::instance()->redis_zookeeper);
+        $report  = new Report(Context::instance()->redis_local);
         $general = new GeneralLog(Context::instance()->activity_pdo);
         $type    = $general->logOutput();
 
