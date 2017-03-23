@@ -1068,17 +1068,17 @@ class Worker implements Process
 //        });
 
 
-        $filter = [
-            "select @@general_log",
-            "select @@log_output",
-            "show binlog events in",
-            "show master status",
-            "select @@binlog_format",
-            "select @@sql_log_bin",
-            "set names utf8",
-            "select * from mysql.general_log",
-            "select @@log_output"
-        ];
+//        $filter = [
+//            "select @@general_log",
+//            "select @@log_output",
+//            "show binlog events in",
+//            "show master status",
+//            "select @@binlog_format",
+//            "select @@sql_log_bin",
+//            "set names utf8",
+//            "select * from mysql.general_log",
+//            "select @@log_output"
+//        ];
 
         $type = $general->logOutput();
 
@@ -1116,7 +1116,7 @@ class Worker implements Process
 //                                }
 //                            }
 
-                            $event_type = trim($row["command_type"]);
+                           // $event_type = trim($row["command_type"]);
 //                            if ($is_ingore || $event_type == "Close" || $event_type == "Close stmt" ||
 //                                $event_type == "Connect" || $event_type == "Quit")
 //                                continue;
