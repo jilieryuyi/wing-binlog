@@ -104,17 +104,25 @@ class Report
     public function getHistoryReadMax()
     {
         $data  = $this->cache->get("history.read.max.report");
-        $max      = 0;
+        $max   = 0;
 
         $days  = [];
         if ($data) {
             $max      = $data[0];
             $last_day = $data[1];
+
+            if ($last_day == date("Ymd", time()-86400))
+                return $max;
+
             $start    = time();
             $end      = strtotime($last_day);
-            for ($time = $end+86400; $time < $start; $time += 86400) {
+            echo  date("Y-m-d",$start),"\r\n";
+            echo  date("Y-m-d",$end),"\r\n";
+
+            for ($time = $end+86400; $time <= $start-86400; $time += 86400) {
                 $days[] = date("Ymd", $time);
             }
+
         } else {
 
             $keys1 = $this->redis->keys(self::REPORT_LIST . ":show" . ":*");
@@ -122,7 +130,8 @@ class Report
 
             $keys = array_merge($keys1, $keys2);
             foreach ($keys as $key) {
-                $day = array_pop(explode(":", $key));
+                $temp = explode(":", $key);
+                $day = array_pop($temp);
                 if (!in_array($day, $days))
                     $days[] = $day;
             }
@@ -136,7 +145,8 @@ class Report
                 $max = $num;
         }
 
-        $this->cache->set("history.read.max.report",[$max,array_pop($days)]);
+        $last_day = array_pop($days);
+        $this->cache->set("history.read.max.report",[$max,$last_day]);
         return $max;
     }
 
@@ -166,7 +176,8 @@ class Report
 
             $keys = array_merge($keys1, $keys2, $keys3);
             foreach ($keys as $key) {
-                $day = array_pop(explode(":", $key));
+                $temp = explode(":", $key);
+                $day = array_pop($temp);
                 if (!in_array($day, $days))
                     $days[] = $day;
             }

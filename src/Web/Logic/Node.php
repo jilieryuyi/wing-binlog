@@ -189,4 +189,25 @@ class Node
         return RPC::call($session_id, "\\Seals\\Library\\Worker::openGenerallog",[$open], 1, true);
     }
 
+
+    public static function getHistoryReadMax($session_id)
+    {
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::getHistoryReadMax");
+    }
+
+    public static function getHistoryWriteMax($session_id)
+    {
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::getHistoryWriteMax");
+    }
+
+    public static function getDayReadMax($session_id, $day)
+    {
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::getDayReadMax",[$day]);
+    }
+
+    public static function getDayWriteMax($session_id, $day)
+    {
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::getDayWriteMax",[$day]);
+    }
+
 }

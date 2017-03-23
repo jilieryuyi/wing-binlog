@@ -332,7 +332,7 @@ function appendNode(group_id, session_id, node)
                         'class="bg-normal"  '+
                         'data-group-id="'+group_id+'" '+
                         'data-session-id="'+session_id+'" '+
-                        'onclick="" >报表</a>'+
+                        'href="node.report.php?group_id='+group_id+'&session_id='+session_id+'" >报表</a>'+
 
                     '<a class="bg-red"  '+
                         'data-group-id="'+group_id+'" '+
@@ -398,9 +398,9 @@ function appendGroup(group_id, nodes)
                     'title="上线整个群组" '+
                     'data-group-id="'+group_id+'" ' +
                     'onclick="groupOffline(this,0)">上线</a>'+
-                    '<a ' +
-                    'class="bg-normal"  '+
-                    'data-group-id="'+group_id+'">报表</a>'+
+                    // '<a ' +
+                    // 'class="bg-normal"  '+
+                    // 'data-group-id="'+group_id+'">报表</a>'+
 
                     '<a title="重启整个群组" class="bg-red"  '+
                     'data-group-id="'+group_id+'">重启</a>'+
