@@ -24,9 +24,16 @@ class Report
      * @param int $time time stamp
      * @param string $commant_type
      * @param string $event
+     * @return bool
      */
     public function set($time, $event)
     {
+        if (!$event)
+            return false;
+
+        if (!in_array($event,["show","set","select","update","delete"]))
+            return false;
+
         //$event show set select update delete
         $key = self::REPORT_LIST.
             ":".$event.

@@ -1059,6 +1059,7 @@ class Worker implements Process
             ->initPdo()
             ->zookeeperInit();
 
+        $report  = new Report(Context::instance()->redis_zookeeper);
         $general = new GeneralLog(Context::instance()->activity_pdo);
         $type    = $general->logOutput();
 
@@ -1102,6 +1103,7 @@ class Worker implements Process
                             if ((time() - $start_time) > 0)
                             echo "采集量：", $count, ",每秒采集:", ($count / (time() - $start_time)), "条\r\n";
 
+                            $report->set(strtotime($row["event_time"]), strtolower($event));
                             echo date("Y-m-d H:i:s", strtotime($row["event_time"])),"=>",strtolower($row["command_type"]),"=>",strtolower($event),"\r\n";
                             unset($event);
                         }
@@ -1149,7 +1151,8 @@ class Worker implements Process
                         $general_is_open = $general->isOpen();
                         if (!$general_is_open) {
                             echo "关闭general log\r\n";
-                            fclose($fp);
+                            if ($fp)
+                                fclose($fp);
                             $fp = null;
                             unset($general_is_open);
                             sleep(1);
@@ -1163,7 +1166,8 @@ class Worker implements Process
                             fseek($fp, $read_size);
                         }
                         //read 10000 lines then check 1 isOpen and logOutput
-                        for ($i = 0; $i < 10000; ++$i) {
+                        for ($i = 0; $i < 10000; ++$i)
+                        {
                             $line  = fgets($fp);
                             $lsize = strlen($line);
 
@@ -1196,6 +1200,7 @@ class Worker implements Process
                             }
                             unset($temp);
 
+                            $report->set($datetime, $event);
                             echo date("Y-m-d H:i:s", $datetime), "=>", strtolower($event_type), "=>", $event, "\r\n";
                             unset($datetime, $event_type, $event);
                             $count++;
