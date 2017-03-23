@@ -31,6 +31,9 @@ class Node
         if (!is_array($res))
             $res = [];
 
+        if (!isset($res["created"]))
+            $res["created"] = time();
+
         return array_merge($res, [
             //"workers"      => $res["workers"],
             //"debug"        => $res["debug"],
