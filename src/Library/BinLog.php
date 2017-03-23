@@ -178,12 +178,20 @@ class BinLog
      */
     public function getCurrentLogFile()
     {
+        $key  = "select.log_bin_basename.table";
+        $path = $this->cache->get($key);
+        if ($path) {
+            return $path;
+        }
+
         $sql  = 'select @@log_bin_basename';
         $data = $this->db_handler->row($sql);
         $path = pathinfo($data["@@log_bin_basename"],PATHINFO_DIRNAME);
         $info = $this->getCurrentLogInfo();
 
-        return $path.DIRECTORY_SEPARATOR.$info["File"];
+        $path = $path.DIRECTORY_SEPARATOR.$info["File"];
+        $this->cache->set($key, $path, 60);
+        return $path;
     }
 
     /**
