@@ -60,6 +60,16 @@ mysqlbinlog general log 监控分析系统
     //停止服务
     php seals server:restart
     //重启
+    
+    //master 进程
+    php seals master:start 
+    //可选参数 --d 以守护进程方式运行 --debug 启用debug模式
+    php seals master:stop
+    //停止运行
+    php seals master:status
+    //查看运行状态
+    php seals master:restart
+    //重启master进程
 
 ### wing-binlog 2.0
 2.0版本已上线，升级功能点如下：<br/>
