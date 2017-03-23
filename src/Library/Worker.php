@@ -1060,29 +1060,8 @@ class Worker implements Process
             ->zookeeperInit();
 
         $general = new GeneralLog(Context::instance()->activity_pdo);
+        $type    = $general->logOutput();
 
-        //查询事件解析
-
-//        $general->onQuery(function($time, $event_type){
-//           echo date("Y-m-d H:i:s", $time),"=>",$event_type,"\r\n";
-//        });
-
-
-//        $filter = [
-//            "select @@general_log",
-//            "select @@log_output",
-//            "show binlog events in",
-//            "show master status",
-//            "select @@binlog_format",
-//            "select @@sql_log_bin",
-//            "set names utf8",
-//            "select * from mysql.general_log",
-//            "select @@log_output"
-//        ];
-
-        $type = $general->logOutput();
-
-        echo $type,"\r\n";
         if ($type == "table") {
             while (1) {
                 ob_start();
@@ -1103,38 +1082,31 @@ class Worker implements Process
 
                         $data = $general->query($general->last_time);
                         if (!$data) {
+                            usleep(self::USLEEP);
                             break;
                         }
 
                         foreach ($data as $row) {
-
-//                            $is_ingore = false;
-//                            foreach ($filter as $item) {
-//                                if (strpos(strtolower($row["argument"]), $item) !== false) {
-//                                    $is_ingore = true;
-//                                    break;
-//                                }
-//                            }
-
-                           // $event_type = trim($row["command_type"]);
-//                            if ($is_ingore || $event_type == "Close" || $event_type == "Close stmt" ||
-//                                $event_type == "Connect" || $event_type == "Quit")
-//                                continue;
-
+                            list($event,) = explode(" ", $row["argument"]);
+                            $event = strtolower($event);
                             echo $row["argument"],"\r\n";
-                            echo date("Y-m-d H:i:s", strtotime($row["event_time"])),"=>",$row["command_type"],"\r\n";
-
-                            //$callback(strtotime($row["event_time"]), $row["command_type"]);
+                            echo date("Y-m-d H:i:s", strtotime($row["event_time"])),"=>",$row["command_type"],"=>",$event,"\r\n";
+                            unset($event);
                         }
+                        unset($data);
 
                     } while(0);
                 } catch (\Exception $e) {
 
                 }
-                usleep(100000);
-                $content = ob_get_contents();
+                $content = null;
+                if ($this->debug)
+                    $content = ob_get_contents();
                 ob_end_clean();
-                echo $content;
+
+                if ($this->debug && $content)
+                    echo $content;
+                unset($content);
             }
         }
 

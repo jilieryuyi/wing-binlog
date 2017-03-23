@@ -57,12 +57,12 @@ class GeneralLog
         $row   = $this->pdo->row($sql);
         $type1 = $row["@@log_output"];
         if (strpos($row["@@log_output"],",") !== false) {
-            list($type1, $type2) = explode(",", $row["@@log_output"]);
+            list($type1, ) = explode(",", $row["@@log_output"]);
         }
         return strtolower($type1);
     }
 
-    public function query($last_time = 0, $limit = 10000)
+    public function query($last_time = 0, $limit = 100000)
     {
         if ($last_time <= 0)
             $last_time = date("Y-m-d 00:00:00");
@@ -72,7 +72,6 @@ event_time > "'.$last_time.'" limit '.$limit;
 
         if (!$data)
             return null;
-        //$this->last_time = $data[count($data)-1]["event_time"];
         $this->setLastTime($data[count($data)-1]["event_time"]);
         return $data;
     }
