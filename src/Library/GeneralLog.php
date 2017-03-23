@@ -62,7 +62,7 @@ class GeneralLog
         return strtolower($type1);
     }
 
-    public function query($last_time = 0, $limit = 100000)
+    public function query($last_time = 0, $limit = 10000)
     {
         if ($last_time <= 0)
             $last_time = date("Y-m-d 00:00:00");

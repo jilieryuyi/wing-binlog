@@ -1062,13 +1062,16 @@ class Worker implements Process
         $general = new GeneralLog(Context::instance()->activity_pdo);
         $type    = $general->logOutput();
 
+        $count      = 0;
+        $start_time = time();
+
         if ($type == "table") {
             while (1) {
                 ob_start();
                 try {
                     pcntl_signal_dispatch();
                     if ($general->logOutput() != "table") {
-                        echo "切换格式 table\r\n";
+                        echo "切换格式 from table to file\r\n";
                         exit;
                     }
 
@@ -1090,6 +1093,11 @@ class Worker implements Process
                             list($event,) = explode(" ", $row["argument"]);
                             $event = strtolower($event);
                             echo $row["argument"],"\r\n";
+
+                            $count++;
+
+                            echo "采集量：", $count, ",每秒采集:", ($count / (time() - $start_time)), "条\r\n";
+
                             echo date("Y-m-d H:i:s", strtotime($row["event_time"])),"=>",$row["command_type"],"=>",$event,"\r\n";
                             unset($event);
                         }
@@ -1119,21 +1127,19 @@ class Worker implements Process
             $fp = fopen($file_name, "r");
             fseek($fp, $read_size);
 
-            $count      = 0;
-            $start_time = time();
-
             while (1) {
                 try {
                     ob_start();
                     pcntl_signal_dispatch();
 
                     if ($general->logOutput() != "file") {
-                        echo "切换格式 file\r\n";
+                        echo "切换格式 from file to table\r\n";
                         fclose($fp);
                         $fp = null;
                         //after exit the current process will create a new one
                         exit;
                     }
+
                     do {
                         if (!$general->isOpen()) {
                             echo "关闭general log\r\n";
