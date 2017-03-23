@@ -216,4 +216,36 @@ class Redis implements RedisInterface
         }
     }
 
+    public function hexists($key, $hash_key)
+    {
+        try {
+            return $this->redis->hExists($key, $hash_key);
+        } catch (\Exception $e) {
+            echo __FUNCTION__,"=>",var_dump(func_get_args());
+            trigger_error("call ".__FUNCTION__." with params : ".
+                json_encode(func_get_args(),JSON_UNESCAPED_UNICODE).", error happened :".
+                $e->getMessage()
+            );
+            var_dump($e->getMessage());
+            $this->connect();
+            return null;
+        }
+    }
+
+    public function hget($key, $hash_key)
+    {
+        try {
+            return $this->redis->hGet($key, $hash_key);
+        } catch (\Exception $e) {
+            echo __FUNCTION__,"=>",var_dump(func_get_args());
+            trigger_error("call ".__FUNCTION__." with params : ".
+                json_encode(func_get_args(),JSON_UNESCAPED_UNICODE).", error happened :".
+                $e->getMessage()
+            );
+            var_dump($e->getMessage());
+            $this->connect();
+            return null;
+        }
+    }
+
 }
