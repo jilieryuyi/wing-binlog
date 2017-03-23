@@ -1118,8 +1118,10 @@ class Worker implements Process
             clearstatcache();
             $fp = fopen($file_name, "r");
             fseek($fp, $read_size);
+
             $count      = 0;
             $start_time = time();
+
             while (1) {
                 try {
                     ob_start();
@@ -1146,42 +1148,45 @@ class Worker implements Process
                             $fp = fopen($file_name, "r");
                             fseek($fp, $read_size);
                         }
+                        //read 10000 lines then check 1 isOpen and logOutput
+                        for ($i = 0; $i < 10000; ++$i) {
+                            $line  = fgets($fp);
+                            $lsize = strlen($line);
 
-                        $line       = fgets($fp);
-                        $lsize      = strlen($line);
-                        $read_size += $lsize;
+                            $read_size += $lsize;
 
-                        $general->setReadSize($read_size);
+                            $general->setReadSize($read_size);
 
-                        $_line    = trim($line);
-                        $temp     = preg_split("/[\s]+/", $_line, 4);
-                        $datetime = strtotime($temp[0]);
+                            $_line    = trim($line);
+                            $temp     = preg_split("/[\s]+/", $_line, 4);
+                            $datetime = strtotime($temp[0]);
 
-                        if ($datetime <= 0)
-                            continue;
+                            if ($datetime <= 0)
+                                continue;
 
-                        var_dump($temp);
-                        $event_type = trim($temp[2]);
-                        if ($event_type == "Init")
-                            $event_type = "Init DB";
-                        elseif ($event_type == "Close")
-                            $event_type = "Close stmt";
+                            var_dump($temp);
+                            $event_type = trim($temp[2]);
+                            if ($event_type == "Init")
+                                $event_type = "Init DB";
+                            elseif ($event_type == "Close")
+                                $event_type = "Close stmt";
 
-                        $event = "";
-                        if (isset($temp[3]) && $temp[3] != "stmt") {
-                            list($event,) = explode(" ", $temp[3], 2);
-                           // echo "================>",$event,"\r\n";
-                            $event = strtolower($event);
-                        }
+                            $event = "";
+                            if (isset($temp[3]) && $temp[3] != "stmt") {
+                                list($event,) = explode(" ", $temp[3], 2);
+                                $event = strtolower($event);
+                            }
 
-                        echo date("Y-m-d H:i:s", $datetime), "=>", strtolower($event_type), "=>",$event,"\r\n";
-                        $count++;
+                            echo date("Y-m-d H:i:s", $datetime), "=>", strtolower($event_type), "=>", $event, "\r\n";
+                            $count++;
 
-                        echo "采集量：",$count,",每秒采集:",($count/(time()-$start_time)),"条\r\n";
-                        if (feof($fp)) {
-                            fclose($fp);
-                            $fp = null;
-                            usleep(self::USLEEP);
+                            echo "采集量：", $count, ",每秒采集:", ($count / (time() - $start_time)), "条\r\n";
+                            if (feof($fp)) {
+                                fclose($fp);
+                                $fp = null;
+                                usleep(self::USLEEP);
+                                break;
+                            }
                         }
 
                     } while(0);
