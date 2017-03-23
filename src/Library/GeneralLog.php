@@ -83,4 +83,17 @@ event_time > "'.$last_time.'" limit '.$limit;
         $this->last_time = $time;
     }
 
+    public function setReadSize($size)
+    {
+        $this->cache->set("general.read",$size);
+    }
+
+    public function getReadSize()
+    {
+        $size = $this->cache->get("general.read");
+        if (!$size)
+            return 0;
+        return $size;
+    }
+
 }

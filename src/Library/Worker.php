@@ -1102,22 +1102,24 @@ class Worker implements Process
                         }
 
                         $data = $general->query($general->last_time);
-                        if (!$data) break;
+                        if (!$data) {
+                            break;
+                        }
 
                         foreach ($data as $row) {
 
-                            $is_ingore = false;
-                            foreach ($filter as $item) {
-                                if (strpos(strtolower($row["argument"]), $item) !== false) {
-                                    $is_ingore = true;
-                                    break;
-                                }
-                            }
+//                            $is_ingore = false;
+//                            foreach ($filter as $item) {
+//                                if (strpos(strtolower($row["argument"]), $item) !== false) {
+//                                    $is_ingore = true;
+//                                    break;
+//                                }
+//                            }
 
                             $event_type = trim($row["command_type"]);
-                            if ($is_ingore || $event_type == "Close" || $event_type == "Close stmt" ||
-                                $event_type == "Connect" || $event_type == "Quit")
-                                continue;
+//                            if ($is_ingore || $event_type == "Close" || $event_type == "Close stmt" ||
+//                                $event_type == "Connect" || $event_type == "Quit")
+//                                continue;
 
                             echo $row["argument"],"\r\n";
                             echo date("Y-m-d H:i:s", strtotime($row["event_time"])),"=>",$row["command_type"],"\r\n";
@@ -1138,17 +1140,14 @@ class Worker implements Process
 
         elseif ($type == "file") {
 
-            define("MAX_SHOW", 102400);
-
-            $file_size = 0;
-//            $file_size_new = 0;
-//            $add_size = 0;
-//            $ignore_size = 0;
             $file_name = $general->getLogPath();
+            $read_size = $general->getReadSize();
+
+            clearstatcache();
             $fp = fopen($file_name, "r");
-
-
-
+            fseek($fp, $read_size);
+            $count      = 0;
+            $start_time = time();
             while (1) {
                 try {
                     ob_start();
@@ -1156,71 +1155,82 @@ class Worker implements Process
 
                     if ($general->logOutput() != "file") {
                         echo "切换格式 file\r\n";
+                        fclose($fp);
+                        $fp = null;
+                        //after exit the current process will create a new one
                         exit;
                     }
                     do {
                         if (!$general->isOpen()) {
                             echo "关闭general log\r\n";
+                            fclose($fp);
+                            $fp = null;
                             sleep(1);
                             break;
                         }
 
-                        clearstatcache();
-                        $file_size_new = filesize($file_name);
-                        $add_size = $file_size_new - $file_size;
-                        if ($add_size > 0) {
-                            if ($add_size > MAX_SHOW) {
-                                $ignore_size = $add_size - MAX_SHOW;
-                                $add_size = MAX_SHOW;
-                                fseek($fp, $file_size + $ignore_size);
-                            }
-
-                            $new_lines = fread($fp, $add_size);
-
-
-                            $lines = explode("\n", $new_lines);
-                            foreach ($lines as $line) {
-                                $temp = preg_split("/[\s]+/", $line, 4);
-                                $datetime = strtotime($temp[0]);
-
-                                if ($datetime <= 0)
-                                    continue;
-
-                                $is_ingore = false;
-                                foreach ($filter as $item) {
-                                    if (strpos(strtolower($temp[3]), $item) !== false) {
-                                        $is_ingore = true;
-                                        break;
-                                    }
-                                }
-
-                                $event_type = trim($temp[2]);
-                                if ($is_ingore || $event_type != "Query")
-                                    continue;
-
-                                var_dump($temp);
-
-                                if ($event_type == "Init")
-                                    $event_type = "Init DB";
-                                echo date("Y-m-d H:i:s", $datetime), "=>", $event_type, "\r\n";
-
-                                //$callback($datetime, $event_type);
-                            }
-
-                            $file_size = $file_size_new;
+                        if ($fp == null) {
+                            clearstatcache();
+                            $fp = fopen($file_name, "r");
+                            fseek($fp, $read_size);
                         }
+
+                        $line       = fgets($fp);
+                        $lsize      = strlen($line);
+                        $read_size += $lsize;
+
+                        $general->setReadSize($read_size);
+
+                        $_line    = trim($line);
+                        $temp     = preg_split("/[\s]+/", $_line, 4);
+                        $datetime = strtotime($temp[0]);
+
+                        if ($datetime <= 0)
+                            continue;
+
+                        var_dump($temp);
+                        $event_type = trim($temp[2]);
+                        if ($event_type == "Init")
+                            $event_type = "Init DB";
+                        elseif ($event_type == "Close")
+                            $event_type = "Close stmt";
+
+                        $event = "";
+                        if (isset($temp[3]) && $temp[3] != "stmt") {
+                            list($event,) = explode(" ", $temp[3], 2);
+                           // echo "================>",$event,"\r\n";
+                            $event = strtolower($event);
+                        }
+
+                        echo date("Y-m-d H:i:s", $datetime), "=>", strtolower($event_type), "=>",$event,"\r\n";
+                        $count++;
+
+                        echo "采集量：",$count,",每秒采集:",($count/(time()-$start_time)),"条\r\n";
+                        if (feof($fp)) {
+                            fclose($fp);
+                            $fp = null;
+                            usleep(self::USLEEP);
+                        }
+
                     } while(0);
 
-                    $content = ob_get_contents();
-                    usleep(100000);
+                    $content = null;
+                    if ($this->debug)
+                        $content = ob_get_contents();
                     ob_end_clean();
-                    echo $content;
-                } catch (\Exception $e) {
 
+                    if ($this->debug && $content)
+                    echo $content;
+
+                    unset($content);
+                } catch (\Exception $e) {
+                    Context::instance()->logger->error($e->getMessage());
                 }
             }
+            if ($fp) {
+                fclose($fp);
+            }
 
-            fclose($fp);
         }
 
     }
@@ -1259,7 +1269,6 @@ class Worker implements Process
             ->initPdo()
             ->zookeeperInit();
         $generallog = new GeneralLog(Context::instance()->activity_pdo);
-        //$is_open    = $generallog->isOpen()?1:0;
 
         $bin = new \Seals\Library\BinLog(Context::instance()->activity_pdo);
         $bin->setCacheDir(Context::instance()->binlog_cache_dir);
