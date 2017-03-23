@@ -27,6 +27,8 @@ function nodeRefresh(v, group_id, session_id)
             if (typeof data.error_code != "undefined" && data.error_code == 4000) {
                 $(".login-timeout").show();
                 return;
+            } else {
+                $(".login-timeout").hide();
             }
 
             if (data.is_leader == 1) {
