@@ -1070,18 +1070,22 @@ class Worker implements Process
                 ob_start();
                 try {
                     pcntl_signal_dispatch();
-                    if ($general->logOutput() != "table") {
+                    $log_output = $general->logOutput();
+                    if ($log_output != "table") {
                         echo "切换格式 from table to file\r\n";
                         exit;
                     }
+                    unset($log_output);
 
                     do {
-
-                        if (!$general->isOpen()) {
+                        $generallog_is_open = $general->isOpen();
+                        if (!$generallog_is_open) {
+                            unset($generallog_is_open);
                             echo "关闭general log\r\n";
                             sleep(1);
                             break;
                         }
+                        unset($generallog_is_open);
 
                         $data = $general->query($general->last_time);
                         if (!$data) {
@@ -1131,23 +1135,27 @@ class Worker implements Process
                 try {
                     ob_start();
                     pcntl_signal_dispatch();
-
-                    if ($general->logOutput() != "file") {
+                    $log_output = $general->logOutput();
+                    if ($log_output != "file") {
                         echo "切换格式 from file to table\r\n";
                         fclose($fp);
                         $fp = null;
                         //after exit the current process will create a new one
                         exit;
                     }
+                    unset($log_output);
 
                     do {
-                        if (!$general->isOpen()) {
+                        $general_is_open = $general->isOpen();
+                        if (!$general_is_open) {
                             echo "关闭general log\r\n";
                             fclose($fp);
                             $fp = null;
+                            unset($general_is_open);
                             sleep(1);
                             break;
                         }
+                        unset($general_is_open);
 
                         if ($fp == null) {
                             clearstatcache();
@@ -1160,11 +1168,15 @@ class Worker implements Process
                             $lsize = strlen($line);
 
                             $read_size += $lsize;
+                            unset($lsize);
 
                             $general->setReadSize($read_size);
 
                             $_line    = trim($line);
+                            unset($line);
+
                             $temp     = preg_split("/[\s]+/", $_line, 4);
+                            unset($_line);
                             $datetime = strtotime($temp[0]);
 
                             if ($datetime <= 0)
@@ -1182,8 +1194,10 @@ class Worker implements Process
                                 list($event,) = explode(" ", $temp[3], 2);
                                 $event = strtolower($event);
                             }
+                            unset($temp);
 
                             echo date("Y-m-d H:i:s", $datetime), "=>", strtolower($event_type), "=>", $event, "\r\n";
+                            unset($datetime, $event_type, $event);
                             $count++;
 
                             echo "采集量：", $count, ",每秒采集:", ($count / (time() - $start_time)), "条\r\n";
