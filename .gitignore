@@ -33,3 +33,4 @@
 /general.read
 /master.status
 /data/table/*.table
+/data/report/*.report
