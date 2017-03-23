@@ -12,10 +12,12 @@ class GeneralLog
     protected $pdo;
     public $last_time = 0;
     protected $cache;
+    protected $file_cache;
     public function __construct(DbInterface $pdo)
     {
         $this->pdo = $pdo;
         $this->cache = new File(__APP_DIR__);
+        $this->file_cache = new File(__APP_DIR__."/data/table");
 
         $last_time = $this->cache->get("general.last");
         if ($last_time)
@@ -35,13 +37,21 @@ class GeneralLog
     }
     public function getLogPath()
     {
+        $key  = "select.general_log_file.table";
+        $path = $this->file_cache->get($key);
+        if ($path) {
+            return $path;
+        }
+
         $sql  = 'select @@general_log_file';
         $data = $this->pdo->row($sql);
 
         if (!isset($data["@@general_log_file"]))
             return null;
 
-        return $data["@@general_log_file"];
+        $path = $data["@@general_log_file"];
+        $this->file_cache->set($key, $path, 60);
+        return $path;
     }
     public function isOpen()
     {

@@ -1099,7 +1099,7 @@ class Worker implements Process
                             echo $row["argument"],"\r\n";
 
                             $count++;
-
+                            if ((time() - $start_time) > 0)
                             echo "采集量：", $count, ",每秒采集:", ($count / (time() - $start_time)), "条\r\n";
 
                             echo date("Y-m-d H:i:s", strtotime($row["event_time"])),"=>",strtolower($row["command_type"]),"=>",strtolower($event),"\r\n";
@@ -1199,7 +1199,7 @@ class Worker implements Process
                             echo date("Y-m-d H:i:s", $datetime), "=>", strtolower($event_type), "=>", $event, "\r\n";
                             unset($datetime, $event_type, $event);
                             $count++;
-
+                            if ((time() - $start_time) > 0)
                             echo "采集量：", $count, ",每秒采集:", ($count / (time() - $start_time)), "条\r\n";
                             if (feof($fp)) {
                                 fclose($fp);
