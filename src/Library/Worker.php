@@ -1098,7 +1098,7 @@ class Worker implements Process
 
                             echo "采集量：", $count, ",每秒采集:", ($count / (time() - $start_time)), "条\r\n";
 
-                            echo date("Y-m-d H:i:s", strtotime($row["event_time"])),"=>",$row["command_type"],"=>",$event,"\r\n";
+                            echo date("Y-m-d H:i:s", strtotime($row["event_time"])),"=>",strtolower($row["command_type"]),"=>",strtolower($event),"\r\n";
                             unset($event);
                         }
                         unset($data);
