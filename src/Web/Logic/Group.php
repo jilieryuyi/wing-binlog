@@ -29,7 +29,7 @@ class Group
         $debug      = intval($debug) == 1 ? 1 : 0;
 
         foreach ($nodes as $session_id) {
-            RPC::call($session_id, "\\Seals\\Library\\Worker::setRuntimeConfig", [$workers, $debug]);
+            RPC::call($session_id, "\\Seals\\Library\\Worker::setRuntimeConfig", [$workers, $debug], 1, true);
         }
 
         return 1;
@@ -50,7 +50,7 @@ class Group
             $params = [$class, [$param1]];
 
         foreach ($nodes as $session_id) {
-            RPC::call($session_id, "\\Seals\\Library\\Worker::setNotifyConfig", [$class, $params]);
+            RPC::call($session_id, "\\Seals\\Library\\Worker::setNotifyConfig", [$class, $params], 1, true);
         }
         return 1;
     }
@@ -65,7 +65,7 @@ class Group
         $password  = urldecode($response->post("password"));
 
         foreach ($nodes as $session_id) {
-            RPC::call($session_id, "\\Seals\\Library\\Worker::setRedisConfig", [$host, $port, $password]);
+            RPC::call($session_id, "\\Seals\\Library\\Worker::setRedisConfig", [$host, $port, $password], 1, true);
         }
         return 1;
     }
@@ -82,7 +82,7 @@ class Group
         $vhost     = urldecode($response->post("vhost"));
 
         foreach ($nodes as $session_id) {
-            RPC::call($session_id, "\\Seals\\Library\\Worker::setRabbitmqConfig", [$host, $port, $user, $password, $vhost]);
+            RPC::call($session_id, "\\Seals\\Library\\Worker::setRabbitmqConfig", [$host, $port, $user, $password, $vhost], 1, true);
         }
         return 1;
     }
@@ -97,7 +97,7 @@ class Group
         $password  = urldecode($response->post("password"));
 
         foreach ($nodes as $session_id) {
-            RPC::call($session_id, "\\Seals\\Library\\Worker::setZookeeperConfig", [$group_id, $host, $port, $password]);
+            RPC::call($session_id, "\\Seals\\Library\\Worker::setZookeeperConfig", [$group_id, $host, $port, $password], 1, true);
         }
         return 1;
     }
@@ -114,7 +114,7 @@ class Group
         $user      = urldecode($response->post("user"));
 
         foreach ($nodes as $session_id) {
-            RPC::call($session_id, "\\Seals\\Library\\Worker::setDbConfig", [$db_name, $host, $user, $password, $port]);
+            RPC::call($session_id, "\\Seals\\Library\\Worker::setDbConfig", [$db_name, $host, $user, $password, $port], 1, true);
         }
         return 1;
     }
@@ -126,7 +126,7 @@ class Group
 
         $nodes      = Zookeeper::getNodes($group_id);
         foreach ($nodes as $session_id) {
-            RPC::call($session_id, "\\Seals\\Library\\Worker::setNodeOffline", [$is_offline]);
+            RPC::call($session_id, "\\Seals\\Library\\Worker::setNodeOffline", [$is_offline], 1, true);
         }
         return 1;
     }
@@ -140,7 +140,7 @@ class Group
         $nodes      = Zookeeper::getNodes($group_id);
 
         foreach ($nodes as $session_id) {
-            RPC::call($session_id, "\\Seals\\Library\\Worker::openGenerallog",[$open]);
+            RPC::call($session_id, "\\Seals\\Library\\Worker::openGenerallog", [$open], 1, true);
         }
 
         return 1;

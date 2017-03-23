@@ -50,7 +50,7 @@ class Node
         $group_id   = $response->post("group_id");
         $session_id = $response->post("session_id");
 
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::restart");
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::restart", [], 1, true);
     }
 
     public static function update(HttpResponse $response)
@@ -58,7 +58,7 @@ class Node
         $group_id   = $response->post("group_id");
         $session_id = $response->post("session_id");
 
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::update");
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::update", [], 1, true);
     }
 
     public static function offline(HttpResponse $response)
@@ -67,7 +67,7 @@ class Node
         $session_id = $response->post("session_id");
         $is_offline = $response->post("is_offline")?1:0;
 
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::setNodeOffline", [$is_offline]);
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::setNodeOffline", [$is_offline], 1, true);
     }
 
     /**
@@ -86,7 +86,7 @@ class Node
         $debug      = $response->post("debug");
         $debug      = intval($debug) == 1 ? 1 : 0;
 
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::setRuntimeConfig", [$workers, $debug]);
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::setRuntimeConfig", [$workers, $debug], 1, true);
 
     }
 
@@ -104,7 +104,7 @@ class Node
         else
             $params = [$class, [$param1]];
 
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::setNotifyConfig", [$class, $params]);
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::setNotifyConfig", [$class, $params], 1, true);
     }
 
     public static function setLocalRedisConfig(HttpResponse $response)
@@ -116,7 +116,7 @@ class Node
         $port      = urldecode($response->post("port"));
         $password  = urldecode($response->post("password"));
 
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::setLocalRedisConfig", [$host, $port, $password]);
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::setLocalRedisConfig", [$host, $port, $password], 1, true);
     }
 
     public static function setRedisConfig(HttpResponse $response)
@@ -128,7 +128,7 @@ class Node
         $port      = urldecode($response->post("port"));
         $password  = urldecode($response->post("password"));
 
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::setRedisConfig", [$host, $port, $password]);
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::setRedisConfig", [$host, $port, $password], 1, true);
     }
 
     public static function setRabbitmqConfig(HttpResponse $response)
@@ -142,7 +142,7 @@ class Node
         $password  = urldecode($response->post("password"));
         $vhost     = urldecode($response->post("vhost"));
 
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::setRabbitmqConfig", [$host, $port, $user, $password, $vhost]);
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::setRabbitmqConfig", [$host, $port, $user, $password, $vhost], 1, true);
     }
 
     public static function setZookeeperConfig(HttpResponse $response)
@@ -154,7 +154,7 @@ class Node
         $port      = urldecode($response->post("port"));
         $password  = urldecode($response->post("password"));
 
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::setZookeeperConfig", [$group_id, $host, $port, $password]);
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::setZookeeperConfig", [$group_id, $host, $port, $password], 1, true);
     }
 
     public static function setDbConfig(HttpResponse $response)
@@ -168,12 +168,12 @@ class Node
         $db_name   = urldecode($response->post("db_name"));
         $user      = urldecode($response->post("user"));
 
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::setDbConfig", [$db_name, $host, $user, $password, $port]);
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::setDbConfig", [$db_name, $host, $user, $password, $port], 1, true);
     }
 
     public static function getDatabases($session_id)
     {
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::getDatabases");
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::getDatabases", [], 1, true);
     }
 
     public static function openGenerallog(HttpResponse $response)
@@ -183,8 +183,7 @@ class Node
         $open       = $response->post("open");
 
         $open       = intval($open);
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::openGenerallog",[$open]);
-
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::openGenerallog",[$open], 1, true);
     }
 
 }

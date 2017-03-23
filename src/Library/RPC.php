@@ -31,7 +31,7 @@ class RPC
      * @param int $timeout seconds from timeout wait
      * @return mixed
      */
-    public static function call($session_id, $func, $params = [], $timeout = 3)
+    public static function call($session_id, $func, $params = [], $timeout = 3, $async = false)
     {
         if (!Context::instance()->redis_zookeeper)
             return null;
@@ -46,6 +46,10 @@ class RPC
         );
         if (!$success)
             return null;
+
+        if ($async)
+            return $success;
+
         $start = time();
         //wait for result
         while (1) {
