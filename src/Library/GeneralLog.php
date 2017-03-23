@@ -45,7 +45,7 @@ class GeneralLog
     }
     public function isOpen()
     {
-        $sql = 'select @@general_log';
+        $sql  = 'select @@general_log';
         $data = $this->pdo->row($sql);
 
         return isset($data["@@general_log"]) && $data["@@general_log"] == 1;

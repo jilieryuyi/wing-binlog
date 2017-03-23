@@ -1,4 +1,6 @@
 <?php namespace Seals\Library;
+use Seals\Cache\File;
+
 /**
  * Created by PhpStorm.
  * User: yuyi
@@ -32,6 +34,7 @@ class FileFormat
      * @数据库句柄
      */
     private $db_handler;
+    private $cache;
 
     /**
      * @构造函数
@@ -40,8 +43,9 @@ class FileFormat
      */
     public function __construct($file, DbInterface $db_handler)
     {
-        $this->file = $file;
+        $this->file       = $file;
         $this->db_handler = $db_handler;
+        $this->cache      = new File(__APP_DIR__."/data/table");
     }
 
     /**
@@ -314,6 +318,13 @@ class FileFormat
      */
     protected function getColumns($database_name, $table_name)
     {
+        //use file cache
+
+        $columns = $this->cache->get($database_name.".".$table_name.".table");
+        if ($columns && is_array($columns)) {
+            return $columns;
+        }
+
         $sql     = 'SHOW COLUMNS FROM `' . $database_name . '`.`' . $table_name . '`';
         $columns = $this->db_handler->query($sql);
 
@@ -321,6 +332,7 @@ class FileFormat
             return null;
         }
         $columns = array_column($columns, "Field");
+        $this->cache->set($database_name.".".$table_name.".table", $columns, 86400);
         return $columns;
     }
 

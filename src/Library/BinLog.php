@@ -1,4 +1,5 @@
 <?php namespace Seals\Library;
+use Seals\Cache\File;
 use Wing\FileSystem\WDir;
 
 /**
@@ -37,6 +38,7 @@ class BinLog
     private $password;
     private $user;
     private $port = 3306;
+    private $cache;
 
     /**
      * 构造函数
@@ -64,6 +66,7 @@ class BinLog
         $this->password = $db_handler->getPassword();
         $this->port     = $db_handler->getPort();
         $this->log_dir  = Context::instance()->getAppConfig("log_dir");
+        $this->cache    = new File(__APP_DIR__."/data/table");
     }
 
 
@@ -136,8 +139,15 @@ class BinLog
      */
     public function getCurrentLogInfo()
     {
+        $key  = "show.master.status.table";
+        $data = $this->cache->get($key);
+        if ($data && is_array($data)) {
+            return $data;
+        }
+
         $sql  = 'show master status';
         $data = $this->db_handler->row($sql);
+        $this->cache->set($key, $data, 60);
         return $data;
     }
 
