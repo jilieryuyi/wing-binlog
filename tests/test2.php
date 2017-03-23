@@ -11,4 +11,5 @@ include __DIR__."/../vendor/autoload.php";
 \Seals\Library\Context::instance()->initRedisLocal();
 $report = new \Seals\Library\Report(\Seals\Library\Context::instance()->redis_local);
 
-echo $report->getDayWriteMax("20170317");
+echo $report->getDayWriteMax("20170323");
+echo $report->getDayReadMax("20170323");

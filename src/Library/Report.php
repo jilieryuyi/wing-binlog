@@ -33,17 +33,30 @@ class Report
 
         if (!in_array($event,["show","set","select","update","delete"]))
             return false;
+        $day = date("Ymd", $time);
 
         //$event show set select update delete
         $key = self::REPORT_LIST.
             ":".$event.
-            ":".date("Ymd", $time);
+            ":".$day;
 
         $num = 0;
         if ($this->redis->hexists($key, $time)) {
             $num = $this->redis->hget($key, $time);
         }
         $num++;
+
+        if ($event == "show" || $event == "select") {
+            $tmax = $this->getDayReadMax($day);
+            if ($num > $tmax) {
+                $this->setDayReadMax($day, $num);
+            }
+        } else {
+            $tmax = $this->getDayWriteMax($day);
+            if ($num > $tmax) {
+                $this->setDayWriteMax($day, $num);
+            }
+        }
 
         return $this->redis->hset($key, $time, $num);
     }
@@ -67,7 +80,17 @@ class Report
         }
         return 0;
     }
+//    protected function getDayReadMax($day){
+//        $num = $this->cache->get("_day.".$day.".read.max.report");
+//        if (!$num)
+//            return 0;
+//        return $num;
+//    }
 
+    protected function setDayReadMax($day, $size)
+    {
+        $this->cache->set("_day.".$day.".read.max.report", $size);
+    }
     /**
      * 当天最高读秒并发数量
      *
@@ -76,27 +99,36 @@ class Report
      */
     public function getDayReadMax($day)
     {
+        $num = $this->cache->get("_day.".$day.".read.max.report");
+        if (!$num)
+            return 0;
+        return $num;
+
         //$event show select
+        /*enable_time_test();
         $max    = $this->cache->get("read.max.".$day.".report");
-        if ($max) {
+        if ($max && $day != date("Ymd")) {
+            time_test_dump("1");
             return $max;
         }
-
+        time_test_dump("1");
         $times1 = $this->redis->hkeys(self::REPORT_LIST. ":show". ":".$day);
         $times2 = $this->redis->hkeys(self::REPORT_LIST. ":select". ":".$day);
 
         $times  = array_merge($times1, $times2);
         $max    = 0;
-
+        time_test_dump("2");
+        echo "\r\n",count($times),"\r\n";
         foreach ($times as $time) {
             $num = $this->get($time, "show") + $this->get($time, "select");
             if ($num > $max)
                 $max = $num;
         }
-
+        time_test_dump("3");
         if ($day != date("Ymd"))
         $this->cache->set("read.max.".$day.".report", $max);
-        return $max;
+        time_test_dump("4");
+        return $max;*/
     }
 
     /**
@@ -200,13 +232,23 @@ class Report
         return $max;
     }
 
+
+    protected function setDayWriteMax($day, $size)
+    {
+        $this->cache->set("_day.".$day.".write.max.report", $size);
+    }
     /**
      * 获取当天秒写最高并发
      */
     public function getDayWriteMax($day)
     {
+        $max = $this->cache->get("_day.".$day.".write.max.report");
+        if (!$max)
+            return 0;
+        return $max;
+        /*
         $max    = $this->cache->get("write.max.".$day.".report");
-        if ($max) {
+        if ($max && $day != date("Ymd")) {
             return $max;
         }
         //$event set update delete
@@ -228,7 +270,7 @@ class Report
         }
         if ($day != date("Ymd"))
         $this->cache->set("write.max.".$day.".report", $max);
-        return $max;
+        return $max;*/
     }
 
     /**
