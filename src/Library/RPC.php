@@ -64,6 +64,9 @@ class RPC
         }
 
         $json = Context::instance()->redis_zookeeper->get($event_id);
+        if ($json === 0)
+            return $json;
+
         if (!$json)
             return null;
 

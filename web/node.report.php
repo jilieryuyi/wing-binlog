@@ -3,6 +3,19 @@ $history_read_max  = \Seals\Web\Logic\Node::getHistoryReadMax($_GET["session_id"
 $history_write_max = \Seals\Web\Logic\Node::getHistoryWriteMax($_GET["session_id"]);
 $today_read_max    = \Seals\Web\Logic\Node::getDayReadMax($_GET["session_id"], date("Ymd"));
 $today_write_max   = \Seals\Web\Logic\Node::getDayWriteMax($_GET["session_id"], date("Ymd"));
+
+if (!$history_read_max)
+    $history_read_max = 0;
+
+if (!$history_write_max)
+    $history_write_max = 0;
+
+if (!$today_read_max)
+    $today_read_max = 0;
+
+if (!$today_write_max)
+    $today_write_max = 0;
+
 ?>
 <!DOCTYPE html>
 <html lang="en">

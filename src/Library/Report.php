@@ -94,6 +94,7 @@ class Report
                 $max = $num;
         }
 
+        if ($day != date("Ymd"))
         $this->cache->set("read.max.".$day.".report", $max);
         return $max;
     }
@@ -163,9 +164,13 @@ class Report
         if ($data) {
             $max      = $data[0];
             $last_day = $data[1];
+
+            if ($last_day == date("Ymd", time()-86400))
+                return $max;
+
             $start    = time();
             $end      = strtotime($last_day);
-            for ($time = $end+86400; $time < $start; $time += 86400) {
+            for ($time = $end+86400; $time <= $start-86400; $time += 86400) {
                 $days[] = date("Ymd", $time);
             }
         } else {
@@ -200,6 +205,10 @@ class Report
      */
     public function getDayWriteMax($day)
     {
+        $max    = $this->cache->get("write.max.".$day.".report");
+        if ($max) {
+            return $max;
+        }
         //$event set update delete
         $times1 = $this->redis->hkeys(self::REPORT_LIST. ":set". ":".$day);
         $times2 = $this->redis->hkeys(self::REPORT_LIST. ":update". ":".$day);
@@ -217,7 +226,8 @@ class Report
             if ($num > $max)
                 $max = $num;
         }
-
+        if ($day != date("Ymd"))
+        $this->cache->set("write.max.".$day.".report", $max);
         return $max;
     }
 

@@ -693,26 +693,26 @@ class Worker implements Process
 
     public static function getHistoryWriteMax()
     {
-//        $report = new Report(Context::instance()->redis_local);
-//        $max = $report->getHistoryWriteMax();
-//        unset($report);
-        return 0;//$max;
+        $report = new Report(Context::instance()->redis_local);
+        $max = $report->getHistoryWriteMax();
+        unset($report);
+        return $max;
     }
 
     public static function getDayReadMax($day)
     {
-//        $report = new Report(Context::instance()->redis_local);
-//        $max = $report->getDayReadMax($day);
-//        unset($report);
-        return 0;//$max;
+        $report = new Report(Context::instance()->redis_local);
+        $max = $report->getDayReadMax($day);
+        unset($report);
+        return $max;
     }
 
     public static function getDayWriteMax($day)
     {
-//        $report = new Report(Context::instance()->redis_local);
-//        $max = $report->getDayWriteMax($day);
-//        unset($report);
-        return 0;//$max;
+        $report = new Report(Context::instance()->redis_local);
+        $max = $report->getDayWriteMax($day);
+        unset($report);
+        return $max;
     }
 
 
