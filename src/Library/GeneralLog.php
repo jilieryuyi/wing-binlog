@@ -15,13 +15,10 @@ class GeneralLog
     protected $file_cache;
     public function __construct(DbInterface $pdo)
     {
-        $this->pdo = $pdo;
-        $this->cache = new File(__APP_DIR__);
+        $this->pdo        = $pdo;
+        $this->cache      = new \Seals\Cache\Redis(Context::instance()->redis_local);
         $this->file_cache = new File(__APP_DIR__."/data/table");
-
-        $last_time = $this->cache->get("general.last");
-        if ($last_time)
-            $this->last_time = $last_time;
+        $this->last_time  = $this->getLastTime();
     }
 
     public function open()
@@ -88,21 +85,28 @@ event_time > "'.$last_time.'" limit '.$limit;
 
     public function setLastTime($time)
     {
-        $this->cache->set("general.last",$time);
+        $this->cache->set("wing-binlog-general-log-last-time", $time);
         $this->last_time = $time;
+    }
+    public function getLastTime()
+    {
+        $time = $this->cache->get("wing-binlog-general-log-last-time");
+        if ($time)
+            return $time;
+        return date("Y-m-d 00:00:00");
     }
 
     public function setReadSize($size)
     {
-        $this->cache->set("general.read",$size);
+        return $this->cache->set("wing-binlog-general-log-last-read", $size);
     }
 
     public function getReadSize()
     {
-        $size = $this->cache->get("general.read");
-        if (!$size)
-            return 0;
-        return $size;
+        $size = $this->cache->get("wing-binlog-general-log-last-read");
+        if ($size)
+            return $size;
+        return 0;
     }
 
 }

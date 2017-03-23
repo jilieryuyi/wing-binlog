@@ -20,7 +20,8 @@ class Redis implements CacheInterface
     public function set($key, $value, $timeout = 0)
     {
         $success = $this->redis->set($key, $value);
-        $this->redis->expire($key, $timeout);
+        if ($timeout>0)
+            $this->redis->expire($key, $timeout);
         return $success;
     }
     public function get($key)
