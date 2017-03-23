@@ -24,7 +24,7 @@ class Master implements Process
     protected $ip               = "0.0.0.0";
     protected $port             = 9998;
     protected $home_path        = __APP_DIR__."/web";
-    protected $pid              = "master_1.pid";
+    protected $master_status    = "master.status";
     protected $http_processe    = 0;
     protected $master_process   = 0;
     protected $update_process   = 0;
@@ -201,27 +201,6 @@ class Master implements Process
      */
     public function stop()
     {
-
-        /*$files = $this->process_cache->keys("running.*");
-
-        if (!$files)
-            return;
-
-        $process_ids = [];
-        foreach ($files as $file) {
-            list(, $process_id) = explode("_",$file);
-            $process_ids[] = $process_id;
-        }
-
-        foreach ($process_ids as $process_id) {
-            $this->process_cache->set("stop_".$process_id,1,60);
-        }*/
-
-//        $processes = (new File(__APP_DIR__))->get($this->pid);
-//        foreach ($processes as $process) {
-//            echo "kill ".$process["process_id"],"\r\n";
-//            system("kill ".$process["process_id"]);
-//        }
         self::stopAll();
     }
 
@@ -252,7 +231,7 @@ class Master implements Process
      */
     public function getStatus(){
 
-        $processes = (new File(__APP_DIR__))->get($this->pid);
+        $processes = (new File(__APP_DIR__))->get($this->master_status);
 
         $str = "进程id    开始时间              运行时长\r\n";
         foreach ($processes as $v) {
@@ -598,7 +577,7 @@ class Master implements Process
         $processes[] = $this->forkCheckUpdateWorker();
 
         $file = new File(__APP_DIR__);
-        $file->set($this->pid, $processes);
+        $file->set($this->master_status, $processes);
 
         //write pid file
         file_put_contents(self::$master_pid, self::getCurrentProcessId());
@@ -618,21 +597,21 @@ class Master implements Process
                 if ($pid == $this->master_process) {
                     //fork master process
                     $processes[0] = $this->forkMasterWorker();
-                    $file->set($this->pid, $processes);
+                    $file->set($this->master_status, $processes);
                     continue;
                 }
 
                 if ($pid == $this->http_processe) {
                     //fork http process
                     $processes[1] = $this->forkHttpWorker();
-                    $file->set($this->pid, $processes);
+                    $file->set($this->master_status, $processes);
                     continue;
                 }
 
                 if ($pid == $this->update_process) {
                     //fork check update process
                     $processes[2] = $this->forkCheckUpdateWorker();
-                    $file->set($this->pid, $processes);
+                    $file->set($this->master_status, $processes);
                     continue;
                 }
             }
