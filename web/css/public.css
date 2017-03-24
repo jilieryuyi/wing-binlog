@@ -7,18 +7,7 @@
     height: 45px;
     margin-top: 12px;
 }
-/*.right-tool span {*/
-/*display: inline-block;*/
-/*padding: 8px 20px;*/
-/*border: #ccc solid 1px;*/
-/*border-radius: 3px;*/
-/*cursor: pointer;*/
-/*}*/
 
-.bth {
-    background: #4B780A;
-    color: #fff;
-}
 
 .c-red {
     color: #f00;
