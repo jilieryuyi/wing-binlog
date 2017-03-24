@@ -64,8 +64,25 @@
             </div>
             <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
               <span class="count_top"><i class="fa fa-user"></i> Total Events</span>
-              <div class="count green">2,500</div>
-              <span class="count_bottom"><i class="green"><i class="fa fa-sort-asc"></i>34% </i> From last Day</span>
+              <div class="count green"><?php echo \Seals\Library\Report::getEventsCount(); ?></div>
+              <span class="count_bottom"><i class="green">
+                  <?php
+                  $yestoday = date("Ymd",time()-86400);
+                  $day = date("Ymd");
+
+                  $todayc    = \Seals\Library\Report::getDayEventsCount($day);
+                  $yestodayc = \Seals\Library\Report::getDayEventsCount($yestoday);
+
+                  if ($yestodayc > 0) {
+                    $incr = bcdiv(($todayc - $yestodayc)*100,$yestodayc,2);
+                  } else {
+                    $incr = 100;
+                  }
+
+                  ?>
+                  <i class="fa <?php if ($incr > 0) echo "fa-sort-asc";
+                  else echo "fa-sort-desc";
+                  ?>"></i><?php echo abs($incr); ?>%</i> From last Day</span>
             </div>
             <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
               <span class="count_top"><i class="fa fa-user"></i> Total Query</span>

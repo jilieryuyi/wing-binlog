@@ -91,6 +91,42 @@ class Report
     {
         $this->cache->set("_day.".$day.".read.max.report", $size);
     }
+
+    public static function eventsIncr()
+    {
+        if (!Context::instance()->redis_zookeeper)
+            Context::instance()->zookeeperInit();
+        $key     = "wing-binlog-events-total-".Context::instance()->session_id;
+        $key_day = "wing-binlog-events-day-".date("Ymd")."-".Context::instance()->session_id;
+
+        Context::instance()->redis_zookeeper->incr($key_day);
+
+        return Context::instance()->redis_zookeeper->incr($key);
+    }
+
+    public static function getDayEventsCount($day)
+    {
+        if (!Context::instance()->redis_zookeeper)
+            Context::instance()->zookeeperInit();
+
+        $key_day = "wing-binlog-events-day-".$day."-".Context::instance()->session_id;
+        $count   = Context::instance()->redis_zookeeper->get($key_day);
+
+        if (!$count)
+            return 0;
+        return $count;
+    }
+
+    public static function getEventsCount()
+    {
+        if (!Context::instance()->redis_zookeeper)
+            Context::instance()->zookeeperInit();
+        $keys = Context::instance()->redis_zookeeper->keys("wing-binlog-events-total-*");
+        $count = 0;
+        foreach ($keys as $key)
+            $count += Context::instance()->redis_zookeeper->get($key);
+        return $count;
+    }
     /**
      * 当天最高读秒并发数量
      *

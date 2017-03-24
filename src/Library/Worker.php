@@ -493,6 +493,9 @@ class Worker implements Process
      */
     public static function setNodeOffline($is_offline = false)
     {
+        file_put_contents(__APP_DIR__."/setNodeOffline.log",$is_offline,FILE_APPEND);
+        var_dump($is_offline);
+        echo "set setNodeOffline=====================\r\n";
         self::$is_offline = !!$is_offline;
         return 1;
     }
@@ -910,6 +913,7 @@ class Worker implements Process
                             "app_id"        => $this->app_id
                         ];
                         $success = $this->notify->send($params);
+                        Report::eventsIncr();
                         if (!$success) {
                             Context::instance()->logger->error(get_class($this->notify)." send failure",$params);
                             $failure_queue->push($params);
@@ -1341,6 +1345,13 @@ class Worker implements Process
                     $rabbitmq_config = Context::instance()->rabbitmq_config;
                     unset($rabbitmq_config["password"]);
 
+                    RPC::run();
+
+                    if (self::$is_offline)
+                        echo "==================offline\r\n";
+                    else
+                        echo "==================online\r\n";
+
                     //服务发现
                     $zookeeper->serviceReport([
                         "is_offline"   => self::$is_offline?1:0,
@@ -1358,7 +1369,8 @@ class Worker implements Process
                     unset($redis_local, $redis_config,
                         $zookeeper_config, $db_config, $rabbitmq_config);
 
-                    RPC::run();
+                    echo "running\r\n";
+
 
                     if (!$zookeeper->isLeader()) {
                         // echo "不是leader，不进行采集操作\r\n";
@@ -1374,6 +1386,7 @@ class Worker implements Process
                         if ($last_binlog) {
                             $bin->setLastBinLog($last_binlog);
                         }
+                        echo "not leader\r\n";
                         break;
                     }
 
@@ -1408,8 +1421,10 @@ class Worker implements Process
 
                     //if node is offline
                     if (self::$is_offline) {
+                        echo "offline\r\n";
                         break;
                     }
+                    echo "online\r\n";
 
                     //得到所有的binlog事件 记住这里不允许加limit 有坑
                     $data = $bin->getEvents($current_binlog,$last_end_pos,$limit);

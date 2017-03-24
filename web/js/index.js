@@ -40,15 +40,17 @@ function nodeRefresh(v, group_id, session_id)
             }
 
             $(v).find(".time-len").html(data.time_len);
-            $(v).find(".set-offline").attr("data-is_offline", data.is_offline);
+            $(v).next("tr").find(".set-offline").attr("data-is_offline", data.is_offline);
             $(v).find(".start-time").html(data.created);
 
             if (data.is_offline) {
                 $(v).find(".online-status").children("img").attr("src", "images/offline.png").attr("title", "Offline");
-                $(v).find(".set-offline").html("Online");
+                $(v).next("tr").find(".set-offline").html("Online")
+                    .removeClass("bg-red").addClass("btn-primary");
             } else {
                 $(v).find(".online-status").children("img").attr("src", "images/online.png").attr("title", "Online");
-                $(v).find(".set-offline").html("Offline");
+                $(v).next("tr").find(".set-offline").html("Offline")
+                    .removeClass("btn-primary").addClass("bg-red");
             }
 
             $(v).find(".version").html(data.version);
@@ -63,16 +65,18 @@ function nodeRefresh(v, group_id, session_id)
             else
                 $(v).removeClass("hide");
 
-            $(".open-generallog").attr("data-open",data.generallog);
+            $(v).next("tr").find(".open-generallog").attr("data-open",data.generallog);
             if (parseInt(data.generallog) == 1) {
-                $(".open-generallog")
+                $(v).next("tr").find(".open-generallog")
                     .html("Disable General Log")
-                    .removeClass("btn btn-primary")
-                    .addClass("btn bg-red");
+                    .removeClass("btn-primary")
+                    .addClass("bg-red");
+                $(v).find(".generallog").html("Enable");
             } else {
-                $(".open-generallog").html("Enable General Log")
-                    .addClass("btn btn-primary")
-                    .removeClass("btn bg-red");
+                $(v).next("tr").find(".open-generallog").html("Enable General Log")
+                    .addClass("btn-primary")
+                    .removeClass("bg-red");
+                $(v).find(".generallog").html("Disable");
             }
             var index = 1;
             $(".nodes-list .node").each(function(){
@@ -103,11 +107,13 @@ function nodeOffline(dom)
 
     var group_id   = $(dom).attr("data-group-id");
     var session_id = $(dom).attr("data-session-id");
-    var is_offline = parseInt($(dom).attr("data-is_offline")) == 1 ? 0 : 1;
+    var is_offline = $(dom).attr("data-is_offline") == "1" ? 0 : 1;
 
-    $(dom).html("正在操作...").addClass("disable");
+    console.log(is_offline);
+
+    $(dom).html("Offline...").addClass("disable");
     window.setTimeout(function(){
-        $(dom).html("下线");
+        $(dom).html("Offline");
         node_offline_doing = false;
         $(dom).removeClass("disable")
     },3000);
@@ -139,12 +145,12 @@ function openGenerallog(dom)
     var session_id = $(dom).attr("data-session-id");
     var open       = $(dom).attr("data-open") == "1" ? 0 : 1;
 
-    $(dom).html("正在操作...").addClass("disable");
+    $(dom).html("Doing...").addClass("disable");
     window.setTimeout(function(){
         if (open == 0)
-            $(dom).html("开启generallog");
+            $(dom).html("Enable General Log");
         else
-            $(dom).html("关闭generallog");
+            $(dom).html("Disable General Log");
         open_generallog_doing = false;
         $(dom).removeClass("disable")
     },3000);
@@ -175,7 +181,7 @@ function openGroupGenerallog(dom, open)
         var group_id   = $(dom).attr("data-group-id");
 
         var old_html = $(dom).html();
-        $(dom).html("正在操作...").addClass("disable");
+        $(dom).html("Doing...").addClass("disable");
         window.setTimeout(function(){
                 $(dom).html(old_html);
             open_group_generallog_doing = false;
@@ -206,12 +212,12 @@ function groupOffline(dom, is_offline)
 
     var group_id   = $(dom).attr("data-group-id");
 
-    $(dom).html("正在操作...").addClass("disable");
+    $(dom).html("Doing...").addClass("disable");
     window.setTimeout(function(){
         if (is_offline == 1)
-            $(dom).html("下线");
+            $(dom).html("Offline");
         else
-            $(dom).html("上线");
+            $(dom).html("Online");
         group_offline_doing = false;
         $(dom).removeClass("disable")
     },3000);
@@ -295,6 +301,14 @@ function appendNode(group_id, session_id, node)
                     }
                     html +=
                 '</td>'+
+                '<td class="generallog">';
+    if (parseInt(node.generallog) == 1) {
+        html += "Enable";
+    } else {
+        html += "Disable";
+    }
+    html +=
+        '</td>'+
                 '<td class="last-pos">';
                     if (parseInt(node.is_leader) == 1) {
                         html += node.last_binlog+" => "+node.last_pos;
@@ -308,7 +322,7 @@ function appendNode(group_id, session_id, node)
                 '<td class="time-len">'+node.time_len+'</td>' +
             '</tr>' +
             '<tr>'+
-                '<td class="edit" colspan="7">'+
+                '<td class="edit" colspan="8">'+
                     '<a ' +
                         'class="btn btn-primary" ' +
                         'style="margin-left: 0;" '+
@@ -346,19 +360,17 @@ function appendNode(group_id, session_id, node)
                         'data-session-id="'+session_id+'" '+
                         'onclick="nodeUpdate(this)" >Update</a>';
 
-     {
-        html += '<a class="btn btn-primary open-generallog" ' +
-            'data-group-id="' + group_id + '" ' +
-            'data-session-id="' + session_id + '" ' +
-            'data-open="' + node.generallog + '" ' +
+                    html += '<a class="btn btn-primary open-generallog" ' +
+                        'data-group-id="' + group_id + '" ' +
+                        'data-session-id="' + session_id + '" ' +
+                        'data-open="' + node.generallog + '" ' +
 
-            'onclick="openGenerallog(this)" >';
-         if (parseInt(node.generallog) != 1)
-             html+= 'Enable General Log';
-         else
-             html+= 'Disable General Log';
-         html+='</a>';
-    }
+                        'onclick="openGenerallog(this)" >';
+                     if (parseInt(node.generallog) != 1)
+                         html+= 'Enable General Log';
+                     else
+                         html+= 'Disable General Log';
+                    html+='</a>';
                     html+='<label class="error-info"></label>'+
                 '</span>' +
             '</tr>';//+
@@ -427,6 +439,7 @@ function appendGroup(group_id, nodes)
                     '<th class="node-id">Node</th>' +
                     '<th class="online-status">Status</th>'+
                     '<th class="is-leader">Leader</th>' +
+                    '<th class="generallog">General Log</th>' +
                     '<th class="last-pos">Last Read</th>' +
                     '<th class="version">Version</th>' +
                     '<th class="start-time">Start Time</th>' +
@@ -473,11 +486,18 @@ function nodeRestart(dom)
     var group_id   = $(dom).attr("data-group-id");
     var session_id = $(dom).attr("data-session-id");
 
-    $(dom).html("正在重启...").addClass("disable");
+    $(dom).html("Restart...").addClass("disable");
 
     window.setTimeout(function(){
         node_restart_doing = false;
         $(dom).removeClass("disable");
+
+        var error = $(dom).parent().find(".error-info");
+        $(dom).html("Restart");
+        error.html("Restart successfully, the right running time will change significantly").show();
+        window.setTimeout(function(){
+            error.hide("slow").html("");
+        },5000);
     },3000);
 
     $.ajax({
@@ -490,16 +510,6 @@ function nodeRestart(dom)
         success:function(msg){
         }
     });
-
-    var error = $(dom).parent().find(".error-info");
-    window.setTimeout(function(){
-        $(dom).html("重启");
-        error.html("重启成功，右边的运行时长会发生明显变化").show();
-        window.setTimeout(function(){
-            error.hide("slow").html("");
-        },5000);
-    },2000);
-
 }
 
 var node_update_doing = false;
@@ -546,9 +556,9 @@ function restartMaster(dom) {
         return;
     }
 
-    $(dom).addClass("disable").html("正在重启...");
+    $(dom).addClass("disable").html("Restart...");
     window.setTimeout(function(){
-        $(dom).removeClass("disable").html("重启master进程");
+        $(dom).removeClass("disable").html("Restart Master Process");
         master_restart_doing = false;
     },3000);
 
@@ -565,9 +575,9 @@ function updateMaster(dom) {
         return;
     }
 
-    $(dom).addClass("disable").html("正在更新...");
+    $(dom).addClass("disable").html("Update...");
     window.setTimeout(function(){
-        $(dom).removeClass("disable").html("更新master");
+        $(dom).removeClass("disable").html("Update Master");
         master_update_doing = false;
     },3000);
 
