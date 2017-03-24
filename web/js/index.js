@@ -33,10 +33,10 @@ function nodeRefresh(v, group_id, session_id)
 
             if (data.is_leader == 1) {
                 $(v).find(".last-pos").html(data.last_binlog+" => "+data.last_pos);
-                $(v).find(".is-leader").html("是");
+                $(v).find(".is-leader").html("Yes");
             } else {
                 $(v).find(".last-pos").html('');
-                $(v).find(".is-leader").html("否");
+                $(v).find(".is-leader").html("No");
             }
 
             $(v).find(".time-len").html(data.time_len);
@@ -44,11 +44,11 @@ function nodeRefresh(v, group_id, session_id)
             $(v).find(".start-time").html(data.created);
 
             if (data.is_offline) {
-                $(v).find(".online-status").children("img").attr("src", "images/offline.png").attr("title", "已下线");
-                $(v).find(".set-offline").html("上线");
+                $(v).find(".online-status").children("img").attr("src", "images/offline.png").attr("title", "Offline");
+                $(v).find(".set-offline").html("Online");
             } else {
-                $(v).find(".online-status").children("img").attr("src", "images/online.png").attr("title", "在线");
-                $(v).find(".set-offline").html("下线");
+                $(v).find(".online-status").children("img").attr("src", "images/online.png").attr("title", "Online");
+                $(v).find(".set-offline").html("Offline");
             }
 
             $(v).find(".version").html(data.version);
@@ -66,11 +66,11 @@ function nodeRefresh(v, group_id, session_id)
             $(".open-generallog").attr("data-open",data.generallog);
             if (parseInt(data.generallog) == 1) {
                 $(".open-generallog")
-                    .html("关闭generallog")
+                    .html("Disable General Log")
                     .removeClass("btn btn-primary")
                     .addClass("btn bg-red");
             } else {
-                $(".open-generallog").html("开启generallog")
+                $(".open-generallog").html("Enable General Log")
                     .addClass("btn btn-primary")
                     .removeClass("btn bg-red");
             }
@@ -381,9 +381,9 @@ function appendGroup(group_id, nodes)
     var html   =
         '<li class="group group-'+group_id+'">'+
             '<div class="item">'+
-                '<span class="group-id">'+group_id+'</span>'+
-                '<span class="node-count">'+length+'</span>'+
-                '<span class="group-edit edit">' +
+                '<span class="group-id col-md-2">'+group_id+'</span>'+
+                '<span class="node-count col-md-2">'+length+'</span>'+
+                '<span class="group-edit edit col-md-8">' +
                     '<a class="btn btn-primary" href="group.config.php?group_id='+group_id+'" style="margin-left: 0;">Configure</a>' +
                     '<a ' +
                     'class="btn bg-red set-offline" ' +

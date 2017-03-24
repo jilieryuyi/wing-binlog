@@ -1,8 +1,12 @@
 .title {
     font-weight: bold;
+    border-bottom: #ccc solid 1px;
+    line-height: 25px !important;
+    height: 25px !important;
 }
 div.item {
-    height: 25px;
+    height: 35px;
+    line-height: 37px;
 }
 li {
     list-style: none;
@@ -24,10 +28,10 @@ li span {
     /*float:left;*/
 }
 span.group-id {
-    width: 150px;
+    /*width: 150px;*/
 }
 span.node-count {
-    width:80px;
+    /*width:80px;*/
 }
 span a:hover {
     font-weight: bold;
@@ -49,7 +53,7 @@ span.last-pos {
     width: 260px;
 }
 span.edit {
-    width: auto;
+    /*width: auto;*/
 }
 .nodes-list {
     padding-top: 15px;
@@ -118,5 +122,4 @@ li.node {
 }
 .online-status img {
     width: 14px;
-    padding: 0 10px;
 }
