@@ -12,10 +12,12 @@ class Report
     const REPORT_LIST = "wing-binlog-report";
     protected $redis;
     protected $cache;
+    protected $total_query = 0;
     public function __construct(RedisInterface $redis)
     {
         $this->redis = $redis;
         $this->cache = new File(__APP_DIR__."/data/report");
+        $this->total_query = $this->getTotalQueryCount();
     }
 
     /**
@@ -33,7 +35,13 @@ class Report
 
         if (!in_array($event,["show","set","select","update","delete"]))
             return false;
+
+        $this->total_query++;
+        $this->setTotalQueryCount($this->total_query);
+
         $day = date("Ymd", $time);
+        $this->setDayQueryCount($day);
+
 
         //$event show set select update delete
         $key = self::REPORT_LIST.
@@ -59,6 +67,37 @@ class Report
         }
 
         return $this->redis->hset($key, $time, $num);
+    }
+
+
+    public function getTotalQueryCount()
+    {
+        $key   = "wing-binlog-total-query";
+        $count = $this->redis->get($key);
+        if (!$count)
+            return 0;
+        return $count;
+    }
+
+    public function setTotalQueryCount($count)
+    {
+        $key   = "wing-binlog-total-query";
+        return $this->redis->set($key, $count);
+    }
+
+    public function setDayQueryCount($day)
+    {
+        $key   = "wing-binlog-day-".$day."-query";
+        return $this->redis->incr($key);
+    }
+
+    public function getDayQueryCount($day)
+    {
+        $key   = "wing-binlog-day-".$day."-query";
+        $count = $this->redis->get($key);
+        if (!$count)
+            return 0;
+        return $count;
     }
 
     /**

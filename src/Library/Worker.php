@@ -718,6 +718,22 @@ class Worker implements Process
         return $max;
     }
 
+    public static function getTotalQueryCount()
+    {
+        $report = new Report(Context::instance()->redis_local);
+        $max    = $report->getTotalQueryCount();
+        unset($report);
+        return $max;
+    }
+
+    public static function getDayQueryCount($day)
+    {
+        $report = new Report(Context::instance()->redis_local);
+        $max    = $report->getDayQueryCount($day);
+        unset($report);
+        return $max;
+    }
+
 
     /**
      * signal handler

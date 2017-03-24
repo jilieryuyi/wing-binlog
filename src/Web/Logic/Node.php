@@ -210,4 +210,28 @@ class Node
         return RPC::call($session_id, "\\Seals\\Library\\Worker::getDayWriteMax",[$day]);
     }
 
+    public static function getTotalQueryCount()
+    {
+        $services = \Seals\Library\Zookeeper::getServices();
+        $count    = 0;
+        foreach ($services as $group_id => $groups) {
+            foreach ($groups as $session_id => $row) {
+                $count += RPC::call($session_id, "\\Seals\\Library\\Worker::getTotalQueryCount");
+            }
+        }
+        return $count;
+    }
+
+    public static function getDayQueryCount($day)
+    {
+        $services = \Seals\Library\Zookeeper::getServices();
+        $count    = 0;
+        foreach ($services as $group_id => $groups) {
+            foreach ($groups as $session_id => $row) {
+                $count += RPC::call($session_id, "\\Seals\\Library\\Worker::getDayQueryCount", [$day]);
+            }
+        }
+        return $count;
+    }
+
 }

@@ -65,29 +65,45 @@
             <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
               <span class="count_top"><i class="fa fa-user"></i> Total Events</span>
               <div class="count green"><?php echo \Seals\Library\Report::getEventsCount(); ?></div>
-              <span class="count_bottom"><i class="green">
-                  <?php
-                  $yestoday = date("Ymd",time()-86400);
-                  $day = date("Ymd");
+              <span class="count_bottom">
+                <?php
+                $yestoday = date("Ymd",time()-86400);
+                $day      = date("Ymd");
 
-                  $todayc    = \Seals\Library\Report::getDayEventsCount($day);
-                  $yestodayc = \Seals\Library\Report::getDayEventsCount($yestoday);
+                $todayc    = \Seals\Library\Report::getDayEventsCount($day);
+                $yestodayc = \Seals\Library\Report::getDayEventsCount($yestoday);
 
-                  if ($yestodayc > 0) {
-                    $incr = bcdiv(($todayc - $yestodayc)*100,$yestodayc,2);
-                  } else {
-                    $incr = 100;
-                  }
+                if ($yestodayc > 0) {
+                  $incr = bcdiv(($todayc - $yestodayc)*100,$yestodayc,2);
+                } else {
+                  $incr = 100;
+                }
 
-                  ?>
+                ?>
+                <i class="<?php if ($incr > 0) echo "green"; else echo "red"; ?>">
                   <i class="fa <?php if ($incr > 0) echo "fa-sort-asc";
                   else echo "fa-sort-desc";
                   ?>"></i><?php echo abs($incr); ?>%</i> From last Day</span>
             </div>
             <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
               <span class="count_top"><i class="fa fa-user"></i> Total Query</span>
-              <div class="count">4,567</div>
-              <span class="count_bottom"><i class="red"><i class="fa fa-sort-desc"></i>12% </i> From last Day</span>
+              <div class="count"><?php
+                $yestoday = date("Ymd",time()-86400);
+                $day      = date("Ymd");
+
+                $yestoday_qc = \Seals\Web\Logic\Node::getDayQueryCount($yestoday);
+                $day_qc      = \Seals\Web\Logic\Node::getDayQueryCount($day);
+
+                if ($yestoday_qc > 0) {
+                  $incr = bcdiv(($day_qc - $yestoday_qc)*100,$yestoday_qc,2);
+                } else {
+                  $incr = 100;
+                }
+                echo \Seals\Web\Logic\Node::getTotalQueryCount();
+                ?></div>
+              <span class="count_bottom"><i class="<?php if ($incr > 0) echo "green"; else echo "red"; ?>"><i class="fa  <?php if ($incr > 0) echo "fa-sort-asc";
+                  else echo "fa-sort-desc";
+                  ?>"></i><?php echo abs($incr); ?>% </i> From last Day</span>
             </div>
             <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
               <span class="count_top"><i class="fa fa-user"></i> Total Logs</span>
@@ -806,7 +822,7 @@
     <script src="vendors/bootstrap-daterangepicker/daterangepicker.js"></script>
 
     <!-- Custom Theme Scripts -->
-    <script src="build/js/custom.min.js"></script>
+    <script src="build/js/custom.js"></script>
     <script src="js/lock.js"></script>
     <script src="js/index.js"></script>
 
