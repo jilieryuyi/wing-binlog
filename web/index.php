@@ -103,9 +103,9 @@
           <!-- /top tiles -->
           <div class="row">
             <div class="col-md-12 col-sm-12 col-xs-12" style="text-align: right;">
+              <label class="login-timeout" style="display: none;"><label style="color: #f00;">登录超时，请重新</label><a href="login.php">登录</a></label>
               <span class="btn btn-primary" onclick="restartMaster(this)">Restart Master Process</span>
               <span class="btn btn-primary" onclick="updateMaster(this)">Update Master</span>
-              <label class="login-timeout" style="display: none;">登录超时，请重新<a href="login.php">登录</a></label>
             </div>
           </div>
           <div class="row">
