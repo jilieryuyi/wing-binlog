@@ -67,12 +67,12 @@ function nodeRefresh(v, group_id, session_id)
             if (parseInt(data.generallog) == 1) {
                 $(".open-generallog")
                     .html("关闭generallog")
-                    .removeClass("bg-normal")
-                    .addClass("bg-red");
+                    .removeClass("btn btn-primary")
+                    .addClass("btn bg-red");
             } else {
                 $(".open-generallog").html("开启generallog")
-                    .addClass("bg-normal")
-                    .removeClass("bg-red");
+                    .addClass("btn btn-primary")
+                    .removeClass("btn bg-red");
             }
             var index = 1;
             $(".nodes-list .node").each(function(){
@@ -266,107 +266,105 @@ function count(obj)
  */
 function appendNode(group_id, session_id, node)
 {
-    var index = $(".group-"+group_id+" li").length;
+    var index = $(".group-"+group_id+" li").length+1;
 
     var html =
-        '<li ' +
+        '<tr ' +
             'class="node node-'+session_id+'" '+
             'data-group-id="'+group_id+'" '+
             'data-session-id="'+session_id+'" '+
             '>'+
-            '<div>'+
-                '<span class="node-id" title="'+session_id+'">' +
+           // '<div>'+
+                '<td class="node-id" title="'+session_id+'">' +
                     '<label class="index">'+index+'</label>、'+session_id+
-                '</span>'+
-                '<span class="online-status">';
+                '</td>'+
+                '<td class="online-status">';
                     if (parseInt(node.is_offline) == 1) {
-                        html += '<img title="在线" src="images/online.png"/>';
+                        html += '<img title="online" src="images/online.png"/>';
                     } else {
-                        html += '<img title="已下线" src="images/offline.png"/>';
+                        html += '<img title="offline" src="images/offline.png"/>';
                     }
                     html +=
-                '</span>'+
-                '<span class="is-leader">';
+                '</td>'+
+                '<td class="is-leader">';
                     if (parseInt(node.is_leader) == 1) {
                         last_read = node.last_binlog+" => "+node.last_pos;
-                        html += "是";
+                        html += "Yes";
                     } else {
-                        html += "否";
+                        html += "No";
                     }
                     html +=
-                '</span>'+
-                '<span class="last-pos">';
+                '</td>'+
+                '<td class="last-pos">';
                     if (parseInt(node.is_leader) == 1) {
                         html += node.last_binlog+" => "+node.last_pos;
                     } else {
                         html += "";
                     }
                     html +=
-                '</span>'+
-                '<span class="version">'+node.version+'</span>' +
-                '<span class="start-time">'+node.created+'</span>' +
-                '<span class="time-len">'+node.time_len+'</span>' +
-            '</div>' +
-            '<div>'+
-                '<span class="edit">'+
+                '</td>'+
+                '<td class="version">'+node.version+'</td>' +
+                '<td class="start-time">'+node.created+'</td>' +
+                '<td class="time-len">'+node.time_len+'</td>' +
+            '</tr>' +
+            '<tr>'+
+                '<td class="edit" colspan="7">'+
                     '<a ' +
-                        'class="bg-normal" ' +
+                        'class="btn btn-primary" ' +
                         'style="margin-left: 0;" '+
                         'data-group-id="'+group_id+'" '+
                         'data-session-id="'+session_id+'" '+
-                        'onclick="nodeConfig(this)" >配置</a>'+
+                        'onclick="nodeConfig(this)" >Configure</a>'+
                     '<a ' +
-                        'class="bg-red set-offline" ' +
-                        'title="仅运行时有效，重启后失效。' +
-                                '节点下线之后将停止一切采集业务，' +
-                                '也不会被分配为leader，可以随时恢复上线" '+
+                        'class="btn bg-red set-offline" ' +
+                        'title="Offline the current node, only use for runtime" '+
                         'data-group-id="'+group_id+'" '+
                         'data-session-id="'+session_id+'" '+
                         'data-is_offline="'+node.is_offline+'" '+
                         'onclick="nodeOffline(this)" >';
                         if (parseInt(node.is_offline) == 1) {
-                            html += '上线';
+                            html += 'Online';
                         } else {
-                            html += '下线';
+                            html += 'Offline';
                         }
                         html +='</a>'+
                     '<a ' +
-                        'class="bg-normal"  '+
+                        'class="btn btn-primary"  '+
                         'data-group-id="'+group_id+'" '+
                         'data-session-id="'+session_id+'" '+
-                        'href="node.report.php?group_id='+group_id+'&session_id='+session_id+'" >报表</a>'+
+                        'href="node.report.php?group_id='+group_id+'&session_id='+session_id+'" >Report</a>'+
 
-                    '<a class="bg-red"  '+
+                    '<a class="btn bg-red"  '+
                         'data-group-id="'+group_id+'" '+
                         'data-session-id="'+session_id+'" '+
-                        'onclick="nodeRestart(this)" >重启</a>'+
+                        'onclick="nodeRestart(this)" >Restart</a>'+
 
-                    '<a class="bg-normal" ' +
+                    '<a class="btn btn-primary" ' +
                         'title="git pull origin master&& ' +
                             'php seals server:restart"  '+
                         'data-group-id="'+group_id+'" '+
                         'data-session-id="'+session_id+'" '+
-                        'onclick="nodeUpdate(this)" >更新</a>';
+                        'onclick="nodeUpdate(this)" >Update</a>';
 
      {
-        html += '<a class="bg-normal open-generallog" ' +
+        html += '<a class="btn btn-primary open-generallog" ' +
             'data-group-id="' + group_id + '" ' +
             'data-session-id="' + session_id + '" ' +
             'data-open="' + node.generallog + '" ' +
 
             'onclick="openGenerallog(this)" >';
          if (parseInt(node.generallog) != 1)
-             html+= '开启generallog';
+             html+= 'Enable General Log';
          else
-             html+= '关闭generallog';
+             html+= 'Disable General Log';
          html+='</a>';
     }
                     html+='<label class="error-info"></label>'+
                 '</span>' +
-            '</div>'+
-        '</li>';
+            '</tr>';//+
+        //'</li>';
 
-    $(".group-"+group_id+ " ul").append(html);
+    $(".group-"+group_id+ " table").append(html);
 }
 
 /**
@@ -386,60 +384,58 @@ function appendGroup(group_id, nodes)
                 '<span class="group-id">'+group_id+'</span>'+
                 '<span class="node-count">'+length+'</span>'+
                 '<span class="group-edit edit">' +
-                    '<a class="bg-normal" href="group.config.php?group_id='+group_id+'" style="margin-left: 0;">配置</a>' +
+                    '<a class="btn btn-primary" href="group.config.php?group_id='+group_id+'" style="margin-left: 0;">Configure</a>' +
                     '<a ' +
-                    'class="bg-red set-offline" ' +
-                    'title="下线整个群组！仅运行时有效，重启后失效。' +
-                    '节点下线之后将停止一切采集业务，' +
-                    '也不会被分配为leader，可以随时恢复上线" '+
+                    'class="btn bg-red set-offline" ' +
+                    'title="Offline all the nodes in the group, only use for runtime" '+
                     'data-group-id="'+group_id+'" ' +
-                    'onclick="groupOffline(this,1)">下线</a>'+
+                    'onclick="groupOffline(this,1)">Offline</a>'+
 
                     '<a ' +
-                    'class="bg-normal set-offline" ' +
-                    'title="上线整个群组" '+
+                    'class="btn btn-primary set-offline" ' +
+                    'title="Online all the nodes in the group" '+
                     'data-group-id="'+group_id+'" ' +
-                    'onclick="groupOffline(this,0)">上线</a>'+
+                    'onclick="groupOffline(this,0)">Online</a>'+
                     // '<a ' +
-                    // 'class="bg-normal"  '+
+                    // 'class="btn btn-primary"  '+
                     // 'data-group-id="'+group_id+'">报表</a>'+
 
-                    '<a title="重启整个群组" class="bg-red"  '+
-                    'data-group-id="'+group_id+'">重启</a>'+
+                    '<a title="Restart all the nodes in the group" class="btn bg-red"  '+
+                    'data-group-id="'+group_id+'">Restart</a>'+
 
-                    '<a title="更新整个群组" class="bg-normal" ' +
+                    '<a title="Update all the nodes in the group" class="btn btn-primary" ' +
                     'title="composer update && ' +
                     'git pull origin master&& ' +
                     'php seals server:restart"  '+
-                    'data-group-id="'+group_id+'" >更新</a>'+
+                    'data-group-id="'+group_id+'" >Update</a>'+
 
-         '<a class="bg-normal" ' +
+         '<a class="btn btn-primary" ' +
             'data-group-id="' + group_id + '" ' +
-            'onclick="openGroupGenerallog(this,1)" >开启generallog</a>'+
+            'onclick="openGroupGenerallog(this,1)" >Enable General Log</a>'+
 
-        '<a class="bg-red" ' +
+        '<a class="btn bg-red" ' +
         'data-group-id="' + group_id + '" ' +
-        'onclick="openGroupGenerallog(this,0)" >关闭generallog</a>'+
+        'onclick="openGroupGenerallog(this,0)" >Disable General Log</a>'+
 
                     '<label class="error-info"></label>'+
                 '</span>'+
             '</div>'+
-            '<ul class="nodes-list">';
+            '<table class="nodes-list table table-striped"><thead><tr>';
                 if (length > 0) {
                 html +=
-                '<li class="title" style="height: 25px;">' +
-                    '<span class="node-id">节点</span>' +
-                    '<span class="online-status">状态</span>'+
-                    '<span class="is-leader">leader</span>' +
-                    '<span class="last-pos">最后读取</span>' +
-                    '<span class="version">版本号</span>' +
-                    '<span class="start-time">启动时间</span>' +
-                    '<span class="time-len">运行时长</span>' +
-                '</li>';
+                //'<li class="title" style="height: 25px;">' +
+                    '<th class="node-id">Node</th>' +
+                    '<th class="online-status">Status</th>'+
+                    '<th class="is-leader">Leader</th>' +
+                    '<th class="last-pos">Last Read</th>' +
+                    '<th class="version">Version</th>' +
+                    '<th class="start-time">Start Time</th>' +
+                    '<th class="time-len">Running Time</th>';// +
+               // '</li>';
                 }
 
             html +=
-            '</ul>';
+            '</tr></thead></table>';
 
     $(".groups").append(html);
 

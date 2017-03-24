@@ -1,121 +1,134 @@
 <?php
 $error_info = $appid = $token = "";
-if (isset($_POST["user_name"]) && isset($_POST["password"])) {
-    $user_name = $_POST["user_name"];
-    $password  = $_POST["password"];
-    $user      = new \Seals\Web\Logic\User($user_name);
-    $success   = $user->checkPassword($password);
-
-    if ($success) {
-        list($appid, $token) = $user->setToken();
-    } else {
-        $error_info = "用户名或密码错误";
-    }
-    unset($user, $user_name, $password);
+if (isset($_POST["Username"]) && isset($_POST["Password"])) {
+  $user_name = $_POST["Username"];
+  $password  = $_POST["Password"];
+  $user      = new \Seals\Web\Logic\User($user_name);
+  $success   = $user->checkPassword($password);
+  if ($success) {
+    list($appid, $token) = $user->setToken();
+  } else {
+    $error_info = "用户名或密码错误";
+  }
+  unset($user, $user_name, $password);
 }
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <!-- General meta information -->
-    <title>Login Wing-binlog</title>
-    <meta name="keywords" content="" />
-    <meta name="description" content="" />
-    <meta name="robots" content="index, follow" />
-    <!-- // General meta information -->
-    <!-- Load Javascript -->
-    <script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
-    <script type="text/javascript" src="js/rainbows.js"></script>
-    <script type="text/javascript" src="js/js.cookie.js"></script>
-    <!-- // Load Javascipt -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Load stylesheets -->
-    <link type="text/css" rel="stylesheet" href="css/style.css" media="screen" />
-    <!-- // Load stylesheets -->
+    <title>Gentelella Alela! | </title>
 
-    <script type="text/javascript">
+    <!-- Bootstrap -->
+    <link href="../vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="../vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <!-- NProgress -->
+    <link href="../vendors/nprogress/nprogress.css" rel="stylesheet">
+    <!-- Animate.css -->
+    <link href="../vendors/animate.css/animate.min.css" rel="stylesheet">
 
+    <!-- Custom Theme Style -->
+    <link href="../build/css/custom.min.css" rel="stylesheet">
+    <link href="css/public.css" rel="stylesheet">
 
-        $(document).ready(function(){
+    <script type="text/javascript" src="../js/js.cookie.js"></script>
+    <script>
+      var appid = "<?php echo $appid; ?>";
+      var token = "<?php echo $token; ?>";
 
-            $("#submit1").hover(
-                function() {
-                    $(this).animate({"opacity": "0"}, "slow");
-                },
-                function() {
-                    $(this).animate({"opacity": "1"}, "slow");
-                });
-        });
-        var appid = "<?php echo $appid; ?>";
-        var token = "<?php echo $token; ?>";
-
-        if (appid != "" && token != "") {
-            Cookies.set('wing-binlog-appid', appid, { expires: 1 });
-            Cookies.set('wing-binlog-token', token, { expires: 1 });
-            window.location.href = "/";
-        }
-
-
+      if (appid != "" && token != "") {
+        Cookies.set('wing-binlog-appid', appid, { expires: 1 });
+        Cookies.set('wing-binlog-token', token, { expires: 1 });
+        window.location.href = "index.php";
+      }
     </script>
+  </head>
 
-</head>
-<body>
-<form action="" method="post">
-<div id="wrapper">
-    <div id="wrappertop"></div>
+  <body class="login">
+    <div>
+      <a class="hiddenanchor" id="signup"></a>
+      <a class="hiddenanchor" id="signin"></a>
 
-    <div id="wrappermiddle">
+      <div class="login_wrapper">
+        <div class="animate form login_form">
+          <section class="login_content">
+            <form id="form" action="" method="post">
+              <h1>Login Form</h1>
+              <div>
+                <input type="text" class="form-control" placeholder="Username" name="Username" required="" />
+              </div>
+              <div>
+                <input type="password" class="form-control" placeholder="Password" name="Password" required="" />
+              </div>
+              <div>
+                <a class="btn btn-default submit" onclick="document.getElementById('form').submit();">Log in</a>
+                <a class="reset_pass" href="#">Lost your password?</a>
+              </div>
 
-        <h2>登录<label style="font-size: 12px; color: #f00; margin-left: 6px;"><?php echo $error_info; ?></label></h2>
+              <div class="clearfix"></div>
 
-        <div id="username_input">
+              <div class="separator">
+                <p class="change_link">New to site?
+                  <a href="#signup" class="to_register"> Create Account </a>
+                </p>
 
-            <div id="username_inputleft"></div>
+                <div class="clearfix"></div>
+                <br />
 
-            <div id="username_inputmiddle">
-
-                    <input type="text" name="user_name" id="url" placeholder="用户名" />
-                    <img id="url_user" src="./images/mailicon.png" alt="">
-            </div>
-
-            <div id="username_inputright"></div>
-
+                <div>
+                  <h1><i style="    border: #ccc solid 1px;
+    border-radius: 30px;
+    width: 30px;
+    height: 30px;" class="fa fa-paw"></i> Wing Binlog</h1>
+                  <p>©<?php echo date("Y-m-d"); ?> All Rights Reserved. Wing Binlog</p>
+                </div>
+              </div>
+            </form>
+          </section>
         </div>
 
-        <div id="password_input">
+        <div id="register" class="animate form registration_form">
+          <section class="login_content">
+            <form>
+              <h1>Create Account</h1>
+              <div>
+                <input type="text" class="form-control" placeholder="Username" required="" />
+              </div>
+              <div>
+                <input type="email" class="form-control" placeholder="Email" required="" />
+              </div>
+              <div>
+                <input type="password" class="form-control" placeholder="Password" required="" />
+              </div>
+              <div>
+                <a class="btn btn-default submit" href="index.html">Submit</a>
+              </div>
 
-            <div id="password_inputleft"></div>
+              <div class="clearfix"></div>
 
-            <div id="password_inputmiddle">
-                    <input type="password" name="password" id="url" placeholder="密码" />
-                    <img id="url_password" src="./images/passicon.png" alt="">
-            </div>
+              <div class="separator">
+                <p class="change_link">Already a member ?
+                  <a href="#signin" class="to_register"> Log in </a>
+                </p>
 
-            <div id="password_inputright"></div>
+                <div class="clearfix"></div>
+                <br />
 
+                <div>
+                  <h1><i class="fa fa-paw"></i> Gentelella Alela!</h1>
+                  <p>©2016 All Rights Reserved. Gentelella Alela! is a Bootstrap 3 template. Privacy and Terms</p>
+                </div>
+              </div>
+            </form>
+          </section>
         </div>
-
-        <div id="submit">
-                <input type="submit" style="width: 300px; height: 40px; background: #4B780A; color: #fff; font-weight: bold; font-size: 20px;" id="submit2" value="登 录">
-        </div>
-
-
-        <div id="links_left">
-
-            <a>忘记密码？</a>
-
-        </div>
-
-        <div id="links_right"><a>注册新用户</a></div>
-
+      </div>
     </div>
-
-    <div id="wrapperbottom"></div>
-
-    <div id="powered">
-        <p>Powered by <a href="http://www.itdfy.com/">yuyi</a></p>
-    </div>
-</div>
-</form>
-</body>
+  </body>
 </html>

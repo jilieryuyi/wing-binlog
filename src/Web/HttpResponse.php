@@ -256,36 +256,40 @@ class HttpResponse
         echo "resource:",$resource,"\r\n";
         echo $this->home.$resource,"\r\n";
 
-        if (file_exists($this->home.$resource)) {
-            $mime_type   = MimeType::getMimeType($this->home . $resource);
-            echo $mime_type,"\r\n";
-            if (in_array($mime_type, ["text/x-php", "text/html"])) {
-                ob_start();
-                if ($check_token) {
-                    include $this->home . $resource;
-                    $response = ob_get_contents();
-                } else {
-                    if ($this->getResource() == "/login.php") {
+        if (strpos($resource, "..") !== false) {
+            $response = "404 not found";
+        } else {
+            if (file_exists($this->home . $resource)) {
+                $mime_type = MimeType::getMimeType($this->home . $resource);
+                echo $mime_type, "\r\n";
+                if (in_array($mime_type, ["text/x-php", "text/html"])) {
+                    ob_start();
+                    if ($check_token) {
                         include $this->home . $resource;
                         $response = ob_get_contents();
                     } else {
-                        $response = "请重新登录，<a href='/login.php'>去登陆</a>";
+                        if ($this->getResource() == "/login.php" || $this->getResource()=="/public/login.php") {
+                            include $this->home . $resource;
+                            $response = ob_get_contents();
+                        } else {
+                            $response = "请重新登录，<a href='/login.php'>去登陆</a>";
+                        }
                     }
+                    ob_end_clean();
+                    $mime_type = "text/html";
+                } else {
+                    $response = file_get_contents($this->home . $resource);
                 }
-                ob_end_clean();
-                $mime_type = "text/html";
-            } else {
-                $response = file_get_contents($this->home . $resource);
-            }
-            unset($check_token);
+                unset($check_token);
 
-        } else {
-            if ($check_token) {
-                $route = new Route($this, $resource);
-                $response = $route->parse();
-                unset($route);
             } else {
-                $response = json_encode(["error_code" => 4000, "error_msg"=>"请重新登录，<a href='/login.php'>去登陆</a>"]);
+                if ($check_token) {
+                    $route = new Route($this, $resource);
+                    $response = $route->parse();
+                    unset($route);
+                } else {
+                    $response = json_encode(["error_code" => 4000, "error_msg" => "请重新登录，<a href='/login.php'>去登陆</a>"]);
+                }
             }
         }
         unset($_GET,$_POST,$_REQUEST);
