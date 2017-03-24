@@ -302,13 +302,13 @@ function appendNode(group_id, session_id, node)
                     html +=
                 '</td>'+
                 '<td class="generallog">';
-    if (parseInt(node.generallog) == 1) {
-        html += "Enable";
-    } else {
-        html += "Disable";
-    }
-    html +=
-        '</td>'+
+            if (parseInt(node.generallog) == 1) {
+                html += "Enable";
+            } else {
+                html += "Disable";
+            }
+            html +=
+                '</td>'+
                 '<td class="last-pos">';
                     if (parseInt(node.is_leader) == 1) {
                         html += node.last_binlog+" => "+node.last_pos;
@@ -423,12 +423,12 @@ function appendGroup(group_id, nodes)
                     'php seals server:restart"  '+
                     'data-group-id="'+group_id+'" onclick="groupRestart(this)" >Update</a>'+
 
-         '<a class="btn btn-primary" ' +
+         '<a class="btn btn-primary" title="Enable general log all the nodes in the group" ' +
             'data-group-id="' + group_id + '" ' +
             'onclick="openGroupGenerallog(this,1)" >Enable General Log</a>'+
 
         '<a class="btn bg-red" ' +
-        'data-group-id="' + group_id + '" ' +
+        'data-group-id="' + group_id + '" title="Disable general log all the nodes in the group" ' +
         'onclick="openGroupGenerallog(this,0)" >Disable General Log</a>'+
 
                     '<label class="error-info"></label>'+
