@@ -61,4 +61,19 @@ class User
         return $user_name;
     }
 
+    public static function count()
+    {
+        $path[] = __APP_DIR__.'/data/user/*';
+        $count  = 0;
+        while (count($path) != 0) {
+            $v = array_shift($path);
+            foreach(glob($v) as $item) {
+                if (is_file($item)) {
+                    $count++;
+                }
+            }
+        }
+        return $count;
+    }
+
 }

@@ -94,9 +94,9 @@ span.time-len {
     width:165px;
 }
 .edit a {
-    margin-left: 6px;
+    margin-left: 3px;
     /*border: #ccc solid 1px;*/
-    padding: 1px 6px;
+    padding: 1px 3px;
     font-size: 14px;
     color: #fff;
     cursor: pointer;

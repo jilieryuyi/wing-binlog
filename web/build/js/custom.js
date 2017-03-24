@@ -2579,7 +2579,7 @@ if (typeof NProgress != 'undefined') {
 				  ]
 				});
 				$datatable.on('draw.dt', function() {
-				  $('checkbox input').iCheck({
+				  $('input[type="checkbox"]').iCheck({
 					checkboxClass: 'icheckbox_flat-green'
 				  });
 				});
