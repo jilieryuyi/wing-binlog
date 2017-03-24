@@ -1118,7 +1118,7 @@ class Worker implements Process
                         $generallog_is_open = $general->isOpen();
                         if (!$generallog_is_open) {
                             unset($generallog_is_open);
-                            echo "关闭general log\r\n";
+                            echo "general log is disable\r\n";
                             sleep(1);
                             break;
                         }
@@ -1186,7 +1186,7 @@ class Worker implements Process
                     do {
                         $general_is_open = $general->isOpen();
                         if (!$general_is_open) {
-                            echo "关闭general log\r\n";
+                            echo "general log disable\r\n";
                             if ($fp)
                                 fclose($fp);
                             $fp = null;
