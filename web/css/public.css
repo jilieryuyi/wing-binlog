@@ -57,15 +57,15 @@
     background: #ccc !important;
 }
 
-.btn-primary {
-    color: #fff !important;
-    background-color: #1ABB9A !important;
-    border-color: #1ABB9A !important;
-}
+/*.btn-primary {*/
+    /*color: #fff !important;*/
+    /*background-color: #1ABB9A !important;*/
+    /*border-color: #1ABB9A !important;*/
+/*}*/
 
-.btn-primary:hover {
-    color: #fff !important;
-    font-weight: bold;
-    background-color: #1ABB9A !important;
-    border-color: #1ABB9A !important;
-}
+/*.btn-primary:hover {*/
+    /*color: #fff !important;*/
+    /*font-weight: bold;*/
+    /*background-color: #1ABB9A !important;*/
+    /*border-color: #1ABB9A !important;*/
+/*}*/
