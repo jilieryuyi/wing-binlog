@@ -70,6 +70,28 @@ class Group
         return 1;
     }
 
+    public static function restart(HttpResponse $response)
+    {
+        $group_id   = $response->post("group_id");
+        $nodes      = Zookeeper::getNodes($group_id);
+
+        foreach ($nodes as $session_id) {
+            RPC::call($session_id, "\\Seals\\Library\\Worker::restart", [], 1, true);
+        }
+        return 1;
+    }
+
+    public static function update(HttpResponse $response)
+    {
+        $group_id   = $response->post("group_id");
+        $nodes      = Zookeeper::getNodes($group_id);
+
+        foreach ($nodes as $session_id) {
+            RPC::call($session_id, "\\Seals\\Library\\Worker::update", [], 1, true);
+        }
+        return 1;
+    }
+
     public static function setRabbitmqConfig(HttpResponse $response)
     {
         $group_id   = $response->post("group_id");

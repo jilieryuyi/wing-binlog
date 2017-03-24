@@ -412,14 +412,16 @@ function appendGroup(group_id, nodes)
                     // 'class="btn btn-primary"  '+
                     // 'data-group-id="'+group_id+'">报表</a>'+
 
-                    '<a title="Restart all the nodes in the group" class="btn bg-red"  '+
-                    'data-group-id="'+group_id+'">Restart</a>'+
+                    '<a title="Restart all the nodes in the group" ' +
+                    'class="btn bg-red"  '+
+                    'data-group-id="'+group_id+'" ' +
+                    'onclick="groupRestart(this)">Restart</a>'+
 
                     '<a title="Update all the nodes in the group" class="btn btn-primary" ' +
                     'title="composer update && ' +
                     'git pull origin master&& ' +
                     'php seals server:restart"  '+
-                    'data-group-id="'+group_id+'" >Update</a>'+
+                    'data-group-id="'+group_id+'" onclick="groupRestart(this)" >Update</a>'+
 
          '<a class="btn btn-primary" ' +
             'data-group-id="' + group_id + '" ' +
@@ -556,6 +558,8 @@ function restartMaster(dom) {
         return;
     }
 
+    master_restart_doing = true;
+
     $(dom).addClass("disable").html("Restart...");
     window.setTimeout(function(){
         $(dom).removeClass("disable").html("Restart Master Process");
@@ -566,7 +570,58 @@ function restartMaster(dom) {
         type:"POST",
         url:"/service/master/restart",
         success:function(msg){}
-    })
+    });
+}
+
+var group_update_doing = false;
+function groupUpdate(dom)
+{
+    if (group_update_doing) {
+        return;
+    }
+
+    group_update_doing = true;
+    var old_html = $(dom).html();
+    $(dom).addClass("disable").html("Update...");
+    window.setTimeout(function(){
+        $(dom).removeClass("disable").html(old_html);
+        group_update_doing = false;
+    },3000);
+
+    var group_id = $(dom).attr("data-group-id");
+
+    $.ajax({
+        type:"POST",
+        data:"group_id="+group_id,
+        url:"/service/group/update",
+        success:function(msg){}
+    });
+}
+
+
+var group_restart_doing = false;
+function groupRestart(dom)
+{
+    if (group_restart_doing) {
+        return;
+    }
+
+    group_restart_doing = true;
+    var old_html = $(dom).html();
+    $(dom).addClass("disable").html("Restart...");
+    window.setTimeout(function(){
+        $(dom).removeClass("disable").html(old_html);
+        group_restart_doing = false;
+    },3000);
+
+    var group_id = $(dom).attr("data-group-id");
+
+    $.ajax({
+        type:"POST",
+        data:"group_id="+group_id,
+        url:"/service/group/restart",
+        success:function(msg){}
+    });
 }
 
 var master_update_doing = false;

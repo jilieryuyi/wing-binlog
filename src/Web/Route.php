@@ -36,6 +36,9 @@ class Route
             "/service/group/db/config/save"          => "\\Seals\\Web\\Logic\\Group::setDbConfig",
             "/service/group/offline"         => "\\Seals\\Web\\Logic\\Group::offline",
             "/service/group/generallog/open" => "\\Seals\\Web\\Logic\\Group::openGenerallog",
+            "/service/group/restart"         => "\\Seals\\Web\\Logic\\Group::restart",
+            "/service/group/update"          => "\\Seals\\Web\\Logic\\Group::update",
+
             "/service/master/restart"        => "\\Seals\\Web\\Logic\\Master::restart",
             "/service/master/update"         => "\\Seals\\Web\\Logic\\Master::update",
         ]
