@@ -150,6 +150,16 @@ class Zookeeper
         );
     }
 
+    public static function getServicesCount()
+    {
+        if (!Context::instance()->redis_zookeeper)
+            return [];
+        $services = Context::instance()->redis_zookeeper->keys(self::SERVICE_KEY.":services:*");
+        if (!is_array($services))
+            return 0;
+        return count($services);
+    }
+
     /**
      * get all services
      *

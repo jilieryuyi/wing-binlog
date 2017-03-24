@@ -47,12 +47,19 @@
           <div class="row tile_count">
             <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
               <span class="count_top"><i class="fa fa-user"></i> Total Groups</span>
-              <div class="count">2500</div>
+              <div class="count"><?php echo \Seals\Library\Zookeeper::getServicesCount(); ?></div>
 <!--              <span class="count_bottom"><i class="green">4% </i> From last Week</span>-->
             </div>
             <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
               <span class="count_top"><i class="fa fa-clock-o"></i> Total Servers</span>
-              <div class="count">123.50</div>
+              <div class="count"><?php
+                $count = 0;
+                $services = \Seals\Library\Zookeeper::getServices();
+                foreach ($services as $service) {
+                  $count += is_array($service)?count($service):0;
+                }
+                echo $count;
+                ?></div>
 <!--              <span class="count_bottom"><i class="green"><i class="fa fa-sort-asc"></i>3% </i> From last Week</span>-->
             </div>
             <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
@@ -735,7 +742,7 @@
         <!-- footer content -->
         <footer>
           <div class="pull-right">
-            Gentelella - Bootstrap Admin Template by <a href="https://colorlib.com">Colorlib</a>
+            Wing Binlog by <a href="http://www.itdfy.com/">yuyi</a>
           </div>
           <div class="clearfix"></div>
         </footer>
