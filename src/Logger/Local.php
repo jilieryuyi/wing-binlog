@@ -1,5 +1,6 @@
 <?php namespace Seals\Logger;
 use Psr\Log\LoggerInterface;
+use Seals\Library\Context;
 use Wing\FileSystem\WDir;
 
 /**
@@ -54,6 +55,22 @@ class Local implements LoggerInterface
             $content,
             FILE_APPEND
         );
+
+        if (!Context::instance()->redis_zookeeper)
+            Context::instance()->zookeeperInit();
+
+        //logs report
+        Context::instance()->redis_zookeeper->rpush(
+            "wing-binlog-logs-content-".Context::instance()->session_id,
+            [
+                "level"      => $name,
+                "message"    => $message,
+                "context"    => $content
+            ]
+        );
+        //logs count
+        Context::instance()->redis_zookeeper->incr("wing-binlog-logs-count");
+        Context::instance()->redis_zookeeper->incr("wing-binlog-logs-count-".date("Ymd"));
     }
 
 

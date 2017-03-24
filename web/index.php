@@ -101,14 +101,30 @@
                 }
                 echo \Seals\Web\Logic\Node::getTotalQueryCount();
                 ?></div>
-              <span class="count_bottom"><i class="<?php if ($incr > 0) echo "green"; else echo "red"; ?>"><i class="fa  <?php if ($incr > 0) echo "fa-sort-asc";
+              <span class="count_bottom"><i class="<?php if ($incr > 0) echo "green"; else echo "red"; ?>">
+                  <i class="fa  <?php if ($incr > 0) echo "fa-sort-asc";
                   else echo "fa-sort-desc";
                   ?>"></i><?php echo abs($incr); ?>% </i> From last Day</span>
             </div>
             <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
               <span class="count_top"><i class="fa fa-user"></i> Total Logs</span>
-              <div class="count">2,315</div>
-              <span class="count_bottom"><i class="green"><i class="fa fa-sort-asc"></i>34% </i> From last Day</span>
+              <div class="count"><?php echo \Seals\Web\Logic\Logs::countAll();
+                $yestoday = date("Ymd",time()-86400);
+                $day      = date("Ymd");
+
+                $yestoday_qc = \Seals\Web\Logic\Logs::countDay($yestoday);
+                $day_qc      = \Seals\Web\Logic\Logs::countDay($day);
+
+                if ($yestoday_qc > 0) {
+                  $incr = bcdiv(($day_qc - $yestoday_qc)*100,$yestoday_qc,2);
+                } else {
+                  $incr = 100;
+                }
+                ?></div>
+              <span class="count_bottom"><i class="<?php if ($incr > 0) echo "green"; else echo "red"; ?>">
+                  <i class="fa <?php if ($incr > 0) echo "fa-sort-asc";
+                  else echo "fa-sort-desc";
+                  ?>"></i><?php echo abs($incr); ?>% </i> From last Day</span>
             </div>
             <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
               <span class="count_top"><i class="fa fa-user"></i> Total Users</span>
