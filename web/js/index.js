@@ -518,7 +518,7 @@ function nodeUpdate(dom)
     if (node_update_doing) {
         return;
     }
-    if (!window.confirm("确定更新？更新时间可能比较长一些，还请耐心等待~"))
+    if (!window.confirm("Sure update？Update maybe take a long time, be patience~"))
         return;
 
     node_update_doing = true;
@@ -526,12 +526,12 @@ function nodeUpdate(dom)
     var group_id   = $(dom).attr("data-group-id");
     var session_id = $(dom).attr("data-session-id");
 
-    $(dom).html("正在更新...").addClass("disable");
+    $(dom).html("Update...").addClass("disable");
 
     window.setTimeout(function(){
-        $(dom).html("更新").removeClass("disable");
+        $(dom).html("Update").removeClass("disable");
         var error = $(dom).parent().find(".error-info");
-        error.html("更新成功后会重启，右边的运行时长会发生明显变化").show();
+        error.html("Update successfully, the right running time will change significantly").show();
         node_update_doing = false;
         window.setTimeout(function(){
             error.hide("slow").html("");
