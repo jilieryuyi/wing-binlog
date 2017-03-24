@@ -1347,11 +1347,6 @@ class Worker implements Process
 
                     RPC::run();
 
-                    if (self::$is_offline)
-                        echo "==================offline\r\n";
-                    else
-                        echo "==================online\r\n";
-
                     //服务发现
                     $zookeeper->serviceReport([
                         "is_offline"   => self::$is_offline?1:0,
@@ -1369,9 +1364,6 @@ class Worker implements Process
                     unset($redis_local, $redis_config,
                         $zookeeper_config, $db_config, $rabbitmq_config);
 
-                    echo "running\r\n";
-
-
                     if (!$zookeeper->isLeader()) {
                         // echo "不是leader，不进行采集操作\r\n";
                         //if the current node is not leader and group is enable
@@ -1386,7 +1378,6 @@ class Worker implements Process
                         if ($last_binlog) {
                             $bin->setLastBinLog($last_binlog);
                         }
-                        echo "not leader\r\n";
                         break;
                     }
 
@@ -1421,10 +1412,8 @@ class Worker implements Process
 
                     //if node is offline
                     if (self::$is_offline) {
-                        echo "offline\r\n";
                         break;
                     }
-                    echo "online\r\n";
 
                     //得到所有的binlog事件 记住这里不允许加limit 有坑
                     $data = $bin->getEvents($current_binlog,$last_end_pos,$limit);
