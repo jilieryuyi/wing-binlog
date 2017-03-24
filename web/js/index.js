@@ -95,27 +95,22 @@ function nodeRefresh(v, group_id, session_id)
  * @param dom
  * @return void
  */
-var node_offline_doing = false;
 function nodeOffline(dom)
 {
 
-    if (node_offline_doing) {
+    if (!Wing.lock()) {
         return;
     }
-
-    node_offline_doing = true;
 
     var group_id   = $(dom).attr("data-group-id");
     var session_id = $(dom).attr("data-session-id");
     var is_offline = $(dom).attr("data-is_offline") == "1" ? 0 : 1;
 
-    console.log(is_offline);
-
     $(dom).html("Offline...").addClass("disable");
     window.setTimeout(function(){
         $(dom).html("Offline");
-        node_offline_doing = false;
-        $(dom).removeClass("disable")
+        $(dom).removeClass("disable");
+        Wing.unlock();
     },3000);
 
     $.ajax({
@@ -131,15 +126,12 @@ function nodeOffline(dom)
     });
 }
 
-var open_generallog_doing = false;
 function openGenerallog(dom)
 {
 
-    if (open_generallog_doing) {
+    if (!Wing.lock()) {
         return;
     }
-
-    open_generallog_doing = true;
 
     var group_id   = $(dom).attr("data-group-id");
     var session_id = $(dom).attr("data-session-id");
@@ -151,8 +143,8 @@ function openGenerallog(dom)
             $(dom).html("Enable General Log");
         else
             $(dom).html("Disable General Log");
-        open_generallog_doing = false;
-        $(dom).removeClass("disable")
+        $(dom).removeClass("disable");
+        Wing.unlock();
     },3000);
 
     $.ajax({
@@ -168,24 +160,21 @@ function openGenerallog(dom)
     });
 }
 
-var open_group_generallog_doing = false;
 function openGroupGenerallog(dom, open)
 {
 
-        if (open_group_generallog_doing) {
+        if (!Wing.lock()) {
             return;
         }
 
-        open_group_generallog_doing = true;
-
         var group_id   = $(dom).attr("data-group-id");
+        var old_html   = $(dom).html();
 
-        var old_html = $(dom).html();
         $(dom).html("Doing...").addClass("disable");
         window.setTimeout(function(){
-                $(dom).html(old_html);
-            open_group_generallog_doing = false;
-            $(dom).removeClass("disable")
+            $(dom).html(old_html);
+            $(dom).removeClass("disable");
+            Wing.unlock();
         },3000);
 
         $.ajax({
@@ -200,15 +189,12 @@ function openGroupGenerallog(dom, open)
         });
 }
 
-var group_offline_doing = false;
 function groupOffline(dom, is_offline)
 {
 
-    if (group_offline_doing) {
+    if (!Wing.lock()) {
         return;
     }
-
-    group_offline_doing = true;
 
     var group_id   = $(dom).attr("data-group-id");
 
@@ -218,8 +204,8 @@ function groupOffline(dom, is_offline)
             $(dom).html("Offline");
         else
             $(dom).html("Online");
-        group_offline_doing = false;
-        $(dom).removeClass("disable")
+        $(dom).removeClass("disable");
+        Wing.unlock();
     },3000);
 
     $.ajax({
@@ -280,7 +266,6 @@ function appendNode(group_id, session_id, node)
             'data-group-id="'+group_id+'" '+
             'data-session-id="'+session_id+'" '+
             '>'+
-           // '<div>'+
                 '<td class="node-id" title="'+session_id+'">' +
                     '<label class="index">'+index+'</label>、'+session_id+
                 '</td>'+
@@ -373,8 +358,7 @@ function appendNode(group_id, session_id, node)
                     html+='</a>';
                     html+='<label class="error-info"></label>'+
                 '</span>' +
-            '</tr>';//+
-        //'</li>';
+            '</tr>';
 
     $(".group-"+group_id+ " table").append(html);
 }
@@ -387,7 +371,6 @@ function appendNode(group_id, session_id, node)
  */
 function appendGroup(group_id, nodes)
 {
-    //console.log(nodes);
     var length = count(nodes);
 
     var html   =
@@ -408,9 +391,6 @@ function appendGroup(group_id, nodes)
                     'title="Online all the nodes in the group" '+
                     'data-group-id="'+group_id+'" ' +
                     'onclick="groupOffline(this,0)">Online</a>'+
-                    // '<a ' +
-                    // 'class="btn btn-primary"  '+
-                    // 'data-group-id="'+group_id+'">报表</a>'+
 
                     '<a title="Restart all the nodes in the group" ' +
                     'class="btn bg-red"  '+
@@ -437,7 +417,6 @@ function appendGroup(group_id, nodes)
             '<table class="nodes-list table table-striped"><thead><tr>';
                 if (length > 0) {
                 html +=
-                //'<li class="title" style="height: 25px;">' +
                     '<th class="node-id">Node</th>' +
                     '<th class="online-status">Status</th>'+
                     '<th class="is-leader">Leader</th>' +
@@ -446,7 +425,6 @@ function appendGroup(group_id, nodes)
                     '<th class="version">Version</th>' +
                     '<th class="start-time">Start Time</th>' +
                     '<th class="time-len">Running Time</th>';// +
-               // '</li>';
                 }
 
             html +=
@@ -477,13 +455,10 @@ function nodeConfig(dom)
 /**
  * restart node
  */
-var node_restart_doing = false;
 function nodeRestart(dom)
 {
-    if (node_restart_doing)
+    if (!Wing.lock())
         return;
-
-    node_restart_doing = true;
 
     var group_id   = $(dom).attr("data-group-id");
     var session_id = $(dom).attr("data-session-id");
@@ -491,12 +466,11 @@ function nodeRestart(dom)
     $(dom).html("Restart...").addClass("disable");
 
     window.setTimeout(function(){
-        node_restart_doing = false;
         $(dom).removeClass("disable");
-
         var error = $(dom).parent().find(".error-info");
         $(dom).html("Restart");
         error.html("Restart successfully, the right running time will change significantly").show();
+        Wing.unlock();
         window.setTimeout(function(){
             error.hide("slow").html("");
         },5000);
@@ -514,16 +488,13 @@ function nodeRestart(dom)
     });
 }
 
-var node_update_doing = false;
 function nodeUpdate(dom)
 {
-    if (node_update_doing) {
+    if (!Wing.lock()) {
         return;
     }
     if (!window.confirm("Sure update？Update maybe take a long time, be patience~"))
         return;
-
-    node_update_doing = true;
 
     var group_id   = $(dom).attr("data-group-id");
     var session_id = $(dom).attr("data-session-id");
@@ -534,7 +505,7 @@ function nodeUpdate(dom)
         $(dom).html("Update").removeClass("disable");
         var error = $(dom).parent().find(".error-info");
         error.html("Update successfully, the right running time will change significantly").show();
-        node_update_doing = false;
+        Wing.unlock();
         window.setTimeout(function(){
             error.hide("slow").html("");
         },5000);
@@ -552,18 +523,15 @@ function nodeUpdate(dom)
     });
 }
 
-var master_restart_doing = false;
 function restartMaster(dom) {
-    if (master_restart_doing) {
+    if (!Wing.lock()) {
         return;
     }
-
-    master_restart_doing = true;
 
     $(dom).addClass("disable").html("Restart...");
     window.setTimeout(function(){
         $(dom).removeClass("disable").html("Restart Master Process");
-        master_restart_doing = false;
+        Wing.unlock();
     },3000);
 
     $.ajax({
@@ -573,19 +541,17 @@ function restartMaster(dom) {
     });
 }
 
-var group_update_doing = false;
 function groupUpdate(dom)
 {
-    if (group_update_doing) {
+    if (!Wing.lock()) {
         return;
     }
 
-    group_update_doing = true;
     var old_html = $(dom).html();
     $(dom).addClass("disable").html("Update...");
     window.setTimeout(function(){
         $(dom).removeClass("disable").html(old_html);
-        group_update_doing = false;
+        Wing.unlock();
     },3000);
 
     var group_id = $(dom).attr("data-group-id");
@@ -598,20 +564,17 @@ function groupUpdate(dom)
     });
 }
 
-
-var group_restart_doing = false;
 function groupRestart(dom)
 {
-    if (group_restart_doing) {
+    if (!Wing.lock()) {
         return;
     }
 
-    group_restart_doing = true;
     var old_html = $(dom).html();
     $(dom).addClass("disable").html("Restart...");
     window.setTimeout(function(){
         $(dom).removeClass("disable").html(old_html);
-        group_restart_doing = false;
+        Wing.unlock();
     },3000);
 
     var group_id = $(dom).attr("data-group-id");
@@ -624,16 +587,15 @@ function groupRestart(dom)
     });
 }
 
-var master_update_doing = false;
 function updateMaster(dom) {
-    if (master_update_doing) {
+    if (!Wing.lock()) {
         return;
     }
 
     $(dom).addClass("disable").html("Update...");
     window.setTimeout(function(){
         $(dom).removeClass("disable").html("Update Master");
-        master_update_doing = false;
+        Wing.unlock();
     },3000);
 
     $.ajax({

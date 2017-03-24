@@ -807,6 +807,7 @@
 
     <!-- Custom Theme Scripts -->
     <script src="build/js/custom.min.js"></script>
+    <script src="js/lock.js"></script>
     <script src="js/index.js"></script>
 
   </body>
