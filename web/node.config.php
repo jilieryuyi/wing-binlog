@@ -246,7 +246,6 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                             <div class="form-group">
                                 <label class="control-label col-md-3 col-sm-3 col-xs-12">Password</label>
                                 <div class="col-md-9 col-sm-9 col-xs-12">
-
                                     <input class="password form-control" type="text" value=""/>
                                 </div>
                             </div>
@@ -447,6 +446,9 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                                 <label class="control-label col-md-3 col-sm-3 col-xs-12">Password</label>
                                 <div class="col-md-9 col-sm-9 col-xs-12">
                                     <input class="password form-control" type="text" value=""/>
+                                    <ul class="parsley-errors-list filled" id="parsley-id-5">
+                                        <li class="parsley-required">you can use :null to set the password as null</li>
+                                    </ul>
                                 </div>
                                 </div>
 <!--                        <div><span onclick="setZookeeperConfig(this)" class="button button-small button-local">更新配置</span></div>-->
@@ -499,6 +501,9 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                                 <label class="control-label col-md-3 col-sm-3 col-xs-12">Port</label>
                                 <div class="col-md-9 col-sm-9 col-xs-12">
                                     <input class="password form-control" type="text" value=""/>
+                                    <ul class="parsley-errors-list filled" id="parsley-id-5">
+                                        <li class="parsley-required">you can use :null to set the password as null</li>
+                                    </ul>
                                 </div>
                             </div>
                             <!--                                <div><span onclick="setLocalRedisConfig(this)" class="button button-small button-local">更新配置</span></div>-->
