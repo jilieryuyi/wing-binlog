@@ -30,6 +30,8 @@
     <link href="build/css/custom.css" rel="stylesheet">
     <link href="css/index.css" rel="stylesheet">
     <link href="vendors/switchery/dist/switchery.min.css" rel="stylesheet">
+    <!-- jQuery -->
+    <script src="vendors/jquery/dist/jquery.min.js"></script>
     <script src="js/lock.js"></script>
     <script>
         function showDoing(dom) {

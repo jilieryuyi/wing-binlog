@@ -746,6 +746,5 @@
 <!--          </div>-->
         </div>
         <!-- /page content -->
-
-
+        <script src="js/index.js"></script>
         <?php include "include/footer.php";?>

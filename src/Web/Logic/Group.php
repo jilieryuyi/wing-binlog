@@ -45,9 +45,9 @@ class Group
         $param2     = urldecode($response->post("param2"));
 
         if ($param2)
-            $params = [$class, [$param1, $param2]];
+            $params = [$param1, $param2];
         else
-            $params = [$class, [$param1]];
+            $params = [$param1];
 
         foreach ($nodes as $session_id) {
             RPC::call($session_id, "\\Seals\\Library\\Worker::setNotifyConfig", [$class, $params], 1, true);
@@ -168,6 +168,24 @@ class Group
         return 1;
 
     }
+
+    public static function setLocalRedisConfig(HttpResponse $response)
+    {
+        $group_id  = $response->post("group_id");
+
+        $host      = urldecode($response->post("host"));
+        $port      = urldecode($response->post("port"));
+        $password  = urldecode($response->post("password"));
+
+        $nodes      = Zookeeper::getNodes($group_id);
+
+        foreach ($nodes as $session_id) {
+            RPC::call($session_id, "\\Seals\\Library\\Worker::setLocalRedisConfig", [$host, $port, $password], 1, true);
+        }
+
+        return 1;
+    }
+
 
 
 }

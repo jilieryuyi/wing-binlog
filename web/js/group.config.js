@@ -1,22 +1,16 @@
 /**
  * Created by yuyi on 17/3/20.
  */
-var set_runtime_config_doing = false;
 function setRuntimeConfig(dom)
 {
-    if (set_runtime_config_doing)
+    if (!Wing.lock())
         return;
 
-    set_runtime_config_doing = true;
     var c_item  = $(dom).parents(".c-item");
     var workers = c_item.find(".workers").val();
     var debug   = c_item.find(".debug").prop("checked")?1:0;
 
-    $(dom).addClass("disable").html("正在更新...");
-    window.setTimeout(function(){
-        $(dom).removeClass("disable").html("更新配置");
-        set_runtime_config_doing = false;
-    },3000);
+    showDoing(dom);
 
     $.ajax({
         type :"POST",
@@ -31,23 +25,17 @@ function setRuntimeConfig(dom)
     });
 }
 
-var set_notify_config_doing = false;
 function setNotifyConfig(dom)
 {
-    if (set_notify_config_doing)
+    if (!Wing.lock())
         return;
 
-    set_notify_config_doing = true;
     var c_item  = $(dom).parents(".c-item");
     var _class  = c_item.find(".notify-class").val();
     var param1  = c_item.find(".param1").val();
     var param2  = c_item.find(".param2").val();
 
-    $(dom).addClass("disable").html("正在更新...");
-    window.setTimeout(function(){
-        $(dom).removeClass("disable").html("更新配置");
-        set_notify_config_doing = false;
-    },3000);
+    showDoing(dom);
 
     $.ajax({
         type :"POST",
@@ -59,8 +47,6 @@ function setNotifyConfig(dom)
             "param2"    : param2
         },
         success:function(msg){
-            // node_offline_doing = false;
-            // $(dom).removeClass("disable");
         }
     });
 }
@@ -74,25 +60,23 @@ function onNotifySelect(dom)
     var c = $(dom).parents(".c-item");
     c.find(".param1").val(param1);
     c.find(".param2").val(param2);
+
+    $(".data-target-config").hide();
+    var _class = s.attr("data-config-class");
+    $("."+_class).show();
 }
 
-var set_local_redis_config_doing = false;
 function setLocalRedisConfig(dom)
 {
-    if (set_local_redis_config_doing)
+    if (!Wing.lock())
         return;
 
-    set_local_redis_config_doing = true;
     var c_item    = $(dom).parents(".c-item");
     var host      = c_item.find(".host").val();
     var port      = c_item.find(".port").val();
     var password  = c_item.find(".password").val();
 
-    $(dom).addClass("disable").html("正在更新...");
-    window.setTimeout(function(){
-        $(dom).removeClass("disable").html("更新配置");
-        set_local_redis_config_doing = false;
-    },3000);
+    showDoing(dom);
 
     $.ajax({
         type :"POST",
@@ -110,13 +94,11 @@ function setLocalRedisConfig(dom)
     });
 }
 
-var set_rabbitmq_config_doing = false;
 function setRabbitmqConfig(dom)
 {
-    if (set_rabbitmq_config_doing)
+    if (!Wing.lock())
         return;
 
-    set_rabbitmq_config_doing = true;
     var c_item    = $(dom).parents(".c-item");
     var host      = c_item.find(".host").val();
     var user      = c_item.find(".user").val();
@@ -125,11 +107,7 @@ function setRabbitmqConfig(dom)
     var vhost     = c_item.find(".vhost").val();
 
 
-    $(dom).addClass("disable").html("正在更新...");
-    window.setTimeout(function(){
-        $(dom).removeClass("disable").html("更新配置");
-        set_rabbitmq_config_doing = false;
-    },3000);
+    showDoing(dom);
 
     $.ajax({
         type :"POST",
@@ -149,10 +127,9 @@ function setRabbitmqConfig(dom)
     });
 }
 
-var set_redis_config_doing = false;
 function setRedisConfig(dom)
 {
-    if (set_redis_config_doing)
+    if (!Wing.lock())
         return;
 
     set_redis_config_doing = true;
@@ -161,11 +138,7 @@ function setRedisConfig(dom)
     var port      = c_item.find(".port").val();
     var password  = c_item.find(".password").val();
 
-    $(dom).addClass("disable").html("正在更新...");
-    window.setTimeout(function(){
-        $(dom).removeClass("disable").html("更新配置");
-        set_redis_config_doing = false;
-    },3000);
+   showDoing(dom);
 
     $.ajax({
         type :"POST",
@@ -183,24 +156,18 @@ function setRedisConfig(dom)
     });
 }
 
-var set_zookeeper_config_doing = false;
 function setZookeeperConfig(dom)
 {
-    if (set_zookeeper_config_doing)
+    if (!Wing.lock())
         return;
 
-    set_zookeeper_config_doing = true;
     var c_item    = $(dom).parents(".c-item");
     var group_id  = c_item.find(".group_id").val();
     var host      = c_item.find(".host").val();
     var port      = c_item.find(".port").val();
     var password  = c_item.find(".password").val();
 
-    $(dom).addClass("disable").html("正在更新...");
-    window.setTimeout(function(){
-        $(dom).removeClass("disable").html("更新配置");
-        set_zookeeper_config_doing = false;
-    },3000);
+    showDoing(dom);
 
     $.ajax({
         type :"POST",
@@ -218,13 +185,11 @@ function setZookeeperConfig(dom)
     });
 }
 
-var set_db_config_doing = false;
 function setDbConfig(dom)
 {
-    if (set_db_config_doing)
+    if (!Wing.lock())
         return;
 
-    set_db_config_doing = true;
     var c_item    = $(dom).parents(".c-item");
     var db_name   = c_item.find(".db_name").val();
     var user      = c_item.find(".user").val();
@@ -232,11 +197,7 @@ function setDbConfig(dom)
     var port      = c_item.find(".port").val();
     var password  = c_item.find(".password").val();
 
-    $(dom).addClass("disable").html("正在更新...");
-    window.setTimeout(function(){
-        $(dom).removeClass("disable").html("更新配置");
-        set_db_config_doing = false;
-    },3000);
+    showDoing(dom);
 
     $.ajax({
         type :"POST",
