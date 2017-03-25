@@ -194,7 +194,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                             <div class="ln_solid"></div>
                             <div class="form-group">
                                 <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
-                                    <button type="submit" class="btn btn-success">Update Configure</button>
+                                    <button type="button" onclick="setNotifyConfig(this)" class="btn btn-success">Update Configure</button>
                                 </div>
                             </div>
                         </div>

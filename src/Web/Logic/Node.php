@@ -1,4 +1,5 @@
 <?php namespace Seals\Web\Logic;
+use Seals\Library\Context;
 use Seals\Library\RPC;
 use Seals\Library\Zookeeper;
 use Seals\Web\HttpResponse;
@@ -103,9 +104,9 @@ class Node
         $param2     = urldecode($response->post("param2"));
 
         if ($param2)
-            $params = [$class, [$param1, $param2]];
+            $params = [$param1, $param2];
         else
-            $params = [$class, [$param1]];
+            $params = [$param1];
 
         return RPC::call($session_id, "\\Seals\\Library\\Worker::setNotifyConfig", [$class, $params], 1, true);
     }

@@ -553,8 +553,8 @@ class Worker implements Process
         $class       = urldecode($class);
         $config_file = __APP_DIR__."/config/notify.php";
 
-        $params_str = '[';
-        $temp       = [];
+        $params_str  = '[';
+        $temp        = [];
 
         foreach ($params as $param) {
             $temp[] = '"'.urldecode($param).'"';
@@ -565,6 +565,7 @@ class Worker implements Process
         $template    = "<?php\r\nreturn [
         \"handler\" => \"".$class."\",
         \"params\"  => ".$params_str."\r\n];";
+
         file_put_contents($config_file, $template);
         self::restart();
         return 1;
@@ -576,7 +577,7 @@ class Worker implements Process
         $config      = new Config([
             "host"     => $host,
             "port"     => $port,
-            "password" =>$password
+            "password" => $password
         ]);
         $config->write($config_file);
 

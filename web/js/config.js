@@ -2,6 +2,16 @@
  * Created by yuyi on 17/3/20.
  */
 
+function showDoing(dom) {
+    var old_html = $(dom).html();
+    $(dom).addClass("disable").html("Doing...");
+    window.setTimeout(function(){
+        $(dom).removeClass("disable").html(old_html);
+        //unlock after 3 seconds timeout
+        Wing.unlock();
+    },3000);
+}
+
 /**
  * set process num and enable or disable debug mode
  *
@@ -17,13 +27,7 @@ function setRuntimeConfig(dom)
     var workers = c_item.find(".workers").val();
     var debug   = c_item.find(".debug").prop("checked")?1:0;
 
-    var old_html = $(dom).html();
-    $(dom).addClass("disable").html("Doing...");
-    window.setTimeout(function(){
-        $(dom).removeClass("disable").html(old_html);
-        //unlock after 3 seconds timeout
-        Wing.unlock();
-    },3000);
+    showDoing(dom);
 
     $.ajax({
         type :"POST",
@@ -39,23 +43,19 @@ function setRuntimeConfig(dom)
     });
 }
 
-var set_notify_config_doing = false;
 function setNotifyConfig(dom)
 {
-    if (set_notify_config_doing)
+    if (!Wing.lock())
         return;
 
-    set_notify_config_doing = true;
     var c_item  = $(dom).parents(".c-item");
     var _class  = c_item.find(".notify-class").val();
     var param1  = c_item.find(".param1").val();
     var param2  = c_item.find(".param2").val();
 
-    $(dom).addClass("disable").html("正在更新...");
-    window.setTimeout(function(){
-        $(dom).removeClass("disable").html("更新配置");
-        set_notify_config_doing = false;
-    },3000);
+    showDoing(dom);
+    console.log(_class, param1, param2);
+    //return;
 
     $.ajax({
         type :"POST",

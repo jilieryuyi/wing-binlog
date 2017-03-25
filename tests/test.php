@@ -18,4 +18,10 @@
 //]);
 //
 //$config->write($config_file);
-echo realpath(__DIR__."/../123.php");
+//echo realpath(__DIR__."/../123.php");
+function a($a,$b){
+    var_dump($a,$b);
+}
+
+call_user_func_array("a",[1,[2,3,4]]);
+
