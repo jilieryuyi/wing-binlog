@@ -83,6 +83,10 @@ function onNotifySelect(dom)
     var c = $(dom).parents(".c-item");
     c.find(".param1").val(param1);
     c.find(".param2").val(param2);
+
+    $(".data-target-config").hide();
+    var _class = s.attr("data-config-class");
+    $("."+_class).show();
 }
 
 var set_local_redis_config_doing = false;

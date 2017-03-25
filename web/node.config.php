@@ -130,7 +130,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                                     <label class="control-label col-md-3 col-sm-3 col-xs-12">Notify Mode</label>
                                     <div class="col-md-9 col-sm-9 col-xs-12">
                                         <select class="notify-class form-control" onchange="onNotifySelect(this)">
-                                        <option data-param-1="<?php
+                                        <option data-config-class="event-redis-config" data-param-1="<?php
                                         if ($node_info["notify"]["handler"] == "Seals\\Notify\\Redis")
                                             echo $node_info["notify"]["params"][0];
                                         else
@@ -140,7 +140,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                                                 value="Seals\\Notify\\Redis"
                                             <?php if ($node_info["notify"]["handler"] == "Seals\\Notify\\Redis") echo "selected"; ?>
                                         >redis queue</option>
-                                        <option
+                                        <option  data-config-class=""
                                             data-param-1="<?php
                                             if ($node_info["notify"]["handler"] == "Seals\\Notify\\Http")
                                                 echo $node_info["notify"]["params"][0];
@@ -157,7 +157,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                                             value="Seals\\Notify\\Http"
                                             <?php if ($node_info["notify"]["handler"] == "Seals\\Notify\\Http") echo "selected"; ?>
                                         >http</option>
-                                        <option
+                                        <option  data-config-class="rabbitmq-config"
                                             data-param-1="<?php
                                             if ($node_info["notify"]["handler"] == "Seals\\Notify\\Rabbitmq")
                                                 echo $node_info["notify"]["params"][0];
@@ -200,9 +200,10 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                         </div>
                     </div>
                 </div>
-                <div class="x_panel">
+
+                <div class="x_panel data-target-config rabbitmq-config" style="<?php if ($node_info["notify"]["handler"] != "Seals\\Notify\\Rabbitmq") echo 'display: none;';?>">
                     <div class="x_title">
-                        <h2>Local Redis Configure <small>just update it</small></h2>
+                        <h2>Rabbitmq Configure <small>just configure it</small></h2>
                         <ul class="nav navbar-right panel_toolbox">
                             <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                             </li>
@@ -225,22 +226,36 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                             <div class="form-group">
                                 <label class="control-label col-md-3 col-sm-3 col-xs-12">Host</label>
                                 <div class="col-md-9 col-sm-9 col-xs-12">
-                                    <input class="host form-control" type="text" value="<?php echo $node_info["redis_local"]["host"]; ?>" />
+                                    <input class="host form-control" type="text" value="<?php echo $node_info["rabbitmq"]["host"]; ?>" />
                                 </div>
                             </div>
+
                             <div class="form-group">
                                 <label class="control-label col-md-3 col-sm-3 col-xs-12">Port</label>
                                 <div class="col-md-9 col-sm-9 col-xs-12">
-                                    <input class="port form-control" type="text" value="<?php echo $node_info["redis_local"]["port"]; ?>"/>
+                                    <input class="port form-control" type="text" value="<?php echo $node_info["rabbitmq"]["port"]; ?>"/>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Port</label>
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">User</label>
                                 <div class="col-md-9 col-sm-9 col-xs-12">
+                                    <input class="user form-control" type="text" value="<?php echo $node_info["rabbitmq"]["user"]; ?>"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Password</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+
                                     <input class="password form-control" type="text" value=""/>
                                 </div>
                             </div>
-<!--                                <div><span onclick="setLocalRedisConfig(this)" class="button button-small button-local">更新配置</span></div>-->
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Vhost</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+                                    <input class="vhost form-control" type="text" value="<?php echo $node_info["rabbitmq"]["vhost"]; ?>"/>
+                                </div>
+                            </div>
+                            <!--                            <div><span onclick="setRabbitmqConfig(this)" class="button button-small button-local">更新配置</span></div>-->
                             <div class="ln_solid"></div>
                             <div class="form-group">
                                 <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
@@ -250,6 +265,59 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                         </div>
                     </div>
                 </div>
+                <div class="x_panel data-target-config event-redis-config" style="<?php if ($node_info["notify"]["handler"] != "Seals\\Notify\\Redis") echo 'display: none;'?>">
+                    <div class="x_title">
+                        <h2>Event Redis Configure <small>just configure it</small></h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="#">Settings 1</a>
+                                    </li>
+                                    <li><a href="#">Settings 2</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li><a class="close-link"><i class="fa fa-close"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="c-item form-horizontal form-label-left">
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Host</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+                                    <input class="host form-control" type="text" value="<?php echo $node_info["redis_config"]["host"]; ?>"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Port</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+                                    <input class="port form-control" type="text" value="<?php echo $node_info["redis_config"]["port"]; ?>"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Password</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+
+                                    <input class="password form-control" type="text" value=""/>
+                                </div>
+                            </div>
+                            <!--                            <div><span onclick="setRedisConfig(this)" class="button button-small button-local">更新配置</span></div>-->
+                            <div class="ln_solid"></div>
+                            <div class="form-group">
+                                <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
+                                    <button type="submit" class="btn btn-success">Update Configure</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="x_panel">
                     <div class="x_title">
                         <h2>Database Configure <small>just configure it</small></h2>
@@ -323,6 +391,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                     </div>
                 </div>
 
+
                 <!--                <div class="x_panel">-->
 <!--                    <div class="x_title">-->
 <!--                        <h2>Process Runtime Configure <small>just update it</small></h2>-->
@@ -365,125 +434,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
             <div class="col-md-6 col-xs-12">
 
 
-                <div class="x_panel">
-                    <div class="x_title">
-                        <h2>Rabbitmq Configure <small>just configure it</small></h2>
-                        <ul class="nav navbar-right panel_toolbox">
-                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                            </li>
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a href="#">Settings 1</a>
-                                    </li>
-                                    <li><a href="#">Settings 2</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><a class="close-link"><i class="fa fa-close"></i></a>
-                            </li>
-                        </ul>
-                        <div class="clearfix"></div>
-                    </div>
-                    <div class="x_content">
-                        <div class="c-item form-horizontal form-label-left">
-                            <div class="form-group">
-                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Host</label>
-                                <div class="col-md-9 col-sm-9 col-xs-12">
-                                    <input class="host form-control" type="text" value="<?php echo $node_info["rabbitmq"]["host"]; ?>" />
-                                </div>
-                            </div>
 
-                            <div class="form-group">
-                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Port</label>
-                                <div class="col-md-9 col-sm-9 col-xs-12">
-                                    <input class="port form-control" type="text" value="<?php echo $node_info["rabbitmq"]["port"]; ?>"/>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="control-label col-md-3 col-sm-3 col-xs-12">User</label>
-                                <div class="col-md-9 col-sm-9 col-xs-12">
-                                    <input class="user form-control" type="text" value="<?php echo $node_info["rabbitmq"]["user"]; ?>"/>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Password</label>
-                                <div class="col-md-9 col-sm-9 col-xs-12">
-
-                                <input class="password form-control" type="text" value=""/>
-                                </div>
-                                </div>
-                            <div class="form-group">
-                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Vhost</label>
-                                <div class="col-md-9 col-sm-9 col-xs-12">
-                                    <input class="vhost form-control" type="text" value="<?php echo $node_info["rabbitmq"]["vhost"]; ?>"/>
-                                </div>
-                            </div>
-<!--                            <div><span onclick="setRabbitmqConfig(this)" class="button button-small button-local">更新配置</span></div>-->
-                            <div class="ln_solid"></div>
-                            <div class="form-group">
-                                <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
-                                    <button type="submit" class="btn btn-success">Update Configure</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-
-                <div class="x_panel">
-                    <div class="x_title">
-                        <h2>Event Redis Configure <small>just configure it</small></h2>
-                        <ul class="nav navbar-right panel_toolbox">
-                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                            </li>
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a href="#">Settings 1</a>
-                                    </li>
-                                    <li><a href="#">Settings 2</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><a class="close-link"><i class="fa fa-close"></i></a>
-                            </li>
-                        </ul>
-                        <div class="clearfix"></div>
-                    </div>
-                    <div class="x_content">
-                        <div class="c-item form-horizontal form-label-left">
-                            <div class="form-group">
-                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Host</label>
-                                <div class="col-md-9 col-sm-9 col-xs-12">
-                                    <input class="host form-control" type="text" value="<?php echo $node_info["redis_config"]["host"]; ?>"/>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Port</label>
-                                <div class="col-md-9 col-sm-9 col-xs-12">
-                                    <input class="port form-control" type="text" value="<?php echo $node_info["redis_config"]["port"]; ?>"/>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Password</label>
-                                <div class="col-md-9 col-sm-9 col-xs-12">
-
-                                <input class="password form-control" type="text" value=""/>
-                                </div>
-                                </div>
-<!--                            <div><span onclick="setRedisConfig(this)" class="button button-small button-local">更新配置</span></div>-->
-                            <div class="ln_solid"></div>
-                            <div class="form-group">
-                                <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
-                                    <button type="submit" class="btn btn-success">Update Configure</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="x_panel">
                     <div class="x_title">
@@ -544,7 +495,56 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                     </div>
                 </div>
 
-
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Local Redis Configure <small>just update it</small></h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="#">Settings 1</a>
+                                    </li>
+                                    <li><a href="#">Settings 2</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li><a class="close-link"><i class="fa fa-close"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="c-item form-horizontal form-label-left">
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Host</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+                                    <input class="host form-control" type="text" value="<?php echo $node_info["redis_local"]["host"]; ?>" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Port</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+                                    <input class="port form-control" type="text" value="<?php echo $node_info["redis_local"]["port"]; ?>"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Port</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+                                    <input class="password form-control" type="text" value=""/>
+                                </div>
+                            </div>
+                            <!--                                <div><span onclick="setLocalRedisConfig(this)" class="button button-small button-local">更新配置</span></div>-->
+                            <div class="ln_solid"></div>
+                            <div class="form-group">
+                                <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
+                                    <button type="submit" class="btn btn-success">Update Configure</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 </div>
         </div>
