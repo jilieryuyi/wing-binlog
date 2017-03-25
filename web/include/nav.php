@@ -30,7 +30,20 @@
     <link href="build/css/custom.css" rel="stylesheet">
     <link href="css/index.css" rel="stylesheet">
     <link href="vendors/switchery/dist/switchery.min.css" rel="stylesheet">
-
+    <script>
+        function showDoing(dom) {
+            var old_html = $(dom).html();
+            $(dom).addClass("disable").html("Doing...");
+            window.setTimeout(function(){
+                $(dom).removeClass("disable").html("Success");
+                //unlock after 3 seconds timeout
+                Wing.unlock();
+                window.setTimeout(function(){
+                    $(dom).html(old_html);
+                },1000);
+            },3000);
+        }
+    </script>
 </head>
 
 <body class="nav-md">

@@ -177,7 +177,7 @@ class Node
 
     public static function getDatabases($session_id)
     {
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::getDatabases", [], 1, true);
+        return RPC::call($session_id, "\\Seals\\Library\\Worker::getDatabases");
     }
 
     public static function openGenerallog(HttpResponse $response)

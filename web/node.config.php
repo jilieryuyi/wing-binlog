@@ -152,7 +152,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                                                 isset($node_info["notify"]["params"][1]))
                                                 echo $node_info["notify"]["params"][1];
                                             else
-                                                echo "http://127.0.0.1:9998/";
+                                                echo "author:yuyi,email:297341015@qq.com";
                                             ?>"
                                             value="Seals\\Notify\\Http"
                                             <?php if ($node_info["notify"]["handler"] == "Seals\\Notify\\Http") echo "selected"; ?>
@@ -201,6 +201,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                     </div>
                 </div>
 
+                <!--Rabbitmq configure-->
                 <div class="x_panel data-target-config rabbitmq-config" style="<?php if ($node_info["notify"]["handler"] != "Seals\\Notify\\Rabbitmq") echo 'display: none;';?>">
                     <div class="x_title">
                         <h2>Rabbitmq Configure <small>just configure it</small></h2>
@@ -259,12 +260,14 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                             <div class="ln_solid"></div>
                             <div class="form-group">
                                 <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
-                                    <button type="submit" class="btn btn-success">Update Configure</button>
+                                    <button type="button" onclick="setRabbitmqConfig(this)" class="btn btn-success">Update Configure</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!--Event redis configure-->
                 <div class="x_panel data-target-config event-redis-config" style="<?php if ($node_info["notify"]["handler"] != "Seals\\Notify\\Redis") echo 'display: none;'?>">
                     <div class="x_title">
                         <h2>Event Redis Configure <small>just configure it</small></h2>
@@ -303,21 +306,24 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                             <div class="form-group">
                                 <label class="control-label col-md-3 col-sm-3 col-xs-12">Password</label>
                                 <div class="col-md-9 col-sm-9 col-xs-12">
-
                                     <input class="password form-control" type="text" value=""/>
+                                    <ul class="parsley-errors-list filled" id="parsley-id-5">
+                                        <li class="parsley-required">you can use :null to set the password as null</li>
+                                    </ul>
                                 </div>
                             </div>
                             <!--                            <div><span onclick="setRedisConfig(this)" class="button button-small button-local">更新配置</span></div>-->
                             <div class="ln_solid"></div>
                             <div class="form-group">
                                 <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
-                                    <button type="submit" class="btn btn-success">Update Configure</button>
+                                    <button type="button" onclick="setRedisConfig(this)" class="btn btn-success">Update Configure</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <!--Database configure-->
                 <div class="x_panel">
                     <div class="x_title">
                         <h2>Database Configure <small>just configure it</small></h2>
@@ -384,58 +390,18 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                             <div class="ln_solid"></div>
                             <div class="form-group">
                                 <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
-                                    <button type="submit" class="btn btn-success">Update Configure</button>
+                                    <button type="button" onclick="setDbConfig(this)" class="btn btn-success">Update Configure</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-
-                <!--                <div class="x_panel">-->
-<!--                    <div class="x_title">-->
-<!--                        <h2>Process Runtime Configure <small>just update it</small></h2>-->
-<!--                        <ul class="nav navbar-right panel_toolbox">-->
-<!--                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>-->
-<!--                            </li>-->
-<!--                            <li class="dropdown">-->
-<!--                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>-->
-<!--                                <ul class="dropdown-menu" role="menu">-->
-<!--                                    <li><a href="#">Settings 1</a>-->
-<!--                                    </li>-->
-<!--                                    <li><a href="#">Settings 2</a>-->
-<!--                                    </li>-->
-<!--                                </ul>-->
-<!--                            </li>-->
-<!--                            <li><a class="close-link"><i class="fa fa-close"></i></a>-->
-<!--                            </li>-->
-<!--                        </ul>-->
-<!--                        <div class="clearfix"></div>-->
-<!--                    </div>-->
-<!--                    <div class="x_content">-->
-<!--                        <div class="c-item form-horizontal form-label-left">-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
             </div>
 
-<!--                <div class="title">-->
-<!--                    <h2>节点配置<img title="--><?php //if($node_info["is_offline"])echo "已下线"; else echo "在线"; ?><!--" style="width: 12px;" src="images/--><?php //if($node_info["is_offline"])echo "offline.png"; else echo "online.png"; ?><!--"/></h2>-->
-<!--                    <!--    <div class="right-tool">-->
-<!--                    <!--        <span class="button button-royal button-primary">下线</span>-->
-<!--                    <!--    </div>-->
-<!--                </div>-->
-<!--                <div class="warn-info">-->
-<!--                    <div>注意：</div>-->
-<!--                    <div class="c-red">已去除所有的敏感密码信息，密码字段均未返回和填充，如需更新，请正确填写，否则忽略密码字段</div>-->
-<!--                    <div class="c-red">节点下线之后将停止一切采集业务，也不会被分配为leader，可以随时恢复上线</div>-->
-<!--                    <div class="c-red">密码字段，null请使用 :null 代替</div>-->
-<!--                </div>-->
             <div class="col-md-6 col-xs-12">
 
-
-
-
+                <!--Group configure-->
                 <div class="x_panel">
                     <div class="x_title">
                         <h2>Group Configure <small>just configure it</small></h2>
@@ -468,8 +434,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                             <div class="form-group">
                                 <label class="control-label col-md-3 col-sm-3 col-xs-12">Host</label>
                                 <div class="col-md-9 col-sm-9 col-xs-12">
-
-                                <input class="host form-control" type="text" value="<?php echo $node_info["zookeeper"]["host"]; ?>"/>
+                                    <input class="host form-control" type="text" value="<?php echo $node_info["zookeeper"]["host"]; ?>"/>
                                 </div>
                                 </div>
                             <div class="form-group">
@@ -488,13 +453,14 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                             <div class="ln_solid"></div>
                             <div class="form-group">
                                 <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
-                                    <button type="submit" class="btn btn-success">Update Configure</button>
+                                    <button type="button" onclick="setZookeeperConfig(this)" class="btn btn-success">Update Configure</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <!--Local redis configure-->
                 <div class="x_panel">
                     <div class="x_title">
                         <h2>Local Redis Configure <small>just update it</small></h2>
@@ -539,7 +505,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                             <div class="ln_solid"></div>
                             <div class="form-group">
                                 <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
-                                    <button type="submit" class="btn btn-success">Update Configure</button>
+                                    <button type="button" onclick="setLocalRedisConfig(this)" class="btn btn-success">Update Configure</button>
                                 </div>
                             </div>
                         </div>

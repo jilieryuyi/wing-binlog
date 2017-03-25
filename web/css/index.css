@@ -12,8 +12,8 @@ div.item {
     line-height: 37px;
 }
 li {
-    list-style: none;
-    height: 51px;
+    /*list-style: none;*/
+    /*height: 51px;*/
 }
 li.group {
     height: auto !important;

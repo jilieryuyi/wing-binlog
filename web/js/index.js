@@ -313,7 +313,7 @@ function appendNode(group_id, session_id, node)
                         'style="margin-left: 0;" '+
                         'data-group-id="'+group_id+'" '+
                         'data-session-id="'+session_id+'" '+
-                        'onclick="nodeConfig(this)" >Configure</a>'+
+                        'href="node.config.php?group_id='+group_id+'&session_id='+session_id+'" >Configure</a>'+
                     '<a ' +
                         'class="btn bg-red set-offline" ' +
                         'title="Offline the current node, only use for runtime" '+
@@ -441,16 +441,6 @@ function appendGroup(group_id, nodes)
     }
 }
 
-/**
- * jump to node config page
- */
-function nodeConfig(dom)
-{
-    var group_id   = $(dom).attr("data-group-id");
-    var session_id = $(dom).attr("data-session-id");
-
-    window.location.href="node.config.php?group_id="+group_id+"&session_id="+session_id;
-}
 
 /**
  * restart node
