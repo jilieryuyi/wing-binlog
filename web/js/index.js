@@ -46,11 +46,11 @@ function nodeRefresh(v, group_id, session_id)
             if (data.is_offline) {
                 $(v).find(".online-status").children("img").attr("src", "images/offline.png").attr("title", "Offline");
                 $(v).next("tr").find(".set-offline").html("Online")
-                    .removeClass("bg-red").addClass("btn-primary");
+                    .removeClass("bg-red").addClass("btn-success");
             } else {
                 $(v).find(".online-status").children("img").attr("src", "images/online.png").attr("title", "Online");
                 $(v).next("tr").find(".set-offline").html("Offline")
-                    .removeClass("btn-primary").addClass("bg-red");
+                    .removeClass("btn-success").addClass("bg-red");
             }
 
             $(v).find(".version").html(data.version);
@@ -69,12 +69,12 @@ function nodeRefresh(v, group_id, session_id)
             if (parseInt(data.generallog) == 1) {
                 $(v).next("tr").find(".open-generallog")
                     .html("Disable General Log")
-                    .removeClass("btn-primary")
+                    .removeClass("btn-success")
                     .addClass("bg-red");
                 $(v).find(".generallog").html("Enable");
             } else {
                 $(v).next("tr").find(".open-generallog").html("Enable General Log")
-                    .addClass("btn-primary")
+                    .addClass("btn-success")
                     .removeClass("bg-red");
                 $(v).find(".generallog").html("Disable");
             }
@@ -309,7 +309,7 @@ function appendNode(group_id, session_id, node)
             '<tr>'+
                 '<td class="edit" colspan="8">'+
                     '<a ' +
-                        'class="btn btn-primary" ' +
+                        'class="btn btn-success" ' +
                         'style="margin-left: 0;" '+
                         'data-group-id="'+group_id+'" '+
                         'data-session-id="'+session_id+'" '+
@@ -328,7 +328,7 @@ function appendNode(group_id, session_id, node)
                         }
                         html +='</a>'+
                     '<a ' +
-                        'class="btn btn-primary"  '+
+                        'class="btn btn-success"  '+
                         'data-group-id="'+group_id+'" '+
                         'data-session-id="'+session_id+'" '+
                         'href="node.report.php?group_id='+group_id+'&session_id='+session_id+'" >Report</a>'+
@@ -338,14 +338,14 @@ function appendNode(group_id, session_id, node)
                         'data-session-id="'+session_id+'" '+
                         'onclick="nodeRestart(this)" >Restart</a>'+
 
-                    '<a class="btn btn-primary" ' +
+                    '<a class="btn btn-success" ' +
                         'title="git pull origin master&& ' +
                             'php seals server:restart"  '+
                         'data-group-id="'+group_id+'" '+
                         'data-session-id="'+session_id+'" '+
                         'onclick="nodeUpdate(this)" >Update</a>';
 
-                    html += '<a class="btn btn-primary open-generallog" ' +
+                    html += '<a class="btn btn-success open-generallog" ' +
                         'data-group-id="' + group_id + '" ' +
                         'data-session-id="' + session_id + '" ' +
                         'data-open="' + node.generallog + '" ' +
@@ -379,7 +379,7 @@ function appendGroup(group_id, nodes)
                 '<span class="group-id col-md-2">'+group_id+'</span>'+
                 '<span class="node-count col-md-2">'+length+'</span>'+
                 '<span class="group-edit edit col-md-8">' +
-                    '<a class="btn btn-primary" href="group.config.php?group_id='+group_id+'" style="margin-left: 0;">Configure</a>' +
+                    '<a class="btn btn-success" href="group.config.php?group_id='+group_id+'" style="margin-left: 0;">Configure</a>' +
                     '<a ' +
                     'class="btn bg-red set-offline" ' +
                     'title="Offline all the nodes in the group, only use for runtime" '+
@@ -387,7 +387,7 @@ function appendGroup(group_id, nodes)
                     'onclick="groupOffline(this,1)">Offline</a>'+
 
                     '<a ' +
-                    'class="btn btn-primary set-offline" ' +
+                    'class="btn btn-success set-offline" ' +
                     'title="Online all the nodes in the group" '+
                     'data-group-id="'+group_id+'" ' +
                     'onclick="groupOffline(this,0)">Online</a>'+
@@ -397,13 +397,13 @@ function appendGroup(group_id, nodes)
                     'data-group-id="'+group_id+'" ' +
                     'onclick="groupRestart(this)">Restart</a>'+
 
-                    '<a title="Update all the nodes in the group" class="btn btn-primary" ' +
+                    '<a title="Update all the nodes in the group" class="btn btn-success" ' +
                     'title="composer update && ' +
                     'git pull origin master&& ' +
                     'php seals server:restart"  '+
                     'data-group-id="'+group_id+'" onclick="groupRestart(this)" >Update</a>'+
 
-         '<a class="btn btn-primary" title="Enable general log all the nodes in the group" ' +
+         '<a class="btn btn-success" title="Enable general log all the nodes in the group" ' +
             'data-group-id="' + group_id + '" ' +
             'onclick="openGroupGenerallog(this,1)" >Enable General Log</a>'+
 
