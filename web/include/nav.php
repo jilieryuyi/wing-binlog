@@ -30,6 +30,7 @@
     <link href="build/css/custom.css" rel="stylesheet">
     <link href="css/index.css" rel="stylesheet">
     <link href="vendors/switchery/dist/switchery.min.css" rel="stylesheet">
+    <script src="js/lock.js"></script>
     <script>
         function showDoing(dom) {
             var old_html = $(dom).html();

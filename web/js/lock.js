@@ -1,8 +1,6 @@
 /**
  * Created by yuyi on 17/3/24.
  */
-var ____lock_status = false;
-
 
 var Wing = {
     ____lock_status : false
