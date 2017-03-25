@@ -1,21 +1,28 @@
 /**
  * Created by yuyi on 17/3/20.
  */
-var set_runtime_config_doing = false;
+
+/**
+ * set process num and enable or disable debug mode
+ *
+ * @param dom
+ */
 function setRuntimeConfig(dom)
 {
-    if (set_runtime_config_doing)
+    //try lock , if it still running will return fail
+    if (!Wing.lock())
         return;
 
-    set_runtime_config_doing = true;
     var c_item  = $(dom).parents(".c-item");
     var workers = c_item.find(".workers").val();
     var debug   = c_item.find(".debug").prop("checked")?1:0;
 
-    $(dom).addClass("disable").html("正在更新...");
+    var old_html = $(dom).html();
+    $(dom).addClass("disable").html("Doing...");
     window.setTimeout(function(){
-        $(dom).removeClass("disable").html("更新配置");
-        set_runtime_config_doing = false;
+        $(dom).removeClass("disable").html(old_html);
+        //unlock after 3 seconds timeout
+        Wing.unlock();
     },3000);
 
     $.ajax({
@@ -28,8 +35,6 @@ function setRuntimeConfig(dom)
             "debug"     : debug
         },
         success:function(msg){
-            // node_offline_doing = false;
-            // $(dom).removeClass("disable");
         }
     });
 }

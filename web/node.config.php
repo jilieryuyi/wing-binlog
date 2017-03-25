@@ -65,7 +65,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                             <div class="form-group">
                                 <label class="control-label col-md-3 col-sm-3 col-xs-12">Workers Num</label>
                                 <div class="col-md-9 col-sm-9 col-xs-12">
-                                    <input type="text" class="form-control" value="<?php echo $node_info["workers"]; ?>" placeholder="Workers Num">
+                                    <input type="text" class="form-control workers" value="<?php echo $node_info["workers"]; ?>" placeholder="Workers Num">
                                 </div>
                             </div>
 <!--                            <div>进程数量<input class="workers" type="text" value="--><?php //echo $node_info["workers"]; ?><!--"/></div>-->
@@ -75,7 +75,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                                 <div class="col-md-9 col-sm-9 col-xs-12">
                                     <div class="">
                                         <label>
-                                            <input type="checkbox" class="js-switch" checked="" data-switchery="true" style="display: none;">
+                                            <input type="checkbox" class="js-switch debug" <?php if($node_info["debug"])echo "checked";?> data-switchery="true" style="display: none;">
 <!--                                            <span class="switchery switchery-default" style="background-color: rgb(38, 185, 154); border-color: rgb(38, 185, 154); box-shadow: rgb(38, 185, 154) 0px 0px 0px 11px inset; transition: border 0.4s, box-shadow 0.4s, background-color 1.2s;">-->
 <!--                                                <small style="left: 12px; transition: background-color 0.4s, left 0.2s; background-color: rgb(255, 255, 255);"></small>-->
 <!--                                            </span> Enable-->
@@ -92,7 +92,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                                 <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
 <!--                                    <button type="button" class="btn btn-primary">Cancel</button>-->
 <!--                                    <button class="btn btn-primary" type="reset">Reset</button>-->
-                                    <button type="submit" class="btn btn-success">Update Configure</button>
+                                    <button type="button" onclick="setRuntimeConfig(this)" class="btn btn-success">Update Configure</button>
                                 </div>
                             </div>
                         </div>
@@ -550,5 +550,5 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
         </div>
     </div>
 </div>
-
+<script src="js/config.js"></script>
 <?php include "include/footer.php";?>
