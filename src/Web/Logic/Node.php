@@ -249,57 +249,24 @@ class Node
         $end   = strtotime(date("Y-m-d H:00:00"));
         $res   = [];
 
+        $reads = RPC::call($session_id, "\\Seals\\Library\\Worker::getTodayHoursReadEvents");
+
         for ($time = $start; $time <= $end; $time += 3600) {
-            $hour = date("YmdH", $time);
-            $key  = "wing-binlog-hour-read-cache-".$hour;
-
-            if (!Context::instance()->redis_zookeeper->exists($key) || $hour = date("YmdH")) {
-                $num  = RPC::call($session_id, "\\Seals\\Library\\Worker::getHourEvents", [$hour, "show"]);
-                if (!$num)
-                    $num = 0;
-
-                $num1  = RPC::call($session_id, "\\Seals\\Library\\Worker::getHourEvents", [$hour, "select"]);
-
-                Context::instance()->redis_zookeeper->set($key, $num+$num1);
-                Context::instance()->redis_zookeeper->expire($key, 3600);
-
-                $res[] = [intval(date("H", $time)), $num+$num1];
-
-            } else {
-                $res[] = [intval(date("H", $time)), Context::instance()->redis_zookeeper->get($key)];
-            }
+            $res[] = [intval(date("H", $time)), array_shift($reads)];
         }
         return $res;
     }
 
     public static function getHourWriteEvents($session_id)
     {
-        $start = strtotime(date("Y-m-d 00:00:00"));
-        $end   = strtotime(date("Y-m-d H:00:00"));
-        $res   = [];
+        $start  = strtotime(date("Y-m-d 00:00:00"));
+        $end    = strtotime(date("Y-m-d H:00:00"));
+        $res    = [];
+
+        $writes = RPC::call($session_id, "\\Seals\\Library\\Worker::getTodayHoursWriteEvents");
 
         for ($time = $start; $time <= $end; $time += 3600) {
-            $hour = date("YmdH", $time);
-
-            $key  = "wing-binlog-hour-write-cache-".$hour;
-
-            if (!Context::instance()->redis_zookeeper->exists($key) || $hour == date("YmdH")) {
-
-                $num = RPC::call($session_id, "\\Seals\\Library\\Worker::getHourEvents", [$hour, "delete"]);
-                if (!$num)
-                    $num = 0;
-
-                $num1 = RPC::call($session_id, "\\Seals\\Library\\Worker::getHourEvents", [$hour, "insert"]);
-                $num2 = RPC::call($session_id, "\\Seals\\Library\\Worker::getHourEvents", [$hour, "update"]);
-
-
-                Context::instance()->redis_zookeeper->set($key, $num+$num1+$num2);
-                Context::instance()->redis_zookeeper->expire($key, 3600);
-
-                $res[] = [intval(date("H", $time)), $num + $num1 + $num2];
-            } else {
-                $res[] = [intval(date("H", $time)), Context::instance()->redis_zookeeper->get($key)];
-            }
+            $res[] = [intval(date("H", $time)), array_shift($writes)];
         }
         return $res;
     }

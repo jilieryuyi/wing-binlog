@@ -711,6 +711,64 @@ class Worker implements Process
         return $num;
     }
 
+    public static function getTodayHoursReadEvents()
+    {
+        $start  = strtotime(date("Y-m-d 00:00:00"));
+        $end    = strtotime(date("Y-m-d H:00:00"));
+        $res    = [];
+
+        $report = new Report(Context::instance()->redis_local);
+
+        for ($time = $start; $time <= $end; $time += 3600) {
+            $hour = date("YmdH", $time);
+
+            $num1    = $report->getHourEvents($hour, "show");
+            $num2    = $report->getHourEvents($hour, "select");
+
+            if (!$num1)
+                $num1 = 0;
+            if ($num2)
+                $num2 = 0;
+
+            $res[] = $num1 + $num2;
+
+        }
+        unset($report);
+        return $res;
+    }
+
+    public static function getTodayHoursWriteEvents()
+    {
+        $start  = strtotime(date("Y-m-d 00:00:00"));
+        $end    = strtotime(date("Y-m-d H:00:00"));
+        $res    = [];
+
+        $report = new Report(Context::instance()->redis_local);
+
+        for ($time = $start; $time <= $end; $time += 3600) {
+            $hour = date("YmdH", $time);
+
+            $num1    = $report->getHourEvents($hour, "delete");
+            $num2    = $report->getHourEvents($hour, "update");
+            $num3    = $report->getHourEvents($hour, "insert");
+
+
+            if (!$num1)
+                $num1 = 0;
+            if ($num2)
+                $num2 = 0;
+
+            if ($num3)
+                $num3 = 0;
+
+            $res[] = $num1 + $num2 + $num3;
+
+        }
+        unset($report);
+        return $res;
+    }
+
+
     public static function getHourEvents($hour, $event)
     {
         $report = new Report(Context::instance()->redis_local);
