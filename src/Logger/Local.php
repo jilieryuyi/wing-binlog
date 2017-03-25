@@ -2,6 +2,7 @@
 use Psr\Log\LoggerInterface;
 use Seals\Library\Context;
 use Wing\FileSystem\WDir;
+use Wing\FileSystem\WFile;
 
 /**
  * Created by PhpStorm.
@@ -50,11 +51,14 @@ class Local implements LoggerInterface
 
         $content .= "\r\n";
 
-        file_put_contents(
-            $this->log_dir . "/" . $name . "_" . date("Ymd") . ".log",
-            $content,
-            FILE_APPEND
-        );
+        $file = new WFile($this->log_dir . "/" . $name . "_" . date("Ymd") . ".log");
+        $file->write($content,1,1);
+//        file_put_contents(
+//            $this->log_dir . "/" . $name . "_" . date("Ymd") . ".log",
+//            $content,
+//            FILE_APPEND
+//        );
+        unset($file);
 
         if (!Context::instance()->redis_zookeeper)
             Context::instance()->zookeeperInit();

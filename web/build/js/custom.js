@@ -387,28 +387,32 @@ if (typeof NProgress != 'undefined') {
 		var chart_plot_02_data = [];
 		
 		var chart_plot_03_data = [
-			[0, 1],
-			[1, 9],
-			[2, 6],
-			[3, 10],
-			[4, 5],
-			[5, 17],
-			[6, 6],
-			[7, 10],
-			[8, 7],
-			[9, 11],
-			[10, 35],
-			[11, 9],
-			[12, 12],
-			[13, 5],
-			[14, 3],
-			[15, 4],
-			[16, 9]
+			// [0, 1],
+			// [1, 9],
+			// [2, 6],
+			// [3, 10],
+			// [4, 5],
+			// [5, 17],
+			// [6, 6],
+			// [7, 10],
+			// [8, 7],
+			// [9, 11],
+			// [10, 35],
+			// [11, 9],
+			// [12, 12],
+			// [13, 5],
+			// [14, 3],
+			// [15, 4],
+			// [16, 9]
 		];
 		
 		
 		for (var i = 0; i < 30; i++) {
 		  chart_plot_02_data.push([new Date(Date.today().add(i).days()).getTime(), randNum() + i + i + 10]);
+		}
+
+		for (var i = 0; i < 30; i++) {
+			chart_plot_03_data.push([new Date(Date.today().add(i).days()).getTime(), randNum() + i + i + 10]);
 		}
 		
 		
@@ -555,16 +559,24 @@ if (typeof NProgress != 'undefined') {
 		if ($("#chart_plot_02").length){
 			console.log('Plot2');
 			
-			$.plot( $("#chart_plot_02"), 
-			[{ 
-				label: "Email Sent", 
-				data: chart_plot_02_data, 
-				lines: { 
-					fillColor: "rgba(150, 202, 89, 0.12)" 
-				}, 
-				points: { 
-					fillColor: "#fff" } 
-			}], chart_plot_02_settings);
+			// $.plot( $("#chart_plot_02"),
+			// [{
+			// 	label: "Email Sent",
+			// 	data: chart_plot_02_data,
+			// 	lines: {
+			// 		fillColor: "rgba(150, 202, 89, 0.12)"
+			// 	},
+			// 	points: {
+			// 		fillColor: "#fff" }
+			// },{
+			// 	label: "Email receive",
+			// 	data: chart_plot_03_data,
+			// 	lines: {
+			// 		fillColor: "rgba(150, 202, 89, 0.12)"
+			// 	},
+			// 	points: {
+			// 		fillColor: "#fff" }
+			// }], chart_plot_02_settings);
 			
 		}
 		

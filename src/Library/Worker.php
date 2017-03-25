@@ -703,6 +703,22 @@ class Worker implements Process
         return $max;
     }
 
+    public static function getDayEvents($day, $event)
+    {
+        $report = new Report(Context::instance()->redis_local);
+        $num    = $report->getDayEvents($day, $event);
+        unset($report);
+        return $num;
+    }
+
+    public static function getHourEvents($hour, $event)
+    {
+        $report = new Report(Context::instance()->redis_local);
+        $num    = $report->getHourEvents($hour, $event);
+        unset($report);
+        return $num;
+    }
+
     public static function getDayReadMax($day)
     {
         $report = new Report(Context::instance()->redis_local);

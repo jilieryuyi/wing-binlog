@@ -38,6 +38,8 @@ class Report
         $day = date("Ymd", $time);
         $this->setDayQueryCount($day);
         $this->setTotalQueryCount();
+        $this->setDayEvents($event);
+        $this->setHourEvents($event);
 
         //$event show set select update delete
         $key = self::REPORT_LIST. ":".$event. ":".$day;
@@ -104,15 +106,39 @@ class Report
      */
     public function get($time, $event)
     {
-        $key = self::REPORT_LIST.
-            ":".$event.
-            ":".date("Ymd", $time);
+        $key = self::REPORT_LIST. ":".$event. ":".date("Ymd", $time);
 
         if ($this->redis->hexists($key, $time)) {
             return $this->redis->hget($key, $time);
         }
         return 0;
     }
+
+    public function getDayEvents($day, $event)
+    {
+        $key  = self::REPORT_LIST. ":day:events:".$event. ":".$day;
+        return $this->redis->get($key);
+    }
+
+    public function setDayEvents($event)
+    {
+        $key  = self::REPORT_LIST. ":day:events:".$event. ":".date("Ymd");
+        return $this->redis->incr($key);
+    }
+
+    public function getHourEvents($hour, $event)
+    {
+        $key  = self::REPORT_LIST. ":hour:events:".$event. ":".$hour;
+        return $this->redis->get($key);
+    }
+
+    public function setHourEvents($event)
+    {
+        $key  = self::REPORT_LIST. ":hour:events:".$event. ":".date("YmdH");
+        return $this->redis->incr($key);
+    }
+
+
 //    protected function getDayReadMax($day){
 //        $num = $this->cache->get("_day.".$day.".read.max.report");
 //        if (!$num)
