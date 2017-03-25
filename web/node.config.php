@@ -250,7 +250,80 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                         </div>
                     </div>
                 </div>
-<!--                <div class="x_panel">-->
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Database Configure <small>just configure it</small></h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="#">Settings 1</a>
+                                    </li>
+                                    <li><a href="#">Settings 2</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li><a class="close-link"><i class="fa fa-close"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="c-item form-horizontal form-label-left">
+
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Host</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+
+                                    <input class="host form-control" type="text" value="<?php echo $node_info["db_config"]["host"]; ?>"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Port</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+                                    <input class="port form-control" type="text" value="<?php echo $node_info["db_config"]["port"]; ?>"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">User</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+                                    <input class="user form-control" type="text" value="<?php echo $node_info["db_config"]["user"]; ?>"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Password</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+                                    <input class="password form-control" type="text" value=""/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Database</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+
+                                    <select class="db_name form-control">
+                                        <?php foreach ($databases as $database){
+                                            $selected = $node_info["db_config"]["db_name"] == $database ? "selected" : "";
+                                            ?>
+                                            <option <?php echo $selected; ?> value="<?php echo $database; ?>"><?php echo $database; ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                                <!--            <input class="db_name" type="text"  value="--><?php //echo $node_info["db_config"]["db_name"]; ?><!--"/>-->
+                            </div>
+                            <!--                        <div><span onclick="setDbConfig(this)" class="button button-small button-local">更新配置</span></div>-->
+                            <div class="ln_solid"></div>
+                            <div class="form-group">
+                                <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
+                                    <button type="submit" class="btn btn-success">Update Configure</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--                <div class="x_panel">-->
 <!--                    <div class="x_title">-->
 <!--                        <h2>Process Runtime Configure <small>just update it</small></h2>-->
 <!--                        <ul class="nav navbar-right panel_toolbox">-->
@@ -294,7 +367,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
 
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2>Process Runtime Configure <small>just update it</small></h2>
+                        <h2>Rabbitmq Configure <small>just configure it</small></h2>
                         <ul class="nav navbar-right panel_toolbox">
                             <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                             </li>
@@ -314,13 +387,45 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                     </div>
                     <div class="x_content">
                         <div class="c-item form-horizontal form-label-left">
-                            <div>事件队列rabbitmq配置</div>
-                            <div><span>ip</span><input class="host" type="text" value="<?php echo $node_info["rabbitmq"]["host"]; ?>" /></div>
-                            <div><span>端口</span><input class="port" type="text" value="<?php echo $node_info["rabbitmq"]["port"]; ?>"/></div>
-                            <div><span>用户</span><input class="user" type="text" value="<?php echo $node_info["rabbitmq"]["user"]; ?>"/></div>
-                            <div><span>密码</span><input class="password" type="text" value=""/></div>
-                            <div><span>vhost</span><input class="vhost" type="text" value="<?php echo $node_info["rabbitmq"]["vhost"]; ?>"/></div>
-                            <div><span onclick="setRabbitmqConfig(this)" class="button button-small button-local">更新配置</span></div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Host</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+                                    <input class="host form-control" type="text" value="<?php echo $node_info["rabbitmq"]["host"]; ?>" />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Port</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+                                    <input class="port form-control" type="text" value="<?php echo $node_info["rabbitmq"]["port"]; ?>"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">User</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+                                    <input class="user form-control" type="text" value="<?php echo $node_info["rabbitmq"]["user"]; ?>"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Password</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+
+                                <input class="password form-control" type="text" value=""/>
+                                </div>
+                                </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Vhost</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+                                    <input class="vhost form-control" type="text" value="<?php echo $node_info["rabbitmq"]["vhost"]; ?>"/>
+                                </div>
+                            </div>
+<!--                            <div><span onclick="setRabbitmqConfig(this)" class="button button-small button-local">更新配置</span></div>-->
+                            <div class="ln_solid"></div>
+                            <div class="form-group">
+                                <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
+                                    <button type="submit" class="btn btn-success">Update Configure</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -329,7 +434,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
 
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2>Process Runtime Configure <small>just update it</small></h2>
+                        <h2>Event Redis Configure <small>just configure it</small></h2>
                         <ul class="nav navbar-right panel_toolbox">
                             <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                             </li>
@@ -349,18 +454,40 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                     </div>
                     <div class="x_content">
                         <div class="c-item form-horizontal form-label-left">
-                            <div>事件队列redis配置</div>
-                            <div><span>ip</span><input class="host" type="text" value="<?php echo $node_info["redis_config"]["host"]; ?>"/></div>
-                            <div><span>端口</span><input class="port" type="text" value="<?php echo $node_info["redis_config"]["port"]; ?>"/></div>
-                            <div><span>密码</span><input class="password" type="text" value=""/></div>
-                            <div><span onclick="setRedisConfig(this)" class="button button-small button-local">更新配置</span></div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Host</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+                                    <input class="host form-control" type="text" value="<?php echo $node_info["redis_config"]["host"]; ?>"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Port</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+                                    <input class="port form-control" type="text" value="<?php echo $node_info["redis_config"]["port"]; ?>"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Password</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+
+                                <input class="password form-control" type="text" value=""/>
+                                </div>
+                                </div>
+<!--                            <div><span onclick="setRedisConfig(this)" class="button button-small button-local">更新配置</span></div>-->
+                            <div class="ln_solid"></div>
+                            <div class="form-group">
+                                <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
+                                    <button type="submit" class="btn btn-success">Update Configure</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2>Process Runtime Configure <small>just update it</small></h2>
+                        <h2>Group Configure <small>just configure it</small></h2>
                         <ul class="nav navbar-right panel_toolbox">
                             <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                             </li>
@@ -381,58 +508,42 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                     <div class="x_content">
                         <div class="c-item form-horizontal form-label-left">
 
-                        <div>群集配置</div>
-                        <div><span>组id</span><input class="group_id" type="text" value="<?php echo $node_info["zookeeper"]["group_id"]; ?>"/></div>
-                        <div><span>ip</span><input class="host" type="text" value="<?php echo $node_info["zookeeper"]["host"]; ?>"/></div>
-                        <div><span>端口</span><input class="port" type="text" value="<?php echo $node_info["zookeeper"]["port"]; ?>"/></div>
-                        <div><span>密码</span><input class="password" type="text" value=""/></div>
-                        <div><span onclick="setZookeeperConfig(this)" class="button button-small button-local">更新配置</span></div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Group ID</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+                                    <input class="group_id form-control" type="text" value="<?php echo $node_info["zookeeper"]["group_id"]; ?>"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Host</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+
+                                <input class="host form-control" type="text" value="<?php echo $node_info["zookeeper"]["host"]; ?>"/>
+                                </div>
+                                </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Port</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+                                    <input class="port form-control" type="text" value="<?php echo $node_info["zookeeper"]["port"]; ?>"/>
+                                </div>
+                                </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Password</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+                                    <input class="password form-control" type="text" value=""/>
+                                </div>
+                                </div>
+<!--                        <div><span onclick="setZookeeperConfig(this)" class="button button-small button-local">更新配置</span></div>-->
+                            <div class="ln_solid"></div>
+                            <div class="form-group">
+                                <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
+                                    <button type="submit" class="btn btn-success">Update Configure</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="x_panel">
-                    <div class="x_title">
-                        <h2>Process Runtime Configure <small>just update it</small></h2>
-                        <ul class="nav navbar-right panel_toolbox">
-                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                            </li>
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a href="#">Settings 1</a>
-                                    </li>
-                                    <li><a href="#">Settings 2</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><a class="close-link"><i class="fa fa-close"></i></a>
-                            </li>
-                        </ul>
-                        <div class="clearfix"></div>
-                    </div>
-                    <div class="x_content">
-                        <div class="c-item form-horizontal form-label-left">
-
-                        <div>数据库配置</div>
-                        <div><span>ip</span><input class="host" type="text" value="<?php echo $node_info["db_config"]["host"]; ?>"/></div>
-                        <div><span>端口</span><input class="port" type="text" value="<?php echo $node_info["db_config"]["port"]; ?>"/></div>
-                        <div><span>用户</span><input class="user" type="text" value="<?php echo $node_info["db_config"]["user"]; ?>"/></div>
-                        <div><span>密码</span><input class="password" type="text" value=""/></div>
-                        <div><span>数据库</span>
-                            <select class="db_name">
-                                <?php foreach ($databases as $database){
-                                    $selected = $node_info["db_config"]["db_name"] == $database ? "selected" : "";
-                                    ?>
-                                    <option <?php echo $selected; ?> value="<?php echo $database; ?>"><?php echo $database; ?></option>
-                                <?php } ?>
-                            </select>
-                            <!--            <input class="db_name" type="text"  value="--><?php //echo $node_info["db_config"]["db_name"]; ?><!--"/>-->
-                        </div>
-                        <div><span onclick="setDbConfig(this)" class="button button-small button-local">更新配置</span></div>
-                        </div>
-                    </div>
-                </div>
 
 
                 </div>
