@@ -74,6 +74,8 @@ class Redis implements RedisInterface
     public function set($key, $value)
     {
         try {
+            if (is_array($value))
+                $value = json_encode($value);
             return $this->redis->set($key, $value);
         } catch (\Exception $e) {
             echo __FUNCTION__,"=>",var_dump(func_get_args());
@@ -120,7 +122,13 @@ class Redis implements RedisInterface
     public function get($key)
     {
         try {
-            return $this->redis->get($key);
+            $str = $this->redis->get($key);
+            $data = @json_decode($str, true);
+
+            if (is_array($data))
+                return $data;
+
+            return $str;
         } catch (\Exception $e) {
             echo __FUNCTION__,"=>",var_dump(func_get_args());
             trigger_error("call ".__FUNCTION__." with params : ".
@@ -236,6 +244,37 @@ class Redis implements RedisInterface
     {
         try {
             return $this->redis->hGet($key, $hash_key);
+        } catch (\Exception $e) {
+            echo __FUNCTION__,"=>",var_dump(func_get_args());
+            trigger_error("call ".__FUNCTION__." with params : ".
+                json_encode(func_get_args(),JSON_UNESCAPED_UNICODE).", error happened :".
+                $e->getMessage()
+            );
+            var_dump($e->getMessage());
+            $this->connect();
+            return null;
+        }
+    }
+
+    public function incr($key)
+    {
+        try {
+            return $this->redis->incr($key);
+        } catch (\Exception $e) {
+            echo __FUNCTION__,"=>",var_dump(func_get_args());
+            trigger_error("call ".__FUNCTION__." with params : ".
+                json_encode(func_get_args(),JSON_UNESCAPED_UNICODE).", error happened :".
+                $e->getMessage()
+            );
+            var_dump($e->getMessage());
+            $this->connect();
+            return null;
+        }
+    }
+
+    public function lrange($key, $start, $end) {
+        try {
+            return $this->redis->lRange($key, $start, $end);
         } catch (\Exception $e) {
             echo __FUNCTION__,"=>",var_dump(func_get_args());
             trigger_error("call ".__FUNCTION__." with params : ".

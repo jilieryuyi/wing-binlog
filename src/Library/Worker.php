@@ -602,6 +602,7 @@ class Worker implements Process
         $queue         = new Queue(self::QUEUE_NAME.$i, Context::instance()->redis_local);
         $failure_queue = new Queue(self::QUEUE_NAME.":failure:events", Context::instance()->redis_local);
         $filter        = Context::instance()->getAppConfig("filter");
+        $report        = new Report(Context::instance()->redis_local);
 
 
         while (1) {
@@ -655,7 +656,7 @@ class Worker implements Process
                     echo "parse cache file => ",$cache_file,"\r\n";
                     $file = new FileFormat($cache_file,\Seals\Library\Context::instance()->activity_pdo);
 
-                    $file->parse(function ($database_name, $table_name, $event) use($failure_queue, $filter) {
+                    $file->parse(function ($database_name, $table_name, $event) use($failure_queue, $filter, $report) {
 
                         $continue = false;
                         //过滤器支持
@@ -705,7 +706,7 @@ class Worker implements Process
                             "app_id"        => $this->app_id
                         ];
                         $success = $this->notify->send($params);
-                        Report::eventsIncr($event["time"]);
+                        $report->eventsIncr($event["time"], $event["event_type"]);
                         if (!$success) {
                             Context::instance()->logger->error(get_class($this->notify)." send failure",$params);
                             $failure_queue->push($params);

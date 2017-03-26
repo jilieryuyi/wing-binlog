@@ -12,12 +12,10 @@ class GeneralLog
     protected $pdo;
     public $last_time = 0;
     protected $cache;
-    protected $file_cache;
     public function __construct(DbInterface $pdo)
     {
         $this->pdo        = $pdo;
         $this->cache      = new \Seals\Cache\Redis(Context::instance()->redis_local);
-        $this->file_cache = new File(__APP_DIR__."/data/table");
         $this->last_time  = $this->getLastTime();
     }
 
@@ -34,8 +32,8 @@ class GeneralLog
     }
     public function getLogPath()
     {
-        $key  = "select.general_log_file.table";
-        $path = $this->file_cache->get($key);
+        $key  = "wing-binlog-select-general_log_file.table";
+        $path = $this->cache->get($key);
         if ($path) {
             return $path;
         }
@@ -47,7 +45,7 @@ class GeneralLog
             return null;
 
         $path = $data["@@general_log_file"];
-        $this->file_cache->set($key, $path, 60);
+        $this->cache->set($key, $path, 60);
         return $path;
     }
     public function isOpen()

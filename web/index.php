@@ -23,7 +23,8 @@
             </div>
             <div class="col-md-3 col-sm-4 col-xs-6 tile_stats_count">
               <span class="count_top"><i class="fa fa-user"></i> Total Events</span>
-              <div class="count green"><?php echo \Seals\Library\Report::getEventsCount(); ?></div>
+              <div class="count green"><?php echo \Seals\Library\Report::getEventsCount();
+                  ?></div>
               <span class="count_bottom">
                 <?php
                 $yestoday = date("Ymd",time()-86400);

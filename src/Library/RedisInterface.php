@@ -21,4 +21,6 @@ interface RedisInterface
     public function hgetall($key);
     public function hexists($key, $hash_key);
     public function hget($key, $hash_key);
+    public function incr($key);
+    public function lrange($key, $start, $end);
 }

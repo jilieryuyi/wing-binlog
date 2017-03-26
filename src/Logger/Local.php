@@ -62,7 +62,6 @@ class Local implements LoggerInterface
 
         if (!Context::instance()->redis_zookeeper)
             Context::instance()->zookeeperInit();
-
         //logs report
         Context::instance()->redis_zookeeper->rpush(
             "wing-binlog-logs-content-".Context::instance()->session_id,
@@ -77,8 +76,19 @@ class Local implements LoggerInterface
         Context::instance()->redis_zookeeper->incr("wing-binlog-logs-count-".date("Ymd"));
     }
 
+    /**
+     * global, get all logs list, master process use
+     *
+     * @param string $session_id
+     * @param int $page
+     * @param int $limit
+     * @return array
+     */
     public static function get($session_id, $page, $limit)
     {
+        if (!Context::instance()->redis_zookeeper)
+            Context::instance()->zookeeperInit();
+
         //logs report
         $start = ($page-1) * $limit;
         $end   = $page * $limit;
@@ -94,15 +104,28 @@ class Local implements LoggerInterface
         return $res;
     }
 
+    /**
+     * global, get all logs count, master process use
+     *
+     * @return int
+     */
     public static function countAll()
     {
+        if (!Context::instance()->redis_zookeeper)
+            Context::instance()->zookeeperInit();
         //logs count
         return Context::instance()->redis_zookeeper->incr("wing-binlog-logs-count");
 
     }
-
+    /**
+     * global, get all logs count in a day, master process use
+     *
+     * @return int
+     */
     public static function countDay($day)
     {
+        if (!Context::instance()->redis_zookeeper)
+            Context::instance()->zookeeperInit();
         return Context::instance()->redis_zookeeper->incr("wing-binlog-logs-count-".$day);
     }
 
