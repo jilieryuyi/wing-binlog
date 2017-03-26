@@ -69,3 +69,8 @@
     /*background-color: #1ABB9A !important;*/
     /*border-color: #1ABB9A !important;*/
 /*}*/
+.r-detail:hover {
+    color: #0000ff;
+    font-weight: bold;
+    text-decoration: underline;
+}

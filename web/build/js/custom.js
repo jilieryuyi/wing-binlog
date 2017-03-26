@@ -1590,11 +1590,17 @@ if (typeof NProgress != 'undefined') {
 			  $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
 			};
 
+			var __max_date = new WingDate("d/m/Y").toString();
+			console.log("max date",__max_date);
+
+			var __time = new Date().getTime()/1000;
+			var __min_date = new WingDate("d/m/Y",__time-86400*365*10).toString();
+			console.log("min date",__min_date);
 			var optionSet1 = {
 			  startDate: moment().subtract(29, 'days'),
 			  endDate: moment(),
-			  minDate: '01/01/2012',
-			  maxDate: '12/31/2015',
+			  minDate: "01/01/2010",
+			  maxDate: __max_date,
 			  dateLimit: {
 				days: 60
 			  },
@@ -1665,11 +1671,18 @@ if (typeof NProgress != 'undefined') {
 				  $('#reportrange_right span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
 				};
 
-				var optionSet1 = {
+		   var __max_date = new WingDate("d/m/Y").toString();
+		   console.log("max date",__max_date);
+
+		   var __time = new Date().getTime()/1000;
+		   var __min_date = new WingDate("d/m/Y",__time-86400*365*10).toString();
+
+
+		   var optionSet1 = {
 				  startDate: moment().subtract(29, 'days'),
 				  endDate: moment(),
-				  minDate: '01/01/2012',
-				  maxDate: '12/31/2020',
+				  minDate: "01/01/2010",
+				  maxDate: __max_date,
 				  dateLimit: {
 					days: 60
 				  },

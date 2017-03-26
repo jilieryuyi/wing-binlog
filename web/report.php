@@ -79,30 +79,58 @@ include "include/nav.php";
                   <table class="table table-striped">
                     <thead>
                     <tr>
-                      <th>#</th>
-                      <th>First Name</th>
-                      <th>Last Name</th>
-                      <th>Username</th>
+                      <th>Day</th>
+                      <th>Show</th>
+                      <th>Insert</th>
+                      <th>Delete</th>
+                      <th>Update</th>
+                      <th>Select</th>
+                      <th>Highest read</th>
+                      <th>Highest write</th>
+                      <th>Total read</th>
+                      <th>Total write</th>
+                      <th>Operate</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr>
-                      <th scope="row">1</th>
-                      <td>Mark</td>
-                      <td>Otto</td>
-                      <td>@mdo</td>
+                      <th scope="row">2017-03-01</th>
+                      <td>1</td>
+                      <td>1</td>
+                      <td>100</td>
+                      <td>100</td>
+                      <td>100</td>
+                      <td>100</td>
+                      <td>100</td>
+                      <td>100</td>
+                      <td>100</td>
+                      <td><a class="r-detail" href="#">Detail</a></td>
                     </tr>
                     <tr>
-                      <th scope="row">2</th>
-                      <td>Jacob</td>
-                      <td>Thornton</td>
-                      <td>@fat</td>
+                      <th scope="row">2017-03-02</th>
+                      <td>1</td>
+                      <td>1</td>
+                      <td>100</td>
+                      <td>100</td>
+                      <td>100</td>
+                      <td>100</td>
+                      <td>100</td>
+                      <td>100</td>
+                      <td>100</td>
+                      <td><a class="r-detail" href="#">Detail</a></td>
                     </tr>
                     <tr>
-                      <th scope="row">3</th>
-                      <td>Larry</td>
-                      <td>the Bird</td>
-                      <td>@twitter</td>
+                      <th scope="row">2017-03-03</th>
+                      <td>1</td>
+                      <td>1</td>
+                      <td>100</td>
+                      <td>100</td>
+                      <td>100</td>
+                      <td>100</td>
+                      <td>100</td>
+                      <td>100</td>
+                      <td>100</td>
+                      <td><a class="r-detail" href="#">Detail</a></td>
                     </tr>
                     </tbody>
                   </table>
