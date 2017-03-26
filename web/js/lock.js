@@ -19,4 +19,4 @@ Wing.lock = function() {
 
 Wing.unlock = function() {
     Wing.____lock_status = false;
-}
+};
