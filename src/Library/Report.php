@@ -142,6 +142,19 @@ class Report
     {
         $this->cache->set(self::REPORT_LIST.".day.".$day.".read.max.report", $size);
     }
+    /**
+     * 当天最高读秒并发数量
+     *
+     * @param $int $day like 20170302
+     * @return int
+     */
+    public function getDayReadMax($day)
+    {
+        $num = $this->cache->get(self::REPORT_LIST.".day.".$day.".read.max.report");
+        if (!$num)
+            return 0;
+        return $num;
+    }
 
     public static function eventsIncr($daytime)
     {
@@ -180,19 +193,6 @@ class Report
         foreach ($keys as $key)
             $count += Context::instance()->redis_zookeeper->get($key);
         return $count;
-    }
-    /**
-     * 当天最高读秒并发数量
-     *
-     * @param $int $day like 20170302
-     * @return int
-     */
-    public function getDayReadMax($day)
-    {
-        $num = $this->cache->get(self::REPORT_LIST.".day.".$day.".read.max.report");
-        if (!$num)
-            return 0;
-        return $num;
     }
 
     /**
