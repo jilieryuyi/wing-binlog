@@ -1611,7 +1611,7 @@ if (typeof NProgress != 'undefined') {
 				'This Month': [moment().startOf('month'), moment().endOf('month')],
 				'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
 			  },
-			  opens: 'left',
+			  opens: 'right',
 			  buttonClasses: ['btn btn-default'],
 			  applyClass: 'btn-small btn-primary',
 			  cancelClass: 'btn-small',

@@ -331,7 +331,7 @@ function appendNode(group_id, session_id, node)
                         'class="btn btn-success"  '+
                         'data-group-id="'+group_id+'" '+
                         'data-session-id="'+session_id+'" '+
-                        'href="node.report.php?group_id='+group_id+'&session_id='+session_id+'" >Report</a>'+
+                        'href="report.php?group_id='+group_id+'&session_id='+session_id+'" >Report</a>'+
 
                     '<a class="btn bg-red"  '+
                         'data-group-id="'+group_id+'" '+

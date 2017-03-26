@@ -4,12 +4,12 @@
         <div class="right_col" role="main">
           <!-- top tiles -->
           <div class="row tile_count">
-            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
-              <span class="count_top"><i class="fa fa-user"></i> Total Groups</span>
-              <div class="count"><?php echo \Seals\Library\Zookeeper::getServicesCount(); ?></div>
-<!--              <span class="count_bottom"><i class="green">4% </i> From last Week</span>-->
-            </div>
-            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+<!--            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">-->
+<!--              <span class="count_top"><i class="fa fa-user"></i> Total Groups</span>-->
+<!--              <div class="count">--><?php //echo \Seals\Library\Zookeeper::getServicesCount(); ?><!--</div>-->
+<!--<!--              <span class="count_bottom"><i class="green">4% </i> From last Week</span>-->
+<!--            </div>-->
+            <div class="col-md-3 col-sm-4 col-xs-6 tile_stats_count">
               <span class="count_top"><i class="fa fa-clock-o"></i> Total Servers</span>
               <div class="count"><?php
                 $count = 0;
@@ -21,7 +21,7 @@
                 ?></div>
 <!--              <span class="count_bottom"><i class="green"><i class="fa fa-sort-asc"></i>3% </i> From last Week</span>-->
             </div>
-            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+            <div class="col-md-3 col-sm-4 col-xs-6 tile_stats_count">
               <span class="count_top"><i class="fa fa-user"></i> Total Events</span>
               <div class="count green"><?php echo \Seals\Library\Report::getEventsCount(); ?></div>
               <span class="count_bottom">
@@ -44,7 +44,7 @@
                   else echo "fa-sort-desc";
                   ?>"></i><?php echo abs($incr); ?>%</i> From last Day</span>
             </div>
-            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+            <div class="col-md-3 col-sm-4 col-xs-6 tile_stats_count">
               <span class="count_top"><i class="fa fa-user"></i> Total Query</span>
               <div class="count"><?php
                 $yestoday = date("Ymd",time()-86400);
@@ -65,7 +65,7 @@
                   else echo "fa-sort-desc";
                   ?>"></i><?php echo abs($incr); ?>% </i> From last Day</span>
             </div>
-            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+            <div class="col-md-3 col-sm-4 col-xs-6 tile_stats_count">
               <span class="count_top"><i class="fa fa-user"></i> Total Logs</span>
               <div class="count"><?php echo \Seals\Web\Logic\Logs::countAll();
                 $yestoday = date("Ymd",time()-86400);
@@ -85,11 +85,11 @@
                   else echo "fa-sort-desc";
                   ?>"></i><?php echo abs($incr); ?>% </i> From last Day</span>
             </div>
-            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
-              <span class="count_top"><i class="fa fa-user"></i> Total Users</span>
-              <div class="count"><?php echo \Seals\Web\Logic\User::count(); ?></div>
-<!--              <span class="count_bottom"><i class="green"><i class="fa fa-sort-asc"></i>34% </i> From last Week</span>-->
-            </div>
+<!--            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">-->
+<!--              <span class="count_top"><i class="fa fa-user"></i> Total Users</span>-->
+<!--              <div class="count">--><?php //echo \Seals\Web\Logic\User::count(); ?><!--</div>-->
+<!--<!--              <span class="count_bottom"><i class="green"><i class="fa fa-sort-asc"></i>34% </i> From last Week</span>-->
+<!--            </div>-->
           </div>
           <!-- /top tiles -->
           <div class="row">

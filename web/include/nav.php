@@ -72,8 +72,6 @@
     <script src="vendors/bootstrap-daterangepicker/daterangepicker.js"></script>
     <!-- Switchery -->
     <script src="vendors/switchery/dist/switchery.min.js"></script>
-    <!-- Custom Theme Scripts -->
-    <script src="build/js/custom.js"></script>
 
     <script src="js/lock.js"></script>
     <script>
