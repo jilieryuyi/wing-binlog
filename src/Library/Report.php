@@ -29,7 +29,7 @@ class Report
         if (!$event)
             return false;
 
-        if (!in_array($event,["show","set","select","update","delete"]))
+        if (!in_array($event,["show","set","insert","select","update","delete"]))
             return false;
 
         $day = date("Ymd", $time);
@@ -45,11 +45,13 @@ class Report
 
 
         if ($event == "show" || $event == "select") {
+            $this->setDayReadCount($day);
             $tmax = $this->getDayReadMax($day);
             if ($num > $tmax) {
                 $this->setDayReadMax($day, $num);
             }
         } else {
+            $this->setDayWriteCount($day);
             $tmax = $this->getDayWriteMax($day);
             if ($num > $tmax) {
                 $this->setDayWriteMax($day, $num);
@@ -81,6 +83,37 @@ class Report
         return $this->redis->incr($key);
     }
 
+    public function setDayWriteCount($day)
+    {
+        $key   = self::REPORT_LIST."-write-day-".$day."-query";
+        return $this->redis->incr($key);
+    }
+
+    public function getDayWriteCount($day)
+    {
+        $key   = self::REPORT_LIST."-write-day-".$day."-query";
+        $num   = $this->redis->get($key);
+
+        if (!$num)
+            return 0;
+        return $num;
+    }
+    public function setDayReadCount($day)
+    {
+        $key   = self::REPORT_LIST."-read-day-".$day."-query";
+        return $this->redis->incr($key);
+    }
+
+    public function getDayReadCount($day)
+    {
+        $key   = self::REPORT_LIST."-read-day-".$day."-query";
+        $num   = $this->redis->get($key);
+
+        if (!$num)
+            return 0;
+        return $num;
+    }
+
     public function getDayQueryCount($day)
     {
         $key   = self::REPORT_LIST."-day-".$day."-query";
@@ -109,10 +142,14 @@ class Report
         return $num;
     }
 
+    //"show","set","select","update","delete"
     public function getDayEvents($day, $event)
     {
         $key  = self::REPORT_LIST. "-day-events-".$event. "-".$day;
-        return $this->redis->get($key);
+        $num = $this->redis->get($key);
+        if (!$num)
+            return 0;
+        return $num;
     }
 
     public function setDayEvents($day, $event)

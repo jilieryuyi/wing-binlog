@@ -1580,7 +1580,7 @@ if (typeof NProgress != 'undefined') {
 	   
 	   /* DATERANGEPICKER */
 	   
-		function init_daterangepicker() {
+		/*function init_daterangepicker() {
 
 			if( typeof ($.fn.daterangepicker) === 'undefined'){ return; }
 			console.log('init_daterangepicker');
@@ -1644,7 +1644,7 @@ if (typeof NProgress != 'undefined') {
 			  console.log("hide event fired");
 			});
 			$('#reportrange').on('apply.daterangepicker', function(ev, picker) {
-			  console.log("apply event fired, start/end dates are " + picker.startDate.format('MMMM D, YYYY') + " to " + picker.endDate.format('MMMM D, YYYY'));
+			  console.log("apply event fired, start/end dates are " + picker.startDate.format('YYYY-MM-DD') + " to " + picker.endDate.format('YYYY-MM-DD'));
 			});
 			$('#reportrange').on('cancel.daterangepicker', function(ev, picker) {
 			  console.log("cancel event fired");
@@ -1659,7 +1659,7 @@ if (typeof NProgress != 'undefined') {
 			  $('#reportrange').data('daterangepicker').remove();
 			});
    
-		}
+		}*/
    	   
 	   function init_daterangepicker_right() {
 	      
@@ -5064,7 +5064,7 @@ if (typeof NProgress != 'undefined') {
 		init_ColorPicker();
 		init_TagsInput();
 		init_parsley();
-		init_daterangepicker();
+		//init_daterangepicker();
 		init_daterangepicker_right();
 		init_daterangepicker_single_call();
 		init_daterangepicker_reservation();

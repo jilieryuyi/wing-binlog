@@ -305,4 +305,38 @@ class RpcApi
         return 1;
     }
 
+    public static function getDayReport($start_day, $end_day)
+    {
+        //Context::instance()->logger->debug($start_day."=>".$end_day);
+        $report = new Report(Context::instance()->redis_local);
+
+        $res        = [];
+        $start_time = strtotime($start_day);
+        $end_time   = strtotime($end_day);
+
+        $events     = ["show","set","select","update","delete","insert"];
+        $event_types = ["write_rows", "delete_rows", "update_rows"];
+
+        for ($time = $start_time; $time <= $end_time; $time += 86400) {
+            $day = date("Ymd", $time);
+            foreach ($events as $event) {
+                $times = $report->getDayEvents($day, $event);
+                $res[$day][$event] = $times;
+            }
+            foreach ($event_types as $event_type) {
+                $times = $report->getDayEventTypeCount($day, $event_type);
+                $res[$day][$event_type] = $times;
+            }
+
+            $res[$day]["read_max"]  = $report->getDayReadMax($day);
+            $res[$day]["write_max"] = $report->getDayWriteMax($day);
+
+            $res[$day]["read_total"]  = $report->getDayReadCount($day);
+            $res[$day]["write_total"] = $report->getDayWriteCount($day);
+        }
+        //Context::instance()->logger->debug($start_day."=>".$end_day,$res);
+
+        return $res;
+    }
+
 }

@@ -63,14 +63,14 @@ class RPC
             return null;
         }
 
-        $json = Context::instance()->redis_zookeeper->get($event_id);
-        if ($json === 0)
-            return $json;
-
-        if (!$json)
-            return null;
-
-        return json_decode($json, true);
+        return Context::instance()->redis_zookeeper->get($event_id);
+//        if ($json === 0)
+//            return $json;
+//
+//        if (!$json)
+//            return null;
+//
+//        return json_decode($json, true);
     }
 
     /**

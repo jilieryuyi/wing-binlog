@@ -81,57 +81,62 @@ include "include/nav.php";
                     <tr>
                       <th>Day</th>
                       <th>Show</th>
-                      <th>Insert</th>
-                      <th>Delete</th>
-                      <th>Update</th>
+                      <th>Insert Times/Rows</th>
+                      <th>Delete Times/Rows</th>
+                      <th>Update Times/Rows</th>
                       <th>Select</th>
-                      <th>Highest read</th>
-                      <th>Highest write</th>
-                      <th>Total read</th>
-                      <th>Total write</th>
+                      <th>Highest Read</th>
+                      <th>Highest Write</th>
+                      <th>Total Read</th>
+                      <th>Total Write</th>
                       <th>Operate</th>
                     </tr>
                     </thead>
                     <tbody>
+                    <?php $reports = \Seals\Web\Logic\Node::getNodeDayReport($session_id, date("Ymd", time()-3*86400), date("Ymd"));
+                    //var_dump($reports);
+                    foreach ($reports as $day => $report) {
+                    ?>
                     <tr>
-                      <th scope="row">2017-03-01</th>
-                      <td>1</td>
-                      <td>1</td>
-                      <td>100</td>
-                      <td>100</td>
-                      <td>100</td>
-                      <td>100</td>
-                      <td>100</td>
-                      <td>100</td>
-                      <td>100</td>
+                      <th scope="row"><?php echo $day; ?></th>
+                      <td><?php echo $report["show"]; ?></td>
+                      <td><?php echo $report["insert"]; ?>/<?php echo $report["write_rows"]; ?></td>
+                      <td><?php echo $report["delete"]; ?>/<?php echo $report["delete_rows"]; ?></td>
+                      <td><?php echo $report["update"]; ?>/<?php echo $report["update_rows"]; ?></td>
+                      <td><?php echo $report["select"]; ?></td>
+                      <td><?php echo $report["read_max"]; ?></td>
+                      <td><?php echo $report["write_max"]; ?></td>
+                      <td><?php echo $report["read_total"]; ?></td>
+                      <td><?php echo $report["write_total"]; ?></td>
                       <td><a class="r-detail" href="#">Detail</a></td>
                     </tr>
-                    <tr>
-                      <th scope="row">2017-03-02</th>
-                      <td>1</td>
-                      <td>1</td>
-                      <td>100</td>
-                      <td>100</td>
-                      <td>100</td>
-                      <td>100</td>
-                      <td>100</td>
-                      <td>100</td>
-                      <td>100</td>
-                      <td><a class="r-detail" href="#">Detail</a></td>
-                    </tr>
-                    <tr>
-                      <th scope="row">2017-03-03</th>
-                      <td>1</td>
-                      <td>1</td>
-                      <td>100</td>
-                      <td>100</td>
-                      <td>100</td>
-                      <td>100</td>
-                      <td>100</td>
-                      <td>100</td>
-                      <td>100</td>
-                      <td><a class="r-detail" href="#">Detail</a></td>
-                    </tr>
+                    <?php } ?>
+<!--                    <tr>-->
+<!--                      <th scope="row">2017-03-02</th>-->
+<!--                      <td>1</td>-->
+<!--                      <td>1/1000</td>-->
+<!--                      <td>100/1000</td>-->
+<!--                      <td>100/1000</td>-->
+<!--                      <td>100</td>-->
+<!--                      <td>100</td>-->
+<!--                      <td>100</td>-->
+<!--                      <td>100</td>-->
+<!--                      <td>100</td>-->
+<!--                      <td><a class="r-detail" href="#">Detail</a></td>-->
+<!--                    </tr>-->
+<!--                    <tr>-->
+<!--                      <th scope="row">2017-03-03</th>-->
+<!--                      <td>1</td>-->
+<!--                      <td>1/1000</td>-->
+<!--                      <td>100/1000</td>-->
+<!--                      <td>100/1000</td>-->
+<!--                      <td>100</td>-->
+<!--                      <td>100</td>-->
+<!--                      <td>100</td>-->
+<!--                      <td>100</td>-->
+<!--                      <td>100</td>-->
+<!--                      <td><a class="r-detail" href="#">Detail</a></td>-->
+<!--                    </tr>-->
                     </tbody>
                   </table>
 
@@ -142,5 +147,89 @@ include "include/nav.php";
           </div>
         </div>
         <!-- /page content -->
+<script>
+  function init_daterangepicker() {
 
+    if( typeof ($.fn.daterangepicker) === 'undefined'){ return; }
+    console.log('init_daterangepicker');
+
+    var cb = function(start, end, label) {
+      console.log(start.toISOString(), end.toISOString(), label);
+      $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+    };
+
+    var __max_date = new WingDate("d/m/Y").toString();
+    console.log("max date",__max_date);
+
+    var __time = new Date().getTime()/1000;
+    var __min_date = new WingDate("d/m/Y",__time-86400*365*10).toString();
+    console.log("min date",__min_date);
+    var optionSet1 = {
+      startDate: moment().subtract(29, 'days'),
+      endDate: moment(),
+      minDate: "01/01/2010",
+      maxDate: __max_date,
+      dateLimit: {
+        days: 60
+      },
+      showDropdowns: true,
+      showWeekNumbers: true,
+      timePicker: false,
+      timePickerIncrement: 1,
+      timePicker12Hour: true,
+      ranges: {
+        'Today': [moment(), moment()],
+        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+        'This Month': [moment().startOf('month'), moment().endOf('month')],
+        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+      },
+      opens: 'right',
+      buttonClasses: ['btn btn-default'],
+      applyClass: 'btn-small btn-primary',
+      cancelClass: 'btn-small',
+      format: 'MM/DD/YYYY',
+      separator: ' to ',
+      locale: {
+        applyLabel: 'Submit',
+        cancelLabel: 'Clear',
+        fromLabel: 'From',
+        toLabel: 'To',
+        customRangeLabel: 'Custom',
+        daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+        monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+        firstDay: 1
+      }
+    };
+
+    $('#reportrange span').html(moment().subtract(29, 'days').format('MMMM D, YYYY') + ' - ' + moment().format('MMMM D, YYYY'));
+    $('#reportrange').daterangepicker(optionSet1, cb);
+    $('#reportrange').on('show.daterangepicker', function() {
+      console.log("show event fired");
+    });
+    $('#reportrange').on('hide.daterangepicker', function() {
+      console.log("hide event fired");
+    });
+    $('#reportrange').on('apply.daterangepicker', function(ev, picker) {
+      console.log("apply event fired, start/end dates are " + picker.startDate.format('YYYY-MM-DD') + " to " + picker.endDate.format('YYYY-MM-DD'));
+    });
+    $('#reportrange').on('cancel.daterangepicker', function(ev, picker) {
+      console.log("cancel event fired");
+    });
+//    $('#options1').click(function() {
+//      $('#reportrange').data('daterangepicker').setOptions(optionSet1, cb);
+//    });
+//    $('#options2').click(function() {
+//      $('#reportrange').data('daterangepicker').setOptions(optionSet2, cb);
+//    });
+    $('#destroy').click(function() {
+      $('#reportrange').data('daterangepicker').remove();
+    });
+
+  }
+$(document).ready(function(){
+  init_daterangepicker();
+});
+</script>
         <?php include "include/footer.php";?>

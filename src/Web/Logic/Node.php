@@ -285,5 +285,11 @@ class Node
         return $res;
     }
 
+    public static function getNodeDayReport($session_id, $start_day, $end_day)
+    {
+        $report = RPC::call($session_id, "\\Seals\\Library\\RpcApi::getDayReport",[$start_day, $end_day]);
+        return $report;
+    }
+
 
 }

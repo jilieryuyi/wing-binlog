@@ -1,10 +1,13 @@
 /**
  * Created by yuyi on 17/3/24.
  */
-
-var Wing = {
-    ____lock_status : false
-};
+if (typeof Wing == "undefined") {
+    var Wing = {
+        ____lock_status: false
+    };
+} else {
+    Wing.____lock_status = false;
+}
 Wing.lock = function() {
     if (Wing.____lock_status) {
         alert("Please wait a moment, because another process is running!");
