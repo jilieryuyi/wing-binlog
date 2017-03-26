@@ -19,6 +19,8 @@ class Redis implements CacheInterface
 
     public function set($key, $value, $timeout = 0)
     {
+        if (is_array($value))
+            $value = json_encode($value);
         $success = $this->redis->set($key, $value);
         if ($timeout>0)
             $this->redis->expire($key, $timeout);
@@ -26,7 +28,15 @@ class Redis implements CacheInterface
     }
     public function get($key)
     {
-        return $this->redis->get($key);
+        $data = $this->redis->get($key);
+
+        $_data = @@json_decode($data, true);
+
+        if (is_array($_data))
+            return $_data;
+
+        return $data;
+
     }
     public function del($key)
     {

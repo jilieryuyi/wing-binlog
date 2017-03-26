@@ -193,22 +193,34 @@ class Node
 
     public static function getHistoryReadMax($session_id)
     {
-        return RPC::call($session_id, "\\Seals\\Library\\RpcApi::getHistoryReadMax");
+        $num = RPC::call($session_id, "\\Seals\\Library\\RpcApi::getHistoryReadMax");
+        if (!$num)
+            $num = 0;
+        return $num;
     }
 
     public static function getHistoryWriteMax($session_id)
     {
-        return RPC::call($session_id, "\\Seals\\Library\\RpcApi::getHistoryWriteMax");
+        $num = RPC::call($session_id, "\\Seals\\Library\\RpcApi::getHistoryWriteMax");
+        if (!$num)
+            $num = 0;
+        return $num;
     }
 
     public static function getDayReadMax($session_id, $day)
     {
-        return RPC::call($session_id, "\\Seals\\Library\\RpcApi::getDayReadMax",[$day]);
+        $num = RPC::call($session_id, "\\Seals\\Library\\RpcApi::getDayReadMax",[$day]);
+        if (!$num)
+            $num = 0;
+        return $num;
     }
 
     public static function getDayWriteMax($session_id, $day)
     {
-        return RPC::call($session_id, "\\Seals\\Library\\RpcApi::getDayWriteMax",[$day]);
+        $num = RPC::call($session_id, "\\Seals\\Library\\RpcApi::getDayWriteMax",[$day]);
+        if (!$num)
+            $num = 0;
+        return $num;
     }
 
     public static function getTotalQueryCount()

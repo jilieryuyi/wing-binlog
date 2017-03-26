@@ -11,7 +11,9 @@ include "include/nav.php";
               <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
                 <div class="tile-stats">
                   <div class="icon"><i class="fa fa-caret-square-o-right"></i></div>
-                  <div class="count"><?php echo \Seals\Web\Logic\Node::getDayEvents($session_id, date("Ymd"), "insert"); ?></div>
+                  <div class="count"><?php echo
+                    \Seals\Web\Logic\Node::getHistoryReadMax($session_id);
+                    ?></div>
                   <h3>Read</h3>
                   <p>History highest read concurrency</p>
                 </div>
@@ -19,7 +21,7 @@ include "include/nav.php";
               <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
                 <div class="tile-stats">
                   <div class="icon"><i class="fa fa-comments-o"></i></div>
-                  <div class="count"><?php echo \Seals\Web\Logic\Node::getDayEvents($session_id, date("Ymd"), "delete"); ?></div>
+                  <div class="count"><?php echo \Seals\Web\Logic\Node::getHistoryWriteMax($session_id); ?></div>
                   <h3>Write</h3>
                   <p>History highest write concurrency</p>
                 </div>
@@ -27,7 +29,7 @@ include "include/nav.php";
               <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
                 <div class="tile-stats">
                   <div class="icon"><i class="fa fa-sort-amount-desc"></i></div>
-                  <div class="count"><?php echo \Seals\Web\Logic\Node::getDayEvents($session_id, date("Ymd"), "update"); ?></div>
+                  <div class="count"><?php echo \Seals\Web\Logic\Node::getDayReadMax($session_id, date("Ymd")); ?></div>
                   <h3>Read</h3>
                   <p>Today highest read concurrency</p>
                 </div>
@@ -35,8 +37,7 @@ include "include/nav.php";
               <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
                 <div class="tile-stats">
                   <div class="icon"><i class="fa fa-check-square-o"></i></div>
-                  <div class="count"><?php echo \Seals\Web\Logic\Node::getDayEvents($session_id, date("Ymd"), "select")+
-                        \Seals\Web\Logic\Node::getDayEvents($session_id, date("Ymd"), "show"); ?></div>
+                  <div class="count"><?php echo \Seals\Web\Logic\Node::getDayWriteMax($session_id, date("Ymd")); ?></div>
                   <h3>Write</h3>
                   <p>Today highest write concurrency</p>
                 </div>

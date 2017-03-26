@@ -243,7 +243,9 @@ class Report
         }
 
         $last_day = array_pop($days);
-        $this->cache->set(self::REPORT_LIST.".history.read.max.report",[$max,$last_day]);
+
+        if (is_numeric($max) && $max >0)
+            $this->cache->set(self::REPORT_LIST.".history.read.max.report",[$max,$last_day]);
         return $max;
     }
 
@@ -292,6 +294,7 @@ class Report
                 $max = $num;
         }
 
+        if (is_numeric($max) && $max >0)
         $this->cache->set(self::REPORT_LIST.".history.write.max.report",[$max,array_pop($days)]);
         return $max;
     }
