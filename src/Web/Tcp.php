@@ -1,4 +1,5 @@
 <?php namespace Seals\Web;
+use Seals\Library\Context;
 
 /**
  * Created by PhpStorm.
@@ -215,7 +216,12 @@ class Tcp
      */
     public function sendSocket($socket, $data)
     {
-        $byte = fwrite($socket, $data);
+        $byte = 0;
+        try {
+            $byte = fwrite($socket, $data);
+        } catch(\Exception $e) {
+            Context::instance()->logger->error($e->getMessage());
+        }
         $this->onWrite($socket, null, array_search($socket, $this->clients, true));
         return $byte;
     }

@@ -90,7 +90,7 @@ class Node
         $debug      = $response->post("debug");
         $debug      = intval($debug) == 1 ? 1 : 0;
 
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::setRuntimeConfig", [$workers, $debug], 1, true);
+        return RPC::call($session_id, "\\Seals\\Library\\RpcApi::setRuntimeConfig", [$workers, $debug], 1, true);
 
     }
 
@@ -108,7 +108,7 @@ class Node
         else
             $params = [$param1];
 
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::setNotifyConfig", [$class, $params], 1, true);
+        return RPC::call($session_id, "\\Seals\\Library\\RpcApi::setNotifyConfig", [$class, $params], 1, true);
     }
 
     public static function setLocalRedisConfig(HttpResponse $response)
@@ -120,7 +120,7 @@ class Node
         $port      = urldecode($response->post("port"));
         $password  = urldecode($response->post("password"));
 
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::setLocalRedisConfig", [$host, $port, $password], 1, true);
+        return RPC::call($session_id, "\\Seals\\Library\\RpcApi::setLocalRedisConfig", [$host, $port, $password], 1, true);
     }
 
     public static function setRedisConfig(HttpResponse $response)
@@ -132,7 +132,7 @@ class Node
         $port      = urldecode($response->post("port"));
         $password  = urldecode($response->post("password"));
 
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::setRedisConfig", [$host, $port, $password], 1, true);
+        return RPC::call($session_id, "\\Seals\\Library\\RpcApi::setRedisConfig", [$host, $port, $password], 1, true);
     }
 
     public static function setRabbitmqConfig(HttpResponse $response)
@@ -146,7 +146,7 @@ class Node
         $password  = urldecode($response->post("password"));
         $vhost     = urldecode($response->post("vhost"));
 
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::setRabbitmqConfig", [$host, $port, $user, $password, $vhost], 1, true);
+        return RPC::call($session_id, "\\Seals\\Library\\RpcApi::setRabbitmqConfig", [$host, $port, $user, $password, $vhost], 1, true);
     }
 
     public static function setZookeeperConfig(HttpResponse $response)
@@ -158,7 +158,7 @@ class Node
         $port      = urldecode($response->post("port"));
         $password  = urldecode($response->post("password"));
 
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::setZookeeperConfig", [$group_id, $host, $port, $password], 1, true);
+        return RPC::call($session_id, "\\Seals\\Library\\RpcApi::setZookeeperConfig", [$group_id, $host, $port, $password], 1, true);
     }
 
     public static function setDbConfig(HttpResponse $response)
@@ -172,12 +172,12 @@ class Node
         $db_name   = urldecode($response->post("db_name"));
         $user      = urldecode($response->post("user"));
 
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::setDbConfig", [$db_name, $host, $user, $password, $port], 1, true);
+        return RPC::call($session_id, "\\Seals\\Library\\RpcApi::setDbConfig", [$db_name, $host, $user, $password, $port], 1, true);
     }
 
     public static function getDatabases($session_id)
     {
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::getDatabases");
+        return RPC::call($session_id, "\\Seals\\Library\\RpcApi::getDatabases");
     }
 
     public static function openGenerallog(HttpResponse $response)
@@ -187,28 +187,28 @@ class Node
         $open       = $response->post("open");
 
         $open       = intval($open);
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::openGenerallog",[$open], 1, true);
+        return RPC::call($session_id, "\\Seals\\Library\\RpcApi::openGenerallog",[$open], 1, true);
     }
 
 
     public static function getHistoryReadMax($session_id)
     {
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::getHistoryReadMax");
+        return RPC::call($session_id, "\\Seals\\Library\\RpcApi::getHistoryReadMax");
     }
 
     public static function getHistoryWriteMax($session_id)
     {
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::getHistoryWriteMax");
+        return RPC::call($session_id, "\\Seals\\Library\\RpcApi::getHistoryWriteMax");
     }
 
     public static function getDayReadMax($session_id, $day)
     {
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::getDayReadMax",[$day]);
+        return RPC::call($session_id, "\\Seals\\Library\\RpcApi::getDayReadMax",[$day]);
     }
 
     public static function getDayWriteMax($session_id, $day)
     {
-        return RPC::call($session_id, "\\Seals\\Library\\Worker::getDayWriteMax",[$day]);
+        return RPC::call($session_id, "\\Seals\\Library\\RpcApi::getDayWriteMax",[$day]);
     }
 
     public static function getTotalQueryCount()
@@ -217,7 +217,7 @@ class Node
         $count    = 0;
         foreach ($services as $group_id => $groups) {
             foreach ($groups as $session_id => $row) {
-                $count += RPC::call($session_id, "\\Seals\\Library\\Worker::getTotalQueryCount");
+                $count += RPC::call($session_id, "\\Seals\\Library\\RpcApi::getTotalQueryCount");
             }
         }
         return $count;
@@ -229,7 +229,7 @@ class Node
         $count    = 0;
         foreach ($services as $group_id => $groups) {
             foreach ($groups as $session_id => $row) {
-                $count += RPC::call($session_id, "\\Seals\\Library\\Worker::getDayQueryCount", [$day]);
+                $count += RPC::call($session_id, "\\Seals\\Library\\RpcApi::getDayQueryCount", [$day]);
             }
         }
         return $count;
@@ -237,7 +237,7 @@ class Node
 
     public static function getDayEvents($session_id, $day, $event)
     {
-        $num =  RPC::call($session_id, "\\Seals\\Library\\Worker::getDayEvents", [$day, $event]);
+        $num =  RPC::call($session_id, "\\Seals\\Library\\RpcApi::getDayEvents", [$day, $event]);
         if (!$num)
             return 0;
         return $num;
@@ -249,10 +249,11 @@ class Node
         $end   = strtotime(date("Y-m-d H:00:00"));
         $res   = [];
 
-        $reads = RPC::call($session_id, "\\Seals\\Library\\Worker::getTodayHoursReadEvents");
+        $reads = RPC::call($session_id, "\\Seals\\Library\\RpcApi::getTodayHoursReadEvents");
 
         for ($time = $start; $time <= $end; $time += 3600) {
-            $res[] = [intval(date("H", $time)), array_shift($reads)];
+            $num = is_array($reads) ? array_shift($reads) : 0;
+            $res[] = [intval(date("H", $time)), $num];
         }
         return $res;
     }
@@ -263,10 +264,11 @@ class Node
         $end    = strtotime(date("Y-m-d H:00:00"));
         $res    = [];
 
-        $writes = RPC::call($session_id, "\\Seals\\Library\\Worker::getTodayHoursWriteEvents");
+        $writes = RPC::call($session_id, "\\Seals\\Library\\RpcApi::getTodayHoursWriteEvents");
 
         for ($time = $start; $time <= $end; $time += 3600) {
-            $res[] = [intval(date("H", $time)), array_shift($writes)];
+            $num = is_array($writes) ? array_shift($writes) : 0;
+            $res[] = [intval(date("H", $time)), $num ];
         }
         return $res;
     }

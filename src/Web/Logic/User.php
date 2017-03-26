@@ -1,4 +1,6 @@
 <?php namespace Seals\Web\Logic;
+use Wing\FileSystem\WDir;
+
 /**
  * Created by PhpStorm.
  * User: yuyi
@@ -13,7 +15,7 @@ class User
     {
         $this->user_name = trim($user_name);
         if (file_exists(__APP_DIR__."/data/user/".$user_name))
-        $this->password  = file_get_contents(__APP_DIR__."/data/user/".$user_name);
+            $this->password  = file_get_contents(__APP_DIR__."/data/user/".$user_name);
     }
 
     public function checkPassword($password)
@@ -35,6 +37,11 @@ class User
     {
         $token = createUuid();
         $appid = substr(md5($this->user_name),2,18);
+
+        $login = new WDir(__APP_DIR__."/data/user/login");
+        $login->mkdir();
+        unset($login);
+
         $file  = new \Seals\Cache\File(__APP_DIR__."/data/user/login");
         $file->set($appid.".token", [$this->user_name, $token], 7200);
         unset($file);
@@ -46,7 +53,7 @@ class User
         if (!$appid || !$token)
             return false;
         $file    = new \Seals\Cache\File(__APP_DIR__."/data/user/login");
-        list(,$_token) = $file->get($appid.".token");// == $token;
+        list(,$_token) = $file->get($appid.".token");
         unset($appid, $file);
         return $_token == $token;
     }

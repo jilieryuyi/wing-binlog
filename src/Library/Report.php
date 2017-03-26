@@ -1,5 +1,4 @@
 <?php namespace Seals\Library;
-use Seals\Cache\File;
 
 /**
  * Created by PhpStorm.
@@ -16,7 +15,8 @@ class Report
     public function __construct(RedisInterface $redis)
     {
         $this->redis = $redis;
-        $this->cache = new File(__APP_DIR__."/data/report");
+        $this->cache = new \Seals\Cache\Redis(Context::instance()->redis_local);
+        //\Seals\Cache\File(__APP_DIR__."/data/report");
     }
 
     /**
@@ -38,8 +38,8 @@ class Report
         $day = date("Ymd", $time);
         $this->setDayQueryCount($day);
         $this->setTotalQueryCount();
-        $this->setDayEvents($event);
-        $this->setHourEvents($event);
+        $this->setDayEvents($day, $event);
+        $this->setHourEvents(date("YmdH", $time), $event);
 
         //$event show set select update delete
         $key = self::REPORT_LIST. ":".$event. ":".$day;
@@ -68,7 +68,7 @@ class Report
 
     public function getTotalQueryCount()
     {
-        $key   = "wing-binlog-total-query";
+        $key   = self::REPORT_LIST."-total-query";
         $count = $this->redis->get($key);
         if (!$count)
             return 0;
@@ -77,19 +77,19 @@ class Report
 
     public function setTotalQueryCount()
     {
-        $key   = "wing-binlog-total-query";
+        $key   = self::REPORT_LIST."-total-query";
         return $this->redis->incr($key);
     }
 
     public function setDayQueryCount($day)
     {
-        $key   = "wing-binlog-day-".$day."-query";
+        $key   = self::REPORT_LIST."-day-".$day."-query";
         return $this->redis->incr($key);
     }
 
     public function getDayQueryCount($day)
     {
-        $key   = "wing-binlog-day-".$day."-query";
+        $key   = self::REPORT_LIST."-day-".$day."-query";
         $count = $this->redis->get($key);
         if (!$count)
             return 0;
@@ -120,9 +120,9 @@ class Report
         return $this->redis->get($key);
     }
 
-    public function setDayEvents($event)
+    public function setDayEvents($day, $event)
     {
-        $key  = self::REPORT_LIST. ":day:events:".$event. ":".date("Ymd");
+        $key  = self::REPORT_LIST. ":day:events:".$event. ":".$day;
         return $this->redis->incr($key);
     }
 
@@ -132,31 +132,26 @@ class Report
         return $this->redis->get($key);
     }
 
-    public function setHourEvents($event)
+    public function setHourEvents($hour, $event)
     {
-        $key  = self::REPORT_LIST. ":hour:events:".$event. ":".date("YmdH");
+        $key  = self::REPORT_LIST. ":hour:events:".$event. ":".$hour;
         return $this->redis->incr($key);
     }
 
-
-//    protected function getDayReadMax($day){
-//        $num = $this->cache->get("_day.".$day.".read.max.report");
-//        if (!$num)
-//            return 0;
-//        return $num;
-//    }
-
     protected function setDayReadMax($day, $size)
     {
-        $this->cache->set("_day.".$day.".read.max.report", $size);
+        $this->cache->set(self::REPORT_LIST.".day.".$day.".read.max.report", $size);
     }
 
-    public static function eventsIncr()
+    public static function eventsIncr($daytime)
     {
         if (!Context::instance()->redis_zookeeper)
             Context::instance()->zookeeperInit();
-        $key     = "wing-binlog-events-total-".Context::instance()->session_id;
-        $key_day = "wing-binlog-events-day-".date("Ymd")."-".Context::instance()->session_id;
+
+        $day = date("Ymd", strtotime($daytime));
+
+        $key     = self::REPORT_LIST."-events-total-".Context::instance()->session_id;
+        $key_day = self::REPORT_LIST."-events-day-".$day."-".Context::instance()->session_id;
 
         Context::instance()->redis_zookeeper->incr($key_day);
 
@@ -168,7 +163,7 @@ class Report
         if (!Context::instance()->redis_zookeeper)
             Context::instance()->zookeeperInit();
 
-        $key_day = "wing-binlog-events-day-".$day."-".Context::instance()->session_id;
+        $key_day = self::REPORT_LIST."-events-day-".$day."-".Context::instance()->session_id;
         $count   = Context::instance()->redis_zookeeper->get($key_day);
 
         if (!$count)
@@ -180,7 +175,7 @@ class Report
     {
         if (!Context::instance()->redis_zookeeper)
             Context::instance()->zookeeperInit();
-        $keys = Context::instance()->redis_zookeeper->keys("wing-binlog-events-total-*");
+        $keys = Context::instance()->redis_zookeeper->keys(self::REPORT_LIST."-events-total-*");
         $count = 0;
         foreach ($keys as $key)
             $count += Context::instance()->redis_zookeeper->get($key);
@@ -194,36 +189,10 @@ class Report
      */
     public function getDayReadMax($day)
     {
-        $num = $this->cache->get("_day.".$day.".read.max.report");
+        $num = $this->cache->get(self::REPORT_LIST.".day.".$day.".read.max.report");
         if (!$num)
             return 0;
         return $num;
-
-        //$event show select
-        /*enable_time_test();
-        $max    = $this->cache->get("read.max.".$day.".report");
-        if ($max && $day != date("Ymd")) {
-            time_test_dump("1");
-            return $max;
-        }
-        time_test_dump("1");
-        $times1 = $this->redis->hkeys(self::REPORT_LIST. ":show". ":".$day);
-        $times2 = $this->redis->hkeys(self::REPORT_LIST. ":select". ":".$day);
-
-        $times  = array_merge($times1, $times2);
-        $max    = 0;
-        time_test_dump("2");
-        echo "\r\n",count($times),"\r\n";
-        foreach ($times as $time) {
-            $num = $this->get($time, "show") + $this->get($time, "select");
-            if ($num > $max)
-                $max = $num;
-        }
-        time_test_dump("3");
-        if ($day != date("Ymd"))
-        $this->cache->set("read.max.".$day.".report", $max);
-        time_test_dump("4");
-        return $max;*/
     }
 
     /**
@@ -231,7 +200,7 @@ class Report
      */
     public function getHistoryReadMax()
     {
-        $data  = $this->cache->get("history.read.max.report");
+        $data  = $this->cache->get(self::REPORT_LIST.".history.read.max.report");
         $max   = 0;
 
         $days  = [];
@@ -274,7 +243,7 @@ class Report
         }
 
         $last_day = array_pop($days);
-        $this->cache->set("history.read.max.report",[$max,$last_day]);
+        $this->cache->set(self::REPORT_LIST.".history.read.max.report",[$max,$last_day]);
         return $max;
     }
 
@@ -284,7 +253,7 @@ class Report
     public function getHistoryWriteMax()
 
     {
-        $data  = $this->cache->get("history.write.max.report");
+        $data  = $this->cache->get(self::REPORT_LIST.".history.write.max.report");
         $max      = 0;
 
         $days  = [];
@@ -323,49 +292,24 @@ class Report
                 $max = $num;
         }
 
-        $this->cache->set("history.write.max.report",[$max,array_pop($days)]);
+        $this->cache->set(self::REPORT_LIST.".history.write.max.report",[$max,array_pop($days)]);
         return $max;
     }
 
 
     protected function setDayWriteMax($day, $size)
     {
-        $this->cache->set("_day.".$day.".write.max.report", $size);
+        $this->cache->set(self::REPORT_LIST.".day.".$day.".write.max.report", $size);
     }
     /**
      * 获取当天秒写最高并发
      */
     public function getDayWriteMax($day)
     {
-        $max = $this->cache->get("_day.".$day.".write.max.report");
+        $max = $this->cache->get(self::REPORT_LIST.".day.".$day.".write.max.report");
         if (!$max)
             return 0;
         return $max;
-        /*
-        $max    = $this->cache->get("write.max.".$day.".report");
-        if ($max && $day != date("Ymd")) {
-            return $max;
-        }
-        //$event set update delete
-        $times1 = $this->redis->hkeys(self::REPORT_LIST. ":set". ":".$day);
-        $times2 = $this->redis->hkeys(self::REPORT_LIST. ":update". ":".$day);
-        $times3 = $this->redis->hkeys(self::REPORT_LIST. ":delete". ":".$day);
-
-        $times  = array_merge($times1, $times2, $times3);
-        $max    = 0;
-
-        foreach ($times as $time) {
-            $num =
-                $this->get($time, "set") +
-                $this->get($time, "update") +
-                $this->get($time, "delete");
-
-            if ($num > $max)
-                $max = $num;
-        }
-        if ($day != date("Ymd"))
-        $this->cache->set("write.max.".$day.".report", $max);
-        return $max;*/
     }
 
     /**

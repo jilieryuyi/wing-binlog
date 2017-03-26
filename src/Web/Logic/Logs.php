@@ -1,5 +1,7 @@
 <?php namespace Seals\Web\Logic;
 use Seals\Library\Context;
+use Seals\Logger\Local;
+
 /**
  * Created by PhpStorm.
  * User: yuyi
@@ -11,29 +13,16 @@ class Logs
     public static function countAll()
     {
         //logs count
-        return Context::instance()->redis_zookeeper->incr("wing-binlog-logs-count");
-
+        return Local::countAll();
     }
 
     public static function countDay($day)
     {
-        return Context::instance()->redis_zookeeper->incr("wing-binlog-logs-count-".$day);
+        return Local::countDay($day);
     }
 
     public static function get($session_id, $page, $limit)
     {
-        //logs report
-        $start = ($page-1) * $limit;
-        $end   = $page * $limit;
-        $data  = Context::instance()->redis_zookeeper->lrange(
-            "wing-binlog-logs-content-".$session_id,
-            $start,
-            $end
-        );
-        $res = [];
-        foreach ($data as $row) {
-            $res[] = json_decode($row, true);
-        }
-        return $res;
+        return Local::get($session_id, $page, $limit);
     }
 }

@@ -77,6 +77,35 @@ class Local implements LoggerInterface
         Context::instance()->redis_zookeeper->incr("wing-binlog-logs-count-".date("Ymd"));
     }
 
+    public static function get($session_id, $page, $limit)
+    {
+        //logs report
+        $start = ($page-1) * $limit;
+        $end   = $page * $limit;
+        $data  = Context::instance()->redis_zookeeper->lrange(
+            "wing-binlog-logs-content-".$session_id,
+            $start,
+            $end
+        );
+        $res = [];
+        foreach ($data as $row) {
+            $res[] = json_decode($row, true);
+        }
+        return $res;
+    }
+
+    public static function countAll()
+    {
+        //logs count
+        return Context::instance()->redis_zookeeper->incr("wing-binlog-logs-count");
+
+    }
+
+    public static function countDay($day)
+    {
+        return Context::instance()->redis_zookeeper->incr("wing-binlog-logs-count-".$day);
+    }
+
 
     /**
      * System is unusable.
