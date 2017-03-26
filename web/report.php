@@ -80,7 +80,7 @@ include "include/nav.php";
                     <thead>
                     <tr>
                       <th>Day</th>
-                      <th>Show</th>
+<!--                      <th>Show</th>-->
                       <th>Insert Times/Rows</th>
                       <th>Delete Times/Rows</th>
                       <th>Update Times/Rows</th>
@@ -99,7 +99,7 @@ include "include/nav.php";
                     ?>
                     <tr>
                       <th scope="row"><?php echo $day; ?></th>
-                      <td><?php echo $report["show"]; ?></td>
+<!--                      <td>--><?php //echo $report["show"]; ?><!--</td>-->
                       <td><?php echo $report["insert"]; ?>/<?php echo $report["write_rows"]; ?></td>
                       <td><?php echo $report["delete"]; ?>/<?php echo $report["delete_rows"]; ?></td>
                       <td><?php echo $report["update"]; ?>/<?php echo $report["update_rows"]; ?></td>
