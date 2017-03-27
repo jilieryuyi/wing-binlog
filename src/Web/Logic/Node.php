@@ -299,5 +299,20 @@ class Node
         return self::getNodeDayReport($session_id, $start_day, $end_day);
     }
 
+    public static function getDayDetailReport(HttpResponse $response)
+    {
+        $session_id = $response->post("session_id");
+        $day        = $response->post("start_day");
+        $report     = RPC::call($session_id, "\\Seals\\Library\\RpcApi::getDayDetailReport",[$day]);
+        $res        = [];
+        foreach ($report as $hour => $item) {
+            $time = strtotime($hour."0000");
+            $hour = date("H:00", $time)."-".date("H:59",$time);
+            $res[$hour] = $item;
+        }
+        unset($report);
+        return $res;
+    }
+
 
 }

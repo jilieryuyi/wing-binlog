@@ -1,5 +1,6 @@
 <?php
 $session_id = $_GET["session_id"];
+$day = $_GET["day"];
 include "include/nav.php";
 ?>
 <!-- page content -->
@@ -42,19 +43,12 @@ include "include/nav.php";
               </div>
             </div>
 
-            <div class="row" style="margin-bottom: 12px;">
-              <div class="col-md-12">
-                <div id="reportrange" style="background: #fff;  cursor: pointer; padding: 5px 10px; border:1px solid #E6E9ED;">
-                  <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>
-                  <span>December 30, 2014 - January 28, 2015</span> <b class="caret"></b>
-                </div>
-              </div>
-            </div>
+
             <div class="row">
               <div class="col-md-12">
               <div class="x_panel">
                 <div class="x_title">
-                  <h2>Statistical report <small>day detail</small></h2>
+                  <h2>Day detail report </h2>
                   <ul class="nav navbar-right panel_toolbox">
                     <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                     </li>
@@ -77,7 +71,7 @@ include "include/nav.php";
                   <table class="table table-striped">
                     <thead>
                     <tr>
-                      <th>Day</th>
+                      <th>Hour</th>
 <!--                      <th>Show</th>-->
                       <th>Insert Times/Rows</th>
                       <th>Delete Times/Rows</th>
@@ -87,7 +81,7 @@ include "include/nav.php";
                       <th>Highest Write</th>
                       <th>Total Read</th>
                       <th>Total Write</th>
-                      <th>Operate</th>
+<!--                      <th>Operate</th>-->
                     </tr>
                     </thead>
                     <tbody class="report-list">
@@ -146,17 +140,17 @@ include "include/nav.php";
         <!-- /page content -->
 <script>
 
-  function getReportList(start_day, end_day)
+  function getReportList()
   {
      var session_id = "<?php echo $session_id; ?>";
     $.ajax({
       type : "POST",
       data : {
         "session_id" : session_id,
-        "start_day"  : start_day,
-        "end_day"    : end_day
+        "day"  : "<?php echo $day; ?>",
+      //  "end_day"    : end_day
       },
-      url : "/service/node/day/report",
+      url : "/service/node/day/hour/report",
       success : function(msg) {
         var list = $(".report-list");
         list.html("");
@@ -176,7 +170,7 @@ include "include/nav.php";
           "<td>"+row.write_max+"</td>"+
           "<td>"+row.read_total+"</td>"+
           "<td>"+row.write_total+"</td>"+
-          "<td><a class=\"r-detail\" href=\"report.detail.php?session_id="+session_id+"&day="+day+"\">Detail</a></td>"+
+          //"<td><a class=\"r-detail\" href=\"#\">Detail</a></td>"+
           "</tr>");
         }
       }
@@ -272,7 +266,9 @@ include "include/nav.php";
 
   }
 $(document).ready(function(){
-  getReportList(moment().subtract(29, 'days').format("YYYYMMDD"),moment().format("YYYYMMDD"));
+  getReportList(
+     // moment().subtract(29, 'days').format("YYYYMMDD"),moment().format("YYYYMMDD")
+  );
   init_daterangepicker();
 });
 </script>

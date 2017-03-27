@@ -29,6 +29,7 @@ class Route
             "/service/node/db/config/save"           => "\\Seals\\Web\\Logic\\Node::setDbConfig",
             "/service/node/generallog/open"          => "\\Seals\\Web\\Logic\\Node::openGenerallog",
             "/service/node/day/report"               => "\\Seals\\Web\\Logic\\Node::getDayReport",
+            "/service/node/day/hour/report"          => "\\Seals\\Web\\Logic\\Node::getDayDetailReport",
 
             "/service/group/runtime/config/save"     => "\\Seals\\Web\\Logic\\Group::setRuntimeConfig",
             "/service/group/notify/config/save"      => "\\Seals\\Web\\Logic\\Group::setNotifyConfig",

@@ -33,10 +33,12 @@ class Report
             return false;
 
         $day = date("Ymd", $time);
+        $hour = date("YmdH", $time);
+
         $this->setDayQueryCount($day);
         $this->setTotalQueryCount();
         $this->setDayEvents($day, $event);
-        $this->setHourEvents(date("YmdH", $time), $event);
+        $this->setHourEvents($hour, $event);
 
         //$event show set select update delete
         $key = self::REPORT_LIST. "-".$event. "-".$day."-".$time;
@@ -46,15 +48,28 @@ class Report
 
         if ($event == "show" || $event == "select") {
             $this->setDayReadCount($day);
+            $this->setHourReadCount($hour);
             $tmax = $this->getDayReadMax($day);
             if ($num > $tmax) {
                 $this->setDayReadMax($day, $num);
             }
+
+            $hmax = $this->getHourReadMax($hour);
+            if ($num > $hmax) {
+                $this->setHourReadMax($hour, $num);
+            }
+
         } else {
             $this->setDayWriteCount($day);
+            $this->setHourWriteCount($hour);
             $tmax = $this->getDayWriteMax($day);
             if ($num > $tmax) {
                 $this->setDayWriteMax($day, $num);
+            }
+
+            $hmax = $this->getHourWriteMax($hour);
+            if ($num > $hmax) {
+                $this->setHourWriteMax($hour, $num);
             }
         }
 
@@ -98,6 +113,22 @@ class Report
             return 0;
         return $num;
     }
+
+    public function setHourWriteCount($day_hour)
+    {
+        $key   = self::REPORT_LIST."-write-hour-".$day_hour."-query";
+        return $this->redis->incr($key);
+    }
+
+    public function getHourWriteCount($day_hour)
+    {
+        $key   = self::REPORT_LIST."-write-hour-".$day_hour."-query";
+        $num   = $this->redis->get($key);
+
+        if (!$num)
+            return 0;
+        return $num;
+    }
     public function setDayReadCount($day)
     {
         $key   = self::REPORT_LIST."-read-day-".$day."-query";
@@ -107,6 +138,23 @@ class Report
     public function getDayReadCount($day)
     {
         $key   = self::REPORT_LIST."-read-day-".$day."-query";
+        $num   = $this->redis->get($key);
+
+        if (!$num)
+            return 0;
+        return $num;
+    }
+
+    public function setHourReadCount($day_hour)
+    {
+        $key   = self::REPORT_LIST."-read-hour-".$day_hour."-query";
+        return $this->redis->incr($key);
+    }
+
+    public function getHourReadCount($day_hour)
+    {
+        $key   = self::REPORT_LIST."-read-hour-".$day_hour."-query";
+
         $num   = $this->redis->get($key);
 
         if (!$num)
@@ -161,13 +209,31 @@ class Report
     public function getHourEvents($hour, $event)
     {
         $key  = self::REPORT_LIST. "-hour-events-".$event. "-".$hour;
-        return $this->redis->get($key);
+        $num  = $this->redis->get($key);
+
+        if (!$num)
+            return 0;
+
+        return $num;
     }
 
     public function setHourEvents($hour, $event)
     {
         $key  = self::REPORT_LIST. "-hour-events-".$event. "-".$hour;
         return $this->redis->incr($key);
+    }
+
+
+    public function getHourReadMax($hour)
+    {
+        $num = $this->redis->get(self::REPORT_LIST."-hour-".$hour."-read-max.report");
+        if (!$num)
+            return 0;
+        return $num;
+    }
+    public function setHourReadMax($hour, $size)
+    {
+        return $this->redis->set(self::REPORT_LIST."-hour-".$hour."-read-max.report", $size);
     }
 
     protected function setDayReadMax($day, $size)
@@ -198,14 +264,17 @@ class Report
     public function eventsIncr($daytime, $event_type)
     {
 
-        $day = date("Ymd", strtotime($daytime));
+        $day  = date("Ymd", strtotime($daytime));
+        $hour = date("YmdH", strtotime($daytime));
 
-        $key           = self::REPORT_LIST."-events-total-".Context::instance()->session_id;
-        $key_day       = self::REPORT_LIST."-events-day-".$day."-".Context::instance()->session_id;
-        $key_day_event = self::REPORT_LIST."-events-type-".$event_type."-day-".$day."-".Context::instance()->session_id;
+        $key            = self::REPORT_LIST."-events-total-".Context::instance()->session_id;
+        $key_day        = self::REPORT_LIST."-events-day-".$day."-".Context::instance()->session_id;
+        $key_day_event  = self::REPORT_LIST."-events-type-".$event_type."-day-".$day."-".Context::instance()->session_id;
+        $key_hour_event = self::REPORT_LIST."-events-type-".$event_type."-hour-".$hour."-".Context::instance()->session_id;
 
         $this->redis->incr($key_day);
         $this->redis->incr($key_day_event);
+        $this->redis->incr($key_hour_event);
 
         if (!Context::instance()->redis_zookeeper)
             Context::instance()->zookeeperInit();
@@ -228,6 +297,16 @@ class Report
             return 0;
         return $num;
     }
+    public function getHourEventTypeCount($hour, $event_type)
+    {
+        $key_hour_event = self::REPORT_LIST."-events-type-".$event_type."-hour-".$hour."-".Context::instance()->session_id;
+
+        $num            = $this->redis->get($key_hour_event);
+        if (!$num)
+            return 0;
+        return $num;
+    }
+
 
     /**
      * local
@@ -384,6 +463,19 @@ class Report
         return $max;
     }
 
+
+    public function getHourWriteMax($day_hour)
+    {
+        $max = $this->redis->get(self::REPORT_LIST."-hour-".$day_hour."-write-max.report");
+        if (!$max)
+            return 0;
+        return $max;
+    }
+
+    protected function setHourWriteMax($day_hour, $size)
+    {
+        $this->redis->set(self::REPORT_LIST."-hour-".$day_hour."-write-max.report", $size);
+    }
 
     protected function setDayWriteMax($day, $size)
     {
