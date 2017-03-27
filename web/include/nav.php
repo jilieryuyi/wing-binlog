@@ -124,7 +124,7 @@
                     <li class="active"><a><i class="fa fa-home"></i> Home <span class="fa fa-chevron-down"></span></a>
                         <ul class="nav child_menu" style="display: block">
                             <li><a href="/">Servers</a></li>
-                            <li><a href="index2.html">Users</a></li>
+                            <li><a href="/users.php">Users</a></li>
                             <li><a href="index3.html">Logs</a></li>
                         </ul>
                     </li>
@@ -261,7 +261,7 @@
                             </a>
                         </li>
                         <li><a href="javascript:;">Help</a></li>
-                        <li><a href="login.html"><i class="fa fa-sign-out pull-right"></i> Log Out</a></li>
+                        <li><a href="login.php"><i class="fa fa-sign-out pull-right"></i> Log Out</a></li>
                     </ul>
                 </li>
 

@@ -1,4 +1,6 @@
 <?php namespace Seals\Web\Logic;
+use Seals\Cache\File;
+use Seals\Library\Context;
 use Wing\FileSystem\WDir;
 
 /**
@@ -11,11 +13,19 @@ class User
 {
     protected $user_name;
     protected $password = null;
+    protected $role = null;
+
     public function __construct($user_name)
     {
         $this->user_name = trim($user_name);
-        if (file_exists(__APP_DIR__."/data/user/".$user_name))
-            $this->password  = file_get_contents(__APP_DIR__."/data/user/".$user_name);
+        $wdir = new WDir(__APP_DIR__."/data/user/");
+        $wdir->mkdir();
+        unset($wdir);
+
+        $info           = self::getInfo($this->user_name);
+        $this->password = isset($info["password"])?$info["password"]:null;
+        $this->role     = isset($info["role"])?$info["role"]:null;
+
     }
 
     public function checkPassword($password)
@@ -30,7 +40,75 @@ class User
         if (!$this->password)
             return false;
 
-        return trim($this->password) == $password;
+        $success = password_verify($password, $this->password);//trim($this->password) == $password;
+
+        if ($success) {
+            $this->setLoginTimes();
+        }
+
+        return $success;
+    }
+
+    public function getRole()
+    {
+        return $this->role;
+    }
+
+    public function setPassword($password)
+    {
+        $password  = trim($password);
+        $this->password  = password_hash($password, PASSWORD_DEFAULT);
+    }
+
+    public function setUserName($user_name)
+    {
+        $this->user_name = trim($user_name);
+    }
+
+    public function setRole($role)
+    {
+        $this->role = trim($role);
+    }
+
+    public function save($timeout = 0)
+    {
+        $file = new File(__APP_DIR__."/data/user");
+        return $file->set(substr(md5(md5($this->user_name)),2,16), ["name" => $this->user_name,"password" => $this->password, "role" => $this->role], $timeout);
+    }
+
+    public static function add($user_name, $password, $role, $timeout = 0)
+    {
+        $user_name = trim($user_name);
+        $password  = trim($password);
+
+        $pwd  = password_hash($password, PASSWORD_DEFAULT);
+        $file = new File(__APP_DIR__."/data/user");
+        return $file->set(substr(md5(md5($user_name)),2,16), ["name" => $user_name,"password" => $pwd, "role" => $role], $timeout);
+    }
+
+    public static function getInfo($user_name)
+    {
+        $user_name = trim($user_name);
+        $file      = new File(__APP_DIR__."/data/user");
+        return $file->get(substr(md5(md5($user_name)),2,16));
+    }
+
+
+    public function setLoginTimes()
+    {
+        $key = "wing-binlog-login-success-".$this->user_name;
+        Context::instance()->redis_zookeeper->incr($key);
+    }
+
+    public function getLoginTimes()
+    {
+        $key = "wing-binlog-login-success-".$this->user_name;
+        $num = Context::instance()->redis_zookeeper->get($key);
+
+        if (!$num)
+            return 0;
+
+        return $num;
     }
 
     public function setToken()
@@ -82,5 +160,31 @@ class User
         }
         return $count;
     }
+
+    public static function all()
+    {
+        $path[] = __APP_DIR__.'/data/user/*';
+        $users  = [];
+        $file = new File(__APP_DIR__.'/data/user/');
+        while (count($path) != 0) {
+            $v = array_shift($path);
+            foreach(glob($v) as $item) {
+                if (is_file($item)) {
+                    $name = pathinfo($item,PATHINFO_BASENAME);
+                    $info = $file->get($name);
+                    $user = new self($info["name"]);
+                    $users[] = [
+                        "name"       => $info["name"],
+                        "times"      => $user->getLoginTimes(),
+                        "role"       => $user->getRole(),
+                        "created"    => date("Y-m-d H:i:s", filectime($item)),
+                        "last_login" => date("Y-m-d H:i:s", fileatime($item))
+                    ];
+                }
+            }
+        }
+        return $users;
+    }
+
 
 }

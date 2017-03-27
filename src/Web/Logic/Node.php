@@ -287,8 +287,12 @@ class Node
 
     public static function getNodeDayReport($session_id, $start_day, $end_day)
     {
-        $report = RPC::call($session_id, "\\Seals\\Library\\RpcApi::getDayReport",[$start_day, $end_day]);
-        return $report;
+        $reports = RPC::call($session_id, "\\Seals\\Library\\RpcApi::getDayReport",[$start_day, $end_day]);
+        $res     = [];
+        foreach ($reports as $day => $report) {
+            $res[date("Y-m-d", strtotime($day))] = $report;
+        }
+        return $res;
     }
 
     public static function getDayReport(HttpResponse $response)
