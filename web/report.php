@@ -92,25 +92,24 @@ include "include/nav.php";
                       <th>Operate</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    <?php $reports = \Seals\Web\Logic\Node::getNodeDayReport($session_id, date("Ymd", time()-3*86400), date("Ymd"));
+                    <tbody class="report-list">
+                    <?php //$reports = \Seals\Web\Logic\Node::getNodeDayReport($session_id, "20170317", date("Ymd"));
                     //var_dump($reports);
-                    foreach ($reports as $day => $report) {
-                    ?>
-                    <tr>
-                      <th scope="row"><?php echo $day; ?></th>
-<!--                      <td>--><?php //echo $report["show"]; ?><!--</td>-->
-                      <td><?php echo $report["insert"]; ?>/<?php echo $report["write_rows"]; ?></td>
-                      <td><?php echo $report["delete"]; ?>/<?php echo $report["delete_rows"]; ?></td>
-                      <td><?php echo $report["update"]; ?>/<?php echo $report["update_rows"]; ?></td>
-                      <td><?php echo $report["select"]; ?></td>
-                      <td><?php echo $report["read_max"]; ?></td>
-                      <td><?php echo $report["write_max"]; ?></td>
-                      <td><?php echo $report["read_total"]; ?></td>
-                      <td><?php echo $report["write_total"]; ?></td>
-                      <td><a class="r-detail" href="#">Detail</a></td>
-                    </tr>
-                    <?php } ?>
+//                    foreach ($reports as $day => $report) {
+//                    ?>
+<!--                    <tr>-->
+<!--                      <th scope="row">--><?php //echo $day; ?><!--</th>-->
+<!--                      <td>--><?php //echo $report["insert"]; ?><!--/--><?php //echo $report["write_rows"]; ?><!--</td>-->
+<!--                      <td>--><?php //echo $report["delete"]; ?><!--/--><?php //echo $report["delete_rows"]; ?><!--</td>-->
+<!--                      <td>--><?php //echo $report["update"]; ?><!--/--><?php //echo $report["update_rows"]; ?><!--</td>-->
+<!--                      <td>--><?php //echo $report["select"]; ?><!--</td>-->
+<!--                      <td>--><?php //echo $report["read_max"]; ?><!--</td>-->
+<!--                      <td>--><?php //echo $report["write_max"]; ?><!--</td>-->
+<!--                      <td>--><?php //echo $report["read_total"]; ?><!--</td>-->
+<!--                      <td>--><?php //echo $report["write_total"]; ?><!--</td>-->
+<!--                      <td><a class="r-detail" href="#">Detail</a></td>-->
+<!--                    </tr>-->
+<!--                    --><?php //} ?>
 <!--                    <tr>-->
 <!--                      <th scope="row">2017-03-02</th>-->
 <!--                      <td>1</td>-->
@@ -148,6 +147,47 @@ include "include/nav.php";
         </div>
         <!-- /page content -->
 <script>
+
+  function getReportList(start_day, end_day)
+  {
+     var session_id = "<?php echo $session_id; ?>";
+    $.ajax({
+      type : "POST",
+      data : {
+        "session_id" : session_id,
+        "start_day"  : start_day,
+        "end_day"    : end_day
+      },
+      url : "/service/node/day/report",
+      success : function(msg) {
+        var list = $(".report-list");
+        list.html("");
+        var data = JSON.parse(msg);
+        for (var day in data) {
+          if (!data.hasOwnProperty(day))
+              continue;
+          var row = data[day];
+          list.append(
+              "<tr>"+
+              "<th scope=\"row\">"+day+"</th>"+
+          "<td>"+row.insert+"/"+row.write_rows+"</td>"+
+          "<td>"+row.delete+"/"+row.delete_rows+"</td>"+
+          "<td>"+row.update+"/"+row.update_rows+"</td>"+
+          "<td>"+row.select+"</td>"+
+          "<td>"+row.read_max+"</td>"+
+          "<td>"+row.write_max+"</td>"+
+          "<td>"+row.read_total+"</td>"+
+          "<td>"+row.write_total+"</td>"+
+          "<td><a class=\"r-detail\" href=\"#\">Detail</a></td>"+
+          "</tr>");
+        }
+      }
+    });
+  }
+
+  
+  
+  
   function init_daterangepicker() {
 
     if( typeof ($.fn.daterangepicker) === 'undefined'){ return; }
@@ -164,6 +204,7 @@ include "include/nav.php";
     var __time = new Date().getTime()/1000;
     var __min_date = new WingDate("d/m/Y",__time-86400*365*10).toString();
     console.log("min date",__min_date);
+
     var optionSet1 = {
       startDate: moment().subtract(29, 'days'),
       endDate: moment(),
@@ -212,7 +253,11 @@ include "include/nav.php";
       console.log("hide event fired");
     });
     $('#reportrange').on('apply.daterangepicker', function(ev, picker) {
-      console.log("apply event fired, start/end dates are " + picker.startDate.format('YYYY-MM-DD') + " to " + picker.endDate.format('YYYY-MM-DD'));
+      console.log("apply event fired, start/end dates are " +
+          picker.startDate.format('YYYY-MM-DD') + " to " +
+          picker.endDate.format('YYYY-MM-DD'));
+      getReportList(picker.startDate.format('YYYYMMDD'),picker.endDate.format('YYYYMMDD'));
+
     });
     $('#reportrange').on('cancel.daterangepicker', function(ev, picker) {
       console.log("cancel event fired");
@@ -229,6 +274,7 @@ include "include/nav.php";
 
   }
 $(document).ready(function(){
+  getReportList(moment().subtract(29, 'days').format("YYYYMMDD"),moment().format("YYYYMMDD"));
   init_daterangepicker();
 });
 </script>

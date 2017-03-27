@@ -149,7 +149,7 @@ function openGenerallog(dom)
 
     $.ajax({
         type :"POST",
-        url  : "/service/generallog/open",
+        url  : "/service/node/generallog/open",
         data : {
             "group_id"  : group_id,
             "session_id": session_id,

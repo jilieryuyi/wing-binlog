@@ -291,5 +291,13 @@ class Node
         return $report;
     }
 
+    public static function getDayReport(HttpResponse $response)
+    {
+        $session_id = $response->post("session_id");
+        $start_day  = $response->post("start_day");
+        $end_day    = $response->post("end_day");
+        return self::getNodeDayReport($session_id, $start_day, $end_day);
+    }
+
 
 }
