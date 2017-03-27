@@ -307,7 +307,7 @@ class Node
         $res        = [];
         foreach ($report as $hour => $item) {
             $time = strtotime($hour."0000");
-            $hour = date("H:00", $time)."-".date("H:59",$time);
+            $hour = date("H:00", $time)."-".date("H:00",$time+3600);
             $res[$hour] = $item;
         }
         unset($report);
