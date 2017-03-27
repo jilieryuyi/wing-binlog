@@ -73,7 +73,7 @@ class User
     public function save($timeout = 0)
     {
         $file = new File(__APP_DIR__."/data/user");
-        return $file->set(substr(md5(md5($this->user_name)),2,16), ["name" => $this->user_name,"password" => $this->password, "role" => $this->role], $timeout);
+        return $file->set(substr(md5(md5($this->user_name)),2,16).".user", ["name" => $this->user_name,"password" => $this->password, "role" => $this->role], $timeout);
     }
 
     public static function add($user_name, $password, $role, $timeout = 0)
@@ -83,14 +83,14 @@ class User
 
         $pwd  = password_hash($password, PASSWORD_DEFAULT);
         $file = new File(__APP_DIR__."/data/user");
-        return $file->set(substr(md5(md5($user_name)),2,16), ["name" => $user_name,"password" => $pwd, "role" => $role], $timeout);
+        return $file->set(substr(md5(md5($user_name)),2,16).".user", ["name" => $user_name,"password" => $pwd, "role" => $role], $timeout);
     }
 
     public static function getInfo($user_name)
     {
         $user_name = trim($user_name);
         $file      = new File(__APP_DIR__."/data/user");
-        return $file->get(substr(md5(md5($user_name)),2,16));
+        return $file->get(substr(md5(md5($user_name)),2,16).".user");
     }
 
 

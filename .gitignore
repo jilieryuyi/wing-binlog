@@ -34,3 +34,4 @@
 /master.status
 /data/table/*.table
 /data/report/*.report
+/data/user/*.user
