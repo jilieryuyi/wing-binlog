@@ -339,13 +339,13 @@ class RpcApi
         return $res;
     }
 
-    public static function getDayDetailReport()
+    public static function getDayDetailReport($day)
     {
         $report = new Report(Context::instance()->redis_local);
-
+        //Context::instance()->logger->debug(__FUNCTION__."=>".$day);
         $res        = [];
-        $start_time = strtotime(date("Y-m-d 00:00:00"));
-        $end_time   = strtotime(date("Y-m-d 23:59:59"));
+        $start_time = strtotime(date("Y-m-d 00:00:00", strtotime($day)));
+        $end_time   = strtotime(date("Y-m-d 23:59:59", strtotime($day)));
 
         $events      = ["show","set","select","update","delete","insert"];
         $event_types = ["write_rows", "delete_rows", "update_rows"];

@@ -302,7 +302,7 @@ class Node
     public static function getDayDetailReport(HttpResponse $response)
     {
         $session_id = $response->post("session_id");
-        $day        = $response->post("start_day");
+        $day        = $response->post("day");
         $report     = RPC::call($session_id, "\\Seals\\Library\\RpcApi::getDayDetailReport",[$day]);
         $res        = [];
         foreach ($report as $hour => $item) {
