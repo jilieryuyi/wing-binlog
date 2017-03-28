@@ -1,5 +1,6 @@
 <?php
 $user_name = $_GET["name"];
+$user_info = \Seals\Web\Logic\User::getInfo($user_name);
 include "include/nav.php";
 ?>
 
@@ -43,14 +44,14 @@ include "include/nav.php";
                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">User Name <span class="required">*</span>
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                          <input type="text" id="first-name" required="required" class="form-control col-md-7 col-xs-12" value="<?php echo $user_name; ?>">
+                          <input type="text" name="user_name" required="required" class="form-control col-md-7 col-xs-12" value="<?php echo $user_name; ?>">
                         </div>
                       </div>
                       <div class="form-group">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Password <span class="required">*</span>
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                          <input type="text" id="last-name" name="last-name" required="required" class="form-control col-md-7 col-xs-12">
+                          <input data-is-encode="1" data="<?php echo $user_info["password"]; ?>" value="" type="text"  name="password" required="required" class="form-control col-md-7 col-xs-12">
                         </div>
                       </div>
 <!--                      <div class="form-group">-->
@@ -110,5 +111,11 @@ include "include/nav.php";
         </div>
         <!-- /page content -->
 <script>
+  $(document).ready(function(){
+    window.setTimeout(function(){
+      $('[name="password"]').attr("type","password");
+      $('[name="password"]').val($('[name="password"]').attr("data"));
+    },200);
+  });
 </script>
 <?php include "include/footer.php";?>

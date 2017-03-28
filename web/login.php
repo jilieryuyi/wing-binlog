@@ -37,7 +37,9 @@ if (isset($_POST["Username"]) && isset($_POST["Password"])) {
     <link href="../build/css/custom.min.css" rel="stylesheet">
     <link href="css/public.css" rel="stylesheet">
 
-    <script type="text/javascript" src="../js/js.cookie.js"></script>
+    <script type="text/javascript" src="js/js.cookie.js"></script>
+    <script type="text/javascript" src="js/history.js"></script>
+
     <script>
       var appid = "<?php echo $appid; ?>";
       var token = "<?php echo $token; ?>";
@@ -45,7 +47,8 @@ if (isset($_POST["Username"]) && isset($_POST["Password"])) {
       if (appid != "" && token != "") {
         Cookies.set('wing-binlog-appid', appid, { expires: 1 });
         Cookies.set('wing-binlog-token', token, { expires: 1 });
-        window.location.href = "index.php";
+        //window.location.href = "index.php";
+        History.back();
       }
     </script>
   </head>

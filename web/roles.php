@@ -8,7 +8,7 @@ include "include/nav.php";
 
             <div class="page-title">
               <div class="title_left">
-                <h3>Users manager</h3>
+                <h3>Roles manager</h3>
               </div>
 
               <div class="title_right">
@@ -27,7 +27,8 @@ include "include/nav.php";
               <div class="col-md-12">
               <div class="x_panel">
                 <div class="x_title">
-                  <h2 style="width: 60px;">Users</h2> <button type="button" class="btn btn-success btn-sm">Add</button>
+                  <h2 style="width: 60px;">Roles</h2>
+                  <button type="button" class="btn btn-success btn-sm">Add</button>
                   <ul class="nav navbar-right panel_toolbox">
                     <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                     </li>
@@ -51,11 +52,8 @@ include "include/nav.php";
                     <thead>
                     <tr>
                       <th>Index</th>
-                      <th>User Name</th>
                       <th>Role</th>
                       <th>Created</th>
-                      <th>Login Times</th>
-                      <th>Last Login</th>
                       <th>Operate</th>
                     </tr>
                     </thead>
@@ -66,12 +64,10 @@ include "include/nav.php";
                     ?>
                     <tr>
                       <th scope="row"><?php echo ($index+1); ?></th>
-                      <td><?php echo $user["name"]; ?></td>
                       <td><?php echo $user["role"]; ?></td>
                       <td><?php echo $user["created"]; ?></td>
-                      <td><?php echo $user["times"]; ?></td>
-                      <td><?php echo $user["last_login"]; ?></td>
                       <td>
+                        <a class="btn btn-primary btn-sm" href="user.edit.php?name=<?php echo urlencode($user["name"]); ?>">Detail</a>
                         <a class="btn btn-primary btn-sm" href="user.edit.php?name=<?php echo urlencode($user["name"]); ?>">Edit</a>
                         <a class="btn btn-danger btn-sm" href="#">Del</a>
                         <a class="btn btn btn-warning btn-sm" href="#">Power</a>
