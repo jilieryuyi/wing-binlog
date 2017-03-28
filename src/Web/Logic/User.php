@@ -200,10 +200,26 @@ class User
         unset($dir);
 
         $role_name = urldecode($response->post("role_name"));
+        $old_role  = urldecode($response->post("old_role"));
         $pages     = json_decode(urldecode($response->post("pages")));
 
+        $old_role  = trim($old_role);
+        $role_name = trim($role_name);
+
         $file = new File(__APP_DIR__."/data/user/roles");
+
+        if ($old_role != $role_name) {
+            $file->del($old_role.".role");
+        }
+
         $file->set($role_name.".role", $pages);
+    }
+
+    public static function roleDelete(HttpResponse $response)
+    {
+        $role = urldecode($response->post("role"));
+        $file = new File(__APP_DIR__."/data/user/roles");
+        $file->del($role.".role");
     }
 
     public static function getAllRoles()

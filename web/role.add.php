@@ -132,10 +132,11 @@ include "include/nav.php";
     $.ajax({
       type : "POST",
       data : {
+        old_role  : role_name,
         role_name : role_name,
         pages : (JSON.stringify(pages))
       },
-      url  : "/services/user/role/add",
+      url  : "/services/role/add",
       success : function(msg) {
 
       }

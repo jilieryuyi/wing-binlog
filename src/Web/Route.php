@@ -45,10 +45,11 @@ class Route
 
             "/service/master/restart"        => "\\Seals\\Web\\Logic\\Master::restart",
             "/service/master/update"         => "\\Seals\\Web\\Logic\\Master::update",
-            "/services/user/role/add"        => "\\Seals\\Web\\Logic\\User::addRole",
             "/services/user/update"        => "\\Seals\\Web\\Logic\\User::update",
             "/services/user/delete"=> "\\Seals\\Web\\Logic\\User::delete",
             "/services/user/add"=> "\\Seals\\Web\\Logic\\User::addUser",
+            "/services/role/add"        => "\\Seals\\Web\\Logic\\User::addRole",
+            "/services/role/delete"     => "\\Seals\\Web\\Logic\\User::roleDelete",
         ]
     ];
 

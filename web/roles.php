@@ -58,7 +58,7 @@ include "include/nav.php";
                       <td>
                         <a class="btn btn-primary btn-sm" href="role.detail.php?role=<?php echo urlencode($role["name"]); ?>">Detail</a>
                         <a class="btn btn-primary btn-sm" href="role.edit.php?role=<?php echo urlencode($role["name"]); ?>">Edit</a>
-                        <a class="btn btn-danger btn-sm" href="#">Delete</a>
+                        <a class="btn btn-danger btn-sm" onclick="deleteRole(this)" data-role="<?php echo $role["name"]; ?>">Delete</a>
                       </td>
                     </tr>
                     <?php } ?>
@@ -99,5 +99,27 @@ include "include/nav.php";
         </div>
         <!-- /page content -->
 <script>
+  function deleteRole(dom) {
+
+    var role = $(dom).attr("data-role");
+    if (!window.confirm("Confirm delete role <"+role+"> ?"))
+      return;
+
+    if (!Wing.lock())
+      return;
+
+    showDoing(dom);
+
+    $.ajax({
+      type : "POST",
+      url : "/services/role/delete",
+      data : {
+        role : role
+      },
+      success:function(msg){
+        $(dom).parents("tr").remove();
+      }
+    });
+  }
 </script>
 <?php include "include/footer.php";?>

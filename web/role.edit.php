@@ -27,7 +27,7 @@ include "include/nav.php";
                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Role Name <span class="required">*</span>
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                          <input type="text" id="role-name" required="required" class="form-control col-md-7 col-xs-12" value="<?php echo $role; ?>">
+                          <input type="text" id="role-name" required="required" class="form-control col-md-7 col-xs-12" data-role="<?php echo $role; ?>" value="<?php echo $role; ?>">
                         </div>
                       </div>
 
@@ -104,6 +104,7 @@ include "include/nav.php";
     showDoing(dom);
 
     var role_name = $("#role-name").val();
+    var old_role  =  $("#role-name").attr("data-role");
 
     var pages = [];
     $(".p-item:checked").each(function(i,v){
@@ -113,10 +114,11 @@ include "include/nav.php";
     $.ajax({
       type : "POST",
       data : {
+        old_role  : old_role,
         role_name : role_name,
-        pages : (JSON.stringify(pages))
+        pages     : JSON.stringify(pages)
       },
-      url  : "/services/user/role/add",
+      url  : "/services/role/add",
       success : function(msg) {
 
       }
