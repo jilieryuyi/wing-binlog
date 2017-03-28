@@ -44,14 +44,14 @@ include "include/nav.php";
                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">User Name <span class="required">*</span>
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                          <input type="text" name="user_name" required="required" class="form-control col-md-7 col-xs-12" value="<?php echo $user_name; ?>">
+                          <input type="text" id="user_name" data="<?php echo $user_name; ?>" name="user_name" required="required" class="form-control col-md-7 col-xs-12" value="<?php echo $user_name; ?>">
                         </div>
                       </div>
                       <div class="form-group">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Password <span class="required">*</span>
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                          <input data-is-encode="1" data="<?php echo $user_info["password"]; ?>" value="" type="text"  name="password" required="required" class="form-control col-md-7 col-xs-12">
+                          <input data-is-encode="1" id="password" data="<?php echo $user_info["password"]; ?>" value="" type="text"  name="password" required="required" class="form-control col-md-7 col-xs-12">
                         </div>
                       </div>
 <!--                      <div class="form-group">-->
@@ -64,41 +64,19 @@ include "include/nav.php";
                       <div class="form-group">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12">Role <span class="required">*</span></label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                          <select class="form-control">
-                            <option>Choose option</option>
-                            <option>Option one</option>
-                            <option>Option two</option>
-                            <option>Option three</option>
-                            <option>Option four</option>
+                          <select id="role" class="form-control">
+                            <?php $roles = \Seals\Web\Logic\User::getAllRoles();
+                            foreach ($roles as $role) {
+                            ?>
+                            <option><?php echo $role["name"]; ?></option>
+                            <?php } ?>
                           </select>
                         </div>
                       </div>
-<!--                      <div class="form-group">-->
-<!--                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Gender</label>-->
-<!--                        <div class="col-md-6 col-sm-6 col-xs-12">-->
-<!--                          <div id="gender" class="btn-group" data-toggle="buttons">-->
-<!--                            <label class="btn btn-default" data-toggle-class="btn-primary" data-toggle-passive-class="btn-default">-->
-<!--                              <input type="radio" name="gender" value="male" data-parsley-multiple="gender"> &nbsp; Male &nbsp;-->
-<!--                            </label>-->
-<!--                            <label class="btn btn-primary" data-toggle-class="btn-primary" data-toggle-passive-class="btn-default">-->
-<!--                              <input type="radio" name="gender" value="female" data-parsley-multiple="gender"> Female-->
-<!--                            </label>-->
-<!--                          </div>-->
-<!--                        </div>-->
-<!--                      </div>-->
-<!--                      <div class="form-group">-->
-<!--                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Date Of Birth <span class="required">*</span>-->
-<!--                        </label>-->
-<!--                        <div class="col-md-6 col-sm-6 col-xs-12">-->
-<!--                          <input id="birthday" class="date-picker form-control col-md-7 col-xs-12" required="required" type="text">-->
-<!--                        </div>-->
-<!--                      </div>-->
                       <div class="ln_solid"></div>
                       <div class="form-group">
                         <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
-<!--                          <button class="btn btn-primary" type="button">Cancel</button>-->
-<!--                          <button class="btn btn-primary" type="reset">Reset</button>-->
-                          <button type="submit" class="btn btn-success">Save Update</button>
+                          <button type="button" onclick="updateUser(this)" class="btn btn-success">Save Update</button>
                         </div>
                       </div>
 
@@ -111,6 +89,35 @@ include "include/nav.php";
         </div>
         <!-- /page content -->
 <script>
+  function updateUser(dom)
+  {
+      if (!Wing.lock())
+        return;
+
+    showDoing(dom);
+
+    var old_user  = $("#user_name").attr("data");
+    var user_name = $("#user_name").val();
+    var old_pass  = $("#password").attr("data");
+    var password  = $("#password").val();
+    var role      = $("#role:selected").html();
+
+    $.ajax({
+      type: "POST",
+      data : {
+        old_user  : old_user,
+        user_name : user_name,
+        old_pass  : old_pass,
+        password  : password,
+        role      : role
+      },
+      url : "/services/user/update",
+      success:function(msg){
+        //window.location.reload();
+      }
+    });
+
+  }
   $(document).ready(function(){
     window.setTimeout(function(){
       $('[name="password"]').attr("type","password");

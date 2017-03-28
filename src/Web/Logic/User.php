@@ -127,6 +127,13 @@ class User
         return [$appid, $token];
     }
 
+    public static function loginOut()
+    {
+        $appid   = $_COOKIE["wing-binlog-appid"];
+        $file    = new \Seals\Cache\File(__APP_DIR__."/data/user/login");
+        $file->del($appid.".token");
+    }
+
     public static function checkToken($appid, $token)
     {
         if (!$appid || !$token)
@@ -137,10 +144,9 @@ class User
         return $_token == $token;
     }
 
-    public static function getUserName($appid)
+    public static function getUserName()
     {
-        if (!$appid)
-            return "";
+        $appid   = $_COOKIE["wing-binlog-appid"];
         $file    = new \Seals\Cache\File(__APP_DIR__."/data/user/login");
         list($user_name,) = $file->get($appid.".token");
         unset($appid, $file);
@@ -226,6 +232,42 @@ class User
     {
         $file   = new File(__APP_DIR__.'/data/user/roles/');
         return $file->get($role_name.".role");
+    }
+
+    public static function update(HttpResponse $response)
+    {
+        $user_name = $response->post("user_name");
+        $old_pass  = $response->post("old_pass");
+        $password  = $response->post("password");
+        $old_user  = $response->post("old_user");
+        $role      = $response->post("role");
+
+        $user_name = trim(urldecode($user_name));
+        $old_pass  = trim(urldecode($old_pass));
+        $password  = trim(urldecode($password));
+        $old_user  = trim(urldecode($old_user));
+        $role      = trim(urldecode($role));
+
+        $pwd       = $old_pass;
+
+        if ($old_pass != $password)
+            $pwd  = password_hash($password, PASSWORD_DEFAULT);
+
+        $file = new File(__APP_DIR__."/data/user");
+
+        if ($user_name != $old_user) {
+            //if update user_name, del the old
+            $file->del(substr(md5(md5($old_user)),2,16).".user");
+        }
+
+        $success = $file->set(substr(md5(md5($user_name)),2,16).".user", ["name" => $user_name,"password" => $pwd, "role" => $role], 0);
+
+        //if update current user, logout
+        if ($old_user == self::getUserName()) {
+            self::loginOut();
+        }
+
+        return $success;
     }
 
 

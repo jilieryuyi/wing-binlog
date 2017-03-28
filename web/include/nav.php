@@ -112,7 +112,7 @@
             </div>
             <div class="profile_info">
                 <span>Welcome,</span>
-                <h2>Admin</h2>
+                <h2><?php echo \Seals\Web\Logic\User::getUserName(); ?></h2>
             </div>
         </div>
         <!-- /menu profile quick info -->

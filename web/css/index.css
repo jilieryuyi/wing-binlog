@@ -6,6 +6,7 @@ ul {
     border-bottom: #ddd solid 1px;
     line-height: 25px !important;
     height: 25px !important;
+    list-style: none;
 }
 div.item {
     height: 35px;

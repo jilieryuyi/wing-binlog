@@ -246,6 +246,7 @@ class HttpResponse
         $_GET     = $this->getAll();
         $_POST    = $this->postAll();
         $_REQUEST = array($_GET,$_POST);
+        $_COOKIE  = $this->getCookies();
 
         //check is login
         $appid       = $this->getCookie("wing-binlog-appid");
@@ -292,7 +293,7 @@ class HttpResponse
                 }
             }
         }
-        unset($_GET,$_POST,$_REQUEST);
+        unset($_GET, $_POST, $_REQUEST, $_COOKIE);
 
         //输出http headers
         $headers            = [
