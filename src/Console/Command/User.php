@@ -12,7 +12,8 @@ class User extends Command
     protected function configure()
     {
         $this
-            ->setName('user:op')
+            ->setName('user:add')
+            ->setAliases(["user:update"])
             ->addOption("name", null, InputOption::VALUE_REQUIRED, "用户名")
             ->addOption("password", null, InputOption::VALUE_REQUIRED, "密码")
             ->addOption("role", null, InputOption::VALUE_REQUIRED, "角色")
@@ -31,6 +32,16 @@ class User extends Command
 
         if (!$name || !$password || !$role) {
             echo "params error\r\n";
+            exit;
+        }
+
+        $roles = \Seals\Web\Logic\User::getAllRoles();
+        if (!in_array($role, $roles)) {
+            echo "role <".$role."> does not exists\r\n";
+            echo "system roles:\r\n";
+            foreach ($roles as $role) {
+                echo "===> ",$role["name"],"\r\n";
+            }
             exit;
         }
 

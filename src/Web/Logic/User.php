@@ -9,6 +9,8 @@ use Wing\FileSystem\WDir;
  * User: yuyi
  * Date: 17/3/21
  * Time: 15:00
+ *
+ * user object
  */
 class User
 {
@@ -16,6 +18,9 @@ class User
     protected $password = null;
     protected $role = null;
 
+    /**
+     * construct by user name
+     */
     public function __construct($user_name)
     {
         $this->user_name = trim($user_name);
@@ -29,6 +34,11 @@ class User
 
     }
 
+    /**
+     * use for login, check password is ok
+     *
+     * @return bool
+     */
     public function checkPassword($password)
     {
         if (!$password)
@@ -50,6 +60,11 @@ class User
         return $success;
     }
 
+    /**
+     * get current user role
+     *
+     * @return string
+     */
     public function getRole()
     {
         return $this->role;
