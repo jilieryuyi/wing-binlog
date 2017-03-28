@@ -29,21 +29,6 @@ include "include/nav.php";
                 <div class="x_title">
                   <h2 style="width: 60px;">Roles</h2>
                   <a class="btn btn-success btn-sm" href="role.add.php">Add</a>
-                  <ul class="nav navbar-right panel_toolbox">
-                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                    </li>
-                    <li class="dropdown">
-                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                      <ul class="dropdown-menu" role="menu">
-                        <li><a href="#">Settings 1</a>
-                        </li>
-                        <li><a href="#">Settings 2</a>
-                        </li>
-                      </ul>
-                    </li>
-                    <li><a class="close-link"><i class="fa fa-close"></i></a>
-                    </li>
-                  </ul>
                   <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
@@ -53,6 +38,7 @@ include "include/nav.php";
                     <tr>
                       <th>Index</th>
                       <th>Role</th>
+                      <th>Powers (has/all)</th>
                       <th>Created</th>
                       <th>Operate</th>
                     </tr>
@@ -60,18 +46,19 @@ include "include/nav.php";
                     <tbody class="report-list">
                     <?php
                     $roles = \Seals\Web\Logic\User::getAllRoles();
+                    $pages = count(\Seals\Web\Route::getRoutes()["post"])+count(\Seals\Web\Route::getAllPage());
 //                    var_dump($roles);
                     foreach ($roles as $index => $role) {
                     ?>
                     <tr>
                       <th scope="row"><?php echo ($index+1); ?></th>
                       <td><?php echo $role["name"]; ?></td>
+                      <td><?php echo count($role["pages"])."/".$pages; ?></td>
                       <td><?php echo $role["created"]; ?></td>
                       <td>
                         <a class="btn btn-primary btn-sm" href="role.detail.php?role=<?php echo urlencode($role["name"]); ?>">Detail</a>
                         <a class="btn btn-primary btn-sm" href="role.edit.php?role=<?php echo urlencode($role["name"]); ?>">Edit</a>
-                        <a class="btn btn-danger btn-sm" href="#">Del</a>
-                        <a class="btn btn btn-warning btn-sm" href="#">Power</a>
+                        <a class="btn btn-danger btn-sm" href="#">Delete</a>
                       </td>
                     </tr>
                     <?php } ?>

@@ -8,7 +8,12 @@ include "include/nav.php";
 
             <div class="page-title">
               <div class="title_left">
-                <h3>User edit</h3>
+                <h3>Role add</h3>
+                <small>
+                  <a href="roles.php" style="text-decoration: underline;     float: left;
+    margin-top: 7px;
+    margin-left: 12px;">Roles manager</a>
+                </small>
               </div>
             </div>
             <div class="clearfix"></div>
