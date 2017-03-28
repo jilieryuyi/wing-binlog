@@ -27,7 +27,7 @@ include "include/nav.php";
               <div class="col-md-12">
               <div class="x_panel">
                 <div class="x_title">
-                  <h2 style="width: 60px;">Users</h2> <button type="button" class="btn btn-success btn-sm">Add</button>
+                  <h2 style="width: 60px;">Users</h2> <a href="user.add.php" class="btn btn-success btn-sm">Add</a>
                   <ul class="nav navbar-right panel_toolbox">
                     <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                     </li>

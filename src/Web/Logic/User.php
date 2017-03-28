@@ -277,5 +277,17 @@ class User
         return $file->del(substr(md5(md5($user)),2,16).".user");
     }
 
+    public static function addUser(HttpResponse $response)
+    {
+        $user_name = $response->post("user_name");
+        $password  = $response->post("password");
+        $role      = $response->post("role");
+
+        $user_name = trim(urldecode($user_name));
+        $password  = trim(urldecode($password));
+        $role      = trim(urldecode($role));
+
+        return self::add($user_name, $password, $role );
+    }
 
 }

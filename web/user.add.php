@@ -1,24 +1,15 @@
 <?php
-$user_name = $_GET["name"];
-$user_info = \Seals\Web\Logic\User::getInfo($user_name);
 include "include/nav.php";
 ?>
 
   <!-- page content -->
         <div class="right_col" role="main">
           <div class="">
-
-            <div class="page-title">
-              <div class="title_left">
-                <h3>User edit</h3>
-              </div>
-            </div>
-            <div class="clearfix"></div>
             <div class="row">
               <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
                   <div class="x_title">
-                    <h2><?php echo $user_name; ?></h2>
+                    <h2>User add</h2>
                     <ul class="nav navbar-right panel_toolbox">
                       <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                       </li>
@@ -44,27 +35,21 @@ include "include/nav.php";
                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">User Name <span class="required">*</span>
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                          <input type="text" id="user_name" data="<?php echo $user_name; ?>" name="user_name" required="required" class="form-control col-md-7 col-xs-12" value="<?php echo $user_name; ?>">
+                          <input type="text" id="user_name" name="user_name" required="required" class="form-control col-md-7 col-xs-12"/>
                         </div>
                       </div>
                       <div class="form-group">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Password <span class="required">*</span>
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                          <input data-is-encode="1" id="password" data="<?php echo $user_info["password"]; ?>" value="" type="text"  name="password" required="required" class="form-control col-md-7 col-xs-12">
+                          <input data-is-encode="1" id="password" value="" type="text"  name="password" required="required" class="form-control col-md-7 col-xs-12">
                         </div>
                       </div>
-<!--                      <div class="form-group">-->
-<!--                        <label for="middle-name" class="control-label col-md-3 col-sm-3 col-xs-12">Middle Name / Initial</label>-->
-<!--                        <div class="col-md-6 col-sm-6 col-xs-12">-->
-<!--                          <input id="middle-name" class="form-control col-md-7 col-xs-12" type="text" name="middle-name">-->
-<!--                        </div>-->
-<!--                      </div>-->
 
                       <div class="form-group">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12">Role <span class="required">*</span></label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                          <select id="user_role" class="form-control">
+                          <select id="role" class="form-control">
                             <?php $roles = \Seals\Web\Logic\User::getAllRoles();
                             foreach ($roles as $role) {
                             ?>
@@ -76,9 +61,8 @@ include "include/nav.php";
                       <div class="ln_solid"></div>
                       <div class="form-group">
                         <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
-                          <button style="float: left;" type="button" onclick="updateUser(this)" class="btn btn-success">Save Update</button>
+                          <button style="float: left;" type="button" onclick="addUser(this)" class="btn btn-success">Add User</button>
                           <a style="float: left;margin-top: 15px;margin-left: 12px;" href="role.add.php">Add Role</a>
-
                         </div>
                       </div>
 
@@ -91,36 +75,25 @@ include "include/nav.php";
         </div>
         <!-- /page content -->
 <script>
-  function updateUser(dom)
+  function addUser(dom)
   {
       if (!Wing.lock())
         return;
 
     showDoing(dom);
 
-    var old_user  = $("#user_name").attr("data");
     var user_name = $("#user_name").val();
-    var old_pass  = $("#password").attr("data");
     var password  = $("#password").val();
-    var role      = $("#user_role option:selected").html();
+    var role      = $("#role option:selected").html();
 
-    console.log({
-      old_user  : old_user,
-      user_name : user_name,
-      old_pass  : old_pass,
-      password  : password,
-      role      : role
-    });
     $.ajax({
       type: "POST",
       data : {
-        old_user  : old_user,
         user_name : user_name,
-        old_pass  : old_pass,
         password  : password,
         role      : role
       },
-      url : "/services/user/update",
+      url : "/services/user/add",
       success:function(msg){
         //window.location.reload();
       }

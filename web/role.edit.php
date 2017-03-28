@@ -113,7 +113,7 @@ include "include/nav.php";
     $.ajax({
       type : "POST",
       data : {
-        role_name : encodeURIComponent(role_name),
+        role_name : role_name,
         pages : (JSON.stringify(pages))
       },
       url  : "/services/user/role/add",
@@ -126,7 +126,7 @@ include "include/nav.php";
   $(document).ready(function(){
     $(".select-all").on("click", function(){
         $(".p-item").prop("checked", $(this).prop("checked"));
-      $(".select-all").prop("checked", $(this).prop("checked"));
+        $(".select-all").prop("checked", $(this).prop("checked"));
     });
 
     if ($(".p-item:checked").length == $(".p-item").length)

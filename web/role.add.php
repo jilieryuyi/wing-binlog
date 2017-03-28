@@ -132,7 +132,7 @@ include "include/nav.php";
     $.ajax({
       type : "POST",
       data : {
-        role_name : encodeURIComponent(role_name),
+        role_name : role_name,
         pages : (JSON.stringify(pages))
       },
       url  : "/services/user/role/add",
