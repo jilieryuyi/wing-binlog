@@ -222,5 +222,11 @@ class User
         return $roles;
     }
 
+    public static function roleInfo($role_name)
+    {
+        $file   = new File(__APP_DIR__.'/data/user/roles/');
+        return $file->get($role_name.".role");
+    }
+
 
 }

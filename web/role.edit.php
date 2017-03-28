@@ -1,4 +1,6 @@
 <?php
+$role = urldecode($_GET["role"]);
+
 include "include/nav.php";
 ?>
 
@@ -42,7 +44,7 @@ include "include/nav.php";
                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Role Name <span class="required">*</span>
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                          <input type="text" id="role-name" required="required" class="form-control col-md-7 col-xs-12" value="">
+                          <input type="text" id="role-name" required="required" class="form-control col-md-7 col-xs-12" value="<?php echo $role; ?>">
                         </div>
                       </div>
 
@@ -61,12 +63,13 @@ include "include/nav.php";
                           </div>
 
                           <?php
+                          $role_powsers = \Seals\Web\Logic\User::roleInfo($role);
                           $pages = \Seals\Web\Route::getAllPage();
                           foreach ($pages as $page) {
                           ?>
                           <div class="checkbox">
                             <label>
-                              <input type="checkbox" value="" class="p-item"> <span class="page"><?php echo $page; ?></span>
+                              <input type="checkbox" <?php if (in_array($page,$role_powsers))echo "checked"; ?> value="" class="p-item"> <span class="page"><?php echo $page; ?></span>
                             </label>
                           </div>
 
@@ -79,7 +82,7 @@ include "include/nav.php";
                           ?>
                           <div class="checkbox">
                             <label>
-                              <input type="checkbox" value="" class="p-item"> <span class="page"><?php echo $route; ?></span>
+                              <input type="checkbox" <?php if (in_array($route,$role_powsers))echo "checked"; ?> value="" class="p-item"> <span class="page"><?php echo $route; ?></span>
                             </label>
                           </div>
                             <?php }} ?>
@@ -96,7 +99,7 @@ include "include/nav.php";
                       <div class="ln_solid"></div>
                       <div class="form-group">
                         <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
-                          <button type="button" style="float: left;" onclick="addRole(this)" class="btn btn-success">Add</button>
+                          <button type="button" style="float: left;" onclick="addRole(this)" class="btn btn-success">Save Update</button>
                           <a href="roles.php" style="text-decoration: underline; float: left; margin: 15px 0 0 12px;">Roles manager</a>
                         </div>
                       </div>
@@ -142,6 +145,9 @@ include "include/nav.php";
         $(".p-item").prop("checked", $(this).prop("checked"));
       $(".select-all").prop("checked", $(this).prop("checked"));
     });
+
+    if ($(".p-item:checked").length == $(".p-item").length)
+      $(".select-all").prop("checked", true);
   });
 </script>
 <?php include "include/footer.php";?>

@@ -68,8 +68,8 @@ include "include/nav.php";
                       <td><?php echo $role["name"]; ?></td>
                       <td><?php echo $role["created"]; ?></td>
                       <td>
-                        <a class="btn btn-primary btn-sm" href="user.edit.php?name=<?php echo urlencode($user["name"]); ?>">Detail</a>
-                        <a class="btn btn-primary btn-sm" href="user.edit.php?name=<?php echo urlencode($user["name"]); ?>">Edit</a>
+                        <a class="btn btn-primary btn-sm" href="role.detail.php?role=<?php echo urlencode($role["name"]); ?>">Detail</a>
+                        <a class="btn btn-primary btn-sm" href="role.edit.php?role=<?php echo urlencode($role["name"]); ?>">Edit</a>
                         <a class="btn btn-danger btn-sm" href="#">Del</a>
                         <a class="btn btn btn-warning btn-sm" href="#">Power</a>
                       </td>
