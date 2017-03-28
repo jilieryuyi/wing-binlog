@@ -270,5 +270,12 @@ class User
         return $success;
     }
 
+    public static function delete(HttpResponse $response)
+    {
+        $user = $response->post("user_name");
+        $file = new File(__APP_DIR__."/data/user");
+        return $file->del(substr(md5(md5($user)),2,16).".user");
+    }
+
 
 }

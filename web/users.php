@@ -73,37 +73,10 @@ include "include/nav.php";
                       <td><?php echo $user["last_login"]; ?></td>
                       <td>
                         <a class="btn btn-primary btn-sm" href="user.edit.php?name=<?php echo urlencode($user["name"]); ?>">Edit</a>
-                        <a class="btn btn-danger btn-sm" href="#">Del</a>
-                        <a class="btn btn btn-warning btn-sm" href="#">Power</a>
+                        <a class="btn btn-danger btn-sm" data-user="<?php echo $user["name"]; ?>" onclick="deleteUser(this)">Delete</a>
                       </td>
                     </tr>
                     <?php } ?>
-<!--                    <tr>-->
-<!--                      <th scope="row">2017-03-02</th>-->
-<!--                      <td>1</td>-->
-<!--                      <td>1/1000</td>-->
-<!--                      <td>100/1000</td>-->
-<!--                      <td>100/1000</td>-->
-<!--                      <td>100</td>-->
-<!--                      <td>100</td>-->
-<!--                      <td>100</td>-->
-<!--                      <td>100</td>-->
-<!--                      <td>100</td>-->
-<!--                      <td><a class="r-detail" href="#">Detail</a></td>-->
-<!--                    </tr>-->
-<!--                    <tr>-->
-<!--                      <th scope="row">2017-03-03</th>-->
-<!--                      <td>1</td>-->
-<!--                      <td>1/1000</td>-->
-<!--                      <td>100/1000</td>-->
-<!--                      <td>100/1000</td>-->
-<!--                      <td>100</td>-->
-<!--                      <td>100</td>-->
-<!--                      <td>100</td>-->
-<!--                      <td>100</td>-->
-<!--                      <td>100</td>-->
-<!--                      <td><a class="r-detail" href="#">Detail</a></td>-->
-<!--                    </tr>-->
                     </tbody>
                   </table>
 
@@ -115,5 +88,28 @@ include "include/nav.php";
         </div>
         <!-- /page content -->
 <script>
+  function deleteUser(dom)
+  {
+    var user_name = $(dom).attr("data-user");
+
+    if (!window.confirm("confirm delete user<"+user_name+"> ?"))
+      return;
+
+      if (!Wing.lock())
+        return;
+
+      showDoing(dom);
+
+      $.ajax({
+        type : "POST",
+        url : "/services/user/delete",
+        data : {
+          user_name : user_name
+        },
+        success:function(msg){
+          $(dom).parents("tr").remove();
+        }
+      });
+  }
 </script>
 <?php include "include/footer.php";?>

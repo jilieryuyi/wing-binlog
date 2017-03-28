@@ -47,7 +47,7 @@ class Route
             "/service/master/update"         => "\\Seals\\Web\\Logic\\Master::update",
             "/services/user/role/add"        => "\\Seals\\Web\\Logic\\User::addRole",
             "/services/user/update"        => "\\Seals\\Web\\Logic\\User::update",
-
+            "/services/user/delete"=> "\\Seals\\Web\\Logic\\User::delete",
         ]
     ];
 
