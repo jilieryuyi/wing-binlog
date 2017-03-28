@@ -1,6 +1,7 @@
 <?php namespace Seals\Web\Logic;
 use Seals\Cache\File;
 use Seals\Library\Context;
+use Seals\Web\HttpResponse;
 use Wing\FileSystem\WDir;
 
 /**
@@ -184,6 +185,41 @@ class User
             }
         }
         return $users;
+    }
+
+    public static function addRole(HttpResponse $response)
+    {
+        $dir = new WDir(__APP_DIR__."/data/user/roles");
+        $dir->mkdir();
+        unset($dir);
+
+        $role_name = urldecode($response->post("role_name"));
+        $pages     = json_decode(urldecode($response->post("pages")));
+
+        $file = new File(__APP_DIR__."/data/user/roles");
+        $file->set($role_name.".role", $pages);
+    }
+
+    public static function getAllRoles()
+    {
+        $path[] = __APP_DIR__.'/data/user/roles/*';
+        $roles  = [];
+        $file   = new File(__APP_DIR__.'/data/user/roles/');
+        while (count($path) != 0) {
+            $v = array_shift($path);
+            foreach(glob($v) as $item) {
+                if (is_file($item)) {
+                    $info  = pathinfo($item);
+                    $pages = $file->get($info["basename"]);
+                    $roles[] = [
+                        "name"       => $info["filename"],
+                        "pages"      => $pages,
+                        "created"    => date("Y-m-d H:i:s", filectime($item))
+                    ];
+                }
+            }
+        }
+        return $roles;
     }
 
 

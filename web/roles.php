@@ -59,13 +59,14 @@ include "include/nav.php";
                     </thead>
                     <tbody class="report-list">
                     <?php
-                    $users = \Seals\Web\Logic\User::all();
-                    foreach ($users as $index => $user) {
+                    $roles = \Seals\Web\Logic\User::getAllRoles();
+//                    var_dump($roles);
+                    foreach ($roles as $index => $role) {
                     ?>
                     <tr>
                       <th scope="row"><?php echo ($index+1); ?></th>
-                      <td><?php echo $user["role"]; ?></td>
-                      <td><?php echo $user["created"]; ?></td>
+                      <td><?php echo $role["name"]; ?></td>
+                      <td><?php echo $role["created"]; ?></td>
                       <td>
                         <a class="btn btn-primary btn-sm" href="user.edit.php?name=<?php echo urlencode($user["name"]); ?>">Detail</a>
                         <a class="btn btn-primary btn-sm" href="user.edit.php?name=<?php echo urlencode($user["name"]); ?>">Edit</a>

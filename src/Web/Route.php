@@ -20,8 +20,8 @@ class Route
             "/service/node/restart" => "\\Seals\\Web\\Logic\\Node::restart",
             "/service/node/update"  => "\\Seals\\Web\\Logic\\Node::update",
             "/service/node/offline" => "\\Seals\\Web\\Logic\\Node::offline",
-            "/service/node/runtime/config/save" => "\\Seals\\Web\\Logic\\Node::setRuntimeConfig",
-            "/service/node/notify/config/save"  => "\\Seals\\Web\\Logic\\Node::setNotifyConfig",
+            "/service/node/runtime/config/save"      => "\\Seals\\Web\\Logic\\Node::setRuntimeConfig",
+            "/service/node/notify/config/save"       => "\\Seals\\Web\\Logic\\Node::setNotifyConfig",
             "/service/node/local_redis/config/save"  => "\\Seals\\Web\\Logic\\Node::setLocalRedisConfig",
             "/service/node/redis/config/save"        => "\\Seals\\Web\\Logic\\Node::setRedisConfig",
             "/service/node/rabbitmq/config/save"     => "\\Seals\\Web\\Logic\\Node::setRabbitmqConfig",
@@ -45,6 +45,7 @@ class Route
 
             "/service/master/restart"        => "\\Seals\\Web\\Logic\\Master::restart",
             "/service/master/update"         => "\\Seals\\Web\\Logic\\Master::update",
+            "/services/user/role/add"        => "\\Seals\\Web\\Logic\\User::addRole",
         ]
     ];
 
@@ -53,6 +54,27 @@ class Route
         $this->response = $response;
         $this->resource = $resource;
     }
+
+    public static function getRoutes()
+    {
+        return self::$routes;
+    }
+
+    public static function getAllPage()
+    {
+        $path[] = __APP_DIR__.'/web/*';
+        $pages  = [];
+        while (count($path) != 0) {
+            $v = array_shift($path);
+            foreach(glob($v) as $item) {
+                if (is_file($item)) {
+                    $pages[] = "/".pathinfo($item,PATHINFO_BASENAME);
+                }
+            }
+        }
+        return $pages;
+    }
+
     public function parse()
     {
         echo $this->response->getMethod(),"\r\n";

@@ -42,7 +42,7 @@ include "include/nav.php";
                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Role Name <span class="required">*</span>
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                          <input type="text" name="user_name" required="required" class="form-control col-md-7 col-xs-12" value="">
+                          <input type="text" id="role-name" required="required" class="form-control col-md-7 col-xs-12" value="">
                         </div>
                       </div>
 
@@ -52,14 +52,42 @@ include "include/nav.php";
                         </label>
 
                         <div class="col-md-9 col-sm-9 col-xs-12">
+
                           <div class="checkbox">
                             <label>
-                              <input type="checkbox" value=""> Option one. select more than one options
+                              <input type="checkbox" class="select-all">
+                              <span style="font-weight: bold; color: #000;">Select All</span>
                             </label>
                           </div>
+
+                          <?php
+                          $pages = \Seals\Web\Route::getAllPage();
+                          foreach ($pages as $page) {
+                          ?>
                           <div class="checkbox">
                             <label>
-                              <input type="checkbox" value=""> Option two. select more than one options
+                              <input type="checkbox" value="" class="p-item"> <span class="page"><?php echo $page; ?></span>
+                            </label>
+                          </div>
+
+                            <?php } ?>
+
+                          <?php $routes = \Seals\Web\Route::getRoutes();
+                          foreach ($routes as $_route) {
+
+                              foreach ($_route as $route => $method) {
+                          ?>
+                          <div class="checkbox">
+                            <label>
+                              <input type="checkbox" value="" class="p-item"> <span class="page"><?php echo $route; ?></span>
+                            </label>
+                          </div>
+                            <?php }} ?>
+
+                          <div class="checkbox">
+                            <label>
+                              <input type="checkbox" class="select-all">
+                              <span style="font-weight: bold; color: #000;">Select All</span>
                             </label>
                           </div>
                         </div>
@@ -68,7 +96,8 @@ include "include/nav.php";
                       <div class="ln_solid"></div>
                       <div class="form-group">
                         <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
-                          <button type="submit" class="btn btn-success">Add</button>
+                          <button type="button" style="float: left;" onclick="addRole(this)" class="btn btn-success">Add</button>
+                          <a href="roles.php" style="text-decoration: underline; float: left; margin: 15px 0 0 12px;">Roles manager</a>
                         </div>
                       </div>
 
@@ -80,4 +109,38 @@ include "include/nav.php";
           </div>
         </div>
         <!-- /page content -->
+<script>
+  function addRole(dom)
+  {
+    if (!Wing.lock())
+      return;
+
+    showDoing(dom);
+
+    var role_name = $("#role-name").val();
+
+    var pages = [];
+    $(".p-item:checked").each(function(i,v){
+      pages.push($(v).parent().find(".page").text());
+    });
+
+    $.ajax({
+      type : "POST",
+      data : {
+        role_name : encodeURIComponent(role_name),
+        pages : (JSON.stringify(pages))
+      },
+      url  : "/services/user/role/add",
+      success : function(msg) {
+
+      }
+    });
+
+  }
+  $(document).ready(function(){
+    $(".select-all").on("click", function(){
+        $(".p-item").prop("checked", $(this).prop("checked"));
+    });
+  });
+</script>
 <?php include "include/footer.php";?>
