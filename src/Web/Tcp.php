@@ -220,6 +220,7 @@ class Tcp
         try {
             $byte = fwrite($socket, $data);
         } catch(\Exception $e) {
+            $byte = 0;
             Context::instance()->logger->error($e->getMessage());
         }
         $this->onWrite($socket, null, array_search($socket, $this->clients, true));

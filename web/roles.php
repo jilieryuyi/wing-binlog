@@ -28,7 +28,7 @@ include "include/nav.php";
               <div class="x_panel">
                 <div class="x_title">
                   <h2 style="width: 60px;">Roles</h2>
-                  <button type="button" class="btn btn-success btn-sm">Add</button>
+                  <a class="btn btn-success btn-sm" href="role.add.php">Add</a>
                   <ul class="nav navbar-right panel_toolbox">
                     <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                     </li>
