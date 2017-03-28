@@ -17,7 +17,7 @@ class User extends Command
             ->addOption("name", null, InputOption::VALUE_REQUIRED, "用户名")
             ->addOption("password", null, InputOption::VALUE_REQUIRED, "密码")
             ->addOption("role", null, InputOption::VALUE_REQUIRED, "角色")
-            ->setDescription('添加/更新用户');
+            ->setDescription('添加/更新用户，如果添加的用户已经存在则会被覆盖更新');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
