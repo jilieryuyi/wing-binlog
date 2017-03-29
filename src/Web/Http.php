@@ -71,11 +71,14 @@ class Http extends Tcp
      */
     public function send($buffer, $data, $client, $id)
     {
-        if ($buffer)
+        if ($buffer) {
+            echo "------event_buffer_write\r\n";
             $success = event_buffer_write($buffer,$data);
+        }
         else
             $success = $this->sendSocket($client, $data);
         if (!$success) {
+            echo "send fail =======\r\n";
             $this->send_fail_times++;
             fclose($client);
             if ($buffer) {
