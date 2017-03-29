@@ -220,7 +220,7 @@ class Tcp
             }
             stream_set_blocking($connection, 0);
 
-            $buffer = event_buffer_new($connection, [$this, 'read'], [$this, 'onWrite'], [$this, 'error']);
+            $buffer = event_buffer_new($connection, [$this, 'read'], [$this, 'onWrite'], [$this, 'error'], $connection);
             if (!$buffer && !is_resource($buffer)) {
                 return false;
             }
