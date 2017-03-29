@@ -71,7 +71,7 @@ mysqlbinlog general log 监控分析系统
     php seals master:restart
     //重启master进程
 
-### wing-binlog 2.0
+### wing-binlog 2.0 --建议安装libevent
 2.0版本已上线，升级功能点如下：<br/>
 * 1、支持一主多从群集部署，任意一台从库下线自动启用另一台工作，实现高可用
 * 2、支持集中的升级、重启、配置、下线以及general log开启关闭管理（配置、管理中心）
