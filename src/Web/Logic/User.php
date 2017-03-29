@@ -109,6 +109,13 @@ class User
         return $file->get(substr(md5(md5($user_name)),2,16).".user");
     }
 
+    public function getPages()
+    {
+        $file   = new File(__APP_DIR__.'/data/user/roles/');
+        $pages = $file->get($this->role.".role");
+        return $pages;
+    }
+
 
     public function setLoginTimes()
     {
@@ -236,6 +243,8 @@ class User
         $file = new File(__APP_DIR__."/data/user/roles");
         $file->del($role.".role");
     }
+
+
 
     public static function getAllRoles()
     {

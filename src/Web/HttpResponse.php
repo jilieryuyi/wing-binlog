@@ -257,23 +257,25 @@ class HttpResponse
         echo "resource:",$resource,"\r\n";
         echo $this->home.$resource,"\r\n";
 
-        if (strpos($resource, "..") !== false) {
-            $response = "404 not found";
-        } else {
+        do {
+            if (strpos($resource, "..") !== false) {
+                $response = include $this->home."/404.html";
+                break;
+            }
+
             if (file_exists($this->home . $resource)) {
                 $mime_type = MimeType::getMimeType($this->home . $resource);
-                echo $mime_type, "\r\n";
                 if (in_array($mime_type, ["text/x-php", "text/html"])) {
                     ob_start();
                     if ($check_token) {
                         include $this->home . $resource;
                         $response = ob_get_contents();
                     } else {
-                        if ($this->getResource() == "/login.php" || $this->getResource()=="/public/login.php") {
+                        if ($this->getResource() == "/login.php" || $this->getResource() == "/public/login.php") {
                             include $this->home . $resource;
                             $response = ob_get_contents();
                         } else {
-                            $response = "请重新登录，<a href='/login.php'>去登陆</a>";
+                            $response = include $this->home . "/login.php";
                         }
                     }
                     ob_end_clean();
@@ -285,21 +287,21 @@ class HttpResponse
 
             } else {
                 if ($check_token) {
-                    $route = new Route($this, $resource);
+                    $route    = new Route($this, $resource);
                     $response = $route->parse();
                     unset($route);
                 } else {
                     $response = json_encode(["error_code" => 4000, "error_msg" => "请重新登录，<a href='/login.php'>去登陆</a>"]);
                 }
             }
-        }
+        } while (0);
+
         unset($_GET, $_POST, $_REQUEST, $_COOKIE);
 
-        //输出http headers
         $headers            = [
             "HTTP/1.1 200 OK",
             "Connection: Close",
-            "Server: wing-binlog-http",
+            "Server: wing-binlog-http by yuyi,297341015@qq.com,jilieryuyi@gmail.com",
             "Date: " . gmdate("D,d M Y H:m:s")." GMT",
             "Content-Type: ".$mime_type,
             "Content-Length: " . strlen($response)

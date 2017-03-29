@@ -79,6 +79,18 @@ class Route
         return $pages;
     }
 
+    public static function getAll()
+    {
+        $all_pages = self::getAllPage();
+        $routes    = self::getRoutes();
+        foreach ($routes as $_route) {
+            foreach ($_route as $route => $method) {
+                $all_pages[] = $route;
+            }
+        }
+        return $all_pages;
+    }
+
     public function parse()
     {
         echo $this->response->getMethod(),"\r\n";

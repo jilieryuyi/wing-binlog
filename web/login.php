@@ -25,16 +25,16 @@ if (isset($_POST["Username"]) && isset($_POST["Password"])) {
     <title>Gentelella Alela! | </title>
 
     <!-- Bootstrap -->
-    <link href="../vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
-    <link href="../vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
     <!-- NProgress -->
-    <link href="../vendors/nprogress/nprogress.css" rel="stylesheet">
+    <link href="vendors/nprogress/nprogress.css" rel="stylesheet">
     <!-- Animate.css -->
-    <link href="../vendors/animate.css/animate.min.css" rel="stylesheet">
+    <link href="vendors/animate.css/animate.min.css" rel="stylesheet">
 
     <!-- Custom Theme Style -->
-    <link href="../build/css/custom.min.css" rel="stylesheet">
+    <link href="build/css/custom.min.css" rel="stylesheet">
     <link href="css/public.css" rel="stylesheet">
 
     <script type="text/javascript" src="js/js.cookie.js"></script>
@@ -61,7 +61,7 @@ if (isset($_POST["Username"]) && isset($_POST["Password"])) {
       <div class="login_wrapper">
         <div class="animate form login_form">
           <section class="login_content">
-            <form id="form" action="" method="post">
+            <form id="form" action="login.php" method="post">
               <h1>Login Form</h1>
               <div>
                 <input type="text" class="form-control" placeholder="Username" name="Username" required="" />
@@ -98,7 +98,7 @@ if (isset($_POST["Username"]) && isset($_POST["Password"])) {
 
         <div id="register" class="animate form registration_form">
           <section class="login_content">
-            <form>
+            <form action="">
               <h1>Create Account</h1>
               <div>
                 <input type="text" class="form-control" placeholder="Username" required="" />
