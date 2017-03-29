@@ -1424,10 +1424,10 @@ class Worker implements Process
                         continue;
                     }
                 }
-                $content = ob_get_contents();
+                //$content = ob_get_contents();
                 ob_end_clean();
-                echo $content;
-                unset($content);
+                //echo $content;
+                //unset($content);
             } catch (\Exception $e) {
                 Context::instance()->logger->error($e->getMessage());
             }
