@@ -18,7 +18,7 @@ class Worker implements Process
     protected $start_time         = 0;
     protected $workers            = 1;
     protected $notify;
-    protected $process_cache;
+    protected $process_cache      = __APP_DIR__."/process_cache";
     protected $daemon             = false;
     protected static $server_pid  = __APP_DIR__."/server.pid";
     protected $processes          = [];
@@ -487,7 +487,7 @@ class Worker implements Process
     {
         $pid = file_get_contents(self::$server_pid);
         posix_kill($pid, SIGUSR1);
-        $file = new File(__APP_DIR__."/http_process_cache");
+        $file = new File(__APP_DIR__."/process_cache");
         $file->set("restart_".$pid,1,6);
 
         return 1;
