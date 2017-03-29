@@ -91,6 +91,7 @@ mysqlbinlog general log 监控分析系统
 * 3、不要忘了 composer install
 * 4、已支持redis队列、http和rabbitmq三种方式的事件通知方式，修改config/notify.php 更改通知方式，需要重启进程，默认为redis队列
 * 5、已支持数据表过滤，那些数据不感兴趣可以过滤采集
+* 6、添加初始化用户 php seals user:add --name admin --password 123456 --role admin
 
 ### 常见问题
 * 1、什么情况下事件会丢失？
