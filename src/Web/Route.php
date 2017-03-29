@@ -91,6 +91,11 @@ class Route
         return $all_pages;
     }
 
+    public static function hasRoute($method, $resource)
+    {
+        return isset(self::$routes[$method][$resource]);
+    }
+
     public function parse()
     {
         echo $this->response->getMethod(),"\r\n";

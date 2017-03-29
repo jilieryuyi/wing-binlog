@@ -191,6 +191,11 @@ class HttpResponse
         return $this->headers;
     }
 
+    public function isAjax(){
+         //X-Requested-With: XMLHttpRequest
+        return !!$this->getHeader(strtolower("X-Requested-With"));
+    }
+
     public function getCookie($_key)
     {
         if (!isset($this->headers["cookie"]))
@@ -258,11 +263,16 @@ class HttpResponse
         echo $this->home.$resource,"\r\n";
 
         do {
+            //try to visit ../ dir, do safe filter and return 404 page
             if (strpos($resource, "..") !== false) {
-                $response = include $this->home."/404.html";
+                ob_start();
+                include $this->home."/404.html";
+                $response = ob_get_contents();
+                ob_end_clean();
                 break;
             }
 
+            //if file exists
             if (file_exists($this->home . $resource)) {
                 $mime_type = MimeType::getMimeType($this->home . $resource);
                 if (in_array($mime_type, ["text/x-php", "text/html"])) {
@@ -275,7 +285,8 @@ class HttpResponse
                             include $this->home . $resource;
                             $response = ob_get_contents();
                         } else {
-                            $response = include $this->home . "/login.php";
+                            include $this->home . "/login.php";
+                            $response = ob_get_contents();
                         }
                     }
                     ob_end_clean();
@@ -284,16 +295,35 @@ class HttpResponse
                     $response = file_get_contents($this->home . $resource);
                 }
                 unset($check_token);
-
-            } else {
-                if ($check_token) {
-                    $route    = new Route($this, $resource);
-                    $response = $route->parse();
-                    unset($route);
-                } else {
-                    $response = json_encode(["error_code" => 4000, "error_msg" => "请重新登录，<a href='/login.php'>去登陆</a>"]);
-                }
+                break;
             }
+
+            //if is login and has a route
+            if ($check_token && Route::hasRoute($this->getMethod(), $resource)) {
+                $route    = new Route($this, $resource);
+                $response = $route->parse();
+                unset($route);
+                break;
+            }
+
+            //if is login and ajax
+            if ($check_token && $this->isAjax()) {
+                $response = json_encode(["error_code" => 404, "error_msg" => "request not found"]);
+                break;
+            }
+
+            //if is not login and ajax
+            if (!$check_token && $this->isAjax()) {
+                $response = json_encode(["error_code" => 4000, "error_msg" => "请重新登录，<a href='/login.php'>去登陆</a>"]);
+                break;
+            }
+
+            //else response 404 page
+            ob_start();
+            include $this->home."/404.html";
+            $response = ob_get_contents();
+            ob_end_clean();
+
         } while (0);
 
         unset($_GET, $_POST, $_REQUEST, $_COOKIE);
