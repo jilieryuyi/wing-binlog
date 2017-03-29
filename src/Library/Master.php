@@ -211,7 +211,9 @@ class Master implements Process
      */
     public static function restart()
     {
+        //$pid = file_get_contents(self::$master_pid);
         posix_kill(file_get_contents(self::$master_pid), SIGUSR1);
+
         return 1;
     }
 
@@ -436,9 +438,10 @@ class Master implements Process
                 if ($debug)
                     $command .= ' --debug';
 
-                $shell = "#!/bin/bash\r\n".$command;
-                file_put_contents(__APP_DIR__."/master_restart.sh", $shell);
-                $handle = popen("/bin/sh ".__APP_DIR__."/master_restart.sh >>".Context::instance()->log_dir."/master_restart.log&","r");
+                //$shell = "#!/bin/bash\r\n".$command;
+                //file_put_contents(__APP_DIR__."/master_restart.sh", $shell);
+               // $handle = popen("/bin/sh ".__APP_DIR__."/master_restart.sh >>".Context::instance()->log_dir."/master_restart.log&","r");
+                $handle = popen("/bin/sh -c \"".$command."\" >>".Context::instance()->log_dir."/master_restart.log&","r");
 
                 if ($handle) {
                     pclose($handle);
