@@ -499,6 +499,8 @@ class Master implements Process
                         }
 
                         //访问网络 从github读取版本文件 然后写到 __APP_DIR__."/update"
+                        $net_version = file_get_contents("https://raw.githubusercontent.com/jilieryuyi/wing-binlog/master/version");
+                        file_put_contents(__APP_DIR__."/update", $net_version);
                     } catch(\Exception $e) {
 
                     }
