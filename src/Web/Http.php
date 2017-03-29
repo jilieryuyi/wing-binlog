@@ -39,7 +39,7 @@ class Http extends Tcp
     protected function _onWrite($client, $buffer, $id)
     {
         echo "http on write\r\n";
-        var_dump($buffer);
+        var_dump($buffer, $id);
         echo "send ok free\r\n";
         fclose($client);
         if ($buffer) {
