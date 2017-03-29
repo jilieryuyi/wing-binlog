@@ -288,13 +288,8 @@ class HttpResponse
                         include $this->home . $resource;
                         $response = ob_get_contents();
                     } else {
-                        if ($this->getResource() == "/login.php" || $this->getResource() == "/public/login.php") {
-                            include $this->home . $resource;
-                            $response = ob_get_contents();
-                        } else {
-                            include $this->home . "/login.php";
-                            $response = ob_get_contents();
-                        }
+                        include $this->home . $resource;
+                        $response = ob_get_contents();
                     }
                     ob_end_clean();
                     $mime_type = "text/html";
