@@ -1364,38 +1364,44 @@ class Worker implements Process
         while (1) {
             pcntl_signal_dispatch();
 
-            $status = 0;
-            $pid    = pcntl_wait($status, WUNTRACED);
+            try {
+                ob_start();
+                $status = 0;
+                $pid = pcntl_wait($status, WUNTRACED);
 
-            if ($pid > 0) {
+                if ($pid > 0) {
 
-                Context::instance()->logger->notice($pid." process shutdown, try create a new process");
-                $id = array_search($pid, $this->processes);
-                unset($this->processes[$id]);
+                    Context::instance()->logger->notice($pid . " process shutdown, try create a new process");
+                    $id = array_search($pid, $this->processes);
+                    unset($this->processes[$id]);
 
-                if ($pid == $this->event_process) {
-                    $this->forkEventWorker();
-                    continue;
+                    if ($pid == $this->event_process) {
+                        $this->forkEventWorker();
+                        continue;
+                    }
+
+                    $id = array_search($pid, $this->parse_processes);
+                    if ($id !== false) {
+                        unset($this->parse_processes[$id]);
+                        $this->forkParseWorker($id);
+                        continue;
+                    }
+
+                    $id = array_search($pid, $this->dispatch_processes);
+                    if ($id !== false) {
+                        unset($this->dispatch_processes[$id]);
+                        $this->forkDispatchWorker($id);
+                        continue;
+                    }
+
+                    if ($pid == $this->generallog_process) {
+                        $this->forkGenerallogWorker();
+                        continue;
+                    }
                 }
-
-                $id = array_search($pid, $this->parse_processes);
-                if ($id !== false) {
-                    unset($this->parse_processes[$id]);
-                    $this->forkParseWorker($id);
-                    continue;
-                }
-
-                $id = array_search($pid, $this->dispatch_processes);
-                if ($id !== false) {
-                    unset($this->dispatch_processes[$id]);
-                    $this->forkDispatchWorker($id);
-                    continue;
-                }
-
-                if ($pid == $this->generallog_process) {
-                    $this->forkGenerallogWorker();
-                    continue;
-                }
+                ob_end_clean();
+            } catch (\Exception $e) {
+                Context::instance()->logger->error($e->getMessage());
             }
         }
 
