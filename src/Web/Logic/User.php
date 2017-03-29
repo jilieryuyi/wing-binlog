@@ -240,7 +240,7 @@ class User
 
         $success = $file->set($role_name.".role", $pages);
 
-        return [$success, __APP_DIR__."/data/user/roles", $role_name.".role"];
+        return $success;//[$success, __APP_DIR__."/data/user/roles", $role_name.".role"];
     }
 
     public static function roleAdd($role_name, $pages)
