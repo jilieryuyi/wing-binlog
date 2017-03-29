@@ -583,6 +583,7 @@ class Master implements Process
 
         //write pid file
         file_put_contents(self::$master_pid, self::getCurrentProcessId());
+        $this->setProcessTitle("seals >> master process");
 
         while (1) {
             pcntl_signal_dispatch();
