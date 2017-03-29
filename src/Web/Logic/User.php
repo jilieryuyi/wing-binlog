@@ -1,6 +1,7 @@
 <?php namespace Seals\Web\Logic;
 use Seals\Cache\File;
 use Seals\Library\Context;
+use Seals\Web\Errors;
 use Seals\Web\HttpResponse;
 use Wing\FileSystem\WDir;
 
@@ -272,6 +273,45 @@ class User
     {
         $file   = new File(__APP_DIR__.'/data/user/roles/');
         return $file->get($role_name.".role");
+    }
+
+
+    public static function updateSelf(HttpResponse $response)
+
+    {
+        $user_name = $response->post("user_name");
+        $old_pass  = $response->post("old_pass");
+        $password  = $response->post("password");
+        $old_user  = $response->post("old_user");
+
+        $user_name = trim(urldecode($user_name));
+        $old_pass  = trim(urldecode($old_pass));
+        $password  = trim(urldecode($password));
+        $old_user  = trim(urldecode($old_user));
+
+        $pwd       = $old_pass;
+
+        if ($old_pass != $password)
+            $pwd  = password_hash($password, PASSWORD_DEFAULT);
+
+        $file = new File(__APP_DIR__."/data/user");
+
+        if ($user_name != $old_user) {
+            //if update user_name, check is exists
+            $exists = $file->get(substr(md5(md5($user_name)),2,16).".user");
+            if ($exists)
+                return ["error_code" => Errors::ERROR_USER_EXISTS, "error_msg" => "user name is in use"];
+        }
+
+        //get the role for the current user
+        $user = new self($old_user);
+        $role = $user->getRole();
+
+        $success = $file->set(substr(md5(md5($user_name)),2,16).".user", ["name" => $user_name,"password" => $pwd, "role" => $role], 0);
+
+        self::loginOut();
+
+        return ["error_code" => Errors::ERROR_SUCCESS, "error_msg" => "success"];
     }
 
     public static function update(HttpResponse $response)

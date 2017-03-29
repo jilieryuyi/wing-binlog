@@ -23,3 +23,14 @@ Wing.lock = function() {
 Wing.unlock = function() {
     Wing.____lock_status = false;
 };
+
+if (typeof Wing.Error == "undefined") {
+    //error code
+    Wing.Error = {
+        ERROR_LOGOUT : 4000,          //need login, jump login.php
+        ERROR_NOT_ALLOW_ACCESS : 4005 //not allow access
+    };
+}
+
+
+

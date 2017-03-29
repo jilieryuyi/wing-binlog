@@ -272,6 +272,14 @@ class HttpResponse
                 break;
             }
 
+            if ($check_token && !Route::access($this)) {
+                ob_start();
+                include $this->home."/401.html";
+                $response = ob_get_contents();
+                ob_end_clean();
+                break;
+            }
+
             //if file exists
             if (file_exists($this->home . $resource)) {
                 $mime_type = MimeType::getMimeType($this->home . $resource);

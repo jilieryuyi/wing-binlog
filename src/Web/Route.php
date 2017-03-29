@@ -1,5 +1,6 @@
 <?php namespace Seals\Web;
 use Seals\Web\Logic\Service;
+use Seals\Web\Logic\User;
 
 /**
  * Created by PhpStorm.
@@ -12,14 +13,15 @@ class Route
 
     protected $response;
     protected $resource;
+    protected static $pages = null;
 
     static $routes = [
         "post" => [
-            "/service/node/refresh" => "\\Seals\\Web\\Logic\\Node::info",
-            "/service/all"          => "\\Seals\\Web\\Logic\\Service::getAll",
-            "/service/node/restart" => "\\Seals\\Web\\Logic\\Node::restart",
-            "/service/node/update"  => "\\Seals\\Web\\Logic\\Node::update",
-            "/service/node/offline" => "\\Seals\\Web\\Logic\\Node::offline",
+            "/service/node/refresh"                  => "\\Seals\\Web\\Logic\\Node::info",
+            "/service/all"                           => "\\Seals\\Web\\Logic\\Service::getAll",
+            "/service/node/restart"                  => "\\Seals\\Web\\Logic\\Node::restart",
+            "/service/node/update"                   => "\\Seals\\Web\\Logic\\Node::update",
+            "/service/node/offline"                  => "\\Seals\\Web\\Logic\\Node::offline",
             "/service/node/runtime/config/save"      => "\\Seals\\Web\\Logic\\Node::setRuntimeConfig",
             "/service/node/notify/config/save"       => "\\Seals\\Web\\Logic\\Node::setNotifyConfig",
             "/service/node/local_redis/config/save"  => "\\Seals\\Web\\Logic\\Node::setLocalRedisConfig",
@@ -37,19 +39,20 @@ class Route
             "/service/group/rabbitmq/config/save"    => "\\Seals\\Web\\Logic\\Group::setRabbitmqConfig",
             "/service/group/zookeeper/config/save"   => "\\Seals\\Web\\Logic\\Group::setZookeeperConfig",
             "/service/group/db/config/save"          => "\\Seals\\Web\\Logic\\Group::setDbConfig",
-            "/service/group/offline"         => "\\Seals\\Web\\Logic\\Group::offline",
-            "/service/group/generallog/open" => "\\Seals\\Web\\Logic\\Group::openGenerallog",
-            "/service/group/restart"         => "\\Seals\\Web\\Logic\\Group::restart",
-            "/service/group/update"          => "\\Seals\\Web\\Logic\\Group::update",
-            "/service/group/local_redis/config/save"  => "\\Seals\\Web\\Logic\\Group::setLocalRedisConfig",
+            "/service/group/offline"                 => "\\Seals\\Web\\Logic\\Group::offline",
+            "/service/group/generallog/open"         => "\\Seals\\Web\\Logic\\Group::openGenerallog",
+            "/service/group/restart"                 => "\\Seals\\Web\\Logic\\Group::restart",
+            "/service/group/update"                  => "\\Seals\\Web\\Logic\\Group::update",
+            "/service/group/local_redis/config/save" => "\\Seals\\Web\\Logic\\Group::setLocalRedisConfig",
 
-            "/service/master/restart"        => "\\Seals\\Web\\Logic\\Master::restart",
-            "/service/master/update"         => "\\Seals\\Web\\Logic\\Master::update",
-            "/services/user/update"        => "\\Seals\\Web\\Logic\\User::update",
-            "/services/user/delete"=> "\\Seals\\Web\\Logic\\User::delete",
-            "/services/user/add"=> "\\Seals\\Web\\Logic\\User::addUser",
-            "/services/role/add"        => "\\Seals\\Web\\Logic\\User::addRole",
-            "/services/role/delete"     => "\\Seals\\Web\\Logic\\User::roleDelete",
+            "/service/master/restart"                => "\\Seals\\Web\\Logic\\Master::restart",
+            "/service/master/update"                 => "\\Seals\\Web\\Logic\\Master::update",
+            "/services/user/self/update"             => "\\Seals\\Web\\Logic\\User::updateSelf",
+            "/services/user/update"                  => "\\Seals\\Web\\Logic\\User::update",
+            "/services/user/delete"                  => "\\Seals\\Web\\Logic\\User::delete",
+            "/services/user/add"                     => "\\Seals\\Web\\Logic\\User::addUser",
+            "/services/role/add"                     => "\\Seals\\Web\\Logic\\User::addRole",
+            "/services/role/delete"                  => "\\Seals\\Web\\Logic\\User::roleDelete",
         ]
     ];
 
@@ -94,6 +97,30 @@ class Route
     public static function hasRoute($method, $resource)
     {
         return isset(self::$routes[$method][$resource]);
+    }
+
+    public static function access(HttpResponse $response)
+    {
+        if (!self::$pages)
+            self::$pages = self::getAll();
+
+        $resource = $response->getResource();
+        echo "access : ",$resource,"\r\n";
+        if (!in_array($resource, self::$pages) || $resource == "/login.php") {
+            return true;
+        }
+
+//        $appid       = $response->getCookie("wing-binlog-appid");
+//        $token       = $response->getCookie("wing-binlog-token");
+//        $check_token = User::checkToken($appid, $token);
+//
+        $pages    =  (new User(User::getUserName()))->getPages();
+//        var_dump($pages);
+        if (in_array($resource, $pages)) {
+            return true;
+        }
+
+        return false;
     }
 
     public function parse()
