@@ -48,4 +48,18 @@ window.addEventListener('load', function(e) {
     }, false);
 }, false);
 
+$(document).ready(function(){
+    $(document).on("keydown", function(e){
+        if ((e.which || e.keyCode) == 116) {
+            var href = window.location.href;
+            if (href.indexOf("?") !== -1)
+                href = href+"&"+new Date().getTime()+Math.random()*10000;
+            else
+                href = href+"?"+new Date().getTime()+Math.random()*10000;
+            window.location.href = href;
+        }
+    });
+});
+
+
 
