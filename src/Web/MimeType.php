@@ -22,7 +22,8 @@ final class MimeType
             "woff" => "application/font-woff",
             "svg"  => "image/svg+xml",
             "ttf"  => "application/octet-stream",
-            "woff2"=> "font/woff2"
+            "woff2"=> "font/woff2",
+            "manifest" => "text/cache-manifest"
         ];
 
         $ext = strtolower(pathinfo($path,PATHINFO_EXTENSION));
