@@ -1085,6 +1085,8 @@ class Worker implements Process
 
                     } while(0);
 
+                    $this->checkStopSignal();
+
                     $content = null;
                     if ($this->debug)
                         $content = ob_get_contents();
