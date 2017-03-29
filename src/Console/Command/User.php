@@ -37,12 +37,12 @@ class User extends Command
 
         $roles = \Seals\Web\Logic\User::getAllRoles();
         if (!in_array($role, $roles)) {
-            echo "role <".$role."> does not exists\r\n";
+            echo "warning: role <".$role."> does not exists\r\n";
             echo "system roles:\r\n";
             foreach ($roles as $role) {
                 echo "===> ",$role["name"],"\r\n";
             }
-            exit;
+           // exit;
         }
 
         \Seals\Web\Logic\User::add($name, $password, $role);
