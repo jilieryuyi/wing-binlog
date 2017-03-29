@@ -1,4 +1,6 @@
 <?php namespace Seals\Web;
+use Seals\Library\Context;
+
 /**
  * Created by PhpStorm.
  * User: yuyi
@@ -39,6 +41,7 @@ class Http extends Tcp
         echo "send ok free\r\n";
         fclose($client);
         if ($buffer) {
+            Context::instance()->logger->error("_onWrite", $buffer);
             event_buffer_free($buffer[0]);
             unset($this->buffers[$id]);
         }
