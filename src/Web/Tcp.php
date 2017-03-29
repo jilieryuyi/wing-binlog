@@ -88,7 +88,7 @@ class Tcp
      * @param resource $buffer
      * @param int $index
      */
-    protected function onWrite($client, $buffer, $index)
+    protected function onWrite($client, $buffer, $index = 0)
     {
         $this->call(self::ON_WRITE,[$client, $buffer, $index]);
     }
@@ -295,7 +295,7 @@ class Tcp
             }
             stream_set_blocking($connection, 0);
 
-            $buffer = event_buffer_new($connection, [$this, 'read'], [$this, 'onWrite'], [$this, 'error'], [$connection, $this->index]);
+            $buffer = event_buffer_new($connection, [$this, 'read'], [$this, 'onWrite'], [$this, 'error'], [$connection, $this->index, 123]);
             if (!$buffer && !is_resource($buffer)) {
                 return false;
             }
