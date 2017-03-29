@@ -25,6 +25,7 @@ function nodeRefresh(v, group_id, session_id)
             //console.log(msg);
             var data   = JSON.parse(msg);
             if (typeof data.error_code != "undefined" && data.error_code == 4000) {
+                window.location.href="/login.php";
                 $(".login-timeout").show();
                 return;
             } else {
@@ -230,6 +231,12 @@ function getAllServices(callback) {
         type :"POST",
         url  : "/service/all",
         success:function(msg){
+            var data=JSON.parse(msg);
+            if (typeof data.error_code != "undefined" && data.error_code == 4000) {
+                window.location.href="/login.php";
+                $(".login-timeout").show();
+                return;
+            }
             callback(msg);
         }
     });
