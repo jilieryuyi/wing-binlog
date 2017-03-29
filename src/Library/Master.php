@@ -564,6 +564,7 @@ class Master implements Process
 
     protected function checkRestart()
     {
+        echo "check restart\r\n";
         $restart = $this->process_cache->get("restart_".self::getCurrentProcessId()) == 1;
         if ($restart) {
             $this->signalHandler(SIGUSR1);
