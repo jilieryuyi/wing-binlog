@@ -88,6 +88,8 @@ class Tcp
         $i = array_search($client, $this->clients);
         if (isset($this->buffers[$i]))
             $buffer = $this->buffers[$i];
+        echo "tcp on write\r\n";
+        var_dump($client, $buffer);
         $this->call(self::ON_WRITE,[$client, $buffer]);
     }
 
