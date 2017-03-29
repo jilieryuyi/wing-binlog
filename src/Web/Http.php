@@ -43,7 +43,7 @@ class Http extends Tcp
         echo "send ok free\r\n";
         fclose($client);
         if ($buffer) {
-            event_buffer_free($buffer[0]);
+            event_buffer_free($buffer);
             unset($this->buffers[$id]);
         }
         unset($this->clients[$id]);

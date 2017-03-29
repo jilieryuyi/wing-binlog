@@ -90,7 +90,7 @@ class Tcp
      */
     protected function onWrite($client, $buffer, $index = 0)
     {
-        $this->call(self::ON_WRITE,[$client, $buffer, $index]);
+        $this->call(self::ON_WRITE,[$client, $buffer[0], $buffer[1]]);
     }
 
     /**
