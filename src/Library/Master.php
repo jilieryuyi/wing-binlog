@@ -636,7 +636,11 @@ class Master implements Process
                         continue;
                     }
                 }
+                $content = ob_get_contents();
                 ob_end_clean();
+
+                echo $content;
+                unset($content);
             } catch (\Exception $e) {
                 Context::instance()->logger->error($e->getMessage());
             }
