@@ -1007,7 +1007,7 @@ class Worker implements Process
                             fseek($fp, $read_size);
                         }
                         //read 10000 lines then check 1 isOpen and logOutput
-                        for ($i = 0; $i < 10000; ++$i)
+                        for ($i = 0; $i < 1000; ++$i)
                         {
                             $line  = fgets($fp);
                             $lsize = strlen($line);
