@@ -28,3 +28,13 @@ foreach ($lines as $line){
     if (intval($match[0]) > 0)
         (new \Seals\Library\Command("kill -9 ".$match[0]))->run();
 }
+
+$res = (new \Seals\Library\Command("ps aux | grep seals"))->run();
+$lines = explode("\n",$res);
+var_dump($lines);
+foreach ($lines as $line){
+    preg_match("/[\d]+/",$line,$match);
+    var_dump($match);
+    if (intval($match[0]) > 0)
+        (new \Seals\Library\Command("kill -9 ".$match[0]))->run();
+}
