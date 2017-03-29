@@ -2,6 +2,7 @@
 
 use Seals\Cache\File;
 use Seals\Library\Master;
+use Seals\Web\Route;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -43,6 +44,11 @@ class User extends Command
                 echo "===> ",$role["name"],"\r\n";
             }
            // exit;
+        }
+
+        $roles = \Seals\Web\Logic\User::getAllRoles();
+        if (!$roles) {
+            \Seals\Web\Logic\User::roleAdd($name, Route::getAll());
         }
 
         \Seals\Web\Logic\User::add($name, $password, $role);

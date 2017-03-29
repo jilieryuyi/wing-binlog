@@ -238,6 +238,12 @@ class User
         $file->set($role_name.".role", $pages);
     }
 
+    public static function roleAdd($role_name, $pages)
+    {
+        $file = new File(__APP_DIR__."/data/user/roles");
+        $file->set($role_name.".role", $pages);
+    }
+
     public static function roleDelete(HttpResponse $response)
     {
         $role = urldecode($response->post("role"));
