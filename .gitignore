@@ -36,3 +36,4 @@
 /data/report/*.report
 /data/user/*.user
 /data/user/roles/*.role
+/composer
