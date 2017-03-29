@@ -216,6 +216,9 @@ class User
         return $users;
     }
 
+    /**
+     * @return bool
+     */
     public static function addRole(HttpResponse $response)
     {
         $dir = new WDir(__APP_DIR__."/data/user/roles");
@@ -235,7 +238,7 @@ class User
             $file->del($old_role.".role");
         }
 
-        $file->set($role_name.".role", $pages);
+        return $file->set($role_name.".role", $pages);
     }
 
     public static function roleAdd($role_name, $pages)
