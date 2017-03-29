@@ -481,7 +481,7 @@ class Master implements Process
             if ($this->deamon) {
                 $this->resetStd();
             }
-            $this->setProcessTitle("seals >> check update process");
+            $this->setProcessTitle("seals >> master check update process");
 
             while (1) {
                 ob_start();
