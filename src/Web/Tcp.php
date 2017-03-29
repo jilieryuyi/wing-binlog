@@ -32,6 +32,8 @@ class Tcp
     protected $accept_times    = 0;
     protected $start_time      = 0;
 
+    protected $is_epoll = false;
+
     /**
      * construct
      *
@@ -61,6 +63,8 @@ class Tcp
 
         if (!function_exists("event_base_new")) {
             $this->clients[] = $this->socket;
+        } else {
+            $this->is_epoll = true;
         }
 
     }
@@ -85,12 +89,15 @@ class Tcp
      */
     protected function onWrite($client, $buffer = null)
     {
-        $i = array_search($client, $this->clients);
-        if (isset($this->buffers[$i]))
-            $buffer = $this->buffers[$i];
-        echo "tcp on write\r\n";
-        var_dump($client, $buffer);
-        $this->call(self::ON_WRITE,[$client, $buffer]);
+//        $i = array_search($client, $this->clients);
+//        if (isset($this->buffers[$i]))
+//            $buffer = $this->buffers[$i];
+//        echo "tcp on write\r\n";
+//        var_dump($client, $buffer);
+        if ($this->is_epoll)
+            $this->call(self::ON_WRITE,[$buffer, $client]);
+        else
+            $this->call(self::ON_WRITE,[$client, $buffer]);
     }
 
     /**
