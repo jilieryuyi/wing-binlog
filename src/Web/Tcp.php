@@ -260,7 +260,6 @@ class Tcp
         try {
             $byte = fwrite($socket, $data);
         } catch(\Exception $e) {
-            $byte = 0;
             Context::instance()->logger->error($e->getMessage());
         }
         $this->onWrite(null, $socket);
