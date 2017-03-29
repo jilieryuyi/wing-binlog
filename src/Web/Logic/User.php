@@ -217,7 +217,7 @@ class User
     }
 
     /**
-     * @return bool
+     * @return array
      */
     public static function addRole(HttpResponse $response)
     {
@@ -238,7 +238,9 @@ class User
             $file->del($old_role.".role");
         }
 
-        return $file->set($role_name.".role", $pages);
+        $success = $file->set($role_name.".role", $pages);
+
+        return [$success, __APP_DIR__."/data/user/roles", $role_name.".role"];
     }
 
     public static function roleAdd($role_name, $pages)
