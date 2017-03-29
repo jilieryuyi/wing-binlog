@@ -61,10 +61,10 @@ class Tcp
 
         stream_set_blocking($this->socket, 0);
 
-        //if (!function_exists("event_base_new")) {
+        if (!function_exists("event_base_new")) {
             $this->clients[] = $this->socket;
             $this->index++;
-        //}
+        }
 
     }
 
@@ -138,7 +138,7 @@ class Tcp
     public function start()
     {
         //if libevent support, then use it
-        /*if (function_exists("event_base_new")) {
+        if (function_exists("event_base_new")) {
             $base  = event_base_new();
             $event = event_new();
 
@@ -146,7 +146,7 @@ class Tcp
             event_base_set($event, $base);
             event_add($event);
             event_base_loop($base);
-        } else */{
+        } else {
             //if not, use the socket select mode
             $_w = $_e = null;
             while (1) {
