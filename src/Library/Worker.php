@@ -172,6 +172,7 @@ class Worker implements Process
         $this->process_cache->del("running_".$process_id);
         $this->process_cache->del("stop_".$process_id);
         $this->process_cache->del("status_".$process_id);
+        $this->process_cache->del("restart_".$process_id);
     }
 
     /**
@@ -484,7 +485,11 @@ class Worker implements Process
      */
     public static function restart()
     {
-        posix_kill(file_get_contents(self::$server_pid), SIGUSR1);
+        $pid = file_get_contents(self::$server_pid);
+        posix_kill($pid, SIGUSR1);
+        $file = new File(__APP_DIR__."/http_process_cache");
+        $file->set("restart_".$pid,1,6);
+
         return 1;
     }
 
@@ -1320,6 +1325,16 @@ class Worker implements Process
 
     }
 
+
+    protected function checkRestart()
+    {
+        echo "check restart\r\n";
+        $restart = $this->process_cache->get("restart_".self::getCurrentProcessId()) == 1;
+        if ($restart) {
+            $this->signalHandler(SIGUSR1);
+        }
+    }
+
     /**
      * @启动进程 入口函数
      */
@@ -1366,8 +1381,9 @@ class Worker implements Process
 
             try {
                 ob_start();
+                $this->checkRestart();
                 $status = 0;
-                $pid = pcntl_wait($status, WUNTRACED);
+                $pid = pcntl_wait($status, WNOHANG);//WUNTRACED);
 
                 if ($pid > 0) {
 
@@ -1403,6 +1419,7 @@ class Worker implements Process
             } catch (\Exception $e) {
                 Context::instance()->logger->error($e->getMessage());
             }
+            sleep(1);
         }
 
         echo "service shutdown\r\n";
