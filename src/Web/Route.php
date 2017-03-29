@@ -106,7 +106,9 @@ class Route
 
         $resource = $response->getResource();
         echo "access : ",$resource,"\r\n";
-        if (!in_array($resource, self::$pages) || $resource == "/login.php") {
+        if (!in_array($resource, self::$pages) ||
+            $resource == "/login.php" ||
+            $resource == "/cache.manifest") {
             return true;
         }
 
