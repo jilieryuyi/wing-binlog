@@ -285,10 +285,11 @@ class HttpResponse
                 if (in_array($mime_type, ["text/x-php", "text/html"])) {
                     ob_start();
                     if ($check_token) {
-                        //file_put_contents(__APP_DIR__."/http_response.log","online=>".User::getUserName()."\r\n",FILE_APPEND);
+                        file_put_contents(__APP_DIR__."/http_response.log","online=>".User::getUserName()."\r\n",FILE_APPEND);
                         include $this->home . $resource;
                         $response = ob_get_contents();
                     } else {
+                        file_put_contents(__APP_DIR__."/http_response.log","offline=>".User::getUserName()."\r\n",FILE_APPEND);
                         include $this->home . "/login.php";
                         $response = ob_get_contents();
                     }
