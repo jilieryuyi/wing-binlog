@@ -18,7 +18,7 @@ class Worker implements Process
     protected $start_time         = 0;
     protected $workers            = 1;
     protected $notify;
-    protected $process_cache      = __APP_DIR__."/process_cache";
+    protected $process_cache;//      = __APP_DIR__."/process_cache";
     protected $daemon             = false;
     protected static $server_pid  = __APP_DIR__."/server.pid";
     protected $processes          = [];
@@ -39,6 +39,7 @@ class Worker implements Process
      */
     public function __construct($app_id = "wing-binlog")
     {
+        $this->process_cache = new File(__APP_DIR__."/process_cache");
         gc_enable();
 
         $this->start_time       = time();
@@ -156,10 +157,10 @@ class Worker implements Process
      * @设置进程缓存路径
      * @param string $dir 目录路径
      */
-    public function setProcessCache(CacheInterface $cache)
-    {
-        $this->process_cache = $cache;
-    }
+//    public function setProcessCache(CacheInterface $cache)
+//    {
+//        $this->process_cache = $cache;
+//    }
 
 
     /**

@@ -101,7 +101,7 @@ class ServerBase extends Command
             $worker->setWorkersNum($workers);
         }
 
-        $worker->setProcessCache(new \Seals\Cache\File($app_config["process_cache_dir"]));
+        //$worker->setProcessCache(new \Seals\Cache\File($app_config["process_cache_dir"]));
 
         $handlers_config = include __DIR__."/../../../config/notify.php";
         $handler_class   = $handlers_config["handler"];
@@ -229,9 +229,9 @@ class ServerBase extends Command
     protected function status()
     {
         $worker     = new Worker();
-        $app_config = $this->getAppConfig();
+       // $app_config = $this->getAppConfig();
 
-        $worker->setProcessCache(new \Seals\Cache\File($app_config["process_cache_dir"]));
+        //$worker->setProcessCache(new \Seals\Cache\File($app_config["process_cache_dir"]));
         return $worker->getStatus();
     }
 
