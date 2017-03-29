@@ -94,7 +94,7 @@ class Tcp
             $index  = $buffer[1];
             $buffer = $buffer[0];
         }
-        $buffer = isset($this->buffers[$index])?$this->buffers[$index]:null;
+        $buffer = $this->buffers[$index];//isset($this->buffers[$index])?$this->buffers[$index]:null;
         $this->call(self::ON_WRITE,[$client, $buffer, $index]);
     }
 
