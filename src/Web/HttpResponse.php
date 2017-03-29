@@ -337,6 +337,7 @@ class HttpResponse
 
         $headers            = [
             "HTTP/1.1 200 OK",
+            "Cache-control: max-age=60",
             "Connection: keep-alive",
             "Server: wing-binlog-http by yuyi,297341015@qq.com,jilieryuyi@gmail.com",
             "Date: " . gmdate("D,d M Y H:m:s")." GMT",
