@@ -877,7 +877,7 @@ class Worker implements Process
         }
 
         ini_set("memory_limit", Context::instance()->memory_limit);
-        $process_name = "php seals >> events collector - ep";
+        $process_name = "php seals >> events collector - general log";
 
         //设置进程标题 mac 会有warning 直接忽略
         $this->setProcessTitle($process_name);
