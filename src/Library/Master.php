@@ -404,7 +404,7 @@ class Master implements Process
      */
     public function signalHandler($signal)
     {
-        Context::instance()->logger->error("master signalHandler is call ".date("Y-m-d H:i:s"));
+        Context::instance()->logger->debug("master signalHandler is call ".date("Y-m-d H:i:s"));
         $server_id = file_get_contents(self::$master_pid);
 
         switch ($signal) {
