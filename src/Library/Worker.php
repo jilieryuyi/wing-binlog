@@ -1360,7 +1360,7 @@ class Worker implements Process
 
         //write pid file
         file_put_contents(self::$server_pid, self::getCurrentProcessId());
-        $this->setProcessTitle("php seals >> master process - Worker");
+        $this->setProcessTitle("php seals >> events master process - Worker");
         while (1) {
             pcntl_signal_dispatch();
 
