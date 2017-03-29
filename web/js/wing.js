@@ -50,6 +50,7 @@ window.addEventListener('load', function(e) {
 
 $(document).ready(function(){
     $(document).on("keydown", function(e){
+        console.log(e.which , e.keyCode);
         if ((e.which || e.keyCode) == 116) {
             var href = window.location.href;
             if (href.indexOf("?") !== -1)
