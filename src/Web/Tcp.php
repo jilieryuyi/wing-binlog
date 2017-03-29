@@ -85,19 +85,17 @@ class Tcp
      * this func will be call on send
      *
      * @param resource $client
-     * @param resource $buffer
+     * @param resource $buffer 是event_buffer_new的返回值
      */
-    protected function onWrite($client, $buffer = null)
+    protected function onWrite($buffer, $client = null)
     {
 //        $i = array_search($client, $this->clients);
 //        if (isset($this->buffers[$i]))
 //            $buffer = $this->buffers[$i];
 //        echo "tcp on write\r\n";
 //        var_dump($client, $buffer);
-        if ($this->is_epoll)
-            $this->call(self::ON_WRITE,[$buffer, $client]);
-        else
-            $this->call(self::ON_WRITE,[$client, $buffer]);
+
+        $this->call(self::ON_WRITE,[$client, $buffer]);
     }
 
     /**
@@ -265,7 +263,7 @@ class Tcp
             $byte = 0;
             Context::instance()->logger->error($e->getMessage());
         }
-        $this->onWrite($socket, null);
+        $this->onWrite(null, $socket);
         return $byte;
     }
 
