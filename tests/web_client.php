@@ -7,5 +7,5 @@
  */
 $i = 0;
 while( $i <= 1000000 ) {
-    echo file_get_contents("http://127.0.0.1:9998/index.php?a=123");
+    echo file_get_contents("http://114.55.56.167:9998/");
 }
