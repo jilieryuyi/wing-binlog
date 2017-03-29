@@ -607,7 +607,7 @@ class Master implements Process
                 ob_start();
                 $this->checkRestart();
                 $status = 0;
-                $pid = pcntl_wait($status, WUNTRACED);
+                $pid = pcntl_wait($status, WNOHANG);//WUNTRACED);
 
                 if ($pid > 0) {
 
@@ -644,6 +644,8 @@ class Master implements Process
             } catch (\Exception $e) {
                 Context::instance()->logger->error($e->getMessage());
             }
+
+            sleep(1);
         }
 
     }
