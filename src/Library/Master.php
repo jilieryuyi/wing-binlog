@@ -583,40 +583,46 @@ class Master implements Process
 
         //write pid file
         file_put_contents(self::$master_pid, self::getCurrentProcessId());
-        $this->setProcessTitle("seals >> master process");
+        $this->setProcessTitle("seals >> master process - Master");
 
         while (1) {
             pcntl_signal_dispatch();
 
-            $status = 0;
-            $pid    = pcntl_wait($status, WUNTRACED);
+            try {
+                ob_start();
+                $status = 0;
+                $pid = pcntl_wait($status, WUNTRACED);
 
-            if ($pid > 0) {
+                if ($pid > 0) {
 
-                Context::instance()->logger->notice($pid." process shutdown, try create a new process");
-                $id = array_search($pid, $this->processes);
-                unset($this->processes[$id]);
+                    Context::instance()->logger->notice($pid . " process shutdown, try create a new process");
+                    $id = array_search($pid, $this->processes);
+                    unset($this->processes[$id]);
 
-                if ($pid == $this->master_process) {
-                    //fork master process
-                    $processes[0] = $this->forkMasterWorker();
-                    $file->set($this->master_status, $processes);
-                    continue;
+                    if ($pid == $this->master_process) {
+                        //fork master process
+                        $processes[0] = $this->forkMasterWorker();
+                        $file->set($this->master_status, $processes);
+                        continue;
+                    }
+
+                    if ($pid == $this->http_processe) {
+                        //fork http process
+                        $processes[1] = $this->forkHttpWorker();
+                        $file->set($this->master_status, $processes);
+                        continue;
+                    }
+
+                    if ($pid == $this->update_process) {
+                        //fork check update process
+                        $processes[2] = $this->forkCheckUpdateWorker();
+                        $file->set($this->master_status, $processes);
+                        continue;
+                    }
                 }
-
-                if ($pid == $this->http_processe) {
-                    //fork http process
-                    $processes[1] = $this->forkHttpWorker();
-                    $file->set($this->master_status, $processes);
-                    continue;
-                }
-
-                if ($pid == $this->update_process) {
-                    //fork check update process
-                    $processes[2] = $this->forkCheckUpdateWorker();
-                    $file->set($this->master_status, $processes);
-                    continue;
-                }
+                ob_end_clean();
+            } catch (\Exception $e) {
+                Context::instance()->logger->error($e->getMessage());
             }
         }
 
