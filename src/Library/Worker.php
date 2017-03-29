@@ -967,7 +967,11 @@ class Worker implements Process
 
 
             $fp = fopen($file_name, "r");
-            fseek($fp, $read_size);
+
+            if ($fp)
+                fseek($fp, $read_size);
+            else
+                $fp = null;
 
             while (1) {
                 try {
