@@ -441,11 +441,11 @@ class Master implements Process
                 //$shell = "#!/bin/bash\r\n".$command;
                 //file_put_contents(__APP_DIR__."/master_restart.sh", $shell);
                // $handle = popen("/bin/sh ".__APP_DIR__."/master_restart.sh >>".Context::instance()->log_dir."/master_restart.log&","r");
-                system("/bin/sh -c \"".$command."\" >>".Context::instance()->log_dir."/master_restart.log&","r");
+                $handle = popen("/bin/sh -c \"".$command."\" >>".Context::instance()->log_dir."/master_restart.log&","r");
 
-//                if ($handle) {
-//                    pclose($handle);
-//                }
+                if ($handle) {
+                    pclose($handle);
+                }
 
                 exit(0);
                 break;
