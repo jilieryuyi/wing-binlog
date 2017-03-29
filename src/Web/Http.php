@@ -36,20 +36,20 @@ class Http extends Tcp
     /**
      * http send msg callback
      */
-    protected function _onWrite($client, $buffer, $id)
+    protected function _onWrite($client, $buffer)
     {
         echo "http on write\r\n";
-        var_dump($client, $buffer, $id);
+        var_dump($client, $buffer);
+        $i = array_search($client, $this->clients);
         echo "send ok free\r\n";
         fclose($client);
         if ($buffer) {
             echo "free buffer\r\n";
             event_buffer_free($buffer);
-            unset($this->buffers[$id]);
+            unset($this->buffers[$i]);
         }
-        unset($this->clients[$id]);
+        unset($this->clients[$i]);
 
-        $this->index--;
     }
 
     /**
@@ -60,16 +60,16 @@ class Http extends Tcp
      * @param int $id
      * @param string $data
      */
-    protected function _onReceive($client, $buffer, $id, $data)
+    protected function _onReceive($client, $buffer, $data)
     {
-        $this->call(self::ON_HTTP_RECEIVE, [new HttpResponse($this, $this->home, $buffer, $data, $client, $id)]);
+        $this->call(self::ON_HTTP_RECEIVE, [new HttpResponse($this, $this->home, $buffer, $data, $client)]);
         $this->debug();
     }
 
     /**
      * http send msg
      */
-    public function send($buffer, $data, $client, $id)
+    public function send($buffer, $data, $client)
     {
         if ($buffer) {
             echo "------event_buffer_write\r\n";
@@ -80,13 +80,13 @@ class Http extends Tcp
         if (!$success) {
             echo "send fail =======\r\n";
             $this->send_fail_times++;
+            $i = array_search($client, $this->clients);
             fclose($client);
             if ($buffer) {
                 event_buffer_free($buffer);
-                unset($this->buffers[$id]);
+                unset($this->buffers[$i]);
             }
-            unset($this->clients[$id]);
-            $this->index--;
+            unset($this->clients[$i]);
         }
         return $success;
     }

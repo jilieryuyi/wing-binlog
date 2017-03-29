@@ -24,12 +24,11 @@ class HttpResponse
     protected $post    = [];
     protected $headers = [];
 
-    public function __construct(Http $http,$home, $buffer, $data, $client, $id)
+    public function __construct(Http $http,$home, $buffer, $data, $client)
     {
         $this->buffer = $buffer;
         $this->home   = $home;
         $this->http   = $http;
-        $this->id     = $id;
         $this->client = $client;
 
         $temp    = explode("\r\n\r\n", $data, 2);
@@ -345,6 +344,6 @@ class HttpResponse
             "Content-Length: " . strlen($response)
         ];
 
-        return $this->http->send($this->buffer, implode("\r\n",$headers)."\r\n\r\n".$response, $this->client, $this->id);
+        return $this->http->send($this->buffer, implode("\r\n",$headers)."\r\n\r\n".$response, $this->client);
     }
 }

@@ -16,7 +16,6 @@ class Tcp
     protected $socket;
     protected $clients = [];
     protected $buffers = [];
-    protected $index   = 0;
 
     const ON_RECEIVE = "on_read";
     const ON_WRITE   = "on_write";
@@ -55,7 +54,6 @@ class Tcp
         );
 
         if (!$this->socket) {
-            var_dump($errno,$errstr);
             die("create socket error => ip:" . $this->ip . " port:" . $this->port."\r\n");
         }
 
@@ -63,7 +61,6 @@ class Tcp
 
         if (!function_exists("event_base_new")) {
             $this->clients[] = $this->socket;
-            $this->index++;
         }
 
     }
@@ -73,12 +70,11 @@ class Tcp
      *
      * @param resource $client
      * @param resource $buffer
-     * @param int $index
      * @params string $data
      */
-    protected function onReceive($client, $buffer, $index, $data)
+    protected function onReceive($client, $buffer, $data)
     {
-        $this->call(self::ON_RECEIVE,[$client, $buffer, $index, $data]);
+        $this->call(self::ON_RECEIVE,[$client, $buffer, $data]);
     }
 
     /**
@@ -86,16 +82,13 @@ class Tcp
      *
      * @param resource $client
      * @param resource $buffer
-     * @param int $index
      */
-    protected function onWrite($client, $buffer, $index = 0)
+    protected function onWrite($client, $buffer = null)
     {
-        if (is_array($buffer)) {
-            $index  = $buffer[1];
-            $client = $buffer[0];
-        }
-        $buffer = $this->buffers[$index];//isset($this->buffers[$index])?$this->buffers[$index]:null;
-        $this->call(self::ON_WRITE,[$client, $buffer, $index]);
+        $i = array_search($client, $this->clients);
+        if (isset($this->buffers[$i]))
+            $buffer = $this->buffers[$i];
+        $this->call(self::ON_WRITE,[$client, $buffer]);
     }
 
     /**
@@ -103,12 +96,11 @@ class Tcp
      *
      * @param resource $client
      * @param resource $buffer
-     * @param int $index
      */
-    protected function onConnect($client, $buffer, $index)
+    protected function onConnect($client, $buffer)
     {
         $this->accept_times++;
-        $this->call(self::ON_CONNECT, [$client, $buffer, $index]);
+        $this->call(self::ON_CONNECT, [$client, $buffer]);
     }
 
     /**
@@ -116,11 +108,10 @@ class Tcp
      *
      * @param resource $client
      * @param resource $buffer
-     * @param int $index
      */
-    protected function onClose($client, $buffer, $index)
+    protected function onClose($client, $buffer)
     {
-        $this->call(self::ON_CLOSE,[$client, $buffer, $index]);
+        $this->call(self::ON_CLOSE,[$client, $buffer]);
     }
 
     /**
@@ -128,12 +119,11 @@ class Tcp
      *
      * @param resource $client
      * @param resource $buffer
-     * @param int $index
      */
-    protected function onError($client, $buffer, $index, $error)
+    protected function onError($client, $buffer, $error)
     {
         $this->error_times++;
-        $this->call(self::ON_ERROR, [$client, $buffer, $index, $error]);
+        $this->call(self::ON_ERROR, [$client, $buffer, $error]);
     }
 
 
@@ -177,9 +167,8 @@ class Tcp
                             continue;
                         }
                         stream_set_blocking($conn, 0);
-                        $this->onConnect($conn, null, $this->index);
+                        $this->onConnect($conn, null);
                         $this->clients[] = $conn;
-                        $this->index++;
                     } else {
                         echo "read\r\n";
                         $sock_data = fread($client, 10240);
@@ -189,27 +178,66 @@ class Tcp
                             if ($key_to_del === false)
                                 continue;
 
-                            $this->onError($client, null, $key_to_del, "");
+                            $this->onError($client, null, "");
                             fclose($client);
                             unset($this->clients[$key_to_del]);
-                            $this->index--;
                         }
                         elseif (strlen($sock_data) === 0) {
                             //connection closed
                             $key_to_del = array_search($client, $this->clients, true);
-                            $this->onClose($client, null, $key_to_del);
+                            $this->onClose($client, null);
                             fclose($client);
                             unset($this->clients[$key_to_del]);
-                            $this->index--;
                         } else {
                             var_dump($sock_data);
-                            $this->onReceive($client, null, array_search($client, $this->clients, TRUE), $sock_data);
+                            $this->onReceive($client, null, $sock_data);
                         }
                     }
                 }
             }
         }
     }
+
+    /**
+     * accept, only libevent
+     *
+     * @param resource $socket
+     * @param mixed $flag
+     * @param resource $base
+     * @return bool
+     */
+    protected function accept($socket, $flag, $base)
+    {
+        try {
+            if (!$socket) {
+                return false;
+            }
+            $connection = @stream_socket_accept($socket);
+            if (!$connection) {
+                return false;
+            }
+            stream_set_blocking($connection, 0);
+
+            $buffer = event_buffer_new($connection, [$this, 'read'], [$this, 'onWrite'], [$this, 'error']);
+            if (!$buffer && !is_resource($buffer)) {
+                return false;
+            }
+            event_buffer_base_set($buffer, $base);
+            event_buffer_timeout_set($buffer, 30, 30);
+            event_buffer_watermark_set($buffer, EV_READ, 0, 0xffffff);
+            event_buffer_priority_set($buffer, 10);
+            event_buffer_enable($buffer, EV_READ | EV_PERSIST);
+
+            $this->clients[] = $connection;
+            $this->buffers[] = $buffer;
+
+            $this->onConnect($connection, $buffer);
+        } catch(\Exception $e) {
+            return false;
+        }
+        return true;
+    }
+
 
     /**
      * send data to a client socket
@@ -228,7 +256,7 @@ class Tcp
             $byte = 0;
             Context::instance()->logger->error($e->getMessage());
         }
-        $this->onWrite($socket, null, array_search($socket, $this->clients, true));
+        $this->onWrite($socket, null);
         return $byte;
     }
 
@@ -281,79 +309,37 @@ class Tcp
     }
 
     /**
-     * accept, only libevent
-     *
-     * @param resource $socket
-     * @param mixed $flag
-     * @param resource $base
-     * @return bool
-     */
-    protected function accept($socket, $flag, $base)
-    {
-        try {
-            if (!$socket) {
-                return false;
-            }
-            $connection = @stream_socket_accept($socket);
-            if (!$connection) {
-                return false;
-            }
-            stream_set_blocking($connection, 0);
-
-            $buffer = event_buffer_new($connection, [$this, 'read'], [$this, 'onWrite'], [$this, 'error'], [$connection, $this->index, 123]);
-            if (!$buffer && !is_resource($buffer)) {
-                return false;
-            }
-            event_buffer_base_set($buffer, $base);
-            event_buffer_timeout_set($buffer, 30, 30);
-            event_buffer_watermark_set($buffer, EV_READ, 0, 0xffffff);
-            event_buffer_priority_set($buffer, 10);
-            event_buffer_enable($buffer, EV_READ | EV_PERSIST);
-
-            $this->clients[$this->index] = $connection;
-            $this->buffers[$this->index] = $buffer;
-
-            $this->onConnect($connection, $buffer, $this->index);
-            $this->index++;
-        } catch(\Exception $e) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
      * error happened,only libevent
      *
      * @param resource $buffer
      * @param string $error
      * @param array $params
      */
-    protected function error($buffer, $error, $params)
+    protected function error($buffer, $error)
     {
         echo "send error free\r\n";
 
         event_buffer_disable($buffer, EV_READ | EV_WRITE);
         event_buffer_free($buffer);
 
-        $this->onError($params[0], $buffer, $params[1], $error);
-        fclose($params[0]);
-        unset($this->clients[$params[1]], $this->buffers[$params[1]]);
-        $this->index--;
+        $i = array_search($buffer, $this->buffers);
+        $this->onError($this->clients[$i], $buffer, $error);
+        fclose($this->clients[$i]);
+        unset($this->clients[$i], $this->buffers[$i]);
     }
 
     /**
      * libevent read wait
      *
      * @param resource $buffer
-     * @param array $params 0 is the socket client 1 is the int index
      */
-    protected function read($buffer, $params)
+    protected function read($buffer)
     {
+        $i = array_search($buffer, $this->buffers);
         while ($read = event_buffer_read($buffer, 10240)) {
-            var_dump($read);
-            $this->onReceive($params[0], $buffer, $params[1], $read);
+            $this->onReceive($this->clients[$i], $buffer, $read);
         }
-        $this->onClose($params[0], $buffer, $params[1]);
+        $this->onClose($this->clients[$i], $buffer);
     }
 
     /**
