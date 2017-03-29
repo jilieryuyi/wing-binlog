@@ -48,7 +48,7 @@ class User extends Command
 
         $roles = \Seals\Web\Logic\User::getAllRoles();
         if (!$roles) {
-            \Seals\Web\Logic\User::roleAdd($name, Route::getAll());
+            \Seals\Web\Logic\User::roleAdd($role, Route::getAll());
         }
 
         \Seals\Web\Logic\User::add($name, $password, $role);
