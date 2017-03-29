@@ -224,6 +224,11 @@ class Worker implements Process
         }
     }
 
+    public function setStopSignal($process_id)
+    {
+        $this->process_cache->set("stop_".$process_id,1,6);
+    }
+
     public function stop()
     {
         self::stopAll();
@@ -530,6 +535,7 @@ class Worker implements Process
             case SIGINT:
                 if ($server_id == self::getCurrentProcessId()) {
                     foreach ($this->processes as $id => $pid) {
+                        $this->setStopSignal($pid);
                         posix_kill($pid, SIGINT);
                     }
                 }
@@ -539,6 +545,7 @@ class Worker implements Process
             case SIGUSR1:
                 if ($server_id == self::getCurrentProcessId()) {
                     foreach ($this->processes as $id => $pid) {
+                        $this->setStopSignal($pid);
                         posix_kill($pid,SIGINT);
                     }
                 }
@@ -554,9 +561,9 @@ class Worker implements Process
                 if ($clear)
                     $command .= ' --clear';
 
-                $shell = "#!/bin/bash\r\n".$command;
-                file_put_contents(__APP_DIR__."/restart.sh", $shell);
-                $handle = popen("/bin/sh ".__APP_DIR__."/restart.sh >>".Context::instance()->log_dir."/server_restart.log&","r");
+                //$shell = "#!/bin/bash\r\n".$command;
+                //file_put_contents(__APP_DIR__."/restart.sh", $shell);
+                $handle = popen("/bin/sh -c \"".$command."\" >>".Context::instance()->log_dir."/server_restart.log&","r");
 
                 if ($handle) {
                     pclose($handle);
@@ -944,6 +951,8 @@ class Worker implements Process
                         unset($data);
 
                     } while(0);
+
+                    $this->checkStopSignal();
                 } catch (\Exception $e) {
 
                 }
