@@ -92,7 +92,7 @@ class Tcp
     {
         if (is_array($buffer)) {
             $index  = $buffer[1];
-            $buffer = $buffer[0];
+            $client = $buffer[0];
         }
         $buffer = $this->buffers[$index];//isset($this->buffers[$index])?$this->buffers[$index]:null;
         $this->call(self::ON_WRITE,[$client, $buffer, $index]);
