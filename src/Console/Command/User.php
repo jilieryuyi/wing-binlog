@@ -40,8 +40,8 @@ class User extends Command
         if (!in_array($role, $roles)) {
             echo "warning: role <".$role."> does not exists\r\n";
             echo "system roles:\r\n";
-            foreach ($roles as $role) {
-                echo "===> ",$role["name"],"\r\n";
+            foreach ($roles as $__role) {
+                echo "===> ",$__role["name"],"\r\n";
             }
            // exit;
         }
