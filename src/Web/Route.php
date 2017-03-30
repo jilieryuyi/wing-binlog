@@ -107,7 +107,6 @@ class Route
             self::$pages = self::getAll();
 
         $resource = $response->getResource();
-        echo "access : ",$resource,"\r\n";
         if (!in_array($resource, self::$pages) ||
             $resource == "/login.php" ||
             $resource == "/cache.manifest"||
@@ -116,12 +115,7 @@ class Route
             return true;
         }
 
-//        $appid       = $response->getCookie("wing-binlog-appid");
-//        $token       = $response->getCookie("wing-binlog-token");
-//        $check_token = User::checkToken($appid, $token);
-//
         $pages    =  (new User(User::getUserName()))->getPages();
-//        var_dump($pages);
         if (in_array($resource, $pages)) {
             return true;
         }
@@ -131,8 +125,6 @@ class Route
 
     public function parse()
     {
-        echo $this->response->getMethod(),"\r\n";
-        echo $this->resource,"\r\n";
 
         if (isset(self::$routes[$this->response->getMethod()][$this->resource])) {
 
