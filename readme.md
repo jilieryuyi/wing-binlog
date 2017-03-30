@@ -92,7 +92,7 @@ mysqlbinlog general log 监控分析系统
 * 4、已支持redis队列、http和rabbitmq三种方式的事件通知方式，修改config/notify.php 更改通知方式，需要重启进程，默认为redis队列
 * 5、已支持数据表过滤，那些数据不感兴趣可以过滤采集
 * 6、添加初始化用户 php seals user:add --name admin --password 123456 --role admin
-
+* 7、使admin角色具有全部权限（也可以理解为权限重置），php seals role:admin --name admin
 ### 常见问题
 * 1、什么情况下事件会丢失？
      redis写入异常或者http请求异常、一个事务相关的数据超过8万行，不过发生这种情况的概率很小罢了
