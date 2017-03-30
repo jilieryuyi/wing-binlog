@@ -60,11 +60,17 @@ class Zookeeper
         $data["created"] = $this->start_time;
         $data["updated"] = time();
 
-        return $this->redis->hset(
+        $success = $this->redis->hset(
             self::SERVICE_KEY.":services:". Context::instance()->zookeeper_config["group_id"],
             $this->session_id,
             json_encode($data)
         );
+
+        if (!$success) {
+            echo "report error=----redis set error\r\n";
+        }
+
+        return $success;
     }
 
     public static function getNodes($group_id)
