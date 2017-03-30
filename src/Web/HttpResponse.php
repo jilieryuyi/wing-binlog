@@ -276,6 +276,7 @@ class HttpResponse
         do {
             //try to visit ../ dir, do safe filter and return 404 page
             if (strpos($resource, "..") !== false) {
+                $cache_control = "Cache-control: max-age=".(86400*30).",private,must-revalidation";
                 ob_start();
                 include $this->home."/404.html";
                 $response = ob_get_contents();
@@ -286,11 +287,13 @@ class HttpResponse
             //check access power
             if ($check_token && !Route::access($this)) {
                 if (!$is_ajax) {
+                    $cache_control = "Cache-control: max-age=".(86400*30).",private,must-revalidation";
                     ob_start();
                     include $this->home . "/401.html";
                     $response = ob_get_contents();
                     ob_end_clean();
                 } else {
+                    $cache_control = "Cache-control: max-age=0,private,must-revalidation";
                     $response = json_encode(["error_code" => 401, "error_msg" => "not allow access"]);
                 }
                 break;
@@ -325,6 +328,7 @@ class HttpResponse
                     ob_end_clean();
                     $mime_type = "text/html";
                 } else {
+                    $cache_control = "Cache-control: max-age=".(86400*30).",private,must-revalidation";
                     $response = file_get_contents($this->home . $resource);
                     //set cache
                     self::$static_files[$this->home . $resource] =
@@ -339,6 +343,7 @@ class HttpResponse
 
             //if is login and has a route
             if ($check_token && Route::hasRoute($this->getMethod(), $resource)) {
+                $cache_control = "Cache-control: max-age=0,private,must-revalidation";
                 $route    = new Route($this, $resource);
                 $response = $route->parse();
                 unset($route);
@@ -347,12 +352,14 @@ class HttpResponse
 
             //if is login and ajax
             if ($check_token && $is_ajax) {
+                $cache_control = "Cache-control: max-age=0,private,must-revalidation";
                 $response = json_encode(["error_code" => 404, "error_msg" => "request not found"]);
                 break;
             }
 
             //if is not login and ajax
             if (!$check_token && $is_ajax) {
+                $cache_control = "Cache-control: max-age=0,private,must-revalidation";
                 $response = json_encode(["error_code" => 4000, "error_msg" => "请重新登录，<a href='/login.php'>去登陆</a>"]);
                 break;
             }
