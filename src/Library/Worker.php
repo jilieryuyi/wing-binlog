@@ -1015,7 +1015,7 @@ class Worker implements Process
                             $fp = null;
                             unset($general_is_open);
                             sleep(1);
-                            Context::instance()->logger->debug("general log => disabled");
+                            //Context::instance()->logger->debug("general log => disabled");
 
                             break;
                         }
@@ -1033,7 +1033,7 @@ class Worker implements Process
                             $line  = fgets($fp);
                             $lsize = strlen($line);
                             if ($lsize <= 0 || !$line) {
-                                Context::instance()->logger->debug("general log => empty line - ".$file_name);
+                                ////Context::instance()->logger->debug("general log => empty line - ".$file_name);
                                 continue;
                             }
 
@@ -1044,11 +1044,11 @@ class Worker implements Process
 
                             $_line    = trim($line);
                             unset($line);
-                            Context::instance()->logger->debug("general log => ".$_line);
+                            //Context::instance()->logger->debug("general log => ".$_line);
 
                             $temp     = preg_split("/[\s]+/", $_line, 4);
                             if (!isset($temp[0]) || !$temp[0]) {
-                                Context::instance()->logger->debug("general log => split error");
+                                //Context::instance()->logger->debug("general log => split error");
                                 continue;
                             }
                             unset($_line);
@@ -1056,7 +1056,7 @@ class Worker implements Process
 
 
                             if ($datetime <= 0) {
-                                Context::instance()->logger->debug("general log => datetime error");
+                                //Context::instance()->logger->debug("general log => datetime error");
                                 continue;
                             }
 
@@ -1075,7 +1075,7 @@ class Worker implements Process
                             unset($temp);
 
                             $report->set($datetime, $event);
-                            Context::instance()->logger->debug("general log => ".$datetime."--".$event);
+                            //Context::instance()->logger->debug("general log => ".$datetime."--".$event);
                             echo date("Y-m-d H:i:s", $datetime), "=>", strtolower($event_type), "=>", $event, "\r\n";
                             unset($datetime, $event_type, $event);
                             $count++;
@@ -1098,7 +1098,7 @@ class Worker implements Process
                                     fseek($fp, $read_size);
                                 }
                                 unset($_file_name);
-                                Context::instance()->logger->debug("general log => read end");
+                                //Context::instance()->logger->debug("general log => read end");
 
                                 break;
                             }
