@@ -300,7 +300,7 @@ class HttpResponse
                 }
 
                 $mime_type = MimeType::getMimeType($this->home . $resource);
-                if (in_array($mime_type, ["text/x-php", "text/html"])) {
+                if ($mime_type == "text/x-php") {
                     ob_start();
                     if ($check_token) {
                         include $this->home . $resource;
