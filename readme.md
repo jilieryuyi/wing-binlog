@@ -1,4 +1,4 @@
-![wing-binlog](https://raw.githubusercontent.com/jilieryuyi/wing-binlog/master/wing.png)
+![wing-binlog](https://raw.githubusercontent.com/jilieryuyi/wing-binlog/master/page.png)
 
 mysqlbinlog general log 监控分析系统
 ====
