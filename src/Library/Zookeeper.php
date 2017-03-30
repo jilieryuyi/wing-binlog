@@ -67,6 +67,7 @@ class Zookeeper
         );
 
         if (!$success) {
+            var_dump($success);
             echo "report error=----redis set error\r\n";
         }
 
