@@ -4,22 +4,11 @@
         <div class="right_col" role="main">
           <!-- top tiles -->
           <div class="row tile_count">
-<!--            <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">-->
-<!--              <span class="count_top"><i class="fa fa-user"></i> Total Groups</span>-->
-<!--              <div class="count">--><?php //echo \Seals\Library\Zookeeper::getServicesCount(); ?><!--</div>-->
-<!--<!--              <span class="count_bottom"><i class="green">4% </i> From last Week</span>-->
-<!--            </div>-->
             <div class="col-md-3 col-sm-4 col-xs-6 tile_stats_count">
               <span class="count_top"><i class="fa fa-clock-o"></i> Total Servers</span>
-              <div class="count"><?php
-                $count = 0;
-                $services = \Seals\Library\Zookeeper::getServices();
-                foreach ($services as $service) {
-                  $count += is_array($service)?count($service):0;
-                }
-                echo $count;
+              <div class="count total-servers"><?php
+                echo \Seals\Web\Logic\Server::serversNum();
                 ?></div>
-<!--              <span class="count_bottom"><i class="green"><i class="fa fa-sort-asc"></i>3% </i> From last Week</span>-->
             </div>
             <div class="col-md-3 col-sm-4 col-xs-6 tile_stats_count">
               <span class="count_top"><i class="fa fa-user"></i> Total Events</span>

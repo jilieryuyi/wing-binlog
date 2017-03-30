@@ -263,6 +263,7 @@ class Report
      */
     public function eventsIncr($daytime, $event_type)
     {
+        Context::instance()->logger->debug("events happened", [$daytime, $event_type]);
 
         $day  = date("Ymd", strtotime($daytime));
         $hour = date("YmdH", strtotime($daytime));

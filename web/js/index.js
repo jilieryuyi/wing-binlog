@@ -602,6 +602,17 @@ function updateMaster(dom) {
     })
 }
 
+function loadTotalServers()
+{
+    $.ajax({
+        type : "POST",
+        url : "/services/servers/num",
+        success : function(num) {
+            $(".total-servers").html(num);
+        }
+    });
+}
+
 $(document).ready(function(){
     window.setInterval(function(){
         getAllServices(function(msg){
@@ -635,4 +646,5 @@ $(document).ready(function(){
             nodeRefresh(v, group_id, session_id);
         });
     },1000);
+    loadTotalServers();
 });

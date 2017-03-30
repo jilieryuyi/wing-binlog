@@ -53,6 +53,7 @@ class Route
             "/services/user/add"                     => "\\Seals\\Web\\Logic\\User::addUser",
             "/services/role/add"                     => "\\Seals\\Web\\Logic\\User::addRole",
             "/services/role/delete"                  => "\\Seals\\Web\\Logic\\User::roleDelete",
+            "/services/servers/num"                  => "\\Seals\\Web\\Login\\Server::serversNum"
         ]
     ];
 
