@@ -614,6 +614,18 @@ function loadTotalServers()
     });
 }
 
+function loadTotalEvents()
+{
+    $.ajax({
+        type : "POST",
+        url : "/services/server/events/total",
+        success : function(num) {
+            if (num)
+                $(".total-events").html(num);
+        }
+    });
+}
+
 $(document).ready(function(){
     window.setInterval(function(){
         getAllServices(function(msg){
@@ -647,6 +659,7 @@ $(document).ready(function(){
             nodeRefresh(v, group_id, session_id);
         });
         loadTotalServers();
+        loadTotalEvents();
 
     },1000);
 });

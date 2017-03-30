@@ -18,4 +18,9 @@ class Server
         }
         return $count;
     }
+
+    public static function totalEvents(HttpResponse $response = null)
+    {
+        return \Seals\Library\Report::getEventsCount();
+    }
 }
