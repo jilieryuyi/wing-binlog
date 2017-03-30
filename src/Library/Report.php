@@ -42,7 +42,6 @@ class Report
 
         //$event show set select update delete
         $key = self::REPORT_LIST. "-".$event. "-".$day."-".$time;
-
         $num = $this->redis->incr($key);
 
 
@@ -59,6 +58,11 @@ class Report
                 $this->setHourReadMax($hour, $num);
             }
 
+            $rmax = $this->getHistoryReadMax();
+            if ($num > $rmax)
+                $this->setHistoryReadMax($num);
+
+
         } else {
             $this->setDayWriteCount($day);
             $this->setHourWriteCount($hour);
@@ -71,6 +75,10 @@ class Report
             if ($num > $hmax) {
                 $this->setHourWriteMax($hour, $num);
             }
+
+            $wmax = $this->getHistoryWriteMax();
+            if ($num > $wmax)
+                $this->setHistoryWriteMax($num);
         }
 
         return $num;
@@ -360,108 +368,35 @@ class Report
         return $num;
     }
 
+
+    public function setHistoryReadMax($num)
+    {
+        $this->redis->set(self::REPORT_LIST . "-history-read-max-report", $num);
+    }
     /**
      * 历史最高读秒并发数量
      */
     public function getHistoryReadMax()
     {
-        $data  = $this->redis->get(self::REPORT_LIST."-history-read-max.report");
-        $max   = 0;
-
-        $days  = [];
-        if ($data) {
-            $max      = $data[0];
-            $last_day = $data[1];
-
-            if ($last_day == date("Ymd", time()-86400))
-                return $max;
-
-            $start    = time();
-            $end      = strtotime($last_day);
-            echo  date("Y-m-d",$start),"\r\n";
-            echo  date("Y-m-d",$end),"\r\n";
-
-            for ($time = $end+86400; $time <= $start-86400; $time += 86400) {
-                $days[] = date("Ymd", $time);
-            }
-
-        } else {
-
-            $keys1 = $this->redis->keys(self::REPORT_LIST . "-show" . ":*");
-            $keys2 = $this->redis->keys(self::REPORT_LIST . "-select" . ":*");
-
-            $keys = array_merge($keys1, $keys2);
-            foreach ($keys as $key) {
-                $temp = explode(":", $key);
-                $day = array_pop($temp);
-                if (!in_array($day, $days))
-                    $days[] = $day;
-            }
-
-            sort($days);
-        }
-
-        foreach ($days as $day) {
-            $num = $this->getDayReadMax($day);
-            if ($num > $max)
-                $max = $num;
-        }
-
-        $last_day = array_pop($days);
-
-        if (is_numeric($max) && $max >0)
-            $this->redis->set(self::REPORT_LIST."-history-read-max-report",[$max,$last_day]);
-        return $max;
+        $data  = $this->redis->get(self::REPORT_LIST."-history-read-max-report");
+        if (!$data)
+            return 0;
+        return $data;
     }
 
+    public function setHistoryWriteMax($num)
+    {
+        $this->redis->set(self::REPORT_LIST . "-history-write-max-report", $num);
+    }
     /**
      * 历史最高写秒并发
      */
     public function getHistoryWriteMax()
-
     {
-        $data  = $this->redis->get(self::REPORT_LIST."-history-write-max.report");
-        $max      = 0;
-
-        $days  = [];
-        if ($data) {
-            $max      = $data[0];
-            $last_day = $data[1];
-
-            if ($last_day == date("Ymd", time()-86400))
-                return $max;
-
-            $start    = time();
-            $end      = strtotime($last_day);
-            for ($time = $end+86400; $time <= $start-86400; $time += 86400) {
-                $days[] = date("Ymd", $time);
-            }
-        } else {
-
-            $keys1 = $this->redis->keys(self::REPORT_LIST . "-set" . ":*");
-            $keys2 = $this->redis->keys(self::REPORT_LIST . "-update" . ":*");
-            $keys3 = $this->redis->keys(self::REPORT_LIST . "-delete" . ":*");
-
-            $keys = array_merge($keys1, $keys2, $keys3);
-            foreach ($keys as $key) {
-                $temp = explode(":", $key);
-                $day = array_pop($temp);
-                if (!in_array($day, $days))
-                    $days[] = $day;
-            }
-
-            sort($days);
-        }
-
-        foreach ($days as $day) {
-            $num = $this->getDayWriteMax($day);
-            if ($num > $max)
-                $max = $num;
-        }
-
-        if (is_numeric($max) && $max >0)
-        $this->redis->set(self::REPORT_LIST."-history-write-max.report",[$max,array_pop($days)]);
-        return $max;
+        $data  = $this->redis->get(self::REPORT_LIST."-history-write-max-report");
+        if (!$data)
+            return 0;
+        return $data;
     }
 
 
