@@ -25,7 +25,7 @@ include "include/nav.php";
                 <div class="tile-stats">
                   <div class="icon"><i class="fa fa-caret-square-o-right"></i></div>
                   <div class="count"><?php echo
-                    \Seals\Library\Report::getDayEventAll(date("Ymd"), "insert_rows");
+                    \Seals\Library\Report::getDayEventAll(date("Ymd"), "write_rows");
                     ?></div>
                   <h3>Insert Rows</h3>
                   <p>Today insert rows</p>
