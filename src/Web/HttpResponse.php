@@ -279,6 +279,7 @@ class HttpResponse
                 break;
             }
 
+            //check access power
             if ($check_token && !Route::access($this)) {
                 if (!$is_ajax) {
                     ob_start();
@@ -294,12 +295,14 @@ class HttpResponse
             //if file exists
             if (file_exists($this->home . $resource)) {
 
+                //get from cache
                 if (isset(self::$static_files[$this->home . $resource])) {
                     $response  = self::$static_files[$this->home . $resource]["content"];
                     $mime_type = self::$static_files[$this->home . $resource]["mime"];
                     break;
                 }
 
+                //parse
                 $mime_type = MimeType::getMimeType($this->home . $resource);
                 if ($mime_type == "text/x-php") {
                     ob_start();
@@ -314,6 +317,7 @@ class HttpResponse
                     $mime_type = "text/html";
                 } else {
                     $response = file_get_contents($this->home . $resource);
+                    //set cache
                     self::$static_files[$this->home . $resource] =
                         [
                             "content" => $response,
