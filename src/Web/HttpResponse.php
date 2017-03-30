@@ -276,22 +276,60 @@ class HttpResponse
         do {
             //try to visit ../ dir, do safe filter and return 404 page
             if (strpos($resource, "..") !== false) {
-                $cache_control = "Cache-control: max-age=".(86400*30).",private,must-revalidation";
+                /*$cache_control = "Cache-control: max-age=".(86400*30).",private,must-revalidation";
                 ob_start();
                 include $this->home."/404.html";
                 $response = ob_get_contents();
-                ob_end_clean();
+                ob_end_clean();*/
+
+                if (isset(self::$static_files[$this->home . "/404.html"])) {
+                    $response    = self::$static_files[$this->home . "/404.html"]["content"];
+                    $mime_type   = self::$static_files[$this->home . "/404.html"]["mime"];
+                    $status_code = "HTTP/1.1 304 Not Modified";
+                    break;
+                } else {
+                    //else response 404 page
+                    ob_start();
+                    include $this->home . "/404.html";
+                    $response = ob_get_contents();
+                    ob_end_clean();
+
+                    self::$static_files[$this->home . "/404.html"] = [
+                        "content" => $response,
+                        "mime" => "text/html",
+                    ];
+                }
+
                 break;
             }
 
             //check access power
             if ($check_token && !Route::access($this)) {
                 if (!$is_ajax) {
-                    $cache_control = "Cache-control: max-age=".(86400*30).",private,must-revalidation";
+                    /*$cache_control = "Cache-control: max-age=".(86400*30).",private,must-revalidation";
                     ob_start();
                     include $this->home . "/401.html";
                     $response = ob_get_contents();
-                    ob_end_clean();
+                    ob_end_clean();*/
+
+                    if (isset(self::$static_files[$this->home . "/404.html"])) {
+                        $response  = self::$static_files[$this->home . "/404.html"]["content"];
+                        $mime_type = self::$static_files[$this->home . "/404.html"]["mime"];
+                        $status_code = "HTTP/1.1 304 Not Modified";
+                        break;
+                    } else {
+                        //else response 404 page
+                        ob_start();
+                        include $this->home . "/404.html";
+                        $response = ob_get_contents();
+                        ob_end_clean();
+
+                        self::$static_files[$this->home . "/404.html"] = [
+                            "content" => $response,
+                            "mime" => "text/html",
+                        ];
+                    }
+
                 } else {
                     $cache_control = "Cache-control: max-age=0,private,must-revalidation";
                     $response = json_encode(["error_code" => 401, "error_msg" => "not allow access"]);
@@ -364,11 +402,25 @@ class HttpResponse
                 break;
             }
 
-            //else response 404 page
-            ob_start();
-            include $this->home."/404.html";
-            $response = ob_get_contents();
-            ob_end_clean();
+
+
+            if (isset(self::$static_files[$this->home . "/404.html"])) {
+                $response  = self::$static_files[$this->home . "/404.html"]["content"];
+                $mime_type = self::$static_files[$this->home . "/404.html"]["mime"];
+                $status_code = "HTTP/1.1 304 Not Modified";
+                break;
+            } else {
+                //else response 404 page
+                ob_start();
+                include $this->home . "/404.html";
+                $response = ob_get_contents();
+                ob_end_clean();
+
+                self::$static_files[$this->home . "/404.html"] = [
+                    "content" => $response,
+                    "mime" => "text/html",
+                ];
+            }
 
         } while (0);
 
