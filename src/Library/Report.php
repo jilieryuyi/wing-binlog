@@ -234,19 +234,19 @@ class Report
 
     public function getHourReadMax($hour)
     {
-        $num = $this->redis->get(self::REPORT_LIST."-hour-".$hour."-read-max.report");
+        $num = $this->redis->get(self::REPORT_LIST."-hour-".$hour."-read-max-report");
         if (!$num)
             return 0;
         return $num;
     }
     public function setHourReadMax($hour, $size)
     {
-        return $this->redis->set(self::REPORT_LIST."-hour-".$hour."-read-max.report", $size);
+        return $this->redis->set(self::REPORT_LIST."-hour-".$hour."-read-max-report", $size);
     }
 
     protected function setDayReadMax($day, $size)
     {
-        $this->redis->set(self::REPORT_LIST."-day-".$day."-read-max.report", $size);
+        $this->redis->set(self::REPORT_LIST."-day-".$day."-read-max-report", $size);
     }
     /**
      * 当天最高读秒并发数量
@@ -256,7 +256,7 @@ class Report
      */
     public function getDayReadMax($day)
     {
-        $num = $this->redis->get(self::REPORT_LIST."-day-".$day."-read-max.report");
+        $num = $this->redis->get(self::REPORT_LIST."-day-".$day."-read-max-report");
         if (!$num)
             return 0;
         return $num;
@@ -402,7 +402,7 @@ class Report
 
     public function getHourWriteMax($day_hour)
     {
-        $max = $this->redis->get(self::REPORT_LIST."-hour-".$day_hour."-write-max.report");
+        $max = $this->redis->get(self::REPORT_LIST."-hour-".$day_hour."-write-max-report");
         if (!$max)
             return 0;
         return $max;
@@ -410,19 +410,19 @@ class Report
 
     protected function setHourWriteMax($day_hour, $size)
     {
-        $this->redis->set(self::REPORT_LIST."-hour-".$day_hour."-write-max.report", $size);
+        $this->redis->set(self::REPORT_LIST."-hour-".$day_hour."-write-max-report", $size);
     }
 
     protected function setDayWriteMax($day, $size)
     {
-        $this->redis->set(self::REPORT_LIST."-day-".$day."-write-max.report", $size);
+        $this->redis->set(self::REPORT_LIST."-day-".$day."-write-max-report", $size);
     }
     /**
      * 获取当天秒写最高并发
      */
     public function getDayWriteMax($day)
     {
-        $max = $this->redis->get(self::REPORT_LIST."-day-".$day."-write-max.report");
+        $max = $this->redis->get(self::REPORT_LIST."-day-".$day."-write-max-report");
         if (!$max)
             return 0;
         return $max;
