@@ -36,6 +36,20 @@ CACHE:
     vendors/bootstrap-daterangepicker/daterangepicker.js
     vendors/switchery/dist/switchery.min.js
     images/img.jpg
+    js/js.cookie.js
+    js/history.js
+    build/js/custom.js
+
+    vendors/font-awesome/fonts/fontawesome-webfont.woff2?v=4.6.3
+    vendors/font-awesome/fonts/fontawesome-webfont.woff2
+    vendors/bootstrap/dist/fonts/glyphicons-halflings-regular.woff2
+    vendors/font-awesome/fonts/fontawesome-webfont.woff?v=4.6.3
+    vendors/font-awesome/fonts/fontawesome-webfont.woff
+    vendors/bootstrap/dist/fonts/glyphicons-halflings-regular.woff
+    vendors/font-awesome/fonts/fontawesome-webfont.ttf?v=4.6.3
+    vendors/font-awesome/fonts/fontawesome-webfont.ttf
+    vendors/bootstrap/dist/fonts/glyphicons-halflings-regular.ttf
+    favicon.ico
 
 NETWORK:
     *.php
