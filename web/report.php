@@ -27,7 +27,7 @@ include "include/nav.php";
                   <div class="count"><?php echo
                     \Seals\Web\Logic\Node::getHistoryReadMax($session_id);
                     ?></div>
-                  <h3>Insert Rowa</h3>
+                  <h3>Insert Rows</h3>
                   <p>Today insert rows</p>
                 </div>
               </div>
