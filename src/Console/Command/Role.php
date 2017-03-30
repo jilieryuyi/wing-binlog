@@ -1,8 +1,5 @@
 <?php namespace Seals\Console\Command;
 
-use Seals\Cache\File;
-use Seals\Library\Master;
-use Seals\Web\Logic\User;
 use Seals\Web\Route;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -33,7 +30,7 @@ class Role extends Command
         $pages = Route::getAll();
 
 
-        User::roleAdd($name, $pages);
+        \Seals\Web\Logic\User::roleAdd($name, $pages);
 
     }
 }
