@@ -38,6 +38,6 @@ CACHE:
     images/img.jpg
 
 NETWORK:
-    *
+    *.php
 FALLBACK
     index.html index.html
