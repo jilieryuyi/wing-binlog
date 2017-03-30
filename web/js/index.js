@@ -664,8 +664,8 @@ $(document).ready(function(){
             var session_id = $(v).attr("data-session-id");
             nodeRefresh(v, group_id, session_id);
         });
-        loadTotalServers();
-        loadTotalEvents();
+        // loadTotalServers();
+        // loadTotalEvents();
 
     },1000);
 });
