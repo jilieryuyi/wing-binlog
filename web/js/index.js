@@ -608,7 +608,7 @@ function loadTotalServers()
         type : "POST",
         url : "/services/servers/num",
         success : function(num) {
-            if (num)
+            if (num && num.isNumber())
                 $(".total-servers").html(num);
         }
     });
@@ -620,7 +620,7 @@ function loadTotalEvents()
         type : "POST",
         url : "/services/server/events/total",
         success : function(num) {
-            if (num)
+            if (num && num.isNumber())
                 $(".total-events").html(num);
         }
     });
