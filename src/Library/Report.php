@@ -320,12 +320,25 @@ class Report
         //global key
         $key_all       = self::REPORT_LIST."-global-events-all-count";
         $key_day       = self::REPORT_LIST."-global-events-day-".$day."-".Context::instance()->session_id;
+        $key_day_ea    = self::REPORT_LIST."-events-type-".$event_type."-day-".$day;//."-".Context::instance()->session_id;
 
         Context::instance()->redis_zookeeper->incr($key_all);
         Context::instance()->redis_zookeeper->incr($key_day);
+        Context::instance()->redis_zookeeper->incr($key_day_ea);
 
 
         return $this->redis->incr($key);
+    }
+
+    public static function getDayEventAll($day, $event_type)
+    {
+        if (!Context::instance()->redis_zookeeper)
+            Context::instance()->zookeeperInit();
+        $key_day_ea    = self::REPORT_LIST."-events-type-".$event_type."-day-".$day;
+        $num = Context::instance()->redis_zookeeper->get($key_day_ea);
+        if (!$num)
+            return 0;
+        return $num;
     }
 
     public function getDayEventTypeCount($day, $event_type)

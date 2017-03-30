@@ -25,7 +25,7 @@ include "include/nav.php";
                 <div class="tile-stats">
                   <div class="icon"><i class="fa fa-caret-square-o-right"></i></div>
                   <div class="count"><?php echo
-                    \Seals\Web\Logic\Node::getHistoryReadMax($session_id);
+                    \Seals\Library\Report::getDayEventAll(date("Ymd"), "insert_rows");
                     ?></div>
                   <h3>Insert Rows</h3>
                   <p>Today insert rows</p>
@@ -34,7 +34,9 @@ include "include/nav.php";
               <div class="animated flipInY col-lg-3 col-md-4 col-sm-6 col-xs-12">
                 <div class="tile-stats">
                   <div class="icon"><i class="fa fa-comments-o"></i></div>
-                  <div class="count"><?php echo \Seals\Web\Logic\Node::getHistoryWriteMax($session_id); ?></div>
+                  <div class="count"><?php echo
+                    \Seals\Library\Report::getDayEventAll(date("Ymd"), "delete_rows");
+                    ?></div>
                   <h3>Delete Rows</h3>
                   <p>Today delete rows</p>
                 </div>
@@ -42,19 +44,13 @@ include "include/nav.php";
               <div class="animated flipInY col-lg-3 col-md-4 col-sm-6 col-xs-12">
                 <div class="tile-stats">
                   <div class="icon"><i class="fa fa-sort-amount-desc"></i></div>
-                  <div class="count"><?php echo \Seals\Web\Logic\Node::getDayReadMax($session_id, date("Ymd")); ?></div>
+                  <div class="count"><?php echo
+                    \Seals\Library\Report::getDayEventAll(date("Ymd"), "update_rows");
+                    ?></div>
                   <h3>Update Rows</h3>
                   <p>Today update rows</p>
                 </div>
               </div>
-<!--              <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">-->
-<!--                <div class="tile-stats">-->
-<!--                  <div class="icon"><i class="fa fa-check-square-o"></i></div>-->
-<!--                  <div class="count">--><?php //echo \Seals\Web\Logic\Node::getDayWriteMax($session_id, date("Ymd")); ?><!--</div>-->
-<!--                  <h3>Write</h3>-->
-<!--                  <p>Today highest write concurrency</p>-->
-<!--                </div>-->
-<!--              </div>-->
             </div>
 
             <div class="row" style="margin-bottom: 12px;">
