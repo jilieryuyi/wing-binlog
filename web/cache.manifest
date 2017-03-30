@@ -1,6 +1,9 @@
 CACHE MANIFEST
 version 1.0
 CACHE:
+    js/js.cookie.js
+    js/history.js
+    js/datatime.js
     vendors/bootstrap/dist/css/bootstrap.min.css
     vendors/font-awesome/css/font-awesome.min.css
     vendors/nprogress/nprogress.css
@@ -36,9 +39,6 @@ CACHE:
     vendors/bootstrap-daterangepicker/daterangepicker.js
     vendors/switchery/dist/switchery.min.js
     images/img.jpg
-    js/js.cookie.js
-    js/history.js
-    js/datatime.js
     build/js/custom.js
 
     vendors/font-awesome/fonts/fontawesome-webfont.woff2?v=4.6.3
