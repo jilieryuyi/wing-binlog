@@ -604,13 +604,13 @@ function updateMaster(dom) {
 
 function loadTotalServers()
 {
-    // $.ajax({
-    //     type : "POST",
-    //     url : "/services/servers/num",
-    //     success : function(num) {
-    //         $(".total-servers").html(num);
-    //     }
-    // });
+    $.ajax({
+        type : "POST",
+        url : "/services/servers/num",
+        success : function(num) {
+            $(".total-servers").html(num);
+        }
+    });
 }
 
 $(document).ready(function(){
@@ -645,6 +645,7 @@ $(document).ready(function(){
             var session_id = $(v).attr("data-session-id");
             nodeRefresh(v, group_id, session_id);
         });
+        loadTotalServers();
+
     },1000);
-    loadTotalServers();
 });
