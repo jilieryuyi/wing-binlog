@@ -31,6 +31,9 @@ function nodeRefresh(v, group_id, session_id)
             } else {
                 $(".login-timeout").hide();
             }
+            if (typeof data.error_code != "undefined") {
+                return;
+            }
 
             if (data.is_leader == 1) {
                 $(v).find(".last-pos").html(data.last_binlog+" => "+data.last_pos);
@@ -235,6 +238,9 @@ function getAllServices(callback) {
             if (typeof data.error_code != "undefined" && data.error_code == 4000) {
                 window.location.href="/login.php";
                 $(".login-timeout").show();
+                return;
+            }
+            if (typeof data.error_code != "undefined") {
                 return;
             }
             callback(msg);
