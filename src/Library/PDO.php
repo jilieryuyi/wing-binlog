@@ -106,8 +106,10 @@ class PDO implements DbInterface
 
             $this->bconnected = true;
         } catch (\PDOException $e) {
-            trigger_error("pdo connect error => ".json_encode($e->errorInfo,JSON_UNESCAPED_UNICODE));
+            Context::instance()->logger->error("pdo connect error", $e->errorInfo);
             var_dump("pdo ".__FUNCTION__,$e->errorInfo);
+            sleep(1);
+            $this->connect();
         }
     }
 
@@ -155,7 +157,7 @@ class PDO implements DbInterface
         } catch (\PDOException $e) {
             $this->close();
             $this->connect();
-            trigger_error("pdo init => ".json_encode($e->errorInfo,JSON_UNESCAPED_UNICODE));
+            Context::instance()->logger->error("pdo init", $e->errorInfo);
             var_dump("pdo ".__FUNCTION__,$e->errorInfo);
         }
         $this->parameters = array();
@@ -202,7 +204,7 @@ class PDO implements DbInterface
                     return 0;
             }
         } catch (\PDOException $e) {
-            trigger_error("pdo query => ".json_encode($e->errorInfo,JSON_UNESCAPED_UNICODE));
+            Context::instance()->logger->error("pdo query", $e->errorInfo);
             var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             $this->close();
             $this->connect();
@@ -224,7 +226,7 @@ class PDO implements DbInterface
             else
                 return 0;
         } catch (\PDOException $e) {
-            trigger_error("pdo lastInsertId => ".json_encode($e->errorInfo,JSON_UNESCAPED_UNICODE));
+            Context::instance()->logger->error("pdo lastInsertId", $e->errorInfo);
             var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             $this->close();
             $this->connect();
@@ -243,7 +245,7 @@ class PDO implements DbInterface
             if ($this->pdo)
                 return $this->pdo->beginTransaction();
         } catch (\PDOException $e) {
-            trigger_error("pdo startTransaction => ".json_encode($e->errorInfo,JSON_UNESCAPED_UNICODE));
+            Context::instance()->logger->error("pdo startTransaction", $e->errorInfo);
             var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             $this->close();
             $this->connect();
@@ -262,7 +264,7 @@ class PDO implements DbInterface
             if ($this->pdo)
                 return $this->pdo->commit();
         } catch (\PDOException $e) {
-            trigger_error("pdo commit => ".json_encode($e->errorInfo,JSON_UNESCAPED_UNICODE));
+            Context::instance()->logger->error("pdo commit", $e->errorInfo);
             var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             $this->close();
             $this->connect();
@@ -281,7 +283,7 @@ class PDO implements DbInterface
             if ($this->pdo)
                 return $this->pdo->rollBack();
         } catch (\PDOException $e) {
-            trigger_error("pdo rollBack => ".json_encode($e->errorInfo,JSON_UNESCAPED_UNICODE));
+            Context::instance()->logger->error("pdo rollBack", $e->errorInfo);
             var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             $this->close();
             $this->connect();
@@ -308,7 +310,7 @@ class PDO implements DbInterface
                 return $result;
             }
         } catch (\PDOException $e) {
-            trigger_error("pdo row => ".json_encode($e->errorInfo,JSON_UNESCAPED_UNICODE));
+            Context::instance()->logger->error("pdo row", $e->errorInfo);
             var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             $this->close();
             $this->connect();
