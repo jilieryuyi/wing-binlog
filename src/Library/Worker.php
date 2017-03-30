@@ -988,6 +988,8 @@ class Worker implements Process
             else
                 $fp = null;
 
+            $last_daytime = 0;
+
             while (1) {
                 try {
                     ob_start();
@@ -1027,6 +1029,7 @@ class Worker implements Process
                         //read 10000 lines then check 1 isOpen and logOutput
                         for ($i = 0; $i < 1000; ++$i)
                         {
+                            clearstatcache();
                             $line  = fgets($fp);
                             $lsize = strlen($line);
                             if ($lsize <= 0 || !$line) {
@@ -1044,6 +1047,10 @@ class Worker implements Process
                             Context::instance()->logger->debug("general log => ".$_line);
 
                             $temp     = preg_split("/[\s]+/", $_line, 4);
+                            if (!isset($temp[0]) || !$temp[0]) {
+                                Context::instance()->logger->debug("general log => split error");
+                                continue;
+                            }
                             unset($_line);
                             $datetime = strtotime($temp[0]);
 
