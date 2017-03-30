@@ -269,6 +269,8 @@ class HttpResponse
         $check_token = User::checkToken($appid, $token);
         unset($appid, $token);
 
+        $status_code = "HTTP/1.1 200 OK";
+        $expire = 'Expires: Mon, 26 Jul 1997 05:00:00 GMT';
         do {
             //try to visit ../ dir, do safe filter and return 404 page
             if (strpos($resource, "..") !== false) {
@@ -299,6 +301,9 @@ class HttpResponse
                 if (isset(self::$static_files[$this->home . $resource])) {
                     $response  = self::$static_files[$this->home . $resource]["content"];
                     $mime_type = self::$static_files[$this->home . $resource]["mime"];
+                    $status_code = "HTTP/1.1 304 Not Modified";
+                    $expire = 'Expires: Mon, 26 Jul 2100 05:00:00 GMT';
+
                     break;
                 }
 
@@ -359,8 +364,9 @@ class HttpResponse
         unset($_GET, $_POST, $_REQUEST, $_COOKIE);
 
         $headers            = [
-            "HTTP/1.1 200 OK",
-            "Cache-control: max-age=86400",
+            $status_code,
+            $expire,
+            "Cache-control: max-age=86400,private,must-revalidation",
             "Connection: keep-alive",
             "Server: wing-binlog-http by yuyi,297341015@qq.com,jilieryuyi@gmail.com",
             "Date: " . gmdate("D,d M Y H:m:s")." GMT",
