@@ -21,7 +21,7 @@ include "include/nav.php";
         <div class="right_col" role="main">
           <div class="">
             <div class="row top_tiles">
-              <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+              <div class="animated flipInY col-lg-3 col-md-4 col-sm-6 col-xs-12">
                 <div class="tile-stats">
                   <div class="icon"><i class="fa fa-caret-square-o-right"></i></div>
                   <div class="count"><?php echo
@@ -31,7 +31,7 @@ include "include/nav.php";
                   <p>Today insert rows</p>
                 </div>
               </div>
-              <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+              <div class="animated flipInY col-lg-3 col-md-4 col-sm-6 col-xs-12">
                 <div class="tile-stats">
                   <div class="icon"><i class="fa fa-comments-o"></i></div>
                   <div class="count"><?php echo \Seals\Web\Logic\Node::getHistoryWriteMax($session_id); ?></div>
@@ -39,7 +39,7 @@ include "include/nav.php";
                   <p>Today delete rows</p>
                 </div>
               </div>
-              <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+              <div class="animated flipInY col-lg-3 col-md-4 col-sm-6 col-xs-12">
                 <div class="tile-stats">
                   <div class="icon"><i class="fa fa-sort-amount-desc"></i></div>
                   <div class="count"><?php echo \Seals\Web\Logic\Node::getDayReadMax($session_id, date("Ymd")); ?></div>
