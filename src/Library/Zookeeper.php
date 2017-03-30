@@ -172,7 +172,7 @@ class Zookeeper
             return [];
         }
         $services = Context::instance()->redis_zookeeper->keys(self::SERVICE_KEY.":services:*");
-        //var_dump($services);
+        var_dump($services);
         $res = [];
         foreach ($services as $service) {
             $temp = explode(":",$service);
@@ -180,7 +180,7 @@ class Zookeeper
 
             $data = Context::instance()->redis_zookeeper->hgetall($service);
             if (!$data) {
-                //echo  $service ,"没有节点\r\n";
+                echo  $service ,"没有节点\r\n";
                 //clear node cache
                 Context::instance()->redis_zookeeper->del($service);
                 //clear leader cache
@@ -200,7 +200,7 @@ class Zookeeper
             }
 
             if (count($res[$key]) <= 0) {
-                //echo  $service ,"没有节点2\r\n";
+                echo  $service ,"没有节点2\r\n";
 
                 Context::instance()->redis_zookeeper->del($service);
                 Context::instance()->redis_zookeeper->del(self::SERVICE_KEY.":leader:".$key);
@@ -208,7 +208,7 @@ class Zookeeper
             }
             unset($temp,$key,$data);
         }
-        //var_dump($res);
+        var_dump($res);
         return $res;
     }
 
