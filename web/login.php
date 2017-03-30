@@ -48,7 +48,7 @@ if (isset($_POST["Username"]) && isset($_POST["Password"])) {
         Cookies.set('wing-binlog-appid', appid, { expires: 1 });
         Cookies.set('wing-binlog-token', token, { expires: 1 });
         //window.location.href = "index.php";
-        History.back();
+        //History.back();
       }
     </script>
   </head>
