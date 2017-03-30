@@ -178,7 +178,7 @@ class Zookeeper
 
             $data = Context::instance()->redis_zookeeper->hgetall($service);
             if (!$data) {
-                echo  $service ,"没有节点\r\n";
+                //echo  $service ,"没有节点\r\n";
                 //clear node cache
                 Context::instance()->redis_zookeeper->del($service);
                 //clear leader cache
@@ -198,7 +198,7 @@ class Zookeeper
             }
 
             if (count($res[$key]) <= 0) {
-                echo  $service ,"没有节点2\r\n";
+                //echo  $service ,"没有节点2\r\n";
 
                 Context::instance()->redis_zookeeper->del($service);
                 Context::instance()->redis_zookeeper->del(self::SERVICE_KEY.":leader:".$key);
