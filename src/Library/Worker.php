@@ -991,6 +991,7 @@ class Worker implements Process
             while (1) {
                 try {
                     ob_start();
+
                     pcntl_signal_dispatch();
                     $log_output = $general->logOutput();
                     if ($log_output != "file") {
@@ -1012,6 +1013,8 @@ class Worker implements Process
                             $fp = null;
                             unset($general_is_open);
                             sleep(1);
+                            Context::instance()->logger->debug("general log => disabled");
+
                             break;
                         }
                         unset($general_is_open);
@@ -1039,8 +1042,10 @@ class Worker implements Process
                             unset($_line);
                             $datetime = strtotime($temp[0]);
 
-                            if ($datetime <= 0)
+                            if ($datetime <= 0) {
+                                Context::instance()->logger->debug("general log => datetime error");
                                 continue;
+                            }
 
                             var_dump($temp);
                             $event_type = trim($temp[2]);
@@ -1080,6 +1085,7 @@ class Worker implements Process
                                     fseek($fp, $read_size);
                                 }
                                 unset($_file_name);
+                                Context::instance()->logger->debug("general log => read end");
 
                                 break;
                             }
