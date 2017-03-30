@@ -26,7 +26,9 @@ try {
         \Seals\Console\Command\MasterStop::class,
         \Seals\Console\Command\MasterStatus::class,
         \Seals\Console\Command\MasterRestart::class,
-        \Seals\Console\Command\User::class
+        \Seals\Console\Command\User::class,
+        \Seals\Console\Command\Role::class
+
     ];
     foreach ($commands as $command) {
         $application->add(new $command);
