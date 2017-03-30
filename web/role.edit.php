@@ -120,7 +120,11 @@ include "include/nav.php";
       },
       url  : "/services/role/add",
       success : function(msg) {
+          if (!msg || msg <= 0) {
+            alert("保存失败");
+          } else {
 
+          }
       }
     });
 
