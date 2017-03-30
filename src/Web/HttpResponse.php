@@ -270,6 +270,8 @@ class HttpResponse
         unset($appid, $token);
 
         $status_code = "HTTP/1.1 200 OK";
+        $cache_control = "Cache-control: max-age=".(86400*30).",private,must-revalidation";
+
         //$expire = 'Expires: Mon, 26 Jul 1997 05:00:00 GMT';
         do {
             //try to visit ../ dir, do safe filter and return 404 page
@@ -310,6 +312,8 @@ class HttpResponse
                 //parse
                 $mime_type = MimeType::getMimeType($this->home . $resource);
                 if ($mime_type == "text/x-php") {
+                    $cache_control = "Cache-control: max-age=0,private,must-revalidation";
+
                     ob_start();
                     if ($check_token) {
                         include $this->home . $resource;
@@ -365,8 +369,9 @@ class HttpResponse
 
         $headers            = [
             $status_code,
+            $cache_control,
           //  $expire,
-            "Cache-control: max-age=".(86400*30).",private,must-revalidation",
+            //"Cache-control: max-age=".(86400*30).",private,must-revalidation",
             "Connection: keep-alive",
             "Server: wing-binlog-http by yuyi,297341015@qq.com,jilieryuyi@gmail.com",
             "Date: " . gmdate("D,d M Y H:m:s")." GMT",
