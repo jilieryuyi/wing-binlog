@@ -93,15 +93,9 @@ include "include/nav.php";
                     <thead>
                     <tr>
                       <th>Day</th>
-<!--                      <th>Show</th>-->
-                      <th>Insert Times/Rows</th>
-                      <th>Delete Times/Rows</th>
-                      <th>Update Times/Rows</th>
-                      <th>Select</th>
-                      <th>Highest Read</th>
-                      <th>Highest Write</th>
-                      <th>Total Read</th>
-                      <th>Total Write</th>
+                      <th>Insert Rows</th>
+                      <th>Delete Rows</th>
+                      <th>Update Rows</th>
                       <th>Operate</th>
                     </tr>
                     </thead>
@@ -183,14 +177,9 @@ include "include/nav.php";
           list.append(
               "<tr>"+
               "<th scope=\"row\">"+day+"</th>"+
-          "<td>"+row.insert+"/"+row.write_rows+"</td>"+
-          "<td>"+row.delete+"/"+row.delete_rows+"</td>"+
-          "<td>"+row.update+"/"+row.update_rows+"</td>"+
-          "<td>"+row.select+"</td>"+
-          "<td>"+row.read_max+"</td>"+
-          "<td>"+row.write_max+"</td>"+
-          "<td>"+row.read_total+"</td>"+
-          "<td>"+row.write_total+"</td>"+
+          "<td>"+row.write_rows+"</td>"+
+          "<td>"+row.delete_rows+"</td>"+
+          "<td>"+row.update_rows+"</td>"+
           "<td><a class=\"r-detail\" href=\"report.detail.php?session_id="+session_id+"&day="+day+"\">Detail</a></td>"+
           "</tr>");
         }
