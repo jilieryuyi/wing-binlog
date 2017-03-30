@@ -25,6 +25,8 @@ class HttpResponse
     protected $headers = [];
     protected $debug = false;
 
+    protected static $static_files = [];
+
     public function __construct(Http $http,$home, $buffer, $data, $client)
     {
         $this->buffer = $buffer;
@@ -290,6 +292,13 @@ class HttpResponse
 
             //if file exists
             if (file_exists($this->home . $resource)) {
+
+                if (isset(self::$static_files[$this->home . $resource])) {
+                    $response  = self::$static_files[$this->home . $resource]["content"];
+                    $mime_type = self::$static_files[$this->home . $resource]["mime"];
+                    break;
+                }
+
                 $mime_type = MimeType::getMimeType($this->home . $resource);
                 if (in_array($mime_type, ["text/x-php", "text/html"])) {
                     ob_start();
@@ -304,6 +313,11 @@ class HttpResponse
                     $mime_type = "text/html";
                 } else {
                     $response = file_get_contents($this->home . $resource);
+                    self::$static_files[$this->home . $resource] =
+                        [
+                            "content" => $response,
+                            "mime"    => $mime_type,
+                        ];
                 }
                 unset($check_token);
                 break;
