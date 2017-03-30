@@ -7,38 +7,34 @@ include "include/nav.php";
         <div class="right_col" role="main">
           <div class="">
             <div class="row top_tiles">
-              <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+              <div class="animated flipInY col-lg-3 col-md-4 col-sm-6 col-xs-12">
                 <div class="tile-stats">
                   <div class="icon"><i class="fa fa-caret-square-o-right"></i></div>
                   <div class="count"><?php echo
-                    \Seals\Web\Logic\Node::getHistoryReadMax($session_id);
+                    \Seals\Library\Report::getDayEventAll(date("Ymd"), "insert_rows");
                     ?></div>
-                  <h3>Read</h3>
-                  <p>History highest read concurrency</p>
+                  <h3>Insert Rows</h3>
+                  <p>Today insert rows</p>
                 </div>
               </div>
-              <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+              <div class="animated flipInY col-lg-3 col-md-4 col-sm-6 col-xs-12">
                 <div class="tile-stats">
                   <div class="icon"><i class="fa fa-comments-o"></i></div>
-                  <div class="count"><?php echo \Seals\Web\Logic\Node::getHistoryWriteMax($session_id); ?></div>
-                  <h3>Write</h3>
-                  <p>History highest write concurrency</p>
+                  <div class="count"><?php echo
+                    \Seals\Library\Report::getDayEventAll(date("Ymd"), "delete_rows");
+                    ?></div>
+                  <h3>Delete Rows</h3>
+                  <p>Today delete rows</p>
                 </div>
               </div>
-              <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
+              <div class="animated flipInY col-lg-3 col-md-4 col-sm-6 col-xs-12">
                 <div class="tile-stats">
                   <div class="icon"><i class="fa fa-sort-amount-desc"></i></div>
-                  <div class="count"><?php echo \Seals\Web\Logic\Node::getDayReadMax($session_id, date("Ymd")); ?></div>
-                  <h3>Read</h3>
-                  <p>Today highest read concurrency</p>
-                </div>
-              </div>
-              <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
-                <div class="tile-stats">
-                  <div class="icon"><i class="fa fa-check-square-o"></i></div>
-                  <div class="count"><?php echo \Seals\Web\Logic\Node::getDayWriteMax($session_id, date("Ymd")); ?></div>
-                  <h3>Write</h3>
-                  <p>Today highest write concurrency</p>
+                  <div class="count"><?php echo
+                    \Seals\Library\Report::getDayEventAll(date("Ymd"), "update_rows");
+                    ?></div>
+                  <h3>Update Rows</h3>
+                  <p>Today update rows</p>
                 </div>
               </div>
             </div>
@@ -72,16 +68,9 @@ include "include/nav.php";
                     <thead>
                     <tr>
                       <th>Hour</th>
-<!--                      <th>Show</th>-->
-                      <th>Insert Times/Rows</th>
-                      <th>Delete Times/Rows</th>
-                      <th>Update Times/Rows</th>
-                      <th>Select</th>
-                      <th>Highest Read</th>
-                      <th>Highest Write</th>
-                      <th>Total Read</th>
-                      <th>Total Write</th>
-<!--                      <th>Operate</th>-->
+                      <th>Insert Rows</th>
+                      <th>Delete Rows</th>
+                      <th>Update Rows</th>
                     </tr>
                     </thead>
                     <tbody class="report-list">
@@ -162,15 +151,9 @@ include "include/nav.php";
           list.append(
               "<tr>"+
               "<th scope=\"row\">"+day+"</th>"+
-          "<td>"+row.insert+"/"+row.write_rows+"</td>"+
-          "<td>"+row.delete+"/"+row.delete_rows+"</td>"+
-          "<td>"+row.update+"/"+row.update_rows+"</td>"+
-          "<td>"+row.select+"</td>"+
-          "<td>"+row.read_max+"</td>"+
-          "<td>"+row.write_max+"</td>"+
-          "<td>"+row.read_total+"</td>"+
-          "<td>"+row.write_total+"</td>"+
-          //"<td><a class=\"r-detail\" href=\"#\">Detail</a></td>"+
+          "<td>"+row.write_rows+"</td>"+
+          "<td>"+row.delete_rows+"</td>"+
+          "<td>"+row.update_rows+"</td>"+
           "</tr>");
         }
       }
