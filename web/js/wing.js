@@ -47,7 +47,7 @@ window.addEventListener('load', function(e) {
         }
     }, false);
 }, false);
-
+/*
 $(document).ready(function(){
     $(document).on("keydown", function(e){
         console.log(e.which , e.keyCode);
@@ -60,7 +60,7 @@ $(document).ready(function(){
             window.location.href = href;
         }
     });
-});
+});*/
 
 
 

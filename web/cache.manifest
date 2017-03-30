@@ -38,6 +38,7 @@ CACHE:
     images/img.jpg
     js/js.cookie.js
     js/history.js
+    js/datatime.js
     build/js/custom.js
 
     vendors/font-awesome/fonts/fontawesome-webfont.woff2?v=4.6.3
