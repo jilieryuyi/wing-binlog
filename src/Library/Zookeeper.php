@@ -167,8 +167,10 @@ class Zookeeper
      */
     public static function getServices()
     {
-        if (!Context::instance()->redis_zookeeper)
+        if (!Context::instance()->redis_zookeeper) {
+            echo "zookeeper error\r\n";
             return [];
+        }
         $services = Context::instance()->redis_zookeeper->keys(self::SERVICE_KEY.":services:*");
         //var_dump($services);
         $res = [];
