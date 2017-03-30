@@ -366,7 +366,7 @@ class HttpResponse
         $headers            = [
             $status_code,
             $expire,
-            "Cache-control: max-age=86400,private,must-revalidation",
+            "Cache-control: max-age=".(86400*30).",private,must-revalidation",
             "Connection: keep-alive",
             "Server: wing-binlog-http by yuyi,297341015@qq.com,jilieryuyi@gmail.com",
             "Date: " . gmdate("D,d M Y H:m:s")." GMT",
