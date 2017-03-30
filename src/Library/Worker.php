@@ -1057,6 +1057,7 @@ class Worker implements Process
                             unset($temp);
 
                             $report->set($datetime, $event);
+                            Context::instance()->logger->debug("general log => ".$datetime."--".$event);
                             echo date("Y-m-d H:i:s", $datetime), "=>", strtolower($event_type), "=>", $event, "\r\n";
                             unset($datetime, $event_type, $event);
                             $count++;
