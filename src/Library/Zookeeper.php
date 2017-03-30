@@ -66,7 +66,7 @@ class Zookeeper
             json_encode($data)
         );
 
-        if (!$success) {
+        if ($success === false) {
             var_dump($success);
             echo "report error=----redis set error\r\n";
         }
