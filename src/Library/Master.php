@@ -543,6 +543,8 @@ class Master implements Process
             Context::instance()->set("zookeeper", new Zookeeper(Context::instance()->redis_zookeeper));
 
             $http = new Http($this->home_path, $this->ip, $this->port);
+            $http->setDebug($this->debug);
+
             $http->on(Http::ON_HTTP_RECEIVE, function (HttpResponse $response) {
                 $response->response();
                 unset($response);

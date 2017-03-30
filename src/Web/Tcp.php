@@ -16,6 +16,7 @@ class Tcp
     protected $socket;
     protected $clients = [];
     protected $buffers = [];
+    protected $debug = false;
 
     const ON_RECEIVE = "on_read";
     const ON_WRITE   = "on_write";
@@ -69,6 +70,12 @@ class Tcp
 
     }
 
+
+    public function setDebug($debug)
+    {
+        $this->debug = !!$debug;
+    }
+
     /**
      * on receive data, this will be call
      *
@@ -89,12 +96,6 @@ class Tcp
      */
     protected function onWrite($buffer, $client = null)
     {
-//        $i = array_search($client, $this->clients);
-//        if (isset($this->buffers[$i]))
-//            $buffer = $this->buffers[$i];
-//        echo "tcp on write\r\n";
-//        var_dump($client, $buffer);
-
         $this->call(self::ON_WRITE,[$client, $buffer]);
     }
 
@@ -177,7 +178,6 @@ class Tcp
                         $this->onConnect($conn, null);
                         $this->clients[] = $conn;
                     } else {
-                        echo "read\r\n";
                         $sock_data = fread($client, 10240);
                         if ($sock_data === FALSE) {
 
@@ -196,7 +196,6 @@ class Tcp
                             fclose($client);
                             unset($this->clients[$key_to_del]);
                         } else {
-                            var_dump($sock_data);
                             $this->onReceive($client, null, $sock_data);
                         }
                     }
@@ -323,8 +322,6 @@ class Tcp
      */
     protected function error($buffer, $error)
     {
-        echo "send error free\r\n";
-
         event_buffer_disable($buffer, EV_READ | EV_WRITE);
         event_buffer_free($buffer);
 
@@ -353,10 +350,12 @@ class Tcp
      */
     public function debug()
     {
-        $s = 0;
-        if (time() > $this->start_time)
-            $s = $this->accept_times/(time()-$this->start_time);
-        echo "请求次数/失败次数/发送失败/每秒处理 ==> ".$this->accept_times."/".$this->error_times."/".$this->send_fail_times."/".$s."\r\n";
-        echo "当前连接数",count($this->clients),"-buffers数量",count($this->buffers),"\r\n";
+        if ($this->debug) {
+            $s = 0;
+            if (time() > $this->start_time)
+                $s = $this->accept_times / (time() - $this->start_time);
+            echo "请求次数/失败次数/发送失败/每秒处理 ==> " . $this->accept_times . "/" . $this->error_times . "/" . $this->send_fail_times . "/" . $s . "\r\n";
+            echo "当前连接数", count($this->clients), "-buffers数量", count($this->buffers), "\r\n";
+        }
     }
 }

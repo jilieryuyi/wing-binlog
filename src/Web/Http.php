@@ -38,13 +38,9 @@ class Http extends Tcp
      */
     protected function _onWrite($client, $buffer)
     {
-        echo "http on write\r\n";
-        var_dump($client, $buffer);
         $i = array_search($client, $this->clients);
-        echo "send ok free\r\n";
         fclose($client);
         if ($buffer) {
-            echo "free buffer\r\n";
             event_buffer_free($buffer);
             unset($this->buffers[$i]);
         }
@@ -72,13 +68,11 @@ class Http extends Tcp
     public function send($buffer, $data, $client)
     {
         if ($buffer) {
-            echo "------event_buffer_write\r\n";
             $success = event_buffer_write($buffer,$data);
         }
         else
             $success = $this->sendSocket($client, $data);
         if (!$success) {
-            echo "send fail =======\r\n";
             $this->send_fail_times++;
             $i = array_search($client, $this->clients);
             fclose($client);
