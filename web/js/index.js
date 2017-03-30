@@ -130,68 +130,68 @@ function nodeOffline(dom)
     });
 }
 
-function openGenerallog(dom)
-{
+// function openGenerallog(dom)
+// {
+//
+//     if (!Wing.lock()) {
+//         return;
+//     }
+//
+//     var group_id   = $(dom).attr("data-group-id");
+//     var session_id = $(dom).attr("data-session-id");
+//     var open       = $(dom).attr("data-open") == "1" ? 0 : 1;
+//
+//     $(dom).html("Doing...").addClass("disable");
+//     window.setTimeout(function(){
+//         if (open == 0)
+//             $(dom).html("Enable General Log");
+//         else
+//             $(dom).html("Disable General Log");
+//         $(dom).removeClass("disable");
+//         Wing.unlock();
+//     },3000);
+//
+//     $.ajax({
+//         type :"POST",
+//         url  : "/service/node/generallog/open",
+//         data : {
+//             "group_id"  : group_id,
+//             "session_id": session_id,
+//             "open"      : open
+//         },
+//         success:function(msg){
+//         }
+//     });
+// }
 
-    if (!Wing.lock()) {
-        return;
-    }
-
-    var group_id   = $(dom).attr("data-group-id");
-    var session_id = $(dom).attr("data-session-id");
-    var open       = $(dom).attr("data-open") == "1" ? 0 : 1;
-
-    $(dom).html("Doing...").addClass("disable");
-    window.setTimeout(function(){
-        if (open == 0)
-            $(dom).html("Enable General Log");
-        else
-            $(dom).html("Disable General Log");
-        $(dom).removeClass("disable");
-        Wing.unlock();
-    },3000);
-
-    $.ajax({
-        type :"POST",
-        url  : "/service/node/generallog/open",
-        data : {
-            "group_id"  : group_id,
-            "session_id": session_id,
-            "open"      : open
-        },
-        success:function(msg){
-        }
-    });
-}
-
-function openGroupGenerallog(dom, open)
-{
-
-        if (!Wing.lock()) {
-            return;
-        }
-
-        var group_id   = $(dom).attr("data-group-id");
-        var old_html   = $(dom).html();
-
-        $(dom).html("Doing...").addClass("disable");
-        window.setTimeout(function(){
-            $(dom).html(old_html);
-            $(dom).removeClass("disable");
-            Wing.unlock();
-        },3000);
-
-        $.ajax({
-            type :"POST",
-            url  : "/service/group/generallog/open",
-            data : {
-                "group_id"  : group_id,
-                "open"      : open
-            },
-            success:function(msg){
-            }
-        });
-}
+// function openGroupGenerallog(dom, open)
+// {
+//
+//         if (!Wing.lock()) {
+//             return;
+//         }
+//
+//         var group_id   = $(dom).attr("data-group-id");
+//         var old_html   = $(dom).html();
+//
+//         $(dom).html("Doing...").addClass("disable");
+//         window.setTimeout(function(){
+//             $(dom).html(old_html);
+//             $(dom).removeClass("disable");
+//             Wing.unlock();
+//         },3000);
+//
+//         $.ajax({
+//             type :"POST",
+//             url  : "/service/group/generallog/open",
+//             data : {
+//                 "group_id"  : group_id,
+//                 "open"      : open
+//             },
+//             success:function(msg){
+//             }
+//         });
+// }
 
 function groupOffline(dom, is_offline)
 {
@@ -299,14 +299,14 @@ function appendNode(group_id, session_id, node)
                     }
                     html +=
                 '</td>'+
-                '<td class="generallog">';
-            if (parseInt(node.generallog) == 1) {
-                html += "Enable";
-            } else {
-                html += "Disable";
-            }
-            html +=
-                '</td>'+
+            //     '<td class="generallog">';
+            // if (parseInt(node.generallog) == 1) {
+            //     html += "Enable";
+            // } else {
+            //     html += "Disable";
+            // }
+            // html +=
+            //     '</td>'+
                 '<td class="last-pos">';
                     if (parseInt(node.is_leader) == 1) {
                         html += node.last_binlog+" => "+node.last_pos;
@@ -358,17 +358,17 @@ function appendNode(group_id, session_id, node)
                         'data-session-id="'+session_id+'" '+
                         'onclick="nodeUpdate(this)" >Update</a>';
 
-                    html += '<a class="btn btn-success open-generallog" ' +
-                        'data-group-id="' + group_id + '" ' +
-                        'data-session-id="' + session_id + '" ' +
-                        'data-open="' + node.generallog + '" ' +
-
-                        'onclick="openGenerallog(this)" >';
-                     if (parseInt(node.generallog) != 1)
-                         html+= 'Enable General Log';
-                     else
-                         html+= 'Disable General Log';
-                    html+='</a>';
+                    // html += '<a class="btn btn-success open-generallog" ' +
+                    //     'data-group-id="' + group_id + '" ' +
+                    //     'data-session-id="' + session_id + '" ' +
+                    //     'data-open="' + node.generallog + '" ' +
+                    //
+                    //     'onclick="openGenerallog(this)" >';
+                    //  if (parseInt(node.generallog) != 1)
+                    //      html+= 'Enable General Log';
+                    //  else
+                    //      html+= 'Disable General Log';
+                    // html+='</a>';
                     html+='<label class="error-info"></label>'+
                 '</span>' +
             '</tr>';
@@ -416,13 +416,13 @@ function appendGroup(group_id, nodes)
                     'php seals server:restart"  '+
                     'data-group-id="'+group_id+'" onclick="groupRestart(this)" >Update</a>'+
 
-         '<a class="btn btn-success" title="Enable general log all the nodes in the group" ' +
-            'data-group-id="' + group_id + '" ' +
-            'onclick="openGroupGenerallog(this,1)" >Enable General Log</a>'+
+         // '<a class="btn btn-success" title="Enable general log all the nodes in the group" ' +
+         //    'data-group-id="' + group_id + '" ' +
+         //    'onclick="openGroupGenerallog(this,1)" >Enable General Log</a>'+
 
-        '<a class="btn bg-red" ' +
-        'data-group-id="' + group_id + '" title="Disable general log all the nodes in the group" ' +
-        'onclick="openGroupGenerallog(this,0)" >Disable General Log</a>'+
+        // '<a class="btn bg-red" ' +
+        // 'data-group-id="' + group_id + '" title="Disable general log all the nodes in the group" ' +
+        // 'onclick="openGroupGenerallog(this,0)" >Disable General Log</a>'+
 
                     '<label class="error-info"></label>'+
                 '</span>'+
@@ -433,7 +433,7 @@ function appendGroup(group_id, nodes)
                     '<th class="node-id">Node</th>' +
                     '<th class="online-status">Status</th>'+
                     '<th class="is-leader">Leader</th>' +
-                    '<th class="generallog">General Log</th>' +
+                    // '<th class="generallog">General Log</th>' +
                     '<th class="last-pos">Last Read</th>' +
                     '<th class="version">Version</th>' +
                     '<th class="start-time">Start Time</th>' +

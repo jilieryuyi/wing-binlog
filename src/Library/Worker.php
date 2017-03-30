@@ -1179,7 +1179,7 @@ class Worker implements Process
             ->initRedisLocal()
             ->initPdo()
             ->zookeeperInit();
-        $generallog = new GeneralLog(Context::instance()->activity_pdo);
+        //$generallog = new GeneralLog(Context::instance()->activity_pdo);
 
         $bin = new \Seals\Library\BinLog(Context::instance()->activity_pdo);
         $bin->setCacheDir(Context::instance()->binlog_cache_dir);
@@ -1232,7 +1232,7 @@ class Worker implements Process
                         "zookeeper"    => $zookeeper_config,
                         "db_config"    => $db_config,
                         "rabbitmq"     => $rabbitmq_config,
-                        "generallog"   => $generallog->isOpen()?1:0
+                        //"generallog"   => $generallog->isOpen()?1:0
                     ]);
                     unset($redis_local, $redis_config,
                         $zookeeper_config, $db_config, $rabbitmq_config);
@@ -1402,7 +1402,7 @@ class Worker implements Process
 
         //try resend fail events
         $this->failureEventsSendRetry();
-        $this->forkGenerallogWorker();
+        //$this->forkGenerallogWorker();
         $this->forkEventWorker();
 
         //write pid file
