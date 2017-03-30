@@ -69,19 +69,19 @@ function nodeRefresh(v, group_id, session_id)
             else
                 $(v).removeClass("hide");
 
-            $(v).next("tr").find(".open-generallog").attr("data-open",data.generallog);
-            if (parseInt(data.generallog) == 1) {
-                $(v).next("tr").find(".open-generallog")
-                    .html("Disable General Log")
-                    .removeClass("btn-success")
-                    .addClass("bg-red");
-                $(v).find(".generallog").html("Enable");
-            } else {
-                $(v).next("tr").find(".open-generallog").html("Enable General Log")
-                    .addClass("btn-success")
-                    .removeClass("bg-red");
-                $(v).find(".generallog").html("Disable");
-            }
+            // $(v).next("tr").find(".open-generallog").attr("data-open",data.generallog);
+            // if (parseInt(data.generallog) == 1) {
+            //     $(v).next("tr").find(".open-generallog")
+            //         .html("Disable General Log")
+            //         .removeClass("btn-success")
+            //         .addClass("bg-red");
+            //     $(v).find(".generallog").html("Enable");
+            // } else {
+            //     $(v).next("tr").find(".open-generallog").html("Enable General Log")
+            //         .addClass("btn-success")
+            //         .removeClass("bg-red");
+            //     $(v).find(".generallog").html("Disable");
+            // }
             var index = 1;
             $(".nodes-list .node").each(function(){
                 if (!$(this).hasClass("hide")) {
