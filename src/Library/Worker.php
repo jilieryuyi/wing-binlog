@@ -1030,7 +1030,7 @@ class Worker implements Process
                             $line  = fgets($fp);
                             $lsize = strlen($line);
                             if ($lsize <= 0 || !$line) {
-                                Context::instance()->logger->debug("general log => empty line");
+                                Context::instance()->logger->debug("general log => empty line - ".$file_name);
                                 continue;
                             }
 
