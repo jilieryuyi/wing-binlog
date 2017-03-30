@@ -8,8 +8,11 @@
 define("__APP_DIR__", dirname(__DIR__));
 include __DIR__."/../vendor/autoload.php";
 
-\Seals\Library\Context::instance()->initRedisLocal();
-$report = new \Seals\Library\Report(\Seals\Library\Context::instance()->redis_local);
+//\Seals\Library\Context::instance()->initRedisLocal();
+//$report = new \Seals\Library\Report(\Seals\Library\Context::instance()->redis_local);
+//
+//echo $report->getDayWriteMax("20170323");
+//echo $report->getDayReadMax("20170323");
+\Seals\Library\Context::instance()->zookeeperInit();
 
-echo $report->getDayWriteMax("20170323");
-echo $report->getDayReadMax("20170323");
+var_dump(\Seals\Library\Zookeeper::getServices());
