@@ -75,11 +75,13 @@ class HttpResponse
             $querys = preg_split("/\&+/", $query);
             unset($query);
 
-            foreach ($querys as $query) {
-                $query = trim($query);
-                list($key, $value) = explode("=", $query);
-                unset($query);
-                $this->get[$key] = $value;
+            if (is_array($querys)) {
+                foreach ($querys as $query) {
+                    $query = trim($query);
+                    list($key, $value) = explode("=", $query);
+                    unset($query);
+                    $this->get[$key] = $value;
+                }
             }
             unset($querys);
         }
