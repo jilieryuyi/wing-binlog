@@ -256,7 +256,8 @@ class HttpResponse
             $resource = "/index.php";
 
         $mime_type = "text/html";
-        
+
+        $is_ajax  = $this->isAjax();
         $_GET     = $this->getAll();
         $_POST    = $this->postAll();
         $_REQUEST = array($_GET,$_POST);
@@ -279,7 +280,7 @@ class HttpResponse
             }
 
             if ($check_token && !Route::access($this)) {
-                if (!$this->isAjax()) {
+                if (!$is_ajax) {
                     ob_start();
                     include $this->home . "/401.html";
                     $response = ob_get_contents();
@@ -332,13 +333,13 @@ class HttpResponse
             }
 
             //if is login and ajax
-            if ($check_token && $this->isAjax()) {
+            if ($check_token && $is_ajax) {
                 $response = json_encode(["error_code" => 404, "error_msg" => "request not found"]);
                 break;
             }
 
             //if is not login and ajax
-            if (!$check_token && $this->isAjax()) {
+            if (!$check_token && $is_ajax) {
                 $response = json_encode(["error_code" => 4000, "error_msg" => "请重新登录，<a href='/login.php'>去登陆</a>"]);
                 break;
             }
