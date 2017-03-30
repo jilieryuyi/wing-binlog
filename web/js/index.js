@@ -608,7 +608,8 @@ function loadTotalServers()
         type : "POST",
         url : "/services/servers/num",
         success : function(num) {
-            $(".total-servers").html(num);
+            if (num)
+                $(".total-servers").html(num);
         }
     });
 }
