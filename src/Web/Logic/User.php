@@ -217,7 +217,7 @@ class User
     }
 
     /**
-     * @return array
+     * @return int
      */
     public static function addRole(HttpResponse $response)
     {
@@ -228,6 +228,10 @@ class User
         $role_name = urldecode($response->post("role_name"));
         $old_role  = urldecode($response->post("old_role"));
         $pages     = json_decode(urldecode($response->post("pages")));
+
+
+        if (!$pages || !is_array($pages) || count($pages) <= 0 )
+            return 0;
 
         $old_role  = trim($old_role);
         $role_name = trim($role_name);
@@ -245,8 +249,10 @@ class User
 
     public static function roleAdd($role_name, $pages)
     {
+        if (!$pages || !is_array($pages) || count($pages) <= 0 )
+            return 0;
         $file = new File(__APP_DIR__."/data/user/roles");
-        $file->set($role_name.".role", $pages);
+        return $file->set($role_name.".role", $pages);
     }
 
     public static function roleDelete(HttpResponse $response)
