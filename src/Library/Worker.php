@@ -1442,10 +1442,10 @@ class Worker implements Process
                         continue;
                     }
 
-                    if ($pid == $this->generallog_process) {
-                        $this->forkGenerallogWorker();
-                        continue;
-                    }
+//                    if ($pid == $this->generallog_process) {
+//                        $this->forkGenerallogWorker();
+//                        continue;
+//                    }
                 }
                 //$content = ob_get_contents();
                 ob_end_clean();
