@@ -1037,10 +1037,12 @@ class Worker implements Process
 
                             $_line    = trim($line);
                             unset($line);
+                            Context::instance()->logger->debug("general log => ".$_line);
 
                             $temp     = preg_split("/[\s]+/", $_line, 4);
                             unset($_line);
                             $datetime = strtotime($temp[0]);
+
 
                             if ($datetime <= 0) {
                                 Context::instance()->logger->debug("general log => datetime error");
