@@ -40,7 +40,8 @@ CACHE:
     vendors/switchery/dist/switchery.min.js
     images/img.jpg
     build/js/custom.js
-
+    css/public.css
+    css/index.css
     vendors/font-awesome/fonts/fontawesome-webfont.woff2?v=4.6.3
     vendors/font-awesome/fonts/fontawesome-webfont.woff2
     vendors/bootstrap/dist/fonts/glyphicons-halflings-regular.woff2
