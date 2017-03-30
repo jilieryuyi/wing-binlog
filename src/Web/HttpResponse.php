@@ -274,10 +274,14 @@ class HttpResponse
             }
 
             if ($check_token && !Route::access($this)) {
-                ob_start();
-                include $this->home."/401.html";
-                $response = ob_get_contents();
-                ob_end_clean();
+                if (!$this->isAjax()) {
+                    ob_start();
+                    include $this->home . "/401.html";
+                    $response = ob_get_contents();
+                    ob_end_clean();
+                } else {
+                    $response = json_encode(["error_code" => 401, "error_msg" => "not allow access"]);
+                }
                 break;
             }
 
