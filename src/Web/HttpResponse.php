@@ -23,6 +23,7 @@ class HttpResponse
     protected $get     = [];
     protected $post    = [];
     protected $headers = [];
+    protected $debug = false;
 
     public function __construct(Http $http,$home, $buffer, $data, $client)
     {
@@ -122,6 +123,11 @@ class HttpResponse
                 unset($querys);
             }
         }
+    }
+
+    public function setDebug($debug)
+    {
+        $this->debug = !!$debug;
     }
 
     public function get($key)
@@ -259,9 +265,6 @@ class HttpResponse
         $token       = $this->getCookie("wing-binlog-token");
         $check_token = User::checkToken($appid, $token);
         unset($appid, $token);
-
-        echo "resource:",$resource,"\r\n";
-        echo $this->home.$resource,"\r\n";
 
         do {
             //try to visit ../ dir, do safe filter and return 404 page
