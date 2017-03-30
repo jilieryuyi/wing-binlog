@@ -257,4 +257,12 @@ class Local implements LoggerInterface
     {
         $this->write($level, $message, $context);
     }
+
+    public static function clear()
+    {
+        if (!Context::instance()->redis_zookeeper)
+            Context::instance()->zookeeperInit();
+        $keys = Context::instance()->redis_zookeeper->keys("wing-binlog-logs-content-*");
+        Context::instance()->redis_zookeeper->del($keys);
+    }
 }
