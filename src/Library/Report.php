@@ -32,59 +32,79 @@ class Report
         if (!in_array($event,["show","set","insert","select","update","delete"]))
             return false;
 
-        $day = date("Ymd", $time);
+        $day  = date("Ymd", $time);
         $hour = date("YmdH", $time);
 
+        //general log--设置每天的查询次数 包含增删改查
         $this->setDayQueryCount($day);
+        //general log--设置总的查询次数 包含增删改查
         $this->setTotalQueryCount();
+        //general log--设置某天某事件的发生次数
         $this->setDayEvents($day, $event);
+        //general log--设置某小时某事件的发生次数
         $this->setHourEvents($hour, $event);
 
-        //$event show set select update delete
+        //general log--精确到秒的事件统计 $event show set select update delete
         $key = self::REPORT_LIST. "-".$event. "-".$day."-".$time;
         $num = $this->redis->incr($key);
 
 
         if ($event == "show" || $event == "select") {
+            //general log--设置每天读的次数
             $this->setDayReadCount($day);
+            //general log--设置每小时读的次数
             $this->setHourReadCount($hour);
+
+            //general log--每天秒并发峰值
             $tmax = $this->getDayReadMax($day);
             if ($num > $tmax) {
+                //general log--设置每天秒并发峰值
                 $this->setDayReadMax($day, $num);
             }
 
+            //general log--每小时秒并发峰值
             $hmax = $this->getHourReadMax($hour);
             if ($num > $hmax) {
+                //general log--设置每小时秒并发峰值
                 $this->setHourReadMax($hour, $num);
             }
 
+            //general log--历史秒并发峰值
             $rmax = $this->getHistoryReadMax();
-            if ($num > $rmax)
+            if ($num > $rmax) {
+                //general log--设置历史秒并发峰值
                 $this->setHistoryReadMax($num);
-
+            }
 
         } else {
+            //general log--设置一天之内的写的次数
             $this->setDayWriteCount($day);
+            //general log--设置小时写的次数
             $this->setHourWriteCount($hour);
+            //general log--一天之内的秒写峰值
             $tmax = $this->getDayWriteMax($day);
             if ($num > $tmax) {
+                //general log--设置一天之内的秒写峰值
                 $this->setDayWriteMax($day, $num);
             }
-
+            //general log--一小时之内的秒写峰值
             $hmax = $this->getHourWriteMax($hour);
             if ($num > $hmax) {
+                //general log--设置一小时之内的秒写峰值
                 $this->setHourWriteMax($hour, $num);
             }
-
+            //general log--历史秒写峰值
             $wmax = $this->getHistoryWriteMax();
-            if ($num > $wmax)
+            if ($num > $wmax) {
+                //general log--设置历史秒写峰值
                 $this->setHistoryWriteMax($num);
+            }
         }
 
         return $num;
     }
 
-
+    //general log--获取总的查询次数 包含增删改查
     public function getTotalQueryCount()
     {
         $key   = self::REPORT_LIST."-total-query";
@@ -94,24 +114,28 @@ class Report
         return $count;
     }
 
+    //general log--设置总的查询次数 包含增删改查
     public function setTotalQueryCount()
     {
         $key   = self::REPORT_LIST."-total-query";
         return $this->redis->incr($key);
     }
 
+    //general log--设置每天的查询次数 包含增删改查
     public function setDayQueryCount($day)
     {
         $key   = self::REPORT_LIST."-day-".$day."-query";
         return $this->redis->incr($key);
     }
 
+    //general log--设置一天之内的写的次数
     public function setDayWriteCount($day)
     {
         $key   = self::REPORT_LIST."-write-day-".$day."-query";
         return $this->redis->incr($key);
     }
 
+    //general log--获取天读取次数
     public function getDayWriteCount($day)
     {
         $key   = self::REPORT_LIST."-write-day-".$day."-query";
@@ -137,6 +161,8 @@ class Report
             return 0;
         return $num;
     }
+
+    //general log--设置每天读的次数
     public function setDayReadCount($day)
     {
         $key   = self::REPORT_LIST."-read-day-".$day."-query";
@@ -153,6 +179,7 @@ class Report
         return $num;
     }
 
+    //general log--设置每小时读的次数
     public function setHourReadCount($day_hour)
     {
         $key   = self::REPORT_LIST."-read-hour-".$day_hour."-query";
@@ -208,6 +235,7 @@ class Report
         return $num;
     }
 
+    //general log--设置某天某事件的发生次数
     public function setDayEvents($day, $event)
     {
         $key  = self::REPORT_LIST. "-day-events-".$event. "-".$day;
@@ -225,6 +253,7 @@ class Report
         return $num;
     }
 
+    //general log--设置某小时某事件的发生次数
     public function setHourEvents($hour, $event)
     {
         $key  = self::REPORT_LIST. "-hour-events-".$event. "-".$hour;
@@ -244,6 +273,7 @@ class Report
         return $this->redis->set(self::REPORT_LIST."-hour-".$hour."-read-max-report", $size);
     }
 
+    //general log--每天秒并发峰值
     protected function setDayReadMax($day, $size)
     {
         $this->redis->set(self::REPORT_LIST."-day-".$day."-read-max-report", $size);
