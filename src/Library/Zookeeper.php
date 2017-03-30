@@ -47,11 +47,15 @@ class Zookeeper
      */
     public function serviceReport(array $data)
     {
-       // echo $this->session_id,"\r\n";
-      //  echo Context::instance()->session_id,"\r\n";
+        echo "service report\r\n";
+        echo $this->session_id,"\r\n";
+        echo Context::instance()->session_id,"\r\n";
 
-        if (!$this->redis)
+
+        if (!$this->redis) {
+            echo "zookeeper redis error\r\n";
             return false;
+        }
 
         $data["created"] = $this->start_time;
         $data["updated"] = time();
