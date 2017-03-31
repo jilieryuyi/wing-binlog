@@ -285,7 +285,7 @@ class HttpResponse
                 if (isset(self::$static_files[$this->home . "/404.html"])) {
                     $response    = self::$static_files[$this->home . "/404.html"]["content"];
                     $mime_type   = self::$static_files[$this->home . "/404.html"]["mime"];
-                    $status_code = "HTTP/1.1 304 Not Modified";
+                    //$status_code = "HTTP/1.1 304 Not Modified";
                     break;
                 } else {
                     //else response 404 page
@@ -315,7 +315,7 @@ class HttpResponse
                     if (isset(self::$static_files[$this->home . "/404.html"])) {
                         $response  = self::$static_files[$this->home . "/404.html"]["content"];
                         $mime_type = self::$static_files[$this->home . "/404.html"]["mime"];
-                        $status_code = "HTTP/1.1 304 Not Modified";
+                        //$status_code = "HTTP/1.1 304 Not Modified";
                         break;
                     } else {
                         //else response 404 page
@@ -344,7 +344,7 @@ class HttpResponse
                 if (isset(self::$static_files[$this->home . $resource])) {
                     $response  = self::$static_files[$this->home . $resource]["content"];
                     $mime_type = self::$static_files[$this->home . $resource]["mime"];
-                    $status_code = "HTTP/1.1 304 Not Modified";
+                    //$status_code = "HTTP/1.1 304 Not Modified";
                    // $expire = 'Expires: Mon, 26 Jul 2100 05:00:00 GMT';
 
                     break;
@@ -407,7 +407,7 @@ class HttpResponse
             if (isset(self::$static_files[$this->home . "/404.html"])) {
                 $response  = self::$static_files[$this->home . "/404.html"]["content"];
                 $mime_type = self::$static_files[$this->home . "/404.html"]["mime"];
-                $status_code = "HTTP/1.1 304 Not Modified";
+               // $status_code = "HTTP/1.1 304 Not Modified";
                 break;
             } else {
                 //else response 404 page
