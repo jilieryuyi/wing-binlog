@@ -272,7 +272,6 @@ class HttpResponse
         $status_code = "HTTP/1.1 200 OK";
         $cache_control = "Cache-control: max-age=".(86400*30).",private,must-revalidation";
 
-        //$expire = 'Expires: Mon, 26 Jul 1997 05:00:00 GMT';
         do {
             //try to visit ../ dir, do safe filter and return 404 page
             if (strpos($resource, "..") !== false) {
