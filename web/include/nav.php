@@ -82,6 +82,7 @@
 
     <script src="js/wing.js"></script>
     <script src="js/history.js"></script>
+    <script src="js/full.js"></script>
 
     <script>
         function showDoing(dom) {
@@ -95,6 +96,10 @@
                     $(dom).html(old_html);
                 },1000);
             },3000);
+        }
+
+        function setFull() {
+            screenfull && screenfull.toggle();
         }
     </script>
 </head>
@@ -152,7 +157,7 @@
                 <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
             </a>
             <a data-toggle="tooltip" data-placement="top" title="FullScreen">
-                <span class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span>
+                <span class="glyphicon glyphicon-fullscreen" aria-hidden="true" onclick="setFull()"></span>
             </a>
             <a data-toggle="tooltip" data-placement="top" title="Lock">
                 <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
