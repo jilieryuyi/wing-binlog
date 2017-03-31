@@ -29,7 +29,7 @@ class Local implements LoggerInterface
         $this->levels = $levels;
     }
 
-    private function write($name, $message, array $context)
+    private function write($name, $message, array $context = null)
     {
         //如果是非定义记录的级别 不采取任何操作
         if (!in_array($name,$this->levels)) {
