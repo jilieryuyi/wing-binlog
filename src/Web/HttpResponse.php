@@ -269,7 +269,7 @@ class HttpResponse
         $check_token = User::checkToken($appid, $token);
         unset($appid, $token);
 
-        $status_code = "HTTP/1.1 200 OK";
+        $status_code   = "HTTP/1.1 200 OK";
         $cache_control = "Cache-control: max-age=".(86400*30).",private,must-revalidation";
 
         do {
