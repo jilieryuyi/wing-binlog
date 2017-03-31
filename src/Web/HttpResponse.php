@@ -276,64 +276,52 @@ class HttpResponse
         do {
             //try to visit ../ dir, do safe filter and return 404 page
             if (strpos($resource, "..") !== false) {
-                /*$cache_control = "Cache-control: max-age=".(86400*30).",private,must-revalidation";
-                ob_start();
-                include $this->home."/404.html";
-                $response = ob_get_contents();
-                ob_end_clean();*/
-
                 if (isset(self::$static_files[$this->home . "/404.html"])) {
                     $response    = self::$static_files[$this->home . "/404.html"]["content"];
                     $mime_type   = self::$static_files[$this->home . "/404.html"]["mime"];
                     //$status_code = "HTTP/1.1 304 Not Modified";
                     break;
-                } else {
-                    //else response 404 page
-                    ob_start();
-                    include $this->home . "/404.html";
-                    $response = ob_get_contents();
-                    ob_end_clean();
-
-                    self::$static_files[$this->home . "/404.html"] = [
-                        "content" => $response,
-                        "mime" => "text/html",
-                    ];
                 }
 
+                //else response 404 page
+                ob_start();
+                include $this->home . "/404.html";
+                $response = ob_get_contents();
+                ob_end_clean();
+
+                self::$static_files[$this->home . "/404.html"] = [
+                    "content" => $response,
+                    "mime" => "text/html",
+                ];
                 break;
             }
 
             //check access power
             if ($check_token && !Route::access($this)) {
-                if (!$is_ajax) {
-                    /*$cache_control = "Cache-control: max-age=".(86400*30).",private,must-revalidation";
-                    ob_start();
-                    include $this->home . "/401.html";
-                    $response = ob_get_contents();
-                    ob_end_clean();*/
 
-                    if (isset(self::$static_files[$this->home . "/404.html"])) {
-                        $response  = self::$static_files[$this->home . "/404.html"]["content"];
-                        $mime_type = self::$static_files[$this->home . "/404.html"]["mime"];
-                        //$status_code = "HTTP/1.1 304 Not Modified";
-                        break;
-                    } else {
-                        //else response 404 page
-                        ob_start();
-                        include $this->home . "/404.html";
-                        $response = ob_get_contents();
-                        ob_end_clean();
-
-                        self::$static_files[$this->home . "/404.html"] = [
-                            "content" => $response,
-                            "mime" => "text/html",
-                        ];
-                    }
-
-                } else {
+                if ($is_ajax) {
                     $cache_control = "Cache-control: max-age=0,private,must-revalidation";
-                    $response = json_encode(["error_code" => 401, "error_msg" => "not allow access"]);
+                    $response      = json_encode(["error_code" => 401, "error_msg" => "not allow access"]);
+                    break;
                 }
+
+                if (isset(self::$static_files[$this->home . "/404.html"])) {
+                    $response  = self::$static_files[$this->home . "/404.html"]["content"];
+                    $mime_type = self::$static_files[$this->home . "/404.html"]["mime"];
+                    //$status_code = "HTTP/1.1 304 Not Modified";
+                    break;
+                }
+
+                //else response 404 page
+                ob_start();
+                include $this->home . "/404.html";
+                $response = ob_get_contents();
+                ob_end_clean();
+
+                self::$static_files[$this->home . "/404.html"] = [
+                    "content" => $response,
+                    "mime" => "text/html",
+                ];
                 break;
             }
 
@@ -344,9 +332,6 @@ class HttpResponse
                 if (isset(self::$static_files[$this->home . $resource])) {
                     $response  = self::$static_files[$this->home . $resource]["content"];
                     $mime_type = self::$static_files[$this->home . $resource]["mime"];
-                    //$status_code = "HTTP/1.1 304 Not Modified";
-                   // $expire = 'Expires: Mon, 26 Jul 2100 05:00:00 GMT';
-
                     break;
                 }
 
@@ -365,15 +350,17 @@ class HttpResponse
                     }
                     ob_end_clean();
                     $mime_type = "text/html";
-                } else {
-                    $cache_control = "Cache-control: max-age=".(86400*30).",private,must-revalidation";
-                    $response      = file_get_contents($this->home . $resource);
-                    //set cache
-                    self::$static_files[$this->home . $resource] = [
-                        "content" => $response,
-                        "mime"    => $mime_type,
-                    ];
+                    break;
                 }
+
+
+                $cache_control = "Cache-control: max-age=".(86400*30).",private,must-revalidation";
+                $response      = file_get_contents($this->home . $resource);
+                //set cache
+                self::$static_files[$this->home . $resource] = [
+                    "content" => $response,
+                    "mime"    => $mime_type,
+                ];
                 unset($check_token);
                 break;
             }
@@ -406,20 +393,19 @@ class HttpResponse
             if (isset(self::$static_files[$this->home . "/404.html"])) {
                 $response  = self::$static_files[$this->home . "/404.html"]["content"];
                 $mime_type = self::$static_files[$this->home . "/404.html"]["mime"];
-               // $status_code = "HTTP/1.1 304 Not Modified";
                 break;
-            } else {
-                //else response 404 page
-                ob_start();
-                include $this->home . "/404.html";
-                $response = ob_get_contents();
-                ob_end_clean();
-
-                self::$static_files[$this->home . "/404.html"] = [
-                    "content" => $response,
-                    "mime" => "text/html",
-                ];
             }
+
+            //else response 404 page
+            ob_start();
+            include $this->home . "/404.html";
+            $response = ob_get_contents();
+            ob_end_clean();
+
+            self::$static_files[$this->home . "/404.html"] = [
+                "content" => $response,
+                "mime" => "text/html",
+            ];
 
         } while (0);
 
@@ -428,8 +414,6 @@ class HttpResponse
         $headers            = [
             $status_code,
             $cache_control,
-          //  $expire,
-            //"Cache-control: max-age=".(86400*30).",private,must-revalidation",
             "Connection: keep-alive",
             "Server: wing-binlog-http by yuyi,297341015@qq.com,jilieryuyi@gmail.com",
             "Date: " . gmdate("D,d M Y H:m:s")." GMT",
