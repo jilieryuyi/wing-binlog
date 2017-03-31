@@ -11,4 +11,7 @@ include __DIR__."/../vendor/autoload.php";
 $command = new \Seals\Library\Command("ps aux | grep /usr/local/mysql/bin/mysqld");
 $res     = $command->run();
 
+$temp = explode("\n", $res);
+var_dump($temp);
+
 echo $res,"\r\n";
