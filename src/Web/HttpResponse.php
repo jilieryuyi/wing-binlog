@@ -272,15 +272,22 @@ class HttpResponse
         $status_code   = "HTTP/1.1 200 OK";
         $cache_control = "Cache-control: max-age=".(86400*30).",private,must-revalidation";
 
+
+        echo $this->home . $resource,"\r\n";
+
         do {
             //try to visit ../ dir, do safe filter and return 404 page
             if (strpos($resource, "..") !== false) {
+                echo "try to visit ..\r\n";
                 if (isset(self::$static_files[$this->home . "/404.html"])) {
+                    echo "404 page static\r\n";
                     $response    = self::$static_files[$this->home . "/404.html"]["content"];
                     $mime_type   = self::$static_files[$this->home . "/404.html"]["mime"];
                     //$status_code = "HTTP/1.1 304 Not Modified";
                     break;
                 }
+
+                echo "404 page\r\n";
 
                 //else response 404 page
                 ob_start();
@@ -297,19 +304,24 @@ class HttpResponse
 
             //check access power
             if ($check_token && !Route::access($this)) {
+                echo "login, have not access power\r\n";
 
                 if ($is_ajax) {
+                    echo "ajax\r\n";
                     $cache_control = "Cache-control: max-age=0,private,must-revalidation";
                     $response      = json_encode(["error_code" => 401, "error_msg" => "not allow access"]);
                     break;
                 }
 
                 if (isset(self::$static_files[$this->home . "/404.html"])) {
+                    echo "404 page static\r\n";
                     $response  = self::$static_files[$this->home . "/404.html"]["content"];
                     $mime_type = self::$static_files[$this->home . "/404.html"]["mime"];
                     //$status_code = "HTTP/1.1 304 Not Modified";
                     break;
                 }
+
+                echo "404 page\r\n";
 
                 //else response 404 page
                 ob_start();
@@ -326,9 +338,10 @@ class HttpResponse
 
             //if file exists
             if (file_exists($this->home . $resource)) {
-
+                echo "file exists\r\n";
                 //get from cache
                 if (isset(self::$static_files[$this->home . $resource])) {
+                    echo "static file cache\r\n";
                     $response  = self::$static_files[$this->home . $resource]["content"];
                     $mime_type = self::$static_files[$this->home . $resource]["mime"];
                     break;
@@ -337,13 +350,17 @@ class HttpResponse
                 //parse
                 $mime_type = MimeType::getMimeType($this->home . $resource);
                 if ($mime_type == "text/x-php") {
+                    echo "php file\r\n";
+
                     $cache_control = "Cache-control: max-age=0,private,must-revalidation";
 
                     ob_start();
                     if ($check_token) {
+                       // echo "login\r\n";
                         include $this->home . $resource;
                         $response = ob_get_contents();
                     } else {
+                        //echo "not login";
                         include $this->home . "/login.php";
                         $response = ob_get_contents();
                     }
@@ -352,6 +369,7 @@ class HttpResponse
                     break;
                 }
 
+                echo "static file\r\n";
 
                 $cache_control = "Cache-control: max-age=".(86400*30).",private,must-revalidation";
                 $response      = file_get_contents($this->home . $resource);
@@ -366,6 +384,7 @@ class HttpResponse
 
             //if is login and has a route
             if ($check_token && Route::hasRoute($this->getMethod(), $resource)) {
+                echo "login route\r\n";
                 $cache_control = "Cache-control: max-age=0,private,must-revalidation";
                 $route    = new Route($this, $resource);
                 $response = $route->parse();
@@ -375,6 +394,7 @@ class HttpResponse
 
             //if is login and ajax
             if ($check_token && $is_ajax) {
+                echo "login ajax\r\n";
                 $cache_control = "Cache-control: max-age=0,private,must-revalidation";
                 $response = json_encode(["error_code" => 404, "error_msg" => "request not found"]);
                 break;
@@ -382,16 +402,20 @@ class HttpResponse
 
             //if is not login and ajax
             if (!$check_token && $is_ajax) {
+                echo "not login ajax\r\n";
                 $cache_control = "Cache-control: max-age=0,private,must-revalidation";
                 $response = json_encode(["error_code" => 4000, "error_msg" => "请重新登录，<a href='/login.php'>去登陆</a>"]);
                 break;
             }
 
             if (isset(self::$static_files[$this->home . "/404.html"])) {
+                echo "static 404 page --\r\n";
                 $response  = self::$static_files[$this->home . "/404.html"]["content"];
                 $mime_type = self::$static_files[$this->home . "/404.html"]["mime"];
                 break;
             }
+
+            echo "static 404 page -- last\r\n";
 
             //else response 404 page
             ob_start();
