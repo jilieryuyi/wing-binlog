@@ -70,10 +70,6 @@ class Worker implements Process
             ]);
         });
 
-        $cpu = new Cpu();
-        $this->setWorkersNum($cpu->cpu_num) ;
-
-        unset($cpu);
         ini_set("memory_limit", Context::instance()->memory_limit);
         $this->version = file_get_contents(__APP_DIR__."/version");
     }

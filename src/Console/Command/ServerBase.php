@@ -1,6 +1,7 @@
 <?php namespace Seals\Console\Command;
 
 use Seals\Cache\File;
+use Seals\Library\Cpu;
 use Seals\Library\Worker;
 use Symfony\Component\Console\Command\Command;
 use Wing\FileSystem\WDir;
@@ -91,17 +92,19 @@ class ServerBase extends Command
         $cache      = new File(__APP_DIR__);
         $worker     = new Worker($app_config["app_id"]);
 
+        if ($workers <= 0) {
+            $cpu = new Cpu();
+            $workers = $cpu->cpu_num ;
+            unset($cpu);
+        }
+
         $cache->set(self::PROCESS_INFO, [$deamon, $workers, $debug, $clear]);
 
         if ($clear) {
             $this->clear($app_config["log_dir"], $app_config["binlog_cache_dir"]);
         }
 
-        if ($workers > 0) {
-            $worker->setWorkersNum($workers);
-        }
-
-        //$worker->setProcessCache(new \Seals\Cache\File($app_config["process_cache_dir"]));
+        $worker->setWorkersNum($workers);
 
         $handlers_config = include __DIR__."/../../../config/notify.php";
         $handler_class   = $handlers_config["handler"];
