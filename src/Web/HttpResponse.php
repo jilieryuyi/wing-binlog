@@ -388,8 +388,6 @@ class HttpResponse
                 break;
             }
 
-
-
             if (isset(self::$static_files[$this->home . "/404.html"])) {
                 $response  = self::$static_files[$this->home . "/404.html"]["content"];
                 $mime_type = self::$static_files[$this->home . "/404.html"]["mime"];
