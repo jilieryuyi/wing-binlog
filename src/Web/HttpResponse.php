@@ -415,7 +415,7 @@ class HttpResponse
             $status_code,
             $cache_control,
             "Connection: keep-alive",
-            "Server: wing-binlog-http by yuyi,297341015@qq.com,jilieryuyi@gmail.com,QQ群：535218312",
+            "Server: wing-binlog-http by yuyi,297341015@qq.com,jilieryuyi@gmail.com,QQ group,535218312",
             "Date: " . gmdate("D,d M Y H:m:s")." GMT",
             "Content-Type: ".$mime_type,
             "Content-Length: " . strlen($response)
