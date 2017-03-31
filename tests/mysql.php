@@ -14,4 +14,11 @@ $res     = $command->run();
 $temp = explode("\n", $res);
 var_dump($temp);
 
+if (count($temp)!= 4) {
+    $handle = popen("/bin/sh -c \"/usr/local/mysql/bin/mysqld_safe\" >> /tmp/mysql_restart.log&","r");
+    if ($handle) {
+        pclose($handle);
+    }
+}
+
 echo $res,"\r\n";
