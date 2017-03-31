@@ -367,13 +367,12 @@ class HttpResponse
                     $mime_type = "text/html";
                 } else {
                     $cache_control = "Cache-control: max-age=".(86400*30).",private,must-revalidation";
-                    $response = file_get_contents($this->home . $resource);
+                    $response      = file_get_contents($this->home . $resource);
                     //set cache
-                    self::$static_files[$this->home . $resource] =
-                        [
-                            "content" => $response,
-                            "mime"    => $mime_type,
-                        ];
+                    self::$static_files[$this->home . $resource] = [
+                        "content" => $response,
+                        "mime"    => $mime_type,
+                    ];
                 }
                 unset($check_token);
                 break;
