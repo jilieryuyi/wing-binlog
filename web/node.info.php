@@ -32,7 +32,7 @@ include "include/nav.php";
               <div class="col-md-12">
               <div class="x_panel">
                 <div class="x_title">
-                  <h2 style="width: 60px;">Process List</h2> <a href="user.add.php" class="btn btn-success btn-sm">Add</a>
+                  <h2>Process List</h2>
                   <ul class="nav navbar-right panel_toolbox">
                     <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                     </li>
@@ -58,11 +58,10 @@ include "include/nav.php";
                       <th>Index</th>
                       <th>Process ID</th>
                       <th>User</th>
-                      <th>Role</th>
-                      <th>Created</th>
-                      <th>Login Times</th>
-                      <th>Last Login</th>
-                      <th>Operate</th>
+                      <th>Memory Peak Usage</th>
+                      <th>Memory Usage</th>
+                      <th>Cpu Usage</th>
+                      <th>Status</th>
                     </tr>
                     </thead>
                     <tbody class="report-list">
@@ -70,12 +69,16 @@ include "include/nav.php";
                     $processes = \Seals\Library\Worker::getInfo($session_id);
                     $index = 0;
                     foreach ($processes as $process_id => $info) {
-                      var_dump($info);
+                      //var_dump($info);
                     ?>
                     <tr>
                       <th scope="row"><?php echo (++$index); ?></th>
                       <td><?php echo $process_id; ?></td>
                       <td><?php echo $info["user"]; ?></td>
+                      <td><?php echo $info["memory_peak_usage"]/1024; ?>k</td>
+                      <td><?php echo $info["memory_usage"]/1024; ?>k</td>
+                      <td><?php echo $info["cpu"]; ?></td>
+                      <td><?php echo $info["status"]; ?></td>
 
                     </tr>
                     <?php } ?>

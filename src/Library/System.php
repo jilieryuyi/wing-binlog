@@ -113,6 +113,9 @@ class System
         return $data[$process_id];
     }
 
+    /**
+     * 返回单位都是M
+     */
     public static function getMemory()
     {
         //echo -e "$(top -l 1 | awk '/PhysMem/';)"
@@ -125,7 +128,7 @@ class System
                 echo $res;
                 preg_match_all("/[\d]+/", $res, $m);
                 var_dump($m);
-                return [$m[0][0]."M", $m[0][1]."M"];
+                return [$m[0][0], $m[0][1]];
             } break;
             case "Darwin": {
                 $command = new Command("echo -e \"$(top -l 1 | awk '/PhysMem/';)\"");
@@ -133,7 +136,7 @@ class System
                 echo $res;
                 preg_match_all("/[\d]+/", $res, $m);
                 var_dump($m);
-                return [$m[0][0]."M", $m[0][1]."M"];
+                return [$m[0][0], $m[0][1]];
             } break;
         }
 
