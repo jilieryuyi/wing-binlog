@@ -1,6 +1,7 @@
 <?php namespace Seals\Web\Logic;
 use Seals\Library\Context;
 use Seals\Library\RPC;
+use Seals\Library\Worker;
 use Seals\Library\Zookeeper;
 use Seals\Web\HttpResponse;
 
@@ -39,6 +40,7 @@ class Node
             //"workers"      => $res["workers"],
             //"debug"        => $res["debug"],
             //"version"      => $res["version"],
+            "ip"           => implode("<br/>",Worker::getIp($session_id)),
             "created"      => date("Y-m-d H:i:s", $res["created"]),
             "time_len"     => timelen_format(time()-$res["created"]),
             "is_leader"    => $is_leader,           //node is leader

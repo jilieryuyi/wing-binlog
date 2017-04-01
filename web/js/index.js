@@ -267,7 +267,8 @@ function appendNode(group_id, session_id, node)
             'data-session-id="'+session_id+'" '+
             '>'+
                 '<td class="node-id" title="'+session_id+'">' +
-                    '<label class="index">'+index+'</label>、<a href="node.info.php?session_id='+session_id+'">'+session_id+'</a>'+
+                    '<label class="index">'+index+'</label>、<a href="node.info.php?session_id='+session_id+'">'+session_id+'</a><br/>'+
+                    node.ip+
                 '</td>'+
                 '<td class="online-status">';
                     if (parseInt(node.is_offline) == 1) {

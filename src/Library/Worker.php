@@ -173,12 +173,6 @@ class Worker implements Process
         $this->process_cache->del("status_".$process_id);
         $this->process_cache->del("restart_".$process_id);
 
-        if (!Context::instance()->redis_zookeeper)
-            Context::instance()->zookeeperInit();
-
-        $key = "wing-binlog-system-ip:".Context::instance()->session_id;
-        Context::instance()->redis_zookeeper->del($key);
-
     }
 
     /**
@@ -587,18 +581,22 @@ class Worker implements Process
             Context::instance()->zookeeperInit();
 
         $key = "wing-binlog-system-ip:".Context::instance()->session_id;
-        Context::instance()->redis_zookeeper->set($key, System::getIp());
+        $ip = System::getIp();
+        $s = Context::instance()->redis_zookeeper->set($key, $ip);
+
+        file_put_contents(__APP_DIR__."/logs/setip.log",$key."\r\n".json_encode($ip)."==>".$s);
+
     }
 
     /**
      * @return array
      */
-    public static function getIp()
+    public static function getIp($session_id)
     {
         if (!Context::instance()->redis_zookeeper)
             Context::instance()->zookeeperInit();
 
-        $key = "wing-binlog-system-ip:".Context::instance()->session_id;
+        $key = "wing-binlog-system-ip:".$session_id;//Context::instance()->session_id;
         return Context::instance()->redis_zookeeper->get($key);
     }
 
@@ -1005,11 +1003,8 @@ class Worker implements Process
         //由于是多进程 redis和pdo等连接资源 需要重置
         Context::instance()
             ->initRedisLocal()
-            ->initPdo();
-
-
-        if (!Context::instance()->redis_zookeeper)
-            Context::instance()->zookeeperInit();
+            ->initPdo()
+            ->zookeeperInit();
         //$generallog = new GeneralLog(Context::instance()->activity_pdo);
 
         $bin = new \Seals\Library\BinLog(Context::instance()->activity_pdo);
@@ -1236,8 +1231,7 @@ class Worker implements Process
         $this->failureEventsSendRetry();
         $this->forkEventWorker();
 
-        if (!Context::instance()->redis_zookeeper)
-            Context::instance()->zookeeperInit();
+        Context::instance()->zookeeperInit();
         //write pid file
         file_put_contents(self::$server_pid, self::getCurrentProcessId());
         $this->setProcessTitle("php seals >> events master process - Worker");
