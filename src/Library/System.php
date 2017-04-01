@@ -122,7 +122,6 @@ class System
             case "Linux": {
                 $command = new Command("free -m");
                 $res = $command->run();
-                $res = $command->run();
                 echo $res;
                 preg_match_all("/[\d]+/", $res, $m);
                 var_dump($m);
