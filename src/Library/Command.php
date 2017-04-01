@@ -48,7 +48,6 @@ class Command
             return null;
 
         $result = '';
-
         while (1) {
             $res = fgets($handle, 1024);
             if ($res) {
