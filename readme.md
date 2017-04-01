@@ -1,8 +1,8 @@
 ![wing-binlog](https://raw.githubusercontent.com/jilieryuyi/wing-binlog/master/page.png)
 
-mysqlbinlog general log 监控分析系统
+mysqlbinlog 监控分析系统
 ====
->不改变一句业务代码实现整库数据变化实时监控
+>不改变一句业务代码实现整库数据变化实时监控以及统计分析
 
 ### 事件数据
 * 1、发生数据变化的数据库名称
