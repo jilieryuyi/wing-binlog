@@ -158,7 +158,9 @@ class System
                 $temp = explode("\n", $res);
                 $sum = 0;
                 foreach ($temp as $_item) {
+                    echo $_item,"\r\n";
                     $item = preg_split("/[\s]+/", $_item);
+                    var_dump($item);
                     $sum += $item[8];
                 }
                 var_dump($sum);
