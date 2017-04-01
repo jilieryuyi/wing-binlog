@@ -13,7 +13,7 @@ $res = $command->run();
 
 echo $res;
 
-preg_match_all("/[\d]{1,3}.[\d]{1,3}.[\d]{1,3}.[\d]{1,3}/",$res,$m);
+preg_match_all("/[\d]{1,3}\.[\d]{1,3}\.[\d]{1,3}\.[\d]{1,3}/",$res,$m);
 var_dump($m);
 
 $sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
