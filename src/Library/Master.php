@@ -31,6 +31,7 @@ class Master implements Process
     protected $processes        = [];
     protected static $master_pid= __APP_DIR__."/master.pid";
     protected $version;
+    protected $auto_update = false;
     /**
      * @构造函数
      */
@@ -42,9 +43,10 @@ class Master implements Process
         gc_enable();
 
         $this->start_time = time();
-        $this->ip         = $ip;
-        $this->port       = $port;
+        $this->ip         = Context::instance()->master_listen;
+        $this->port       = Context::instance()->master_port;
         $this->home_path  = $home_path;
+        $this->auto_update= Context::instance()->master_auto_update;
 
         chdir($this->home_path);
 

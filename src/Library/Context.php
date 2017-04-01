@@ -56,6 +56,12 @@ class Context{
     public $session_id;
 
     protected $static_instances = [];
+
+
+    public $master_listen = "0.0.0.0";
+    public $master_port = 9998;
+    public $master_auto_update = true;
+
     /**
      * 单例
      *
@@ -103,6 +109,16 @@ class Context{
 
         $this->init();
         $this->initRedisLocal();
+
+        $master_config = require __DIR__."/../../config/master.php";
+        if (isset($master_config["listen"]))
+            $this->master_listen = $master_config["listen"];
+
+        if (isset($master_config["port"]) && intval($master_config["port"]) > 0)
+            $this->master_listen = $master_config["port"];
+
+        if (isset($master_config["auto_update"]))
+            $this->master_listen = !!$master_config["auto_update"];
     }
 
     /**
@@ -250,4 +266,6 @@ class Context{
             return null;
         return $this->db_config[$key];
     }
+
+
 }
