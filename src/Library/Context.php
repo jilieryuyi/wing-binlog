@@ -111,14 +111,14 @@ class Context{
         $this->initRedisLocal();
 
         $master_config = require __DIR__."/../../config/master.php";
+
         if (isset($master_config["listen"]))
             $this->master_listen = $master_config["listen"];
-
         if (isset($master_config["port"]) && intval($master_config["port"]) > 0)
-            $this->master_listen = $master_config["port"];
+            $this->master_port = $master_config["port"];
 
         if (isset($master_config["auto_update"]))
-            $this->master_listen = !!$master_config["auto_update"];
+            $this->master_auto_update = !!$master_config["auto_update"];
     }
 
     /**
