@@ -159,7 +159,7 @@ class System
                 $sum = 0;
                 foreach ($temp as $_item) {
                     echo $_item,"\r\n";
-                    $item = preg_split("/[\s]+/", $_item);
+                    $item = preg_split("/[\s]{1,}/", $_item);
                     var_dump($item);
                     $sum += $item[8];
                 }
