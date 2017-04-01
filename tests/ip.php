@@ -16,6 +16,9 @@ echo $res;
 preg_match_all("/[\d]{1,3}\.[\d]{1,3}\.[\d]{1,3}\.[\d]{1,3}/",$res,$m);
 var_dump($m);
 
+preg_match_all("/inet addr:[\d]{1,3}\.[\d]{1,3}\.[\d]{1,3}\.[\d]{1,3}  Bcast:[\d]{1,3}\.[\d]{1,3}\.[\d]{1,3}\.[\d]{1,3}  Mask:[\d]{1,3}\.[\d]{1,3}\.[\d]{1,3}\.[\d]{1,3}/",$res,$m);
+var_dump($m);
+
 $sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
 socket_connect($sock, "114.114.114.114", 53);
 socket_getsockname($sock, $name); // $name passed by reference
