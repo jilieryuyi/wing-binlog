@@ -677,7 +677,7 @@ class Worker implements Process
 //            "memory_usage" => $mem[1]
 //        ];
 
-        return Context::instance()->redis_zookeeper->get($key, $info);
+        return Context::instance()->redis_zookeeper->get($key);
       //  Context::instance()->redis_zookeeper->expire($key, 60);
     }
 

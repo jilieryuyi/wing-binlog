@@ -68,7 +68,6 @@ include "include/nav.php";
                     <tbody class="report-list">
                     <?php
                     $processes = \Seals\Library\Worker::getInfo($session_id);
-                    var_dump($processes);
                     $index = 0;
                     foreach ($processes as $process_id => $info) {
                       var_dump($info);
