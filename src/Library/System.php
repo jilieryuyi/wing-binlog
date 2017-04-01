@@ -132,6 +132,8 @@ class System
             } break;
             case "Darwin": {
                 $command = new Command("echo -e \"$(top -l 1 | awk '/PhysMem/';)\"");
+                // CPU usag
+                //echo -e "$(top -l 1 | awk '/CPU usag/';)"
                 $res = $command->run();
                 echo $res;
                 preg_match_all("/[\d]+/", $res, $m);
@@ -142,5 +144,38 @@ class System
 
         return [0,0];
 
+    }
+
+    public static function getCpuUsage()
+    {
+        //echo -e "$(top -l 1 | awk '/CPU usag/';)"
+        //top -n 1 求和
+        switch (PHP_OS) {
+            case "Linux": {
+                $command = new Command("top -n 1");
+                $res = $command->run();
+                echo $res;
+                $temp = explode("\n", $res);
+                $sum = 0;
+                foreach ($temp as $_item) {
+                    $item = preg_split("/[\s]+/", $_item);
+                    $sum += $item[8];
+                }
+                var_dump($sum);
+                return $sum;//[$m[0][0], $m[0][1]];
+            } break;
+            case "Darwin": {
+                $command = new Command("echo -e \"$(top -l 1 | awk '/CPU usag/';)\"");
+                // CPU usag
+                //echo -e "$(top -l 1 | awk '/CPU usag/';)"
+                $res = $command->run();
+                echo $res;
+                preg_match_all("/[\d]{1,2}(\.[\d]{1,})?/", $res, $m);
+                var_dump($m);
+                return array_sum($m[0]);
+            } break;
+        }
+
+        return 0;
     }
 }

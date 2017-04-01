@@ -665,7 +665,7 @@ class Worker implements Process
         Context::instance()->redis_zookeeper->expire($key, 60);
     }
 
-    protected static function getSystemInfo()
+    public static function getSystemInfo()
     {
         if (!Context::instance()->redis_zookeeper)
             Context::instance()->zookeeperInit();
