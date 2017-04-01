@@ -161,7 +161,7 @@ class System
                     echo $_item,"\r\n";
                     $item = preg_split("/[\s]{1,}/", $_item);
                     var_dump($item);
-                    $sum += $item[8];
+                    $sum += $item[9];
                 }
                 var_dump($sum);
                 return $sum;//[$m[0][0], $m[0][1]];
