@@ -172,7 +172,13 @@ class Worker implements Process
         $this->process_cache->del("stop_".$process_id);
         $this->process_cache->del("status_".$process_id);
         $this->process_cache->del("restart_".$process_id);
-       // $this->process_cache->del("momory_".$process_id);
+
+        if (!Context::instance()->redis_zookeeper)
+            Context::instance()->zookeeperInit();
+
+        $key = "wing-binlog-system-ip:".Context::instance()->session_id;
+        Context::instance()->redis_zookeeper->del($key);
+
     }
 
     /**
@@ -615,6 +621,7 @@ class Worker implements Process
         }
     }
 
+
     /**
      * @return array
      *    memory_peak_usage 峰值内存占用
@@ -635,10 +642,43 @@ class Worker implements Process
         $info = [];
         foreach ($keys as $key) {
             list(,,$process_id) = explode(":", $key);
-            $info[$process_id]  = Context::instance()->get($key);
+            $info[$process_id]  = Context::instance()->redis_zookeeper->get($key);
         }
 
         return $info;
+    }
+
+
+    protected static function setSystemInfo()
+    {
+        if (!Context::instance()->redis_zookeeper)
+            Context::instance()->zookeeperInit();
+
+        $key  = "wing-binlog-system-info-".Context::instance()->session_id;
+        $mem  = System::getMemory();
+        $info = [
+            "memory_total" => $mem[0],
+            "memory_usage" => $mem[1]
+        ];
+
+        Context::instance()->redis_zookeeper->set($key, $info);
+        Context::instance()->redis_zookeeper->expire($key, 60);
+    }
+
+    protected static function getSystemInfo()
+    {
+        if (!Context::instance()->redis_zookeeper)
+            Context::instance()->zookeeperInit();
+
+        $key  = "wing-binlog-system-info-".Context::instance()->session_id;
+//        $mem  = System::getMemory();
+//        $info = [
+//            "memory_total" => $mem[0],
+//            "memory_usage" => $mem[1]
+//        ];
+
+        return Context::instance()->redis_zookeeper->get($key, $info);
+      //  Context::instance()->redis_zookeeper->expire($key, 60);
     }
 
     /**
@@ -1207,6 +1247,7 @@ class Worker implements Process
                 ob_start();
                 $this->checkRestart();
                 $this->setInfo();
+                self::setSystemInfo();
 
                 $status = 0;
                 $pid    = pcntl_wait($status, WNOHANG);//WUNTRACED);

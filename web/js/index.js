@@ -69,19 +69,6 @@ function nodeRefresh(v, group_id, session_id)
             else
                 $(v).removeClass("hide");
 
-            // $(v).next("tr").find(".open-generallog").attr("data-open",data.generallog);
-            // if (parseInt(data.generallog) == 1) {
-            //     $(v).next("tr").find(".open-generallog")
-            //         .html("Disable General Log")
-            //         .removeClass("btn-success")
-            //         .addClass("bg-red");
-            //     $(v).find(".generallog").html("Enable");
-            // } else {
-            //     $(v).next("tr").find(".open-generallog").html("Enable General Log")
-            //         .addClass("btn-success")
-            //         .removeClass("bg-red");
-            //     $(v).find(".generallog").html("Disable");
-            // }
             var index = 1;
             $(".nodes-list .node").each(function(){
                 if (!$(this).hasClass("hide")) {
@@ -280,7 +267,7 @@ function appendNode(group_id, session_id, node)
             'data-session-id="'+session_id+'" '+
             '>'+
                 '<td class="node-id" title="'+session_id+'">' +
-                    '<label class="index">'+index+'</label>、'+session_id+
+                    '<label class="index">'+index+'</label>、<a href="node.info.php?session_id='+session_id+'">'+session_id+'</a>'+
                 '</td>'+
                 '<td class="online-status">';
                     if (parseInt(node.is_offline) == 1) {

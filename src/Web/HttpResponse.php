@@ -309,27 +309,27 @@ class HttpResponse
                 if ($is_ajax) {
                     echo "ajax\r\n";
                     $cache_control = "Cache-control: max-age=0,private,must-revalidation";
-                    $response      = json_encode(["error_code" => 401, "error_msg" => "not allow access"]);
+                    $response      = json_encode(["error_code" => 403, "error_msg" => "not allow access"]);
                     break;
                 }
 
-                if (isset(self::$static_files[$this->home . "/404.html"])) {
-                    echo "404 page static\r\n";
-                    $response  = self::$static_files[$this->home . "/404.html"]["content"];
-                    $mime_type = self::$static_files[$this->home . "/404.html"]["mime"];
+                if (isset(self::$static_files[$this->home . "/403.html"])) {
+                    echo "403 page static\r\n";
+                    $response  = self::$static_files[$this->home . "/403.html"]["content"];
+                    $mime_type = self::$static_files[$this->home . "/403.html"]["mime"];
                     //$status_code = "HTTP/1.1 304 Not Modified";
                     break;
                 }
 
-                echo "404 page\r\n";
+                echo "403 page\r\n";
 
                 //else response 404 page
                 ob_start();
-                include $this->home . "/404.html";
+                include $this->home . "/403.html";
                 $response = ob_get_contents();
                 ob_end_clean();
 
-                self::$static_files[$this->home . "/404.html"] = [
+                self::$static_files[$this->home . "/403.html"] = [
                     "content" => $response,
                     "mime" => "text/html",
                 ];

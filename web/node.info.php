@@ -1,4 +1,9 @@
 <?php
+if (!isset($_GET["session_id"])) {
+  echo "params error";
+  return;
+}
+$session_id = $_GET["session_id"];
 include "include/nav.php";
 ?>
 
@@ -27,7 +32,7 @@ include "include/nav.php";
               <div class="col-md-12">
               <div class="x_panel">
                 <div class="x_title">
-                  <h2 style="width: 60px;">List</h2> <a href="user.add.php" class="btn btn-success btn-sm">Add</a>
+                  <h2 style="width: 60px;">Process List</h2> <a href="user.add.php" class="btn btn-success btn-sm">Add</a>
                   <ul class="nav navbar-right panel_toolbox">
                     <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                     </li>
@@ -51,7 +56,8 @@ include "include/nav.php";
                     <thead>
                     <tr>
                       <th>Index</th>
-                      <th>User Name</th>
+                      <th>Process ID</th>
+                      <th>User</th>
                       <th>Role</th>
                       <th>Created</th>
                       <th>Login Times</th>
@@ -61,20 +67,17 @@ include "include/nav.php";
                     </thead>
                     <tbody class="report-list">
                     <?php
-                    $users = \Seals\Web\Logic\User::all();
-                    foreach ($users as $index => $user) {
+                    $processes = \Seals\Library\Worker::getInfo($session_id);
+                    var_dump($processes);
+                    $index = 0;
+                    foreach ($processes as $process_id => $info) {
+                      var_dump($info);
                     ?>
                     <tr>
-                      <th scope="row"><?php echo ($index+1); ?></th>
-                      <td><?php echo $user["name"]; ?></td>
-                      <td><?php echo $user["role"]; ?></td>
-                      <td><?php echo $user["created"]; ?></td>
-                      <td><?php echo $user["times"]; ?></td>
-                      <td><?php echo $user["last_login"]; ?></td>
-                      <td>
-                        <a class="btn btn-primary btn-sm" href="user.edit.php?name=<?php echo urlencode($user["name"]); ?>">Edit</a>
-                        <a class="btn btn-danger btn-sm" data-user="<?php echo $user["name"]; ?>" onclick="deleteUser(this)">Delete</a>
-                      </td>
+                      <th scope="row"><?php echo (++$index); ?></th>
+                      <td><?php echo $process_id; ?></td>
+                      <td><?php echo $info["user"]; ?></td>
+
                     </tr>
                     <?php } ?>
                     </tbody>
