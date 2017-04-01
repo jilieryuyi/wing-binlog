@@ -153,17 +153,13 @@ class System
         switch (PHP_OS) {
             case "Linux": {
                 $command = new Command("top -n 1");
-                $res = $command->run();
-                echo $res;
+                $res  = $command->run();
                 $temp = explode("\n", $res);
-                $sum = 0;
+                $sum  = 0;
                 foreach ($temp as $_item) {
-                    echo $_item,"\r\n";
                     $item = preg_split("/[\s]{1,}/", $_item);
-                    var_dump($item);
                     $sum += $item[9];
                 }
-                var_dump($sum);
                 return $sum;//[$m[0][0], $m[0][1]];
             } break;
             case "Darwin": {
@@ -171,10 +167,8 @@ class System
                 // CPU usag
                 //echo -e "$(top -l 1 | awk '/CPU usag/';)"
                 $res = $command->run();
-                echo $res;
                 preg_match_all("/[\d]{1,2}(\.[\d]{1,})?/", $res, $m);
-                var_dump($m);
-                return array_sum($m[0]);
+                return array_sum([$m[0][0],$m[0][1]]);
             } break;
         }
 

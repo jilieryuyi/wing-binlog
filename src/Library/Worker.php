@@ -658,7 +658,8 @@ class Worker implements Process
         $mem  = System::getMemory();
         $info = [
             "memory_total" => $mem[0],
-            "memory_usage" => $mem[1]
+            "memory_usage" => $mem[1],
+            "cpu_usage"    => System::getCpuUsage()
         ];
 
         Context::instance()->redis_zookeeper->set($key, $info);

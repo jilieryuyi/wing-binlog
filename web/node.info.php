@@ -34,7 +34,7 @@ include "include/nav.php";
                 <div class="x_title">
                   <h2 style="width: 120px; float: left;">Process List</h2> <small style="float: left; margin-top: 8px;">
                     <?php $sysinfo = \Seals\Library\Worker::getSystemInfo(); ?>
-                    Total memory <?php echo $sysinfo["memory_total"] ?>M, usage <?php echo $sysinfo["memory_usage"]; ?>M, <?php echo bcdiv($sysinfo["memory_usage"]*100/$sysinfo["memory_total"],1,2); ?>%
+                    Total memory <?php echo $sysinfo["memory_total"] ?>M, usage <?php echo $sysinfo["memory_usage"]; ?>M, <?php echo bcdiv($sysinfo["memory_usage"]*100/$sysinfo["memory_total"],1,2); ?>%, Cpu usage <?php echo $sysinfo["cpu_usage"]; ?>%
                   </small>
                   <ul class="nav navbar-right panel_toolbox">
                     <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
