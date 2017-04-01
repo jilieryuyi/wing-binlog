@@ -73,6 +73,7 @@ class Worker implements Process
 
         ini_set("memory_limit", Context::instance()->memory_limit);
         $this->version = file_get_contents(__APP_DIR__."/version");
+        $this->setIp();
     }
 
     /**
@@ -171,7 +172,7 @@ class Worker implements Process
         $this->process_cache->del("stop_".$process_id);
         $this->process_cache->del("status_".$process_id);
         $this->process_cache->del("restart_".$process_id);
-        $this->process_cache->del("momory_".$process_id);
+       // $this->process_cache->del("momory_".$process_id);
     }
 
     /**
@@ -573,16 +574,71 @@ class Worker implements Process
         }
     }
 
-    public function setMemory()
+
+    protected function setIp()
     {
-        $this->process_cache->set("momory_".self::getCurrentProcessId(),
-            [memory_get_peak_usage(true),memory_get_usage(true)]
-            );
+        if (!Context::instance()->redis_zookeeper)
+            Context::instance()->zookeeperInit();
+
+        $key = "wing-binlog-system-ip:".Context::instance()->session_id;
+        Context::instance()->set($key, System::getIp());
     }
 
-    public function getMemory($process_id)
+    /**
+     * @return array
+     */
+    public static function getIp()
     {
-        return $this->process_cache->get("momory_".$process_id);
+        if (!Context::instance()->redis_zookeeper)
+            Context::instance()->zookeeperInit();
+
+        $key = "wing-binlog-system-ip:".Context::instance()->session_id;
+        return Context::instance()->get($key);
+    }
+
+    public function setInfo()
+    {
+        //$this->process_cache->set("momory_".self::getCurrentProcessId(), [memory_get_peak_usage(true),memory_get_usage(true)]);
+        if (!Context::instance()->redis_zookeeper)
+            Context::instance()->zookeeperInit();
+
+        {
+            $process_id = self::getCurrentProcessId();
+            $key = "wing-binlog-process-info:".Context::instance()->session_id.":". $process_id;
+            $process_info = System::getProcessInfo($process_id);
+            $process_info["memory_peak_usage"] = memory_get_peak_usage(true);
+            $process_info["memory_usage"]      = memory_get_usage(true);
+            // $process_info["ip"] = System::getIp();
+
+            Context::instance()->set($key, $process_info);
+            Context::instance()->redis_zookeeper->expire($key, 60);
+        }
+    }
+
+    /**
+     * @return array
+     *    memory_peak_usage 峰值内存占用
+     *    memory_usage 实时内存占用
+     *    user 进程用户
+     *    process_id 进程id
+     *    cpu cpu实时占用
+     *    memory 内存占用
+     *    status 进程状态
+     *    start 进程开始运行时间
+     *    time 执行的时间
+     *    command 启动命令
+     */
+    public static function getInfo($session_id)
+    {
+        $keys = Context::instance()->redis_zookeeper->keys("wing-binlog-process-info:".$session_id.":*");
+
+        $info = [];
+        foreach ($keys as $key) {
+            list(,,$process_id) = explode(":", $key);
+            $info[$process_id]  = Context::instance()->get($key);
+        }
+
+        return $info;
     }
 
     /**
@@ -634,6 +690,7 @@ class Worker implements Process
                 pcntl_signal_dispatch();
                 $this->setStatus($process_name);
                 $this->setIsRunning();
+                $this->setInfo();
 
                 do {
 
@@ -826,6 +883,7 @@ class Worker implements Process
                     pcntl_signal_dispatch();
                     $this->setStatus($process_name);
                     $this->setIsRunning();
+                    $this->setInfo();
 
                     $res = $queue->pop();
                     if (!$res)
@@ -875,287 +933,6 @@ class Worker implements Process
         }
     }
 
-
-    /**
-     * base generallog process
-     */
-    protected function forkGenerallogWorker()
-    {
-        echo "general log start...\r\n";
-        $process_id = pcntl_fork();
-
-        if ($process_id < 0) {
-            echo "fork a process fail\r\n";
-            exit;
-        }
-
-        if ($process_id > 0) {
-            $this->processes[] = $process_id;
-            $this->generallog_process = $process_id;
-            return;
-        }
-
-        if ($this->daemon) {
-            $this->resetStd();
-        }
-
-        ini_set("memory_limit", Context::instance()->memory_limit);
-        $process_name = "php seals >> events collector - general log";
-
-        //设置进程标题 mac 会有warning 直接忽略
-        $this->setProcessTitle($process_name);
-
-        //由于是多进程 redis和pdo等连接资源 需要重置
-        Context::instance()
-            ->initRedisLocal()
-            ->initPdo()
-            ->zookeeperInit();
-
-        $report  = new Report(Context::instance()->redis_local);
-        $general = new GeneralLog(Context::instance()->activity_pdo);
-        $type    = $general->logOutput();
-
-        $count      = 0;
-        $start_time = time();
-
-        if ($type == "table") {
-            while (1) {
-                ob_start();
-                try {
-                    pcntl_signal_dispatch();
-                    $log_output = $general->logOutput();
-                    if ($log_output != "table") {
-                        echo "切换格式 from table to file\r\n";
-                        exit;
-                    }
-                    unset($log_output);
-
-                    do {
-                        $generallog_is_open = $general->isOpen();
-                        if (!$generallog_is_open) {
-                            unset($generallog_is_open);
-                            echo "general log is disable\r\n";
-                            sleep(1);
-                            break;
-                        }
-                        unset($generallog_is_open);
-
-                        $data = $general->query($general->last_time);
-                        if (!$data) {
-                            usleep(self::USLEEP);
-                            break;
-                        }
-
-                        foreach ($data as $row) {
-                            list($event,) = explode(" ", $row["argument"]);
-                            $event = strtolower($event);
-                            echo $row["argument"],"\r\n";
-
-                            $count++;
-                            if ((time() - $start_time) > 0)
-                            echo "采集量：", $count, ",每秒采集:", ($count / (time() - $start_time)), "条\r\n";
-
-                            $report->set(strtotime($row["event_time"]), strtolower($event));
-                            echo date("Y-m-d H:i:s", strtotime($row["event_time"])),"=>",strtolower($row["command_type"]),"=>",strtolower($event),"\r\n";
-                            unset($event);
-                        }
-                        unset($data);
-
-                    } while(0);
-
-                    $this->checkStopSignal();
-                } catch (\Exception $e) {
-
-                }
-                $content = null;
-                if ($this->debug)
-                    $content = ob_get_contents();
-                ob_end_clean();
-
-                if ($this->debug && $content)
-                    echo $content;
-                unset($content);
-            }
-        }
-
-        elseif ($type == "file") {
-
-            $file_name = $general->getLogPath();
-            $read_size = $general->getReadSize();
-
-            clearstatcache();
-
-            if ($read_size > filesize($file_name)) {
-                //reset read size
-                $read_size = 0;
-            }
-
-
-            $fp = fopen($file_name, "r");
-
-            if ($fp)
-                fseek($fp, $read_size);
-            else
-                $fp = null;
-
-            $last_daytime = 0;
-
-            while (1) {
-                try {
-                    ob_start();
-
-                    pcntl_signal_dispatch();
-                    $log_output = $general->logOutput();
-                    if ($log_output != "file") {
-                        echo "切换格式 from file to table\r\n";
-                        fclose($fp);
-                        $fp = null;
-                        //after exit the current process will create a new one
-                        exit;
-                    }
-
-                    unset($log_output);
-
-                    do {
-                        $general_is_open = $general->isOpen();
-                        if (!$general_is_open) {
-                            echo "general log disable\r\n";
-                            if ($fp)
-                                fclose($fp);
-                            $fp = null;
-                            unset($general_is_open);
-                            sleep(1);
-                            //Context::instance()->logger->debug("general log => disabled");
-
-                            break;
-                        }
-                        unset($general_is_open);
-
-                        if ($fp == null) {
-                            clearstatcache();
-                            $fp = fopen($file_name, "r");
-                            fseek($fp, $read_size);
-                        }
-                        //read 10000 lines then check 1 isOpen and logOutput
-                        for ($i = 0; $i < 1000; ++$i)
-                        {
-                            clearstatcache();
-                            $line  = fgets($fp);
-                            $lsize = strlen($line);
-                            if ($lsize <= 0 || !$line) {
-                                ////Context::instance()->logger->debug("general log => empty line - ".$file_name);
-                                continue;
-                            }
-
-                            $read_size += $lsize;
-                            unset($lsize);
-
-                            $general->setReadSize($read_size);
-
-                            $_line    = trim($line);
-                            unset($line);
-                            //Context::instance()->logger->debug("general log => ".$_line);
-
-                            $temp     = preg_split("/[\s]+/", $_line, 4);
-                            if (!isset($temp[0]) || !$temp[0]) {
-                                //Context::instance()->logger->debug("general log => split error");
-                                continue;
-                            }
-                            unset($_line);
-                            $datetime = strtotime($temp[0]);
-
-
-                            if ($datetime <= 0) {
-                                //Context::instance()->logger->debug("general log => datetime error");
-                                continue;
-                            }
-
-                            var_dump($temp);
-                            $event_type = trim($temp[2]);
-                            if ($event_type == "Init")
-                                $event_type = "Init DB";
-                            elseif ($event_type == "Close")
-                                $event_type = "Close stmt";
-
-                            $event = "";
-                            if (isset($temp[3]) && $temp[3] != "stmt") {
-                                list($event,) = explode(" ", $temp[3], 2);
-                                $event = strtolower($event);
-                            }
-                            unset($temp);
-
-                            $report->set($datetime, $event);
-                            //Context::instance()->logger->debug("general log => ".$datetime."--".$event);
-                            echo date("Y-m-d H:i:s", $datetime), "=>", strtolower($event_type), "=>", $event, "\r\n";
-                            unset($datetime, $event_type, $event);
-                            $count++;
-                            if ((time() - $start_time) > 0)
-                            echo "采集量：", $count, ",每秒采集:", ($count / (time() - $start_time)), "条\r\n";
-                            if (feof($fp)) {
-                                fclose($fp);
-                                $fp = null;
-                                usleep(self::USLEEP);
-
-
-                                //if read end
-                                $_file_name = $general->getLogPath();
-                                //if file path is change
-                                if ($_file_name != $file_name) {
-                                    echo "chang general log file path\r\n";
-                                    $file_name = $_file_name;
-                                    $fp        = fopen($file_name, "r");
-                                    $read_size = 0;
-                                    fseek($fp, $read_size);
-                                }
-                                unset($_file_name);
-                                //Context::instance()->logger->debug("general log => read end");
-
-                                break;
-                            }
-                        }
-
-                    } while(0);
-
-                    $this->checkStopSignal();
-
-                    $content = null;
-                    if ($this->debug)
-                        $content = ob_get_contents();
-                    ob_end_clean();
-
-                    if ($this->debug && $content)
-                    echo $content;
-
-                    unset($content);
-                } catch (\Exception $e) {
-                    Context::instance()->logger->error($e->getMessage());
-                    fclose($fp);
-                    $fp = null;
-                    usleep(self::USLEEP);
-
-                    $file_name = $general->getLogPath();
-                    $read_size = $general->getReadSize();
-
-                    clearstatcache();
-
-                    if ($read_size > filesize($file_name)) {
-                        //reset read size
-                        $read_size = 0;
-                    }
-
-                    //after error happened, try to open again
-                    $fp = fopen($file_name, "r");
-                    fseek($fp, $read_size);
-                }
-            }
-            if ($fp) {
-                fclose($fp);
-            }
-
-        }
-
-    }
-
     /**
      * base events collector、rpc process
      */
@@ -1187,8 +964,11 @@ class Worker implements Process
         //由于是多进程 redis和pdo等连接资源 需要重置
         Context::instance()
             ->initRedisLocal()
-            ->initPdo()
-            ->zookeeperInit();
+            ->initPdo();
+
+
+        if (!Context::instance()->redis_zookeeper)
+            Context::instance()->zookeeperInit();
         //$generallog = new GeneralLog(Context::instance()->activity_pdo);
 
         $bin = new \Seals\Library\BinLog(Context::instance()->activity_pdo);
@@ -1212,6 +992,7 @@ class Worker implements Process
                     pcntl_signal_dispatch();
                     $this->setStatus($process_name);
                     $this->setIsRunning();
+                    $this->setInfo();
 
                     $redis_local = Context::instance()->redis_local_config;
                     unset($redis_local["password"]);
@@ -1412,9 +1193,10 @@ class Worker implements Process
 
         //try resend fail events
         $this->failureEventsSendRetry();
-        //$this->forkGenerallogWorker();
         $this->forkEventWorker();
 
+        if (!Context::instance()->redis_zookeeper)
+            Context::instance()->zookeeperInit();
         //write pid file
         file_put_contents(self::$server_pid, self::getCurrentProcessId());
         $this->setProcessTitle("php seals >> events master process - Worker");
@@ -1424,8 +1206,10 @@ class Worker implements Process
             try {
                 ob_start();
                 $this->checkRestart();
+                $this->setInfo();
+
                 $status = 0;
-                $pid = pcntl_wait($status, WNOHANG);//WUNTRACED);
+                $pid    = pcntl_wait($status, WNOHANG);//WUNTRACED);
 
                 if ($pid > 0) {
 
@@ -1452,10 +1236,6 @@ class Worker implements Process
                         continue;
                     }
 
-//                    if ($pid == $this->generallog_process) {
-//                        $this->forkGenerallogWorker();
-//                        continue;
-//                    }
                 }
                 //$content = ob_get_contents();
                 ob_end_clean();

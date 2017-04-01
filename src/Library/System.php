@@ -22,7 +22,7 @@ class System
         preg_match_all("/[\d]{1,3}\.[\d]{1,3}\.[\d]{1,3}\.[\d]{1,3}/",$res,$m);
 
         //preg_match_all("/[\d]{1,3}.[\d]{1,3}.[\d]{1,3}.[\d]{1,3}/",$res,$m);
-        self::$ip = $m[0];
+        return $m[0];
     }
 
     /**
