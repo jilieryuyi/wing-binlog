@@ -480,4 +480,14 @@ class Report
         return $this->redis->del($keys);
     }
 
+//    public static function sysInfo()
+//    {
+//        $info = [
+//            "memory"      => memory_get_usage(true),
+//            "memory_peak" => memory_get_peak_usage(true),
+//            "cpu"         => sys_getloadavg()[0]
+//        ];
+//        return $info;
+//    }
+
 }

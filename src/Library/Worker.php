@@ -41,6 +41,7 @@ class Worker implements Process
     {
         $this->process_cache = new File(__APP_DIR__."/process_cache");
         gc_enable();
+        //new System();
 
         $this->start_time       = time();
         $this->app_id           = $app_id;
@@ -170,6 +171,7 @@ class Worker implements Process
         $this->process_cache->del("stop_".$process_id);
         $this->process_cache->del("status_".$process_id);
         $this->process_cache->del("restart_".$process_id);
+        $this->process_cache->del("momory_".$process_id);
     }
 
     /**
@@ -569,6 +571,18 @@ class Worker implements Process
                 exit(0);
                 break;
         }
+    }
+
+    public function setMemory()
+    {
+        $this->process_cache->set("momory_".self::getCurrentProcessId(),
+            [memory_get_peak_usage(true),memory_get_usage(true)]
+            );
+    }
+
+    public function getMemory($process_id)
+    {
+        return $this->process_cache->get("momory_".$process_id);
     }
 
     /**
