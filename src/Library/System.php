@@ -120,8 +120,13 @@ class System
 
         switch (PHP_OS) {
             case "Linux": {
-                $command = new Command("free");
+                $command = new Command("free -m");
                 $res = $command->run();
+                $res = $command->run();
+                echo $res;
+                preg_match_all("/[\d]+/", $res, $m);
+                var_dump($m);
+                return [$m[0][0]."M", $m[0][1]."M"];
             } break;
             case "Darwin": {
                 $command = new Command("echo -e \"$(top -l 1 | awk '/PhysMem/';)\"");
