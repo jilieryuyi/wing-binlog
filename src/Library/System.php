@@ -112,4 +112,26 @@ class System
 
         return $data[$process_id];
     }
+
+    public static function getMemory()
+    {
+        //echo -e "$(top -l 1 | awk '/PhysMem/';)"
+        //free
+
+        switch (PHP_OS) {
+            case "Linux": {
+                $command = new Command("free");
+                $res = $command->run();
+            } break;
+            case "Darwin": {
+                $command = new Command("echo -e \"$(top -l 1 | awk '/PhysMem/';)\"");
+                $res = $command->run();
+                echo $res;
+                preg_match_all("/[\d]+/", $res, $m);
+                var_dump($m);
+                return [$m[0][0]."M", $m[0][1]."M"];
+            } break;
+        }
+
+    }
 }

@@ -581,7 +581,7 @@ class Worker implements Process
             Context::instance()->zookeeperInit();
 
         $key = "wing-binlog-system-ip:".Context::instance()->session_id;
-        Context::instance()->set($key, System::getIp());
+        Context::instance()->redis_zookeeper->set($key, System::getIp());
     }
 
     /**
@@ -593,7 +593,7 @@ class Worker implements Process
             Context::instance()->zookeeperInit();
 
         $key = "wing-binlog-system-ip:".Context::instance()->session_id;
-        return Context::instance()->get($key);
+        return Context::instance()->redis_zookeeper->get($key);
     }
 
     public function setInfo()
@@ -610,7 +610,7 @@ class Worker implements Process
             $process_info["memory_usage"]      = memory_get_usage(true);
             // $process_info["ip"] = System::getIp();
 
-            Context::instance()->set($key, $process_info);
+            Context::instance()->redis_zookeeper->set($key, $process_info);
             Context::instance()->redis_zookeeper->expire($key, 60);
         }
     }
