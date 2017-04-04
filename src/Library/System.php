@@ -7,13 +7,6 @@
  */
 class System
 {
-    //ip
-//    public static $ip = [];
-//
-//    public function __construct()
-//    {
-//        $this->getIp();
-//    }
 
     public static function getIp()
     {
@@ -31,42 +24,24 @@ class System
 
     /**
     ps aux输出格式：
-
     USER PID %CPU %MEM VSZ RSS TTY STAT START TIME COMMAND
     格式说明：
-
     USER: 行程拥有者
-
     PID: pid
-
     %CPU: 占用的 CPU 使用率
-
     %MEM: 占用的记忆体使用率
-
     VSZ: 占用的虚拟记忆体大小
-
     RSS: 占用的记忆体大小
-
     TTY: 终端的次要装置号码 (minor device number of tty)
-
     STAT: 该行程的状态，linux的进程有5种状态：
-
     D 不可中断 uninterruptible sleep (usually IO)
-
     R 运行 runnable (on run queue)
-
     S 中断 sleeping
-
     T 停止 traced or stopped
-
     Z 僵死 a defunct (”zombie”) process
-
     注: 其它状态还包括W(无驻留页), <(高优先级进程), N(低优先级进程), L(内存锁页).
-
     START: 行程开始时间
-
     TIME: 执行的时间
-
     COMMAND:所执行的指令
      */
     public static function getProcessInfo($process_id)
@@ -90,7 +65,6 @@ class System
         foreach ($temp as $_item) {
             if (!$_item) continue;
             $item = preg_split("/[\s]+/", $_item, 11);
-            //Context::instance()->logger->error($_item, $item);
 
             $data[$item[1]] = [
                 "user"       => $item[0],
@@ -104,8 +78,6 @@ class System
                 "command"    => $item[10]
             ];
         }
-
-        var_dump($data);
 
         if (!isset($data[$process_id]))
             return null;
