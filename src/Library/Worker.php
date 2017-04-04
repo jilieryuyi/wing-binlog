@@ -73,7 +73,6 @@ class Worker implements Process
 
         ini_set("memory_limit", Context::instance()->memory_limit);
         $this->version = file_get_contents(__APP_DIR__."/version");
-        $this->setIp();
     }
 
     /**
@@ -582,9 +581,9 @@ class Worker implements Process
 
         $key = "wing-binlog-system-ip:".Context::instance()->session_id;
         $ip = System::getIp();
-        $s = Context::instance()->redis_zookeeper->set($key, $ip);
 
-        file_put_contents(__APP_DIR__."/logs/setip.log",$key."\r\n".json_encode($ip)."==>".$s);
+        Context::instance()->redis_zookeeper->set($key, $ip);
+        Context::instance()->redis_zookeeper->expire($key, 60);
 
     }
 
@@ -1243,6 +1242,7 @@ class Worker implements Process
                 $this->checkRestart();
                 $this->setInfo();
                 self::setSystemInfo();
+                $this->setIp();
 
                 $status = 0;
                 $pid    = pcntl_wait($status, WNOHANG);//WUNTRACED);

@@ -21,6 +21,10 @@ class System
         $res     = $command->run();
         preg_match_all("/[\d]{1,3}\.[\d]{1,3}\.[\d]{1,3}\.[\d]{1,3}/",$res,$m);
 
+        foreach ($m[0] as $key => $ip) {
+            if ($ip == "127.0.0.1")
+                unset($m[0][$key]);
+        }
         //preg_match_all("/[\d]{1,3}.[\d]{1,3}.[\d]{1,3}.[\d]{1,3}/",$res,$m);
         return $m[0];
     }
@@ -76,15 +80,17 @@ class System
         $status = [
             "D" => "不可中断 uninterruptible sleep (usually IO)",
             "R" => "运行 runnable (on run queue)",
-            "S" =>  "中断 sleeping",
-            "T" =>  "停止 traced or stopped",
+            "S" => "中断 sleeping",
+            "T" => "停止 traced or stopped",
             "Z" => "僵死 a defunct (”zombie”) process",
             "W" => "无驻留页","<" =>"高优先级进程", "N" => "低优先级进程",
             "L" => "内存锁页"
         ];
 
         foreach ($temp as $_item) {
+            if (!$_item) continue;
             $item = preg_split("/[\s]+/", $_item, 11);
+            //Context::instance()->logger->error($_item, $item);
 
             $data[$item[1]] = [
                 "user"       => $item[0],
@@ -92,7 +98,7 @@ class System
                 "cpu"        => $item[2]."%",
                 "memory"     => $item[3]."%",
                 //"memory"  => $item[4]/1024,
-                "status"     => $item[7]." ".$status[$item[7]],
+                "status"     => $item[7]." ".(isset($status[$item[7]])?$status[$item[7]]:""),
                 "start"      => $item[8],
                 "time"       => $item[9],
                 "command"    => $item[10]
