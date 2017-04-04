@@ -11,30 +11,30 @@ include "include/nav.php";
                 <div class="tile-stats">
                   <div class="icon"><i class="fa fa-caret-square-o-right"></i></div>
                   <div class="count"><?php echo
-                    \Seals\Library\Report::getDayEventAll(date("Ymd"), "write_rows");
+                    \Seals\Library\Report::getDayEventAll(date("Ymd",strtotime($day)), "write_rows");
                     ?></div>
                   <h3>Insert Rows</h3>
-                  <p>Today insert rows</p>
+                  <p><?php echo $day; ?> insert rows</p>
                 </div>
               </div>
               <div class="animated flipInY col-lg-4 col-md-4 col-sm-6 col-xs-12">
                 <div class="tile-stats">
                   <div class="icon"><i class="fa fa-comments-o"></i></div>
                   <div class="count"><?php echo
-                    \Seals\Library\Report::getDayEventAll(date("Ymd"), "delete_rows");
+                    \Seals\Library\Report::getDayEventAll(date("Ymd",strtotime($day)), "delete_rows");
                     ?></div>
                   <h3>Delete Rows</h3>
-                  <p>Today delete rows</p>
+                  <p><?php echo $day; ?> delete rows</p>
                 </div>
               </div>
               <div class="animated flipInY col-lg-4 col-md-4 col-sm-6 col-xs-12">
                 <div class="tile-stats">
                   <div class="icon"><i class="fa fa-sort-amount-desc"></i></div>
                   <div class="count"><?php echo
-                    \Seals\Library\Report::getDayEventAll(date("Ymd"), "update_rows");
+                    \Seals\Library\Report::getDayEventAll(date("Ymd",strtotime($day)), "update_rows");
                     ?></div>
                   <h3>Update Rows</h3>
-                  <p>Today update rows</p>
+                  <p><?php echo $day; ?> update rows</p>
                 </div>
               </div>
             </div>
