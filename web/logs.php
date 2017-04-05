@@ -47,7 +47,13 @@ include "include/nav.php";
 <!--                  <div class="clearfix"></div>-->
 <!--                </div>-->
                 <div class="x_content">
-
+                  <div>
+                    <a href="logs.php?page=<?php echo $prev_page; ?>">上一页</a>
+                    <a href="logs.php?page=1">首页</a>
+                    <a>第<?php echo $page; ?>/<?php echo $all_page; ?>页</a>
+                    <a href="logs.php?page=<?php echo $all_page; ?>">最后一页</a>
+                    <a href="logs.php?page=<?php echo $next_page; ?>">下一页</a>
+                  </div>
                   <table class="table table-striped  jambo_table bulk_action">
                     <thead style="    background: #26B99A !important;color: #fff;">
                     <tr>
