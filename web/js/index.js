@@ -334,7 +334,14 @@ function appendNode(group_id, session_id, node)
                         'data-session-id="'+session_id+'" '+
                         'href="report.php?group_id='+group_id+'&session_id='+session_id+'" >Report</a>'+
 
-                    '<a class="btn bg-red"  '+
+                            '<a ' +
+                            'class="btn btn-success"  '+
+                            'data-group-id="'+group_id+'" '+
+                            'data-session-id="'+session_id+'" '+
+                            'href="node.info.php?session_id='+session_id+'" >Server Detail</a>'+
+
+
+                            '<a class="btn bg-red"  '+
                         'data-group-id="'+group_id+'" '+
                         'data-session-id="'+session_id+'" '+
                         'onclick="nodeRestart(this)" >Restart</a>'+
