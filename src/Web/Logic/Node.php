@@ -1,5 +1,5 @@
 <?php namespace Seals\Web\Logic;
-use Seals\Library\Context;
+//use Seals\Library\Context;
 use Seals\Library\RPC;
 use Seals\Library\Worker;
 use Seals\Library\Zookeeper;
@@ -57,7 +57,7 @@ class Node
 
     public static function restart(HttpResponse $response)
     {
-        $group_id   = $response->post("group_id");
+        //$group_id   = $response->post("group_id");
         $session_id = $response->post("session_id");
 
         return RPC::call($session_id, "\\Seals\\Library\\Worker::restart", [], 1, true);
@@ -65,7 +65,7 @@ class Node
 
     public static function update(HttpResponse $response)
     {
-        $group_id   = $response->post("group_id");
+        //$group_id   = $response->post("group_id");
         $session_id = $response->post("session_id");
 
         return RPC::call($session_id, "\\Seals\\Library\\Worker::update", [], 1, true);
@@ -73,7 +73,7 @@ class Node
 
     public static function offline(HttpResponse $response)
     {
-        $group_id   = $response->post("group_id");
+        //$group_id   = $response->post("group_id");
         $session_id = $response->post("session_id");
         $is_offline = $response->post("is_offline")?1:0;
 
@@ -85,7 +85,7 @@ class Node
      */
     public static function setRuntimeConfig(HttpResponse $response)
     {
-        $group_id   = $response->post("group_id");
+        //$group_id   = $response->post("group_id");
         $session_id = $response->post("session_id");
 
         $workers    = $response->post("workers");
@@ -102,7 +102,7 @@ class Node
 
     public static function setNotifyConfig(HttpResponse $response)
     {
-        $group_id   = $response->post("group_id");
+        //$group_id   = $response->post("group_id");
         $session_id = $response->post("session_id");
 
         $class      = urldecode($response->post("class"));
@@ -119,7 +119,7 @@ class Node
 
     public static function setLocalRedisConfig(HttpResponse $response)
     {
-        $group_id   = $response->post("group_id");
+        //$group_id   = $response->post("group_id");
         $session_id = $response->post("session_id");
 
         $host      = urldecode($response->post("host"));
@@ -131,7 +131,7 @@ class Node
 
     public static function setRedisConfig(HttpResponse $response)
     {
-        $group_id   = $response->post("group_id");
+       // $group_id   = $response->post("group_id");
         $session_id = $response->post("session_id");
 
         $host      = urldecode($response->post("host"));
@@ -143,7 +143,7 @@ class Node
 
     public static function setRabbitmqConfig(HttpResponse $response)
     {
-        $group_id   = $response->post("group_id");
+       // $group_id   = $response->post("group_id");
         $session_id = $response->post("session_id");
 
         $host      = urldecode($response->post("host"));
@@ -169,7 +169,7 @@ class Node
 
     public static function setDbConfig(HttpResponse $response)
     {
-        $group_id   = $response->post("group_id");
+       // $group_id   = $response->post("group_id");
         $session_id = $response->post("session_id");
 
         $host      = urldecode($response->post("host"));
@@ -188,7 +188,7 @@ class Node
 
     public static function openGenerallog(HttpResponse $response)
     {
-        $group_id   = $response->post("group_id");
+       // $group_id   = $response->post("group_id");
         $session_id = $response->post("session_id");
         $open       = $response->post("open");
 
