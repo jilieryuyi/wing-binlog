@@ -146,7 +146,7 @@ include "include/nav.php";
   }
   function jumpTo(dom)
   {
-    window.location.href="logs.php?page="+ $(dom).parent().find("input").val();
+      window.location.href="logs.php?page="+ $(dom).parent().find("input").val();
   }
 </script>
 <?php include "include/footer.php";?>
