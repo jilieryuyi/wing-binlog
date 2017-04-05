@@ -6,7 +6,7 @@ if ($page<=0)
 $limit = 20;
 
 $count    = \Seals\Logger\Local::getAllCount();
-$all_page = ceil($count/$limit);
+$all_page = ceil($count/($limit+1));
 $next_page = $page+1;
 if ($next_page > $all_page)
   $next_page = 1;

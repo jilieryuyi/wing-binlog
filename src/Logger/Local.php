@@ -125,9 +125,10 @@ class Local implements LoggerInterface
         if (!Context::instance()->redis_zookeeper)
             Context::instance()->zookeeperInit();
 
+        $len = self::getAllCount();
         //logs report
-        $start = ($page-1) * $limit;
-        $end   = $page * $limit-1;
+        $start = $len - ($page) * $limit;
+        $end   = $len - ($page-1) * $limit;
         $data  = Context::instance()->redis_zookeeper->lrange(
             "wing-binlog-logs-list",
             $start,
