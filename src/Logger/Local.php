@@ -62,14 +62,22 @@ class Local implements LoggerInterface
 
         if (!Context::instance()->redis_zookeeper)
             Context::instance()->zookeeperInit();
+
+        $log_data = json_encode([
+            "level"      => $name,
+            "message"    => $message,
+            "context"    => $context,
+            "time"       => time()
+        ]);
+
         //logs report
         Context::instance()->redis_zookeeper->rpush(
             "wing-binlog-logs-content-".Context::instance()->session_id,
-            [
-                "level"      => $name,
-                "message"    => $message,
-                "context"    => $content
-            ]
+            $log_data
+        );
+        Context::instance()->redis_zookeeper->rpush(
+            "wing-binlog-logs-list",
+            $log_data
         );
         //logs count
         Context::instance()->redis_zookeeper->incr("wing-binlog-logs-count");
@@ -77,7 +85,7 @@ class Local implements LoggerInterface
     }
 
     /**
-     * global, get all logs list, master process use
+     * global, get all node logs list, master process use
      *
      * @param string $session_id
      * @param int $page
@@ -91,7 +99,7 @@ class Local implements LoggerInterface
 
         //logs report
         $start = ($page-1) * $limit;
-        $end   = $page * $limit;
+        $end   = $page * $limit-1;
         $data  = Context::instance()->redis_zookeeper->lrange(
             "wing-binlog-logs-content-".$session_id,
             $start,
@@ -103,6 +111,39 @@ class Local implements LoggerInterface
         }
         return $res;
     }
+
+    /**
+     * global, get all logs list, master process use
+     *
+     * @param string $session_id
+     * @param int $page
+     * @param int $limit
+     * @return array
+     */
+    public static function getAll($page, $limit)
+    {
+        if (!Context::instance()->redis_zookeeper)
+            Context::instance()->zookeeperInit();
+
+        //logs report
+        $start = ($page-1) * $limit;
+        $end   = $page * $limit-1;
+        $data  = Context::instance()->redis_zookeeper->lrange(
+            "wing-binlog-logs-list",
+            $start,
+            $end
+        );
+        $res = [];
+        foreach ($data as $row) {
+            $res[] = json_decode($row, true);
+        }
+        return $res;
+    }
+    public static function getAllCount()
+    {
+        return Context::instance()->redis_zookeeper->llen("wing-binlog-logs-list");
+    }
+
 
     /**
      * global, get all logs count, master process use
