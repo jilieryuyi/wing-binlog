@@ -19,11 +19,9 @@ class Local implements LoggerInterface
 
     public function __construct($log_dir, array $levels)
     {
-        $dir = str_replace("\\","/",$log_dir);
-        $dir = rtrim($dir,"/");
-        $this->log_dir = $dir;
         $dir = new WDir($this->log_dir);
         $dir->mkdir();
+        $this->log_dir = $dir->get();
         unset($dir);
 
         $this->levels = $levels;

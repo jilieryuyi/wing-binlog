@@ -36,11 +36,15 @@ class Node
         if (!isset($res["created"]))
             $res["created"] = time();
 
+        $ips = Worker::getIp($session_id);
+        if (!is_array($ips))
+            $ips = [];
+
         return array_merge($res, [
             //"workers"      => $res["workers"],
             //"debug"        => $res["debug"],
             //"version"      => $res["version"],
-            "ip"           => implode("<br/>",Worker::getIp($session_id)),
+            "ip"           => implode("<br/>", $ips),
             "created"      => date("Y-m-d H:i:s", $res["created"]),
             "time_len"     => timelen_format(time()-$res["created"]),
             "is_leader"    => $is_leader,           //node is leader
