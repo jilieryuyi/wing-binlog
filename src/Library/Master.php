@@ -217,6 +217,9 @@ class Master implements Process
         $pid = file_get_contents(self::$master_pid);
         posix_kill($pid, SIGUSR1);
 
+        if (!is_dir(__APP_DIR__."/http_process_cache"))
+            mkdir(__APP_DIR__."/http_process_cache");
+
         $file = new File(__APP_DIR__."/http_process_cache");
         $file->set("restart_".$pid,1,6);
 

@@ -1,5 +1,6 @@
 <?php namespace Seals\Library;
 use Seals\Cache\File;
+use Wing\FileSystem\WDir;
 use Wing\FileSystem\WFile;
 
 /**
@@ -491,6 +492,10 @@ class Worker implements Process
     {
         $pid = file_get_contents(self::$server_pid);
         posix_kill($pid, SIGUSR1);
+
+        if (!is_dir(__APP_DIR__."/process_cache"))
+            mkdir(__APP_DIR__."/process_cache");
+
         $file = new File(__APP_DIR__."/process_cache");
         $file->set("restart_".$pid,1,6);
 
