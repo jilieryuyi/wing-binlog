@@ -141,7 +141,7 @@
                             <li><a href="/roles.php">Roles</a></li>
                         </ul>
                     </li>
-                    <li><a><i class="fa fa-edit"></i> Forms <span class="fa fa-chevron-down"></span></a>
+                    <li><a><i class="fa fa-edit"></i> Other <span class="fa fa-chevron-down"></span></a>
                         <ul class="nav child_menu">
                             <li><a href="logs.php">Logs</a></li>
                         </ul>
