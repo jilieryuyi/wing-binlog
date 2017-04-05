@@ -1,19 +1,24 @@
 <?php
 $page = isset($_GET["page"])?$_GET["page"]:1;
 $page = intval($page);
-if ($page<=0)
+
+if ($page <= 0) {
     $page = 1;
+}
 $limit = 20;
 
-$count    = \Seals\Logger\Local::getAllCount();
-$all_page = ceil($count/($limit+1));
+$count     = \Seals\Logger\Local::getAllCount();
+$all_page  = ceil($count/($limit+1));
 $next_page = $page+1;
-if ($next_page > $all_page)
-  $next_page = 1;
+
+if ($next_page > $all_page) {
+    $next_page = 1;
+}
 
 $prev_page = $page-1;
-if ($prev_page < 1)
-  $prev_page = $all_page;
+if ($prev_page < 1) {
+    $prev_page = $all_page;
+}
 
 include "include/nav.php";
 ?>
@@ -95,7 +100,7 @@ include "include/nav.php";
                       </td>
                       <td><?php echo date("Y-m-d H:i:s", $log["time"]); ?></td>
                       <td>
-                        <a class="btn btn-danger btn-sm" onclick="deleteUser(this)">Delete</a>
+                        <a class="btn btn-danger btn-sm" onclick="deleteLog(this)">Delete</a>
                       </td>
                     </tr>
                     <?php } ?>
@@ -121,28 +126,24 @@ include "include/nav.php";
         </div>
         <!-- /page content -->
 <script>
-  function deleteUser(dom)
+  function deleteLog(dom)
   {
-    var user_name = $(dom).attr("data-user");
-
-    if (!window.confirm("confirm delete user<"+user_name+"> ?"))
-      return;
 
       if (!Wing.lock())
         return;
 
       showDoing(dom);
 
-      $.ajax({
-        type : "POST",
-        url : "/services/user/delete",
-        data : {
-          user_name : user_name
-        },
-        success:function(msg){
-          $(dom).parents("tr").remove();
-        }
-      });
+//      $.ajax({
+//        type : "POST",
+//        url : "/services/user/delete",
+//        data : {
+//          user_name : user_name
+//        },
+//        success:function(msg){
+//          $(dom).parents("tr").remove();
+//        }
+//      });
   }
   function jumpTo(dom)
   {
