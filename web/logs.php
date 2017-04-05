@@ -17,7 +17,11 @@ if ($prev_page < 1)
 
 include "include/nav.php";
 ?>
-
+  <style>
+    .page-item{
+      padding: 0 6px;
+    }
+  </style>
   <!-- page content -->
         <div class="right_col" role="main">
           <div class="">
@@ -47,13 +51,19 @@ include "include/nav.php";
 <!--                  <div class="clearfix"></div>-->
 <!--                </div>-->
                 <div class="x_content">
-                  <div>
-                    <a href="logs.php?page=<?php echo $prev_page; ?>">上一页</a>
-                    <a href="logs.php?page=1">首页</a>
-                    <a>第<?php echo $page; ?>/<?php echo $all_page; ?>页</a>
-                    <a href="logs.php?page=<?php echo $all_page; ?>">最后一页</a>
-                    <a href="logs.php?page=<?php echo $next_page; ?>">下一页</a>
+
+                  <div style="text-align: right;">
+                    <a class="page-item" href="logs.php?page=<?php echo $prev_page; ?>">上一页</a>
+                    <a class="page-item" href="logs.php?page=1">首页</a>
+                    <a class="page-item">第<?php echo $page; ?>/<?php echo $all_page; ?>页</a>
+                    <span class="page-item">
+                      第<input style="width: 36px; text-align: center; height: 17px;" type="text" value="<?php echo $page; ?>"/>页
+                      <a class="jump-to" onclick="jumpTo(this)">跳转</a>
+                    </span>
+                    <a class="page-item" href="logs.php?page=<?php echo $all_page; ?>">最后一页</a>
+                    <a class="page-item" href="logs.php?page=<?php echo $next_page; ?>">下一页</a>
                   </div>
+
                   <table class="table table-striped  jambo_table bulk_action">
                     <thead style="    background: #26B99A !important;color: #fff;">
                     <tr>
@@ -91,12 +101,17 @@ include "include/nav.php";
                     <?php } ?>
                     </tbody>
                   </table>
-                  <div>
-                    <a href="logs.php?page=<?php echo $prev_page; ?>">上一页</a>
-                    <a href="logs.php?page=1">首页</a>
-                    <a>第<?php echo $page; ?>/<?php echo $all_page; ?>页</a>
-                    <a href="logs.php?page=<?php echo $all_page; ?>">最后一页</a>
-                    <a href="logs.php?page=<?php echo $next_page; ?>">下一页</a>
+
+                  <div style="text-align: right;">
+                    <a class="page-item" href="logs.php?page=<?php echo $prev_page; ?>">上一页</a>
+                    <a class="page-item" href="logs.php?page=1">首页</a>
+                    <a class="page-item">第<?php echo $page; ?>/<?php echo $all_page; ?>页</a>
+                    <span class="page-item">
+                      第<input style="width: 36px; text-align: center; height: 17px;" type="text" value="<?php echo $page; ?>"/>页
+                      <a class="jump-to" onclick="jumpTo(this)">跳转</a>
+                    </span>
+                    <a class="page-item" href="logs.php?page=<?php echo $all_page; ?>">最后一页</a>
+                    <a class="page-item" href="logs.php?page=<?php echo $next_page; ?>">下一页</a>
                   </div>
                 </div>
               </div>
@@ -128,6 +143,10 @@ include "include/nav.php";
           $(dom).parents("tr").remove();
         }
       });
+  }
+  function jumpTo(dom)
+  {
+    window.location.href="logs.php?page="+ $(dom).parent().find("input").val();
   }
 </script>
 <?php include "include/footer.php";?>
