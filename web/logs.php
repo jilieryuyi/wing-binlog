@@ -1,13 +1,19 @@
 <?php
-$page = isset($_GET["page"])?$_GET["page"]:1;
-$page = intval($page);
+$session_id = isset($_GET["session_id"])?$_GET["session_id"]:null;
+$page       = isset($_GET["page"])?$_GET["page"]:1;
+$page       = intval($page);
 
 if ($page <= 0) {
     $page = 1;
 }
 $limit = 20;
 
-$count     = \Seals\Logger\Local::getAllCount();
+
+if ($session_id)
+  $count = \Seals\Logger\Local::getNodeLogsCount($session_id);
+else
+  $count     = \Seals\Logger\Local::getAllCount();
+
 $all_page  = ceil($count/($limit+1));
 $next_page = $page+1;
 
@@ -58,17 +64,23 @@ include "include/nav.php";
                 <div class="x_content">
 
                   <div style="text-align: right;">
-                    <a class="page-item" href="logs.php?page=<?php echo $prev_page; ?>">上一页</a>
-                    <a class="page-item" href="logs.php?page=1">首页</a>
+                    <a class="page-item" href="logs.php?page=<?php
+                    echo $prev_page;
+                    if ($session_id)
+                      echo "&session_id=".$session_id;
+                    ?>">上一页</a>
+                    <a class="page-item" href="logs.php?page=1<?php  if ($session_id)
+                      echo "&session_id=".$session_id; ?>">首页</a>
                     <a class="page-item">第<?php echo $page; ?>/<?php echo $all_page; ?>页</a>
                     <span class="page-item">
                       第<input style="width: 36px; text-align: center; height: 17px;" type="text" value="<?php echo $page; ?>"/>页
                       <a class="jump-to" onclick="jumpTo(this)">跳转</a>
                     </span>
-                    <a class="page-item" href="logs.php?page=<?php echo $all_page; ?>">最后一页</a>
-                    <a class="page-item" href="logs.php?page=<?php echo $next_page; ?>">下一页</a>
+                    <a class="page-item" href="logs.php?page=<?php echo $all_page; if ($session_id)
+                      echo "&session_id=".$session_id;?>">最后一页</a>
+                    <a class="page-item" href="logs.php?page=<?php echo $next_page;if ($session_id)
+                      echo "&session_id=".$session_id; ?>">下一页</a>
                   </div>
-
                   <table class="table table-striped  jambo_table bulk_action">
                     <thead style="    background: #26B99A !important;color: #fff;">
                     <tr>
@@ -85,7 +97,10 @@ include "include/nav.php";
                     </thead>
                     <tbody class="report-list">
                     <?php
-                    $logs = \Seals\Logger\Local::getAll($page, $limit);
+                    if ($session_id)
+                      $logs = \Seals\Logger\Local::getNodeLogs($session_id, $page, $limit);
+                    else
+                      $logs = \Seals\Logger\Local::getAll($page, $limit);
                     foreach ($logs as $index => $log) {
                     ?>
                     <tr>
@@ -108,15 +123,22 @@ include "include/nav.php";
                   </table>
 
                   <div style="text-align: right;">
-                    <a class="page-item" href="logs.php?page=<?php echo $prev_page; ?>">上一页</a>
-                    <a class="page-item" href="logs.php?page=1">首页</a>
+                    <a class="page-item" href="logs.php?page=<?php
+                    echo $prev_page;
+                    if ($session_id)
+                      echo "&session_id=".$session_id;
+                    ?>">上一页</a>
+                    <a class="page-item" href="logs.php?page=1<?php  if ($session_id)
+                      echo "&session_id=".$session_id; ?>">首页</a>
                     <a class="page-item">第<?php echo $page; ?>/<?php echo $all_page; ?>页</a>
                     <span class="page-item">
                       第<input style="width: 36px; text-align: center; height: 17px;" type="text" value="<?php echo $page; ?>"/>页
                       <a class="jump-to" onclick="jumpTo(this)">跳转</a>
                     </span>
-                    <a class="page-item" href="logs.php?page=<?php echo $all_page; ?>">最后一页</a>
-                    <a class="page-item" href="logs.php?page=<?php echo $next_page; ?>">下一页</a>
+                    <a class="page-item" href="logs.php?page=<?php echo $all_page; if ($session_id)
+                      echo "&session_id=".$session_id;?>">最后一页</a>
+                    <a class="page-item" href="logs.php?page=<?php echo $next_page;if ($session_id)
+                      echo "&session_id=".$session_id; ?>">下一页</a>
                   </div>
                 </div>
               </div>
@@ -147,7 +169,11 @@ include "include/nav.php";
   }
   function jumpTo(dom)
   {
-      window.location.href="logs.php?page="+ $(dom).parent().find("input").val();
+    var href = "logs.php?page="+ $(dom).parent().find("input").val();
+    var session_id = "<?php if($session_id) echo $session_id; else echo ""; ?>";
+    if (session_id != "")
+      href += "&session_id="+session_id;
+      window.location.href= href;
   }
 </script>
 <?php include "include/footer.php";?>
