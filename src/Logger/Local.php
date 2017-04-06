@@ -118,6 +118,21 @@ class Local implements LoggerInterface
             );
         }
 
+        Context::instance()->redis_zookeeper->rpush(
+            "wing-binlog-logs-level-".$name."-".Context::instance()->session_id,
+            $log_data
+        );
+
+        //logs clear
+        $len = Context::instance()->redis_zookeeper->llen("wing-binlog-logs-level-".$name."-".Context::instance()->session_id);
+        if ($len > Context::instance()->master_logs_limit) {
+            Context::instance()->redis_zookeeper->ltrim(
+                "wing-binlog-logs-level-".$name."-".Context::instance()->session_id,
+                $len-Context::instance()->master_logs_limit,
+                $len-1
+            );
+        }
+
         //logs count
         Context::instance()->redis_zookeeper->incr("wing-binlog-logs-count");
         Context::instance()->redis_zookeeper->incr("wing-binlog-logs-count-".date("Ymd"));
@@ -131,35 +146,35 @@ class Local implements LoggerInterface
      * @param int $limit
      * @return array
      */
-    public static function getNodeLogs($session_id, $page, $limit)
-    {
-        if (!Context::instance()->redis_zookeeper)
-            Context::instance()->zookeeperInit();
-
-        $len = self::getNodeLogsCount($session_id);//Context::instance()->redis_zookeeper->llen("wing-binlog-logs-content-".$session_id);
-        //logs report
-        $start = $len - ($page) * $limit;
-        $end   = $len - ($page-1) * $limit;
-
-        $data  = Context::instance()->redis_zookeeper->lrange(
-            "wing-binlog-logs-content-".$session_id,
-            $start,
-            $end
-        );
-        $res = [];
-        foreach ($data as $row) {
-            $res[] = json_decode($row, true);
-        }
-        return $res;
-    }
+//    public static function getNodeLogs($session_id, $page, $limit)
+//    {
+//        if (!Context::instance()->redis_zookeeper)
+//            Context::instance()->zookeeperInit();
+//
+//        $len = self::getNodeLogsCount($session_id);//Context::instance()->redis_zookeeper->llen("wing-binlog-logs-content-".$session_id);
+//        //logs report
+//        $start = $len - ($page) * $limit;
+//        $end   = $len - ($page-1) * $limit;
+//
+//        $data  = Context::instance()->redis_zookeeper->lrange(
+//            "wing-binlog-logs-content-".$session_id,
+//            $start,
+//            $end
+//        );
+//        $res = [];
+//        foreach ($data as $row) {
+//            $res[] = json_decode($row, true);
+//        }
+//        return $res;
+//    }
 
     /**
      * 获取节点日志数量
      */
-    public static function getNodeLogsCount($session_id)
-    {
-        return Context::instance()->redis_zookeeper->llen("wing-binlog-logs-content-".$session_id);
-    }
+//    public static function getNodeLogsCount($session_id)
+//    {
+//        return Context::instance()->redis_zookeeper->llen("wing-binlog-logs-content-".$session_id);
+//    }
 
     /**
      * global, get all logs list, master process use
@@ -170,17 +185,26 @@ class Local implements LoggerInterface
      * @param int $limit
      * @return array
      */
-    public static function getAll($page, $limit)
+    public static function getAll($page, $limit, $session_id = "", $level = "")
     {
         if (!Context::instance()->redis_zookeeper)
             Context::instance()->zookeeperInit();
 
-        $len = self::getAllCount();
+        $key = "wing-binlog-logs-list";
+
+        if ($session_id && $level)
+            $key = "wing-binlog-logs-level-".$level."-".Context::instance()->session_id;
+        elseif($session_id && !$level)
+            $key = "wing-binlog-logs-content-".$session_id;
+        elseif (!$session_id && $level)
+            $key = "wing-binlog-logs-level-".$level;
+
+        $len = self::getAllCount($session_id, $level);//Context::instance()->redis_zookeeper->llen($key);
         //logs report
         $start = $len - ($page) * $limit;
         $end   = $len - ($page-1) * $limit;
         $data  = Context::instance()->redis_zookeeper->lrange(
-            "wing-binlog-logs-list",
+            $key,
             $start,
             $end
         );
@@ -200,45 +224,53 @@ class Local implements LoggerInterface
      * @param int $limit >=1
      * @return array
      */
-    public static function getLevelLogs($level, $page, $limit)
-    {
-        if (!Context::instance()->redis_zookeeper)
-            Context::instance()->zookeeperInit();
-
-        $len = self::getLevelLogsCount($level);
-        //logs report
-        $start = $len - ($page) * $limit;
-        $end   = $len - ($page-1) * $limit;
-        $data  = Context::instance()->redis_zookeeper->lrange(
-            "wing-binlog-logs-level-".$level,
-            $start,
-            $end
-        );
-        $res = [];
-        foreach ($data as $row) {
-            $res[] = json_decode($row, true);
-        }
-        return $res;
-    }
+//    public static function getLevelLogs($level, $page, $limit)
+//    {
+//        if (!Context::instance()->redis_zookeeper)
+//            Context::instance()->zookeeperInit();
+//
+//        $len = self::getLevelLogsCount($level);
+//        //logs report
+//        $start = $len - ($page) * $limit;
+//        $end   = $len - ($page-1) * $limit;
+//        $data  = Context::instance()->redis_zookeeper->lrange(
+//            "wing-binlog-logs-level-".$level,
+//            $start,
+//            $end
+//        );
+//        $res = [];
+//        foreach ($data as $row) {
+//            $res[] = json_decode($row, true);
+//        }
+//        return $res;
+//    }
 
     /**
      * 获取指定级别日志的数量
      *
      * @return int
      */
-    public static function getLevelLogsCount($level)
-    {
-        return Context::instance()->redis_zookeeper->llen("wing-binlog-logs-level-".$level);
-    }
+//    public static function getLevelLogsCount($level)
+//    {
+//        return Context::instance()->redis_zookeeper->llen("wing-binlog-logs-level-".$level);
+//    }
 
     /**
      * 获取所有的日志数量
      *
      * @return int
      */
-    public static function getAllCount()
+    public static function getAllCount($session_id="", $level="")
     {
-        return Context::instance()->redis_zookeeper->llen("wing-binlog-logs-list");
+        $key = "wing-binlog-logs-list";
+
+        if ($session_id && $level)
+            $key = "wing-binlog-logs-level-".$level."-".Context::instance()->session_id;
+        elseif($session_id && !$level)
+            $key = "wing-binlog-logs-content-".$session_id;
+        elseif (!$session_id && $level)
+            $key = "wing-binlog-logs-level-".$level;
+        return Context::instance()->redis_zookeeper->llen($key);
     }
 
 
