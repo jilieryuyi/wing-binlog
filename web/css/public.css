@@ -1,6 +1,10 @@
 .main_container{
     background: #2A3F54;
 }
+.right_col{
+    margin-top: 58px;
+    padding-bottom: 58px !important;
+}
 .fa-paw:before {
     content: "w" !important;
 }
@@ -9,6 +13,9 @@
     width: auto;
     height: 45px;
     margin-top: 12px;
+}
+.nav li {
+    cursor: pointer;
 }
 
 

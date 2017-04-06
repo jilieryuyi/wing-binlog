@@ -170,7 +170,13 @@
     </div>
 </div>
 
-<div class="top_nav">
+<div class="top_nav" style="position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    margin-left: 0;
+    padding-left: 230px;
+    z-index: 9999;">
     <div class="nav_menu">
         <nav>
             <div class="nav toggle">

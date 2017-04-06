@@ -1,7 +1,11 @@
 <!-- footer content -->
-<footer>
+<footer style="    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    margin-left: 0;">
     <div class="pull-right">
-        Wing Binlog by <a href="http://www.itdfy.com/">yuyi</a>
+        Wing Binlog by <a href="http://www.itdfy.com/" style="color: #00CC33;">yuyi</a>
     </div>
     <div class="clearfix"></div>
 </footer>
