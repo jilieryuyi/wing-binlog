@@ -47,32 +47,30 @@ class System
     public static function getProcessInfo($process_id)
     {
         $command = new Command("ps aux | grep ".$process_id);
-        $res = $command->run();
-
-        $temp = explode("\n", $res);//preg_split("/[\s]+/", $res, 10);
-        $data = [];
+        $res     = $command->run();
+        $temp    = explode("\n", $res);
+        $data    = [];
 
         $status = [
-            "D" => "不可中断 uninterruptible sleep (usually IO)",
-            "R" => "运行 runnable (on run queue)",
-            "S" => "中断 sleeping",
+            "D"  => "不可中断 uninterruptible sleep (usually IO)",
+            "R"  => "运行 runnable (on run queue)",
+            "S"  => "中断 sleeping",
             "Ss" => "中断 sleeping，父进程",
-            "T" => "停止 traced or stopped",
-            "Z" => "僵死 a defunct (”zombie”) process",
-            "W" => "无驻留页","<" =>"高优先级进程", "N" => "低优先级进程",
-            "L" => "内存锁页"
+            "T"  => "停止 traced or stopped",
+            "Z"  => "僵死 a defunct (”zombie”) process",
+            "W"  => "无驻留页","<" =>"高优先级进程", "N" => "低优先级进程",
+            "L"  => "内存锁页"
         ];
 
         foreach ($temp as $_item) {
             if (!$_item) continue;
             $item = preg_split("/[\s]+/", $_item, 11);
 
-            $data[$item[1]] = [
+            $data[$item[1]]  = [
                 "user"       => $item[0],
                 "process_id" => $item[1],
                 "cpu"        => $item[2]."%",
                 "memory"     => $item[3]."%",
-                //"memory"  => $item[4]/1024,
                 "status"     => $item[7]." ".(isset($status[$item[7]])?$status[$item[7]]:""),
                 "start"      => $item[8],
                 "time"       => $item[9],
@@ -80,8 +78,9 @@ class System
             ];
         }
 
-        if (!isset($data[$process_id]))
+        if (!isset($data[$process_id])) {
             return null;
+        }
 
         return $data[$process_id];
     }
