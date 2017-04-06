@@ -588,7 +588,7 @@ class Worker implements Process
         $ip = System::getIp();
 
         Context::instance()->redis_zookeeper->set($key, $ip);
-        Context::instance()->redis_zookeeper->expire($key, 60);
+        Context::instance()->redis_zookeeper->expire($key, 3);
 
     }
 
@@ -619,7 +619,7 @@ class Worker implements Process
             // $process_info["ip"] = System::getIp();
 
             Context::instance()->redis_zookeeper->set($key, $process_info);
-            Context::instance()->redis_zookeeper->expire($key, 60);
+            Context::instance()->redis_zookeeper->expire($key, 3);
         }
     }
 
@@ -665,7 +665,7 @@ class Worker implements Process
         ];
 
         Context::instance()->redis_zookeeper->set($key, $info);
-        Context::instance()->redis_zookeeper->expire($key, 60);
+        Context::instance()->redis_zookeeper->expire($key, 3);
     }
 
     public static function getSystemInfo()
