@@ -1,0 +1,12 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: yuyi
+ * Date: 17/3/29
+ * Time: 11:49
+ */
+return [
+    "listen"      => "0.0.0.0",  //http服务器监听ip
+    "port"        => 9998,       //http服务器端口
+    "logs_limit"  => 100000,     //最大保留redis中的日志数量，超过这个数量直接删除旧的日志
+];

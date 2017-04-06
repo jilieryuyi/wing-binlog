@@ -61,6 +61,7 @@ class Context{
     public $master_listen = "0.0.0.0";
     public $master_port = 9998;
     public $master_auto_update = true;
+    public $master_logs_limit = 100000;
 
     /**
      * 单例
@@ -119,6 +120,9 @@ class Context{
 
         if (isset($master_config["auto_update"]))
             $this->master_auto_update = !!$master_config["auto_update"];
+
+        if (isset($master_config["logs_limit"]) && $master_config["logs_limit"] > 0)
+            $this->master_logs_limit = $master_config["logs_limit"];
     }
 
     /**

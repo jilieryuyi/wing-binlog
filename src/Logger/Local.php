@@ -77,14 +77,47 @@ class Local implements LoggerInterface
             "wing-binlog-logs-content-".Context::instance()->session_id,
             $log_data
         );
+
+        //logs clear
+        $len = Context::instance()->redis_zookeeper->llen("wing-binlog-logs-content-".Context::instance()->session_id);
+        if ($len > Context::instance()->master_logs_limit) {
+            Context::instance()->redis_zookeeper->ltrim(
+                "wing-binlog-logs-content-".Context::instance()->session_id,
+                $len-Context::instance()->master_logs_limit,
+                $len-1
+                );
+        }
+
         Context::instance()->redis_zookeeper->rpush(
             "wing-binlog-logs-list",
             $log_data
         );
+
+        //logs clear
+        $len = Context::instance()->redis_zookeeper->llen("wing-binlog-logs-list");
+        if ($len > Context::instance()->master_logs_limit) {
+            Context::instance()->redis_zookeeper->ltrim(
+                "wing-binlog-logs-list",
+                $len-Context::instance()->master_logs_limit,
+                $len-1
+            );
+        }
+
         Context::instance()->redis_zookeeper->rpush(
             "wing-binlog-logs-level-".$name,
             $log_data
         );
+
+        //logs clear
+        $len = Context::instance()->redis_zookeeper->llen("wing-binlog-logs-level-".$name);
+        if ($len > Context::instance()->master_logs_limit) {
+            Context::instance()->redis_zookeeper->ltrim(
+                "wing-binlog-logs-level-".$name,
+                $len-Context::instance()->master_logs_limit,
+                $len-1
+            );
+        }
+
         //logs count
         Context::instance()->redis_zookeeper->incr("wing-binlog-logs-count");
         Context::instance()->redis_zookeeper->incr("wing-binlog-logs-count-".date("Ymd"));
