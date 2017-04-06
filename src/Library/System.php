@@ -56,6 +56,7 @@ class System
             "D" => "不可中断 uninterruptible sleep (usually IO)",
             "R" => "运行 runnable (on run queue)",
             "S" => "中断 sleeping",
+            "Ss" => "中断 sleeping，父进程",
             "T" => "停止 traced or stopped",
             "Z" => "僵死 a defunct (”zombie”) process",
             "W" => "无驻留页","<" =>"高优先级进程", "N" => "低优先级进程",

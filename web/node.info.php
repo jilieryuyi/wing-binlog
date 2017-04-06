@@ -73,9 +73,10 @@ include "include/nav.php";
                     $index = 0;
                     foreach ($processes as $process_id => $info) {
                       //var_dump($info);
+                      $is_master = $info["is_master"];
                     ?>
                     <tr>
-                      <th scope="row"><?php echo (++$index); ?></th>
+                      <td style="<?php if($is_master) echo 'color: #f00; font-weight: bold;'?>" title="<?php if($is_master) echo "master"; ?>"><?php echo (++$index); ?></th>
                       <td><?php echo $process_id; ?></td>
                       <td><?php echo $info["user"]; ?></td>
                       <td><?php echo $info["memory_peak_usage"]/1024; ?>k</td>

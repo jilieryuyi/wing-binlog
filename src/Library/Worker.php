@@ -604,7 +604,7 @@ class Worker implements Process
         return Context::instance()->redis_zookeeper->get($key);
     }
 
-    public function setInfo()
+    public function setInfo($master=false)
     {
         //$this->process_cache->set("momory_".self::getCurrentProcessId(), [memory_get_peak_usage(true),memory_get_usage(true)]);
         if (!Context::instance()->redis_zookeeper)
@@ -616,6 +616,7 @@ class Worker implements Process
             $process_info = System::getProcessInfo($process_id);
             $process_info["memory_peak_usage"] = memory_get_peak_usage(true);
             $process_info["memory_usage"]      = memory_get_usage(true);
+            $process_info["is_master"]         = $master;
             // $process_info["ip"] = System::getIp();
 
             Context::instance()->redis_zookeeper->set($key, $process_info);
@@ -1260,7 +1261,7 @@ class Worker implements Process
             try {
                 ob_start();
                 $this->checkRestart();
-                $this->setInfo();
+                $this->setInfo(true);
                 self::setSystemInfo();
                 $this->setIp();
 
