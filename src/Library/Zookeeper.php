@@ -184,6 +184,11 @@ class Zookeeper
         }
         $services = Context::instance()->redis_zookeeper->keys(self::SERVICE_KEY.":services:*");
         //var_dump($services);
+
+        if (!$services || !is_array($services)) {
+            return [];
+        }
+
         $res = [];
         foreach ($services as $service) {
             $temp = explode(":",$service);
