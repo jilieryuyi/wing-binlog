@@ -92,15 +92,15 @@ include "include/nav.php";
                   <table class="table table-striped  jambo_table bulk_action">
                     <thead style="    background: #26B99A !important;color: #fff;">
                     <tr>
-                      <th>
-                        <input title="select all" type="checkbox" id="check-all" class="flat">
-                      </th>
+<!--                      <th>-->
+<!--                        <input title="select all" type="checkbox" id="check-all" class="flat">-->
+<!--                      </th>-->
 <!--                      <th>Index</th>-->
                       <th>Level</th>
                       <th>Message</th>
                       <th>Context</th>
                       <th>Time</th>
-                      <th>Operate</th>
+<!--                      <th>Operate</th>-->
                     </tr>
                     </thead>
                     <tbody class="report-list">
@@ -112,9 +112,9 @@ include "include/nav.php";
                     foreach ($logs as $index => $log) {
                     ?>
                     <tr>
-                      <td class="a-center">
-                        <input title="select" type="checkbox" class="flat" name="table_records">
-                      </td>
+<!--                      <td class="a-center">-->
+<!--                        <input title="select" type="checkbox" class="flat" name="table_records">-->
+<!--                      </td>-->
 <!--                      <td>--><?php //echo ($index+1); ?><!--</td>-->
                       <td><?php echo $log["level"]; ?></td>
                       <td style="word-wrap: break-word;word-break: break-all;"><?php echo $log["message"]; ?></td>
@@ -122,9 +122,9 @@ include "include/nav.php";
                         <?php print_r($log["context"]); ?>
                       </td>
                       <td><?php echo date("Y-m-d H:i:s", $log["time"]); ?></td>
-                      <td>
-                        <a class="btn btn-danger btn-sm" onclick="deleteLog(this)">Delete</a>
-                      </td>
+<!--                      <td>-->
+<!--                        <a class="btn btn-danger btn-sm" onclick="deleteLog(this)">Delete</a>-->
+<!--                      </td>-->
                     </tr>
                     <?php } ?>
                     </tbody>
