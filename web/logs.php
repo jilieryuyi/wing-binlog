@@ -89,7 +89,7 @@ include "include/nav.php";
                     <a class="page-item" href="logs.php?page=<?php echo $next_page;if ($session_id)
                       echo "&session_id=".$session_id; ?>">下一页</a>
                   </div>
-                  <table class="table table-striped  jambo_table bulk_action">
+                  <table class="table table-striped"><!--  jambo_table bulk_action-->
                     <thead style="    background: #26B99A !important;color: #fff;">
                     <tr>
 <!--                      <th>-->
