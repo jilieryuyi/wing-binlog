@@ -70,9 +70,8 @@ include "include/nav.php";
                     <tbody class="report-list">
                     <?php
                     $processes = \Seals\Library\Worker::getInfo($session_id);
-                    $index = 0;
+                    $index     = 0;
                     foreach ($processes as $process_id => $info) {
-                      //var_dump($info);
                       $is_master = $info["is_master"];
                     ?>
                     <tr>
@@ -83,12 +82,10 @@ include "include/nav.php";
                       <td><?php echo $info["memory_usage"]/1024; ?>k</td>
                       <td><?php echo $info["cpu"]; ?></td>
                       <td><?php echo $info["status"]; ?></td>
-
                     </tr>
                     <?php } ?>
                     </tbody>
                   </table>
-
                 </div>
               </div>
               </div>
