@@ -50,6 +50,9 @@ if (isset($_POST["Username"]) && isset($_POST["Password"])) {
         //window.location.href = "index.php";
         History.back();
       }
+      var error_info = "<?php echo $error_info; ?>";
+      if (error_info != "")
+        alert(error_info);
     </script>
   </head>
 
@@ -110,7 +113,7 @@ if (isset($_POST["Username"]) && isset($_POST["Password"])) {
                 <input type="password" class="form-control" placeholder="Password" required="" />
               </div>
               <div>
-                <a class="btn btn-default submit" href="index.html">Submit</a>
+                <a class="btn btn-default submit" href="##">Submit</a>
               </div>
 
               <div class="clearfix"></div>
