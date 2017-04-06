@@ -1,3 +1,6 @@
+.main_container{
+    background: #2A3F54;
+}
 .fa-paw:before {
     content: "w" !important;
 }
