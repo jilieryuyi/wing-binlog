@@ -75,7 +75,7 @@ include "include/nav.php";
                       $is_master = $info["is_master"];
                     ?>
                     <tr>
-                      <td style="<?php if($is_master) echo 'color: #f00; font-weight: bold;'?>" title="<?php if($is_master) echo "master"; ?>"><?php echo (++$index); ?></td>
+                      <td style="<?php if($is_master) echo 'color: #f00; font-weight: bold;'?>" title="<?php if($is_master) echo "parent process"; ?>"><?php echo (++$index); ?></td>
                       <td><?php echo $process_id; ?></td>
                       <td><?php echo $info["user"]; ?></td>
                       <td><?php echo $info["memory_peak_usage"]/1024; ?>k</td>
