@@ -57,6 +57,13 @@ function nodeRefresh(v, group_id, session_id)
                     .removeClass("btn-success").addClass("bg-red");
             }
 
+            if (data.update == 1) {
+                var update_btn = $(v).next("tr").find(".update-btn");
+                if (update_btn.find("label").length <= 0) {
+                    update_btn.append('<label>1</label>');
+                }
+            }
+
             $(v).find(".version").html(data.version);
             $(v).css("background","#fff");
             //mysql-bin.000031 => 154
