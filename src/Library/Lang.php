@@ -66,7 +66,15 @@ class Lang
         ["en" => "Message","zh" => "内容"],
         ["en" => "Context", "zh" => "上下文"],
         ["en" => "Time", "zh" => "时间"],
-        ["en" => "All Level", "zh" => "所有级别"]
+        ["en" => "All Level", "zh" => "所有级别"],
+        ["en" => "Login Form", "zh" => "登录"],
+        ["en" => "Login", "zh" => "登录"],
+        ["en" => "Lost your password?", "zh" => "忘记密码？"],
+        ["en" => "Process Runtime Configure", "zh" => "进程运行时配置"],
+        ["en" => "Workers Num", "zh" => "进程数量"],
+        ["en" => "Debug", "zh" => "调试模式"],
+        ["en" => "Update Configure", "zh" => "保存配置"],
+        ["en" => "Node Configure", "zh" => "节点配置"]
 
     ];
 

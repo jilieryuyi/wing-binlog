@@ -73,16 +73,16 @@ if (isset($_POST["Username"]) && isset($_POST["Password"])) {
                 <input type="password" class="form-control" placeholder="Password" name="Password" required="" />
               </div>
               <div>
-                <a class="btn btn-default submit" onclick="document.getElementById('form').submit();">Log in</a>
+                <a class="btn btn-default submit" onclick="document.getElementById('form').submit();">Login</a>
                 <a class="reset_pass" href="#">Lost your password?</a>
               </div>
 
               <div class="clearfix"></div>
 
               <div class="separator">
-                <p class="change_link">New to site?
-                  <a href="#signup" class="to_register"> Create Account </a>
-                </p>
+<!--                <p class="change_link">New to site?-->
+<!--                  <a href="#signup" class="to_register"> Create Account </a>-->
+<!--                </p>-->
 
                 <div class="clearfix"></div>
                 <br />

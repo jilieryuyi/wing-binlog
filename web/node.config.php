@@ -21,7 +21,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
     <div class="">
         <div class="page-title">
             <div class="title_left">
-                <h3>Node Configure</h3>
+                <h3>__LANG(Node Configure)</h3>
             </div>
 
             <div class="title_right">
@@ -40,7 +40,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
             <div class="col-md-6 col-xs-12">
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2>Process Runtime Configure <small>just configure it</small></h2>
+                        <h2>__LANG(Process Runtime Configure) <small>just configure it</small></h2>
                         <ul class="nav navbar-right panel_toolbox">
                             <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                             </li>
@@ -63,7 +63,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                         <!-- start form for validation -->
                         <div class="c-item form-horizontal form-label-left">
                             <div class="form-group">
-                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Workers Num</label>
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">__LANG(Workers Num)</label>
                                 <div class="col-md-9 col-sm-9 col-xs-12">
                                     <input type="text" class="form-control workers" value="<?php echo $node_info["workers"]; ?>" placeholder="Workers Num">
                                 </div>
@@ -71,7 +71,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
 <!--                            <div>进程数量<input class="workers" type="text" value="--><?php //echo $node_info["workers"]; ?><!--"/></div>-->
 <!--                            <div><label>开启debug<input class="debug" type="checkbox" --><?php //if($node_info["debug"]) echo "checked";?><!--/></label></div>-->
                             <div class="form-group">
-                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Debug</label>
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">__LANG(Debug)</label>
                                 <div class="col-md-9 col-sm-9 col-xs-12">
                                     <div class="">
                                         <label>
@@ -92,7 +92,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                                 <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
 <!--                                    <button type="button" class="btn btn-primary">Cancel</button>-->
 <!--                                    <button class="btn btn-primary" type="reset">Reset</button>-->
-                                    <button type="button" onclick="setRuntimeConfig(this)" class="btn btn-success">Update Configure</button>
+                                    <button type="button" onclick="setRuntimeConfig(this)" class="btn btn-success">__LANG(Update Configure)</button>
                                 </div>
                             </div>
                         </div>
@@ -194,7 +194,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                             <div class="ln_solid"></div>
                             <div class="form-group">
                                 <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
-                                    <button type="button" onclick="setNotifyConfig(this)" class="btn btn-success">Update Configure</button>
+                                    <button type="button" onclick="setNotifyConfig(this)" class="btn btn-success">__LANG(Update Configure)</button>
                                 </div>
                             </div>
                         </div>
@@ -259,7 +259,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                             <div class="ln_solid"></div>
                             <div class="form-group">
                                 <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
-                                    <button type="button" onclick="setRabbitmqConfig(this)" class="btn btn-success">Update Configure</button>
+                                    <button type="button" onclick="setRabbitmqConfig(this)" class="btn btn-success">__LANG(Update Configure)</button>
                                 </div>
                             </div>
                         </div>
@@ -315,7 +315,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                             <div class="ln_solid"></div>
                             <div class="form-group">
                                 <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
-                                    <button type="button" onclick="setRedisConfig(this)" class="btn btn-success">Update Configure</button>
+                                    <button type="button" onclick="setRedisConfig(this)" class="btn btn-success">__LANG(Update Configure)</button>
                                 </div>
                             </div>
                         </div>
@@ -389,7 +389,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                             <div class="ln_solid"></div>
                             <div class="form-group">
                                 <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
-                                    <button type="button" onclick="setDbConfig(this)" class="btn btn-success">Update Configure</button>
+                                    <button type="button" onclick="setDbConfig(this)" class="btn btn-success">__LANG(Update Configure)</button>
                                 </div>
                             </div>
                         </div>
@@ -455,7 +455,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                             <div class="ln_solid"></div>
                             <div class="form-group">
                                 <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
-                                    <button type="button" onclick="setZookeeperConfig(this)" class="btn btn-success">Update Configure</button>
+                                    <button type="button" onclick="setZookeeperConfig(this)" class="btn btn-success">__LANG(Update Configure)</button>
                                 </div>
                             </div>
                         </div>
@@ -510,7 +510,7 @@ $databases = \Seals\Web\Logic\Node::getDatabases($session_id);
                             <div class="ln_solid"></div>
                             <div class="form-group">
                                 <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
-                                    <button type="button" onclick="setLocalRedisConfig(this)" class="btn btn-success">Update Configure</button>
+                                    <button type="button" onclick="setLocalRedisConfig(this)" class="btn btn-success">__LANG(Update Configure)</button>
                                 </div>
                             </div>
                         </div>

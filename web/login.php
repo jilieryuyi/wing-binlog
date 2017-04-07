@@ -65,7 +65,7 @@ if (isset($_POST["Username"]) && isset($_POST["Password"])) {
         <div class="animate form login_form">
           <section class="login_content">
             <form id="form" action="login.php" method="post">
-              <h1>Login Form</h1>
+              <h1>__LANG(Login Form)</h1>
               <div>
                 <input type="text" class="form-control" placeholder="Username" name="Username" required="" />
               </div>
@@ -73,16 +73,16 @@ if (isset($_POST["Username"]) && isset($_POST["Password"])) {
                 <input type="password" class="form-control" placeholder="Password" name="Password" required="" />
               </div>
               <div>
-                <a class="btn btn-default submit" onclick="document.getElementById('form').submit();">Log in</a>
-                <a class="reset_pass" href="#">Lost your password?</a>
+                <a class="btn btn-default submit" onclick="document.getElementById('form').submit();">__LANG(Login)</a>
+                <a class="reset_pass" href="#">__LANG(Lost your password?)</a>
               </div>
 
               <div class="clearfix"></div>
 
               <div class="separator">
-                <p class="change_link">New to site?
-                  <a href="#signup" class="to_register"> Create Account </a>
-                </p>
+<!--                <p class="change_link">New to site?-->
+<!--                  <a href="#signup" class="to_register"> Create Account </a>-->
+<!--                </p>-->
 
                 <div class="clearfix"></div>
                 <br />
