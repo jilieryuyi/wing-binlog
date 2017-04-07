@@ -20,46 +20,22 @@ $databases  = \Seals\Web\Logic\Node::getDatabases($session_id);
             <div class="title_left">
                 <h3>Group Configure</h3>
             </div>
-
-            <div class="title_right">
-                <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Search for...">
-                        <span class="input-group-btn">
-                      <button class="btn btn-default" type="button">Go!</button>
-                    </span>
-                    </div>
-                </div>
-            </div>
         </div>
         <div class="clearfix"></div>
         <div style="padding: 0 0 20px;">
             <small style="color: #f00; background: #FFFF00;    padding: 8px 25px;
     width: 100%;
-    display: block;    border: 1px solid #E6E9ED;">set the group configure will change all the nodes in the group, default show the group leader configure info<br/>
-            all the password are remove from the form, so you need to input the complete password for change configure</small>
+    display: block;    border: 1px solid #E6E9ED;">
+                set the group configure will change all the nodes in the group, default show the group leader configure info<br/>
+                all the password are remove from the form, so you need to input the complete password for change configure
+            </small>
         </div>
         <div class="row">
             <div class="col-md-6 col-xs-12">
                 <!--Process runtime configure-->
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2>Process Runtime Configure <small>just configure it</small></h2>
-                        <ul class="nav navbar-right panel_toolbox">
-                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                            </li>
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a href="#">Settings 1</a>
-                                    </li>
-                                    <li><a href="#">Settings 2</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><a class="close-link"><i class="fa fa-close"></i></a>
-                            </li>
-                        </ul>
+                        <h2>Process Runtime Configure</h2>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
@@ -96,22 +72,7 @@ $databases  = \Seals\Web\Logic\Node::getDatabases($session_id);
                 </div>
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2>Notify Configure <small>just configure it</small></h2>
-                        <ul class="nav navbar-right panel_toolbox">
-                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                            </li>
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a href="#">Settings 1</a>
-                                    </li>
-                                    <li><a href="#">Settings 2</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><a class="close-link"><i class="fa fa-close"></i></a>
-                            </li>
-                        </ul>
+                        <h2>Notify Configure</h2>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
@@ -195,22 +156,7 @@ $databases  = \Seals\Web\Logic\Node::getDatabases($session_id);
                 <!--Rabbitmq configure-->
                 <div class="x_panel data-target-config rabbitmq-config" style="<?php if ($node_info["notify"]["handler"] != "Seals\\Notify\\Rabbitmq") echo 'display: none;';?>">
                     <div class="x_title">
-                        <h2>Rabbitmq Configure <small>just configure it</small></h2>
-                        <ul class="nav navbar-right panel_toolbox">
-                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                            </li>
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a href="#">Settings 1</a>
-                                    </li>
-                                    <li><a href="#">Settings 2</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><a class="close-link"><i class="fa fa-close"></i></a>
-                            </li>
-                        </ul>
+                        <h2>Rabbitmq Configure</h2>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
@@ -260,22 +206,7 @@ $databases  = \Seals\Web\Logic\Node::getDatabases($session_id);
                 <!--Event redis configure-->
                 <div class="x_panel data-target-config event-redis-config" style="<?php if ($node_info["notify"]["handler"] != "Seals\\Notify\\Redis") echo 'display: none;'?>">
                     <div class="x_title">
-                        <h2>Event Redis Configure <small>just configure it</small></h2>
-                        <ul class="nav navbar-right panel_toolbox">
-                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                            </li>
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a href="#">Settings 1</a>
-                                    </li>
-                                    <li><a href="#">Settings 2</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><a class="close-link"><i class="fa fa-close"></i></a>
-                            </li>
-                        </ul>
+                        <h2>Event Redis Configure</h2>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
@@ -316,22 +247,7 @@ $databases  = \Seals\Web\Logic\Node::getDatabases($session_id);
                 <!--Database configure-->
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2>Database Configure <small>just configure it</small></h2>
-                        <ul class="nav navbar-right panel_toolbox">
-                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                            </li>
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a href="#">Settings 1</a>
-                                    </li>
-                                    <li><a href="#">Settings 2</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><a class="close-link"><i class="fa fa-close"></i></a>
-                            </li>
-                        </ul>
+                        <h2>Database Configure</h2>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
@@ -394,22 +310,7 @@ $databases  = \Seals\Web\Logic\Node::getDatabases($session_id);
                 <!--Group configure-->
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2>Group Configure <small>just configure it</small></h2>
-                        <ul class="nav navbar-right panel_toolbox">
-                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                            </li>
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a href="#">Settings 1</a>
-                                    </li>
-                                    <li><a href="#">Settings 2</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><a class="close-link"><i class="fa fa-close"></i></a>
-                            </li>
-                        </ul>
+                        <h2>Group Configure</h2>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
@@ -456,22 +357,7 @@ $databases  = \Seals\Web\Logic\Node::getDatabases($session_id);
                 <!--Local redis configure-->
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2>Local Redis Configure <small>just update it</small></h2>
-                        <ul class="nav navbar-right panel_toolbox">
-                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                            </li>
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a href="#">Settings 1</a>
-                                    </li>
-                                    <li><a href="#">Settings 2</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><a class="close-link"><i class="fa fa-close"></i></a>
-                            </li>
-                        </ul>
+                        <h2>Local Redis Configure</h2>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">

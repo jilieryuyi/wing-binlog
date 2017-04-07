@@ -91,7 +91,11 @@ class Lang
         ["en" => "Group ID", "zh" => "群ID"],
         ["en" => "you can use :null to set the password as null", "zh" => "可以使用:null将密码设置为null"],
         ["en" => "Local Redis Configure", "zh" => "本地redis配置"],
-        ["en" => "Event Redis Configure", "zh" => "事件redis配置"]
+        ["en" => "Event Redis Configure", "zh" => "事件redis配置"],
+        ["en" => "set the group configure will change all the nodes in the group, default show the group leader configure info",
+            "zh" => "设置群组配置将更新群组下的所有节点的配置，默认显示的是leader的配置信息"],
+        ["en" => "all the password are remove from the form, so you need to input the complete password for change configure",
+            "zh" => "所有的密码都已经被从表单中移除，如果更新配置信息需要填写完整的密码"]
 
     ];
 
