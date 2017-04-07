@@ -87,9 +87,9 @@
     <script>
         function showDoing(dom) {
             var old_html = $(dom).html();
-            $(dom).addClass("disable").html("Doing...");
+            $(dom).addClass("disable").html("正在操作...");
             window.setTimeout(function(){
-                $(dom).removeClass("disable").html("Success");
+                $(dom).removeClass("disable").html("成功");
                 //unlock after 3 seconds timeout
                 Wing.unlock();
                 window.setTimeout(function(){
@@ -132,18 +132,18 @@
         <!-- sidebar menu -->
         <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
             <div class="menu_section">
-                <h3>General</h3>
+                <h3>日常</h3>
                 <ul class="nav side-menu">
-                    <li class="active"><a><i class="fa fa-home"></i> Home <span class="fa fa-chevron-down"></span></a>
+                    <li class="active"><a><i class="fa fa-home"></i> 首页 <span class="fa fa-chevron-down"></span></a>
                         <ul class="nav child_menu" style="display: block">
-                            <li><a href="/">Servers</a></li>
-                            <li><a href="/users.php">Users</a></li>
-                            <li><a href="/roles.php">Roles</a></li>
+                            <li><a href="/">服务器数量</a></li>
+                            <li><a href="/users.php">用户</a></li>
+                            <li><a href="/roles.php">角色</a></li>
                         </ul>
                     </li>
-                    <li><a><i class="fa fa-edit"></i> Other <span class="fa fa-chevron-down"></span></a>
+                    <li><a><i class="fa fa-edit"></i> 其他 <span class="fa fa-chevron-down"></span></a>
                         <ul class="nav child_menu">
-                            <li><a href="logs.php">Logs</a></li>
+                            <li><a href="logs.php">日志</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -198,7 +198,7 @@
                                 Settings
                             </a>
                         </li>
-                        <li><a href="help.php">Help</a></li>
+                        <li><a href="help.php">帮助</a></li>
                         <li><a href="login.php"><i class="fa fa-sign-out pull-right"></i> Log Out</a></li>
                     </ul>
                 </li>

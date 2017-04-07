@@ -87,9 +87,9 @@
     <script>
         function showDoing(dom) {
             var old_html = $(dom).html();
-            $(dom).addClass("disable").html("Doing...");
+            $(dom).addClass("disable").html("__LANG(Doing)...");
             window.setTimeout(function(){
-                $(dom).removeClass("disable").html("Success");
+                $(dom).removeClass("disable").html("__LANG(Success)");
                 //unlock after 3 seconds timeout
                 Wing.unlock();
                 window.setTimeout(function(){
@@ -132,18 +132,18 @@
         <!-- sidebar menu -->
         <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
             <div class="menu_section">
-                <h3>General</h3>
+                <h3>__LANG(General)</h3>
                 <ul class="nav side-menu">
-                    <li class="active"><a><i class="fa fa-home"></i> Home <span class="fa fa-chevron-down"></span></a>
+                    <li class="active"><a><i class="fa fa-home"></i> __LANG(Home) <span class="fa fa-chevron-down"></span></a>
                         <ul class="nav child_menu" style="display: block">
-                            <li><a href="/">Servers</a></li>
-                            <li><a href="/users.php">Users</a></li>
-                            <li><a href="/roles.php">Roles</a></li>
+                            <li><a href="/">__LANG(Servers)</a></li>
+                            <li><a href="/users.php">__LANG(Users)</a></li>
+                            <li><a href="/roles.php">__LANG(Roles)</a></li>
                         </ul>
                     </li>
-                    <li><a><i class="fa fa-edit"></i> Other <span class="fa fa-chevron-down"></span></a>
+                    <li><a><i class="fa fa-edit"></i> __LANG(Other) <span class="fa fa-chevron-down"></span></a>
                         <ul class="nav child_menu">
-                            <li><a href="logs.php">Logs</a></li>
+                            <li><a href="logs.php">__LANG(Logs)</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -198,7 +198,7 @@
                                 Settings
                             </a>
                         </li>
-                        <li><a href="help.php">Help</a></li>
+                        <li><a href="help.php">__LANG(Help)</a></li>
                         <li><a href="login.php"><i class="fa fa-sign-out pull-right"></i> Log Out</a></li>
                     </ul>
                 </li>
