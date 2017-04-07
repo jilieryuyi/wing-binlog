@@ -27,7 +27,7 @@ include  __DIR__."/include/nav.php";
               <div class="col-md-12">
               <div class="x_panel">
                 <div class="x_title">
-                  <h2 style="width: 60px;">用户</h2> <a href="user.add.php" class="btn btn-success btn-sm">Add</a>
+                  <h2 style="width: 60px;">用户</h2> <a href="user.add.php" class="btn btn-success btn-sm">添加</a>
 <!--                  <ul class="nav navbar-right panel_toolbox">-->
 <!--                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>-->
 <!--                    </li>-->

@@ -57,7 +57,8 @@ class Lang
         ["en" => "Login Times", "zh" => "登陆次数"],
         ["en" => "Last Login", "zh" => "上次登录"],
         ["en" => "Edit", "zh" => "编辑"],
-        ["en" => "Delete", "zh" => "删除"]
+        ["en" => "Delete", "zh" => "删除"],
+        ["en" => "Add", "zh" => "添加"]
 
     ];
 
