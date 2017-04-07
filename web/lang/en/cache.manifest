@@ -1,0 +1,59 @@
+CACHE MANIFEST
+version 1.0
+CACHE:
+    js/js.cookie.js
+    js/history.js
+    js/datatime.js
+    vendors/bootstrap/dist/css/bootstrap.min.css
+    vendors/font-awesome/css/font-awesome.min.css
+    vendors/nprogress/nprogress.css
+    vendors/iCheck/skins/flat/green.css
+    vendors/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css
+    vendors/jqvmap/dist/jqvmap.min.css
+    vendors/bootstrap-daterangepicker/daterangepicker.css
+    build/css/custom.css
+    vendors/switchery/dist/switchery.min.css
+    vendors/jquery/dist/jquery.min.js
+    vendors/bootstrap/dist/js/bootstrap.min.js
+    vendors/fastclick/lib/fastclick.js
+    vendors/nprogress/nprogress.js
+    vendors/Chart.js/dist/Chart.min.js
+    vendors/gauge.js/dist/gauge.min.js
+    vendors/bootstrap-progressbar/bootstrap-progressbar.min.js
+    vendors/iCheck/icheck.min.js
+    vendors/jquery-sparkline/dist/jquery.sparkline.min.js
+    vendors/skycons/skycons.js
+    vendors/Flot/jquery.flot.js
+    vendors/Flot/jquery.flot.pie.js
+    vendors/Flot/jquery.flot.time.js
+    vendors/Flot/jquery.flot.stack.js
+    vendors/Flot/jquery.flot.resize.js
+    vendors/flot.orderbars/js/jquery.flot.orderBars.js
+    vendors/flot-spline/js/jquery.flot.spline.min.js
+    vendors/flot.curvedlines/curvedLines.js
+    vendors/DateJS/build/date.js
+    vendors/jqvmap/dist/jquery.vmap.js
+    vendors/jqvmap/dist/maps/jquery.vmap.world.js
+    vendors/jqvmap/examples/js/jquery.vmap.sampledata.js
+    vendors/moment/min/moment.min.js
+    vendors/bootstrap-daterangepicker/daterangepicker.js
+    vendors/switchery/dist/switchery.min.js
+    images/img.jpg
+    build/js/custom.js
+    css/public.css
+    css/index.css
+    vendors/font-awesome/fonts/fontawesome-webfont.woff2?v=4.6.3
+    vendors/font-awesome/fonts/fontawesome-webfont.woff2
+    vendors/bootstrap/dist/fonts/glyphicons-halflings-regular.woff2
+    vendors/font-awesome/fonts/fontawesome-webfont.woff?v=4.6.3
+    vendors/font-awesome/fonts/fontawesome-webfont.woff
+    vendors/bootstrap/dist/fonts/glyphicons-halflings-regular.woff
+    vendors/font-awesome/fonts/fontawesome-webfont.ttf?v=4.6.3
+    vendors/font-awesome/fonts/fontawesome-webfont.ttf
+    vendors/bootstrap/dist/fonts/glyphicons-halflings-regular.ttf
+    favicon.ico
+
+NETWORK:
+    *.php
+FALLBACK
+    index.html index.html

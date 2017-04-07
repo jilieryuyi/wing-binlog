@@ -1,0 +1,144 @@
+ul {
+    padding: 0;
+}
+.title {
+    font-weight: bold;
+    border-bottom: #ddd solid 1px;
+    line-height: 25px !important;
+    height: 25px !important;
+    list-style: none;
+}
+div.item {
+    height: 35px;
+    line-height: 37px;
+}
+li {
+    /*list-style: none;*/
+    /*height: 51px;*/
+}
+li.group {
+    height: auto !important;
+    list-style: none;
+}
+li div {
+    height: 25px;
+    border-bottom: #ddd solid 1px;
+}
+li span {
+    /*display: inline-block;*/
+    /*height: 25px;*/
+    /*word-wrap: break-word;*/
+    /*word-break: break-all;*/
+    /*float:left;*/
+}
+span.group-id {
+    /*width: 150px;*/
+}
+span.node-count {
+    /*width:80px;*/
+}
+span a:hover {
+    font-weight: bold;
+}
+span a {
+    cursor: pointer;
+    color: #0000ff;
+    text-decoration:none;
+}
+span.node-id {
+    width: 180px;
+    padding-right: 6px;
+    overflow: hidden;
+}
+span.is-enable {
+    width: 45px;
+}
+span.last-pos {
+    width: 260px;
+}
+span.edit {
+    /*width: auto;*/
+}
+.nodes-list {
+    padding-top: 15px;
+    width: 97%;
+    margin-left: 3%;
+}
+span.is-leader {
+    width:55px;
+}
+.right-tool {
+    float: left;
+    width: auto;
+    height: 45px;
+    margin-top: 12px;
+}
+.right-tool span {
+    display: inline-block;
+    padding: 8px 20px;
+    border: #ccc solid 1px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+.bth-refresh {
+    background: #4B780A;
+    color: #fff;
+}
+.hide {
+    display: none;
+}
+
+span.start-time {
+    width:165px;
+}
+span.time-len {
+    width:165px;
+}
+.edit a {
+    margin-left: 3px;
+    /*border: #ccc solid 1px;*/
+    padding: 1px 6px;
+    font-size: 12px;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 3px;
+}
+.bg-normal {
+    background: #4B780A;
+}
+.bg-red {
+    background: #f00;
+}
+li.node {
+    margin-top: 12px;
+}
+.version {
+    width:55px;
+}
+.error-info {
+    font-size: 12px;
+    color: #f00;
+    margin-left: 12px;
+}
+
+.online-status {
+    width: 40px;
+}
+.online-status img {
+    width: 14px;
+}
+.update-btn {
+    position: relative;
+}
+.update-btn label {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    position: absolute;
+    top:-12px;
+    background: #f00;
+    color: #fff;
+    border-radius: 16px;
+    text-align: center;
+}

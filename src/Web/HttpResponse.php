@@ -273,16 +273,21 @@ class HttpResponse
         $cache_control = "Cache-control: max-age=".(86400*30).",private,must-revalidation";
 
 
-        echo $this->home . $resource,"\r\n";
+        $lang = $this->get("lang");
+        if (!$lang)
+            $lang = "zh";
+
+        $home_path = $this->home."/lang/".$lang;
+        echo $home_path . $resource,"\r\n";
 
         do {
             //try to visit ../ dir, do safe filter and return 404 page
             if (strpos($resource, "..") !== false) {
                 echo "try to visit ..\r\n";
-                if (isset(self::$static_files[$this->home . "/404.html"])) {
+                if (isset(self::$static_files[$home_path . "/404.html"])) {
                     echo "404 page static\r\n";
-                    $response    = self::$static_files[$this->home . "/404.html"]["content"];
-                    $mime_type   = self::$static_files[$this->home . "/404.html"]["mime"];
+                    $response    = self::$static_files[$home_path . "/404.html"]["content"];
+                    $mime_type   = self::$static_files[$home_path . "/404.html"]["mime"];
                     //$status_code = "HTTP/1.1 304 Not Modified";
                     break;
                 }
@@ -291,11 +296,11 @@ class HttpResponse
 
                 //else response 404 page
                 ob_start();
-                include $this->home . "/404.html";
+                include $home_path . "/404.html";
                 $response = ob_get_contents();
                 ob_end_clean();
 
-                self::$static_files[$this->home . "/404.html"] = [
+                self::$static_files[$home_path . "/404.html"] = [
                     "content" => $response,
                     "mime" => "text/html",
                 ];
@@ -313,10 +318,10 @@ class HttpResponse
                     break;
                 }
 
-                if (isset(self::$static_files[$this->home . "/403.html"])) {
+                if (isset(self::$static_files[$home_path . "/403.html"])) {
                     echo "403 page static\r\n";
-                    $response  = self::$static_files[$this->home . "/403.html"]["content"];
-                    $mime_type = self::$static_files[$this->home . "/403.html"]["mime"];
+                    $response  = self::$static_files[$home_path . "/403.html"]["content"];
+                    $mime_type = self::$static_files[$home_path . "/403.html"]["mime"];
                     //$status_code = "HTTP/1.1 304 Not Modified";
                     break;
                 }
@@ -325,11 +330,11 @@ class HttpResponse
 
                 //else response 404 page
                 ob_start();
-                include $this->home . "/403.html";
+                include $home_path . "/403.html";
                 $response = ob_get_contents();
                 ob_end_clean();
 
-                self::$static_files[$this->home . "/403.html"] = [
+                self::$static_files[$home_path . "/403.html"] = [
                     "content" => $response,
                     "mime" => "text/html",
                 ];
@@ -337,18 +342,18 @@ class HttpResponse
             }
 
             //if file exists
-            if (file_exists($this->home . $resource)) {
+            if (file_exists($home_path . $resource)) {
                 echo "file exists\r\n";
                 //get from cache
-                if (isset(self::$static_files[$this->home . $resource])) {
+                if (isset(self::$static_files[$home_path . $resource])) {
                     echo "static file cache\r\n";
-                    $response  = self::$static_files[$this->home . $resource]["content"];
-                    $mime_type = self::$static_files[$this->home . $resource]["mime"];
+                    $response  = self::$static_files[$home_path . $resource]["content"];
+                    $mime_type = self::$static_files[$home_path . $resource]["mime"];
                     break;
                 }
 
                 //parse
-                $mime_type = MimeType::getMimeType($this->home . $resource);
+                $mime_type = MimeType::getMimeType($home_path . $resource);
                 if ($mime_type == "text/x-php") {
                     echo "php file\r\n";
 
@@ -357,11 +362,11 @@ class HttpResponse
                     ob_start();
                     if ($check_token) {
                        // echo "login\r\n";
-                        include $this->home . $resource;
+                        include $home_path . $resource;
                         $response = ob_get_contents();
                     } else {
                         //echo "not login";
-                        include $this->home . "/login.php";
+                        include $home_path . "/login.php";
                         $response = ob_get_contents();
                     }
                     ob_end_clean();
@@ -372,9 +377,9 @@ class HttpResponse
                 echo "static file\r\n";
 
                 $cache_control = "Cache-control: max-age=".(86400*30).",private,must-revalidation";
-                $response      = file_get_contents($this->home . $resource);
+                $response      = file_get_contents($home_path . $resource);
                 //set cache
-                self::$static_files[$this->home . $resource] = [
+                self::$static_files[$home_path . $resource] = [
                     "content" => $response,
                     "mime"    => $mime_type,
                 ];
@@ -408,10 +413,10 @@ class HttpResponse
                 break;
             }
 
-            if (isset(self::$static_files[$this->home . "/404.html"])) {
+            if (isset(self::$static_files[$home_path . "/404.html"])) {
                 echo "static 404 page --\r\n";
-                $response  = self::$static_files[$this->home . "/404.html"]["content"];
-                $mime_type = self::$static_files[$this->home . "/404.html"]["mime"];
+                $response  = self::$static_files[$home_path . "/404.html"]["content"];
+                $mime_type = self::$static_files[$home_path . "/404.html"]["mime"];
                 break;
             }
 
@@ -419,11 +424,11 @@ class HttpResponse
 
             //else response 404 page
             ob_start();
-            include $this->home . "/404.html";
+            include $home_path . "/404.html";
             $response = ob_get_contents();
             ob_end_clean();
 
-            self::$static_files[$this->home . "/404.html"] = [
+            self::$static_files[$home_path . "/404.html"] = [
                 "content" => $response,
                 "mime" => "text/html",
             ];

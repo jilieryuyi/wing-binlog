@@ -27,7 +27,8 @@ try {
         \Seals\Console\Command\MasterStatus::class,
         \Seals\Console\Command\MasterRestart::class,
         \Seals\Console\Command\User::class,
-        \Seals\Console\Command\Role::class
+        \Seals\Console\Command\Role::class,
+        \Seals\Console\Command\Lang::class
 
     ];
     foreach ($commands as $command) {
