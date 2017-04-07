@@ -33,7 +33,31 @@ class Lang
         ["en" => "Update Master", "zh" => "更新Master"],
         ["en" => "Group", "zh" => "群组"],
         ["en" => "Nodes Count", "zh" => "节点数量"],
-        ["en" => "Operate", "zh" => "操作"]
+        ["en" => "Operate", "zh" => "操作"],
+        ["en" => "Report", "zh" => "报表"],
+        ["en" => "Server Detail", "zh" => "服务器详情"],
+        ["en" => "Logs", "zh" => "日志"],
+        ["en" => "Restart", "zh" => "重启"],
+        ["en" => "Update", "zh" => "更新"],
+        ["en" => "Configure", "zh" => "配置"],
+        ["en" => "Node", "zh" => "节点"],
+        ["en" => "Status", "zh" => "状态"],
+        ["en" => "Leader", "zh" => "Leader"],
+        ["en" => "Last Read", "zh" => "读取到"],
+        ["en" => "Version", "zh" => "版本号"],
+        ["en" => "Start Time", "zh" => "开始时间"],
+        ["en" => "Running Time", "zh" => "运行时长"],
+        ["en" => "Offline", "zh" => "离线"],
+        ["en" => "Online", "zh" => "在线"],
+        ["en" => "Users manager", "zh" => "用户管理"],
+        ["en" => "Index", "zh" => "序号"],
+        ["en" => "User Name", "zh" => "用户姓名"],
+        ["en" => "Role", "zh" => "角色"],
+        ["en" => "Created", "zh" => "创建时间"],
+        ["en" => "Login Times", "zh" => "登陆次数"],
+        ["en" => "Last Login", "zh" => "上次登录"],
+        ["en" => "Edit", "zh" => "编辑"],
+        ["en" => "Delete", "zh" => "删除"]
 
     ];
 

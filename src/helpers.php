@@ -64,12 +64,22 @@ if(!function_exists("str_is_email")) {
 if (!function_exists("timelen_format")) {
     function timelen_format($time_len)
     {
-        if ($time_len < 60)
-            return $time_len . " seconds";
+        $lang = \Seals\Library\Context::instance()->lang;
+        if (!$lang || !in_array($lang, \Seals\Library\Lang::$ltypes))
+            $lang = "zh";
+
+        if ($time_len < 60) {
+            if ($lang == "en")
+                return $time_len . " seconds";
+            return $time_len . "秒";
+        }
+
         else if ($time_len < 3600 && $time_len >= 60) {
             $m = intval($time_len / 60);
             $s = $time_len - $m * 60;
-            return $m . " minutes " . $s . " seconds";
+            if ($lang == "en")
+                return $m . " minutes " . $s . " seconds";
+            return $m . "分钟" . $s . "秒";
         } else if ($time_len < (24 * 3600) && $time_len >= 3600) {
             $h = intval($time_len / 3600);
             $s = $time_len - $h * 3600;
@@ -79,7 +89,9 @@ if (!function_exists("timelen_format")) {
                 $m = 0;
             }
             $s = $s-$m * 60;
-            return $h . " hours " . $m . " minutes " . $s . " seconds";
+            if ($lang == "en")
+                return $h . " hours " . $m . " minutes " . $s . " seconds";
+            return $h . "小时" . $m . "分钟" . $s . "秒";
         } else {
             $d = intval($time_len / (24 * 3600));
             $s = $time_len - $d * (24 * 3600);
@@ -100,7 +112,10 @@ if (!function_exists("timelen_format")) {
                     $s = $s - $m * 60;
                 }
             }
-            return $d." days ".$h . " hours " . $m . " minutes " . $s . " seconds";
+            if ($lang == "en")
+                return $d." days ".$h . " hours " . $m . " minutes " . $s . " seconds";
+            return $d."天".$h . "小时" . $m . "分钟" . $s . "秒";
+
         }
     }
 }

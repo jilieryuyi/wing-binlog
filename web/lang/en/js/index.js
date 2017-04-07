@@ -44,17 +44,31 @@ function nodeRefresh(v, group_id, session_id)
             }
 
             $(v).find(".time-len").html(data.time_len);
-            $(v).next("tr").find(".set-offline").attr("data-is_offline", data.is_offline);
+            $(v).next("tr")
+                .find(".set-offline")
+                .attr("data-is_offline", data.is_offline);
             $(v).find(".start-time").html(data.created);
 
             if (data.is_offline) {
-                $(v).find(".online-status").children("img").attr("src", "images/offline.png").attr("title", "Offline");
-                $(v).next("tr").find(".set-offline").html("Online")
-                    .removeClass("bg-red").addClass("btn-success");
+                $(v).find(".online-status")
+                    .children("img")
+                    .attr("src", "images/offline.png")
+                    .attr("title", "Offline");
+                $(v).next("tr")
+                    .find(".set-offline")
+                    .html("Online")
+                    .removeClass("bg-red")
+                    .addClass("btn-success");
             } else {
-                $(v).find(".online-status").children("img").attr("src", "images/online.png").attr("title", "Online");
-                $(v).next("tr").find(".set-offline").html("Offline")
-                    .removeClass("btn-success").addClass("bg-red");
+                $(v).find(".online-status")
+                    .children("img")
+                    .attr("src", "images/online.png")
+                    .attr("title", "Online");
+                $(v).next("tr")
+                    .find(".set-offline")
+                    .html("Offline")
+                    .removeClass("btn-success")
+                    .addClass("bg-red");
             }
 
             var update_btn = $(v).next("tr").find(".update-btn");
@@ -104,14 +118,15 @@ function nodeOffline(dom)
 
     var group_id   = $(dom).attr("data-group-id");
     var session_id = $(dom).attr("data-session-id");
-    var is_offline = $(dom).attr("data-is_offline") == "1" ? 0 : 1;
+    var is_offline = parseInt($(dom).attr("data-is_offline")) == 1 ? 0 : 1;
 
-    $(dom).html("Offline...").addClass("disable");
-    window.setTimeout(function(){
-        $(dom).html("Offline");
-        $(dom).removeClass("disable");
-        Wing.unlock();
-    },3000);
+    // $(dom).html("Offline...").addClass("disable");
+    // window.setTimeout(function(){
+    //     $(dom).html("Offline");
+    //     $(dom).removeClass("disable");
+    //     Wing.unlock();
+    // },3000);
+    showDoing(dom);
 
     $.ajax({
         type :"POST",
@@ -198,15 +213,17 @@ function groupOffline(dom, is_offline)
 
     var group_id   = $(dom).attr("data-group-id");
 
-    $(dom).html("Doing...").addClass("disable");
-    window.setTimeout(function(){
-        if (is_offline == 1)
-            $(dom).html("Offline");
-        else
-            $(dom).html("Online");
-        $(dom).removeClass("disable");
-        Wing.unlock();
-    },3000);
+    // $(dom).html("Doing...").addClass("disable");
+    // window.setTimeout(function(){
+    //     if (is_offline == 1)
+    //         $(dom).html("Offline");
+    //     else
+    //         $(dom).html("Online");
+    //     $(dom).removeClass("disable");
+    //     Wing.unlock();
+    // },3000);
+
+    showDoing(dom);
 
     $.ajax({
         type :"POST",
@@ -230,7 +247,7 @@ function getAllServices(callback) {
         type :"POST",
         url  : "/service/all",
         success:function(msg){
-            var data=JSON.parse(msg);
+            var data = JSON.parse(msg);
             if (typeof data.error_code != "undefined" && data.error_code == 4000) {
                 window.location.href="/login.php";
                 $(".login-timeout").show();
@@ -371,17 +388,7 @@ function appendNode(group_id, session_id, node)
 
                     html+='</a>';
 
-                    // html += '<a class="btn btn-success open-generallog" ' +
-                    //     'data-group-id="' + group_id + '" ' +
-                    //     'data-session-id="' + session_id + '" ' +
-                    //     'data-open="' + node.generallog + '" ' +
-                    //
-                    //     'onclick="openGenerallog(this)" >';
-                    //  if (parseInt(node.generallog) != 1)
-                    //      html+= 'Enable General Log';
-                    //  else
-                    //      html+= 'Disable General Log';
-                    // html+='</a>';
+
                     html+='<label class="error-info"></label>'+
                 '</span>' +
             '</tr>';
@@ -405,7 +412,9 @@ function appendGroup(group_id, nodes)
                 '<span class="group-id col-md-2">'+group_id+'</span>'+
                 '<span class="node-count col-md-2">'+length+'</span>'+
                 '<span class="group-edit edit col-md-8">' +
-                    '<a class="btn btn-success" href="group.config.php?group_id='+group_id+'" style="margin-left: 0;">Configure</a>' +
+                    '<a class="btn btn-success" '+
+                    'href="group.config.php?group_id='+group_id+'" '+
+                    'style="margin-left: 0;">Configure</a>' +
                     '<a ' +
                     'class="btn bg-red set-offline" ' +
                     'title="Offline all the nodes in the group, only use for runtime" '+
@@ -427,7 +436,8 @@ function appendGroup(group_id, nodes)
                     'title="composer update && ' +
                     'git pull origin master&& ' +
                     'php seals server:restart"  '+
-                    'data-group-id="'+group_id+'" onclick="groupRestart(this)" >Update</a>'+
+                    'data-group-id="'+group_id+'" '+
+        'onclick="groupRestart(this)" >Update</a>'+
 
          // '<a class="btn btn-success" title="Enable general log all the nodes in the group" ' +
          //    'data-group-id="' + group_id + '" ' +

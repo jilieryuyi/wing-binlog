@@ -281,6 +281,7 @@ class HttpResponse
             $lang = "zh";
 
         $_GET["lang"] = $lang;
+        \Seals\Library\Context::instance()->lang = $lang;
 
         $home_path = $this->home."/lang/".$lang;
         echo $home_path . $resource,"\r\n";
