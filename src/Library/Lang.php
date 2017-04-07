@@ -58,7 +58,15 @@ class Lang
         ["en" => "Last Login", "zh" => "上次登录"],
         ["en" => "Edit", "zh" => "编辑"],
         ["en" => "Delete", "zh" => "删除"],
-        ["en" => "Add", "zh" => "添加"]
+        ["en" => "Add", "zh" => "添加"],
+        ["en" => "Roles manager", "zh" => "角色管理"],
+        ["en" => "Detail", "zh" => "详情"],
+        ["en" => "Powers", "zh" => "权限"],
+        ["en" => "Level", "zh" => "级别"],
+        ["en" => "Message","zh" => "内容"],
+        ["en" => "Context", "zh" => "上下文"],
+        ["en" => "Time", "zh" => "时间"],
+        ["en" => "All Level", "zh" => "所有级别"]
 
     ];
 

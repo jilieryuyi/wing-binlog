@@ -36,19 +36,19 @@ include  __DIR__."/include/nav.php";
 
             <div class="page-title">
               <div class="title_left">
-                <h3>Logs</h3>
+                <h3>日志</h3>
               </div>
 
-              <div class="title_right" style="display: none;">
-                <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
-                  <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Search for...">
-                    <span class="input-group-btn">
-                      <button class="btn btn-default" type="button">Go!</button>
-                    </span>
-                  </div>
-                </div>
-              </div>
+<!--              <div class="title_right" style="display: none;">-->
+<!--                <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">-->
+<!--                  <div class="input-group">-->
+<!--                    <input type="text" class="form-control" placeholder="Search for...">-->
+<!--                    <span class="input-group-btn">-->
+<!--                      <button class="btn btn-default" type="button">Go!</button>-->
+<!--                    </span>-->
+<!--                  </div>-->
+<!--                </div>-->
+<!--              </div>-->
             </div>
             <div class="clearfix"></div>
             <div class="row">
@@ -62,7 +62,7 @@ include  __DIR__."/include/nav.php";
 
                   <div style="text-align: right;">
                     <select title="logs level" onchange="logLevelChange(this)" class="form-control" style="width: 130px;display: inline-block;height: 22px;">
-                      <option data-page="<?php echo $page; ?>" data-session-id="<?php if($session_id)echo $session_id; ?>" data-level="" <?php if(!$level) echo "selected";?>>--All Logs--</option>
+                      <option data-page="<?php echo $page; ?>" data-session-id="<?php if($session_id)echo $session_id; ?>" data-level="" <?php if(!$level) echo "selected";?>>--所有级别--</option>
                       <option data-page="<?php echo $page; ?>" data-session-id="<?php if($session_id)echo $session_id; ?>" data-level="<?php echo \Psr\Log\LogLevel::ALERT;?>"     <?php if($level == \Psr\Log\LogLevel::ALERT) echo "selected";?>><?php echo \Psr\Log\LogLevel::ALERT;?></option>
                       <option data-page="<?php echo $page; ?>" data-session-id="<?php if($session_id)echo $session_id; ?>" data-level="<?php echo \Psr\Log\LogLevel::CRITICAL;?>"  <?php if($level == \Psr\Log\LogLevel::CRITICAL) echo "selected";?>><?php echo \Psr\Log\LogLevel::CRITICAL;?></option>
                       <option data-page="<?php echo $page; ?>" data-session-id="<?php if($session_id)echo $session_id; ?>" data-level="<?php echo \Psr\Log\LogLevel::DEBUG;?>"     <?php if($level == \Psr\Log\LogLevel::DEBUG) echo "selected";?>><?php echo \Psr\Log\LogLevel::DEBUG;?></option>
@@ -96,10 +96,10 @@ include  __DIR__."/include/nav.php";
 <!--                        <input title="select all" type="checkbox" id="check-all" class="flat">-->
 <!--                      </th>-->
 <!--                      <th>Index</th>-->
-                      <th>Level</th>
-                      <th>Message</th>
-                      <th>Context</th>
-                      <th>Time</th>
+                      <th>级别</th>
+                      <th>内容</th>
+                      <th>上下文</th>
+                      <th>时间</th>
 <!--                      <th>Operate</th>-->
                     </tr>
                     </thead>
@@ -132,7 +132,7 @@ include  __DIR__."/include/nav.php";
 
                   <div style="text-align: right;">
                     <select title="logs level" onchange="logLevelChange(this)" class="form-control" style="width: 130px;display: inline-block;height: 22px;">
-                      <option data-page="<?php echo $page; ?>" data-session-id="<?php if($session_id)echo $session_id; ?>" data-level="" <?php if(!$level) echo "selected";?>>--All Logs--</option>
+                      <option data-page="<?php echo $page; ?>" data-session-id="<?php if($session_id)echo $session_id; ?>" data-level="" <?php if(!$level) echo "selected";?>>--所有级别--</option>
                       <option data-page="<?php echo $page; ?>" data-session-id="<?php if($session_id)echo $session_id; ?>" data-level="<?php echo \Psr\Log\LogLevel::ALERT;?>"     <?php if($level == \Psr\Log\LogLevel::ALERT) echo "selected";?>><?php echo \Psr\Log\LogLevel::ALERT;?></option>
                       <option data-page="<?php echo $page; ?>" data-session-id="<?php if($session_id)echo $session_id; ?>" data-level="<?php echo \Psr\Log\LogLevel::CRITICAL;?>"  <?php if($level == \Psr\Log\LogLevel::CRITICAL) echo "selected";?>><?php echo \Psr\Log\LogLevel::CRITICAL;?></option>
                       <option data-page="<?php echo $page; ?>" data-session-id="<?php if($session_id)echo $session_id; ?>" data-level="<?php echo \Psr\Log\LogLevel::DEBUG;?>"     <?php if($level == \Psr\Log\LogLevel::DEBUG) echo "selected";?>><?php echo \Psr\Log\LogLevel::DEBUG;?></option>
