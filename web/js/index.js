@@ -37,24 +37,38 @@ function nodeRefresh(v, group_id, session_id)
 
             if (data.is_leader == 1) {
                 $(v).find(".last-pos").html(data.last_binlog+" => "+data.last_pos);
-                $(v).find(".is-leader").html("Yes");
+                $(v).find(".is-leader").html("__LANG(Yes)");
             } else {
                 $(v).find(".last-pos").html('');
-                $(v).find(".is-leader").html("No");
+                $(v).find(".is-leader").html("__LANG(No)");
             }
 
             $(v).find(".time-len").html(data.time_len);
-            $(v).next("tr").find(".set-offline").attr("data-is_offline", data.is_offline);
+            $(v).next("tr")
+                .find(".set-offline")
+                .attr("data-is_offline", data.is_offline);
             $(v).find(".start-time").html(data.created);
 
             if (data.is_offline) {
-                $(v).find(".online-status").children("img").attr("src", "images/offline.png").attr("title", "Offline");
-                $(v).next("tr").find(".set-offline").html("Online")
-                    .removeClass("bg-red").addClass("btn-success");
+                $(v).find(".online-status")
+                    .children("img")
+                    .attr("src", "images/offline.png")
+                    .attr("title", "Offline");
+                $(v).next("tr")
+                    .find(".set-offline")
+                    .html("__LANG(Online)")
+                    .removeClass("bg-red")
+                    .addClass("btn-success");
             } else {
-                $(v).find(".online-status").children("img").attr("src", "images/online.png").attr("title", "Online");
-                $(v).next("tr").find(".set-offline").html("Offline")
-                    .removeClass("btn-success").addClass("bg-red");
+                $(v).find(".online-status")
+                    .children("img")
+                    .attr("src", "images/online.png")
+                    .attr("title", "__LANG(Online)");
+                $(v).next("tr")
+                    .find(".set-offline")
+                    .html("__LANG(Offline)")
+                    .removeClass("btn-success")
+                    .addClass("bg-red");
             }
 
             var update_btn = $(v).next("tr").find(".update-btn");

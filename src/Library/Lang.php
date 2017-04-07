@@ -15,7 +15,7 @@ class Lang
         ["en" => "Welcome",  "zh" => "欢迎"],
         ["en" => "General",  "zh" => "日常"],
         ["en" => "Home",     "zh" => "首页"],
-        ["en" => "Servers",  "zh" => "服务器数量"],
+        ["en" => "Servers",  "zh" => "服务器列表"],
         ["en" => "Users",    "zh" => "用户"],
         ["en" => "Roles",    "zh" => "角色"],
         ["en" => "Other",    "zh" => "其他"],

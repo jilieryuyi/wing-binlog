@@ -157,7 +157,7 @@
                 <ul class="nav side-menu">
                     <li class="active"><a><i class="fa fa-home"></i> 首页 <span class="fa fa-chevron-down"></span></a>
                         <ul class="nav child_menu" style="display: block">
-                            <li><a href="/">服务器数量</a></li>
+                            <li><a href="/">服务器列表</a></li>
                             <li><a href="/users.php">用户</a></li>
                             <li><a href="/roles.php">角色</a></li>
                         </ul>
