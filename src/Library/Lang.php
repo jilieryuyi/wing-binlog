@@ -74,7 +74,24 @@ class Lang
         ["en" => "Workers Num", "zh" => "进程数量"],
         ["en" => "Debug", "zh" => "调试模式"],
         ["en" => "Update Configure", "zh" => "保存配置"],
-        ["en" => "Node Configure", "zh" => "节点配置"]
+        ["en" => "Node Configure", "zh" => "节点配置"],
+        ["en" => "Enable", "zh" => "启用"],
+        ["en" => "Notify Configure", "zh" => "事件通知配置"],
+        ["en" => "Notify Mode", "zh" => "通知方式"],
+        ["en" => "Param 1", "zh" => "参数1"],
+        ["en" => "Param 2", "zh" => "参数2"],
+        ["en" => "Rabbitmq Configure", "zh" => "Rabbitmq配置"],
+        ["en" => "Host", "zh" => "Ip"],
+        ["en" => "Port", "zh" => "端口"],
+        ["en" => "Password", "zh" => "密码"],
+        ["en" => "Database Configure", "zh" => "数据库配置"],
+        ["en" => "User", "zh" => "用户"],
+        ["en" => "Database", "zh" => "数据库"],
+        ["en" => "Group Configure", "zh" => "群集配置"],
+        ["en" => "Group ID", "zh" => "群ID"],
+        ["en" => "you can use :null to set the password as null", "zh" => "可以使用:null将密码设置为null"],
+        ["en" => "Local Redis Configure", "zh" => "本地redis配置"],
+        ["en" => "Event Redis Configure", "zh" => "事件redis配置"]
 
     ];
 
