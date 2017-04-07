@@ -275,7 +275,7 @@ class HttpResponse
 
         $lang = $this->get("lang");
         if (!$lang)
-            $lang = "zh";
+            $lang = "en";
 
         $home_path = $this->home."/lang/".$lang;
         echo $home_path . $resource,"\r\n";
