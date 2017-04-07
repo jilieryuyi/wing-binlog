@@ -351,12 +351,16 @@ function appendNode(group_id, session_id, node)
                         'data-session-id="'+session_id+'" '+
                         'onclick="nodeRestart(this)" >Restart</a>'+
 
-                    '<a class="btn btn-success" ' +
+                    '<a class="btn btn-success update-btn" ' +
                         'title="git pull origin master&& ' +
                             'php seals server:restart"  '+
                         'data-group-id="'+group_id+'" '+
                         'data-session-id="'+session_id+'" '+
-                        'onclick="nodeUpdate(this)" >Update</a>';
+                        'onclick="nodeUpdate(this)" >Update';
+                    if (node.update == 1)
+                     html +='<label>1</label>';
+
+                    html+='</a>';
 
                     // html += '<a class="btn btn-success open-generallog" ' +
                     //     'data-group-id="' + group_id + '" ' +
@@ -599,6 +603,7 @@ function updateMaster(dom) {
     window.setTimeout(function(){
         $(dom).removeClass("disable").html("Update Master");
         Wing.unlock();
+        $(dom).children("label").remove();
     },3000);
 
     $.ajax({

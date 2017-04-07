@@ -27,7 +27,7 @@ class Master implements Process
     protected $master_status    = "master.status";
     protected $http_processe    = 0;
     protected $master_process   = 0;
-    //protected $update_process   = 0;
+    protected $update_process   = 0;
     protected $processes        = [];
     protected static $master_pid= __APP_DIR__."/master.pid";
     protected static $version;
@@ -260,6 +260,27 @@ class Master implements Process
         return self::$version;
     }
 
+    public static function getUpdateVersion()
+    {
+        if(file_exists(__APP_DIR__ . "/update")) {
+            $version = file_get_contents(__APP_DIR__ . "/update");
+            if ($version)
+                return $version;
+        }
+        return null;
+    }
+
+    public static function checkUpdate()
+    {
+        $update_version = self::getUpdateVersion();
+        $version = self::getVersion();
+
+        if ($update_version && $version)
+            return $version != $update_version;
+
+        return false;
+    }
+
     /**
      * 设置运行状态
      *
@@ -487,23 +508,23 @@ class Master implements Process
         return $processe;
     }
 
-//    protected function forkCheckUpdateWorker()
-//    {
-//        $processe   = [];
-//        $process_id = pcntl_fork();
-//        if ($process_id == 0) {
-//            //调度进程
-//            if ($this->deamon) {
-//                $this->resetStd();
-//            }
-//            $this->setProcessTitle("seals >> master check update process");
-//
-//            while (1) {
-//                ob_start();
-//
-//                do {
-//                    try {
-//                        $update_version = null;
+    protected function forkCheckUpdateWorker()
+    {
+        $processe   = [];
+        $process_id = pcntl_fork();
+        if ($process_id == 0) {
+            //调度进程
+            if ($this->deamon) {
+                $this->resetStd();
+            }
+            $this->setProcessTitle("seals >> master check update process");
+
+            while (1) {
+                ob_start();
+
+                do {
+                    $update_version = null;
+                    try {
 //                        if (file_exists(__APP_DIR__ . "/update")) {
 //                            $update_version = file_get_contents(__APP_DIR__ . "/update");
 //                        }
@@ -512,31 +533,39 @@ class Master implements Process
 //                            //
 //                            break;
 //                        }
-//
-//                        //访问网络 从github读取版本文件 然后写到 __APP_DIR__."/update"
-//                        $net_version = file_get_contents("https://raw.githubusercontent.com/jilieryuyi/wing-binlog/master/version");
-//                        file_put_contents(__APP_DIR__."/update", $net_version);
-//                    } catch(\Exception $e) {
-//
-//                    }
-//
-//                } while(0);
-//
-//                ob_end_clean();
-//                sleep(10);
-//            }
-//
-//        } else {
-//            $processe = [
-//                "process_id" => $process_id,
-//                "created"    => time(),
-//                "name"       => "seals >> check update process"
-//            ];
-//            $this->update_process = $process_id;
-//            $this->processes[]    = $process_id;
-//        }
-//        return $processe;
-//    }
+
+                        //访问网络 从github读取版本文件 然后写到 __APP_DIR__."/update"
+                        $net_version = file_get_contents("https://raw.githubusercontent.com/jilieryuyi/wing-binlog/master/version");
+
+                    } catch(\Exception $e) {
+                        $net_version = null;
+                        Context::instance()->logger->error($e->getMessage());
+                    }
+
+                    try {
+                        if ($net_version)
+                        file_put_contents(__APP_DIR__ . "/update", $net_version);
+                    }catch(\Exception $e){
+                        Context::instance()->logger->error($e->getMessage());
+                    }
+
+                } while(0);
+
+                ob_end_clean();
+                sleep(10);
+            }
+
+        } else {
+            $processe = [
+                "process_id" => $process_id,
+                "created"    => time(),
+                "name"       => "seals >> check update process"
+            ];
+            $this->update_process = $process_id;
+            $this->processes[]    = $process_id;
+        }
+        return $processe;
+    }
 
 
     protected function forkHttpWorker()
@@ -605,7 +634,7 @@ class Master implements Process
         $processes = [];
         $processes[] = $this->forkMasterWorker();
         $processes[] = $this->forkHttpWorker();
-        //$processes[] = $this->forkCheckUpdateWorker();
+        $processes[] = $this->forkCheckUpdateWorker();
 
         $file = new File(__APP_DIR__);
         $file->set($this->master_status, $processes);
@@ -643,12 +672,12 @@ class Master implements Process
                         continue;
                     }
 
-//                    if ($pid == $this->update_process) {
-//                        //fork check update process
-//                        $processes[2] = $this->forkCheckUpdateWorker();
-//                        $file->set($this->master_status, $processes);
-//                        continue;
-//                    }
+                    if ($pid == $this->update_process) {
+                        //fork check update process
+                        $processes[2] = $this->forkCheckUpdateWorker();
+                        $file->set($this->master_status, $processes);
+                        continue;
+                    }
                 }
                // $content = ob_get_contents();
                 ob_end_clean();

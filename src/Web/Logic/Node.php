@@ -1,5 +1,6 @@
 <?php namespace Seals\Web\Logic;
 //use Seals\Library\Context;
+use Seals\Library\Master;
 use Seals\Library\RPC;
 use Seals\Library\Worker;
 use Seals\Library\Zookeeper;
@@ -27,7 +28,7 @@ class Node
         $res               = Zookeeper::getGroupLastPost($group_id);
         $last_pos          = isset($res[1]) ? $res[1] : 0;
         $is_leader         = Zookeeper::getLeader($group_id) == $session_id ? 1 : 0;
-        $res               =  Zookeeper::getLastReport($group_id, $session_id);
+        $res               = Zookeeper::getLastReport($group_id, $session_id);
         $last_report       = time() - $res["updated"];
 
         if (!is_array($res))
@@ -40,10 +41,17 @@ class Node
         if (!is_array($ips))
             $ips = [];
 
+        $update = false;
+        $update_version = Master::getUpdateVersion();
+        if (isset($res["version"]) && $res["version"] && $update_version) {
+            $update = $update_version != $res["version"];
+        }
+
         return array_merge($res, [
             //"workers"      => $res["workers"],
             //"debug"        => $res["debug"],
             //"version"      => $res["version"],
+            "update"       => $update?1:0,
             "ip"           => implode("<br/>", $ips),
             "created"      => date("Y-m-d H:i:s", $res["created"]),
             "time_len"     => timelen_format(time()-$res["created"]),

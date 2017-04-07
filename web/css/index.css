@@ -127,3 +127,18 @@ li.node {
 .online-status img {
     width: 14px;
 }
+.update-btn {
+    position: relative;
+}
+.update-btn label {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    position: absolute;
+    top:-12px;
+    background: #f00;
+    color: #fff;
+    border-radius: 16px;
+    text-align: center;
+}
