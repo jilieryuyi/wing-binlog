@@ -275,7 +275,10 @@ class HttpResponse
 
         $lang = $this->get("lang");
         if (!$lang)
-            $lang = "en";
+            $lang = \Seals\Library\Context::instance()->lang;
+
+        if (!in_array($lang, \Seals\Library\Lang::$ltypes))
+            $lang = "zh";
 
         $home_path = $this->home."/lang/".$lang;
         echo $home_path . $resource,"\r\n";

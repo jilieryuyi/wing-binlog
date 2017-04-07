@@ -10,6 +10,7 @@ use Wing\FileSystem\WFile;
  */
 class Lang
 {
+    static $ltypes = ["zh","en"];
     static $lang = [
         ["en"=>"Welcome","zh"=>"欢迎"]
     ];

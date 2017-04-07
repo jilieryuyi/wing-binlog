@@ -62,6 +62,7 @@ class Context{
     public $master_port = 9998;
     public $master_auto_update = true;
     public $master_logs_limit = 100000;
+    public $lang = "zh";
 
     /**
      * 单例
@@ -123,6 +124,13 @@ class Context{
 
         if (isset($master_config["logs_limit"]) && $master_config["logs_limit"] > 0)
             $this->master_logs_limit = $master_config["logs_limit"];
+
+        if (isset($master_config["lang"]) && $master_config["lang"] > 0)
+            $this->lang = $master_config["lang"];
+
+        if (!in_array($this->lang, \Seals\Library\Lang::$ltypes))
+            $this->lang = "zh";
+
     }
 
     /**
