@@ -552,7 +552,7 @@ class Master implements Process
                 } while(0);
 
                 ob_end_clean();
-                sleep(10);
+                sleep(3);
             }
 
         } else {
