@@ -83,6 +83,7 @@
     <script src="js/wing.js"></script>
     <script src="js/history.js"></script>
     <script src="js/full.js"></script>
+<!--    <script src="js/url.js"></script>-->
 
     <script>
         function showDoing(dom) {
@@ -100,6 +101,26 @@
 
         function setFull() {
             screenfull && screenfull.toggle();
+        }
+        function onLangSelect(dom)
+        {
+            var lang = $(dom).children("option:selected").val();
+
+            var search = window.location.search;
+
+            var href   = window.location.protocol+"//"+ window.location.host+window.location.pathname;
+
+            if(search == "")
+                href += "?lang="+lang;
+            else {
+                search = search.replace(/lang=(en|zh)/,"");
+                if (search == "?")
+                href += "?lang="+lang;
+                else
+                    href += search+"&lang="+lang;
+            }
+
+            window.location.href = href;
         }
     </script>
 </head>
@@ -185,16 +206,17 @@
 
             <ul class="nav navbar-nav navbar-right">
                 <li class="">
-                    <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                    <select style="float:left; margin-top:20px;" onchange="onLangSelect(this)">
+                        <option <?php if($_GET["lang"] == "zh") echo 'selected';?> value="zh">中文</option>
+                        <option <?php if($_GET["lang"] == "en") echo 'selected';?> value="en">English</option>
+                    </select>
+                    <a style="float:left;" href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                         <img src="images/img.jpg" alt=""><?php echo \Seals\Web\Logic\User::getUserName(); ?>
                         <span class=" fa fa-angle-down"></span>
                     </a>
                     <ul class="dropdown-menu dropdown-usermenu pull-right">
-<!--                        <li><a href="javascript:;"> Profile</a></li>-->
                         <li>
                             <a href="user.update.php?name=<?php echo \Seals\Web\Logic\User::getUserName(); ?>">
-<!--                                <span class="badge bg-red pull-right">50%</span>-->
-<!--                                <span></span>-->
                                 Settings
                             </a>
                         </li>
@@ -203,70 +225,6 @@
                     </ul>
                 </li>
 
-<!--                <li role="presentation" class="dropdown">-->
-<!--                    <a href="javascript:;" class="dropdown-toggle info-number" data-toggle="dropdown" aria-expanded="false">-->
-<!--                        <i class="fa fa-envelope-o"></i>-->
-<!--                        <span class="badge bg-green">6</span>-->
-<!--                    </a>-->
-<!--                    <ul id="menu1" class="dropdown-menu list-unstyled msg_list" role="menu">-->
-<!--                        <li>-->
-<!--                            <a>-->
-<!--                                <span class="image"><img src="images/img.jpg" alt="Profile Image" /></span>-->
-<!--                                <span>-->
-<!--                          <span>John Smith</span>-->
-<!--                          <span class="time">3 mins ago</span>-->
-<!--                        </span>-->
-<!--                                <span class="message">-->
-<!--                          Film festivals used to be do-or-die moments for movie makers. They were where...-->
-<!--                        </span>-->
-<!--                            </a>-->
-<!--                        </li>-->
-<!--                        <li>-->
-<!--                            <a>-->
-<!--                                <span class="image"><img src="images/img.jpg" alt="Profile Image" /></span>-->
-<!--                                <span>-->
-<!--                          <span>John Smith</span>-->
-<!--                          <span class="time">3 mins ago</span>-->
-<!--                        </span>-->
-<!--                                <span class="message">-->
-<!--                          Film festivals used to be do-or-die moments for movie makers. They were where...-->
-<!--                        </span>-->
-<!--                            </a>-->
-<!--                        </li>-->
-<!--                        <li>-->
-<!--                            <a>-->
-<!--                                <span class="image"><img src="images/img.jpg" alt="Profile Image" /></span>-->
-<!--                                <span>-->
-<!--                          <span>John Smith</span>-->
-<!--                          <span class="time">3 mins ago</span>-->
-<!--                        </span>-->
-<!--                                <span class="message">-->
-<!--                          Film festivals used to be do-or-die moments for movie makers. They were where...-->
-<!--                        </span>-->
-<!--                            </a>-->
-<!--                        </li>-->
-<!--                        <li>-->
-<!--                            <a>-->
-<!--                                <span class="image"><img src="images/img.jpg" alt="Profile Image" /></span>-->
-<!--                                <span>-->
-<!--                          <span>John Smith</span>-->
-<!--                          <span class="time">3 mins ago</span>-->
-<!--                        </span>-->
-<!--                                <span class="message">-->
-<!--                          Film festivals used to be do-or-die moments for movie makers. They were where...-->
-<!--                        </span>-->
-<!--                            </a>-->
-<!--                        </li>-->
-<!--                        <li>-->
-<!--                            <div class="text-center">-->
-<!--                                <a>-->
-<!--                                    <strong>See All Alerts</strong>-->
-<!--                                    <i class="fa fa-angle-right"></i>-->
-<!--                                </a>-->
-<!--                            </div>-->
-<!--                        </li>-->
-<!--                    </ul>-->
-<!--                </li>-->
             </ul>
         </nav>
     </div>

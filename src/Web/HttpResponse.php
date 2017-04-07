@@ -280,6 +280,8 @@ class HttpResponse
         if (!in_array($lang, \Seals\Library\Lang::$ltypes))
             $lang = "zh";
 
+        $_GET["lang"] = $lang;
+
         $home_path = $this->home."/lang/".$lang;
         echo $home_path . $resource,"\r\n";
 

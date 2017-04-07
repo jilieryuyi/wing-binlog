@@ -44,10 +44,11 @@ function Url(url){
     }
 
     var get_params = {};
+    var get_params_len = 0;
     if( query.length > 0 ){
         temp    = query.replace(/\&\&/g,"&");
         temp    = temp.split("&");
-        var len = temp.length;
+        var len = get_params_len = temp.length;
         for(var i = 0; i < len; i++ ){
             var t = temp[i].split("=");
             get_params[t[0]] = t[1];
@@ -70,6 +71,7 @@ function Url(url){
         fragment : fragment, //后面根的锚点
         port     : port,     //端口
         params   : get_params,
+        params_len : get_params_len,
         get      : this.get  //http get 参数
     };
 }
