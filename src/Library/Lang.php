@@ -95,7 +95,16 @@ class Lang
         ["en" => "set the group configure will change all the nodes in the group, default show the group leader configure info",
             "zh" => "设置群组配置将更新群组下的所有节点的配置，默认显示的是leader的配置信息"],
         ["en" => "all the password are remove from the form, so you need to input the complete password for change configure",
-            "zh" => "所有的密码都已经被从表单中移除，如果更新配置信息需要填写完整的密码"]
+            "zh" => "所有的密码都已经被从表单中移除，如果更新配置信息需要填写完整的密码"],
+        ["en" => "Insert Rows", "zh" => "插入行数"],
+        ["en" => "Today insert rows", "zh" => "今天插入行数"],
+        ["en" => "Delete Rows", "zh" => "删除行数"],
+        ["en" => "Today delete rows", "zh" => "今天删除行数"],
+        ["en" => "Update Rows", "zh" => "更新行数"],
+        ["en" => "Today update rows", "zh" => "今天更新行数"],
+        ["en" => "Statistical report", "zh" => "统计报表"],
+        ["en" => "Day", "zh" => "日期"]
+
 
     ];
 

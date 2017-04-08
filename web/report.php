@@ -27,8 +27,8 @@ include  __DIR__."/include/nav.php";
                   <div class="count"><?php echo
                     \Seals\Library\Report::getDayEventAll(date("Ymd"), "write_rows");
                     ?></div>
-                  <h3>Insert Rows</h3>
-                  <p>Today insert rows</p>
+                  <h3>__LANG(Insert Rows)</h3>
+                  <p>__LANG(Today insert rows)</p>
                 </div>
               </div>
               <div class="animated flipInY col-lg-4 col-md-4 col-sm-6 col-xs-12">
@@ -37,8 +37,8 @@ include  __DIR__."/include/nav.php";
                   <div class="count"><?php echo
                     \Seals\Library\Report::getDayEventAll(date("Ymd"), "delete_rows");
                     ?></div>
-                  <h3>Delete Rows</h3>
-                  <p>Today delete rows</p>
+                  <h3>__LANG(Delete Rows)</h3>
+                  <p>__LANG(Today delete rows)</p>
                 </div>
               </div>
               <div class="animated flipInY col-lg-4 col-md-4 col-sm-6 col-xs-12">
@@ -47,8 +47,8 @@ include  __DIR__."/include/nav.php";
                   <div class="count"><?php echo
                     \Seals\Library\Report::getDayEventAll(date("Ymd"), "update_rows");
                     ?></div>
-                  <h3>Update Rows</h3>
-                  <p>Today update rows</p>
+                  <h3>__LANG(Update Rows)</h3>
+                  <p>__LANG(Today update rows)</p>
                 </div>
               </div>
             </div>
@@ -65,22 +65,7 @@ include  __DIR__."/include/nav.php";
               <div class="col-md-12">
               <div class="x_panel">
                 <div class="x_title">
-                  <h2>Statistical report <small>day detail</small></h2>
-                  <ul class="nav navbar-right panel_toolbox">
-                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                    </li>
-                    <li class="dropdown">
-                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                      <ul class="dropdown-menu" role="menu">
-                        <li><a href="#">Settings 1</a>
-                        </li>
-                        <li><a href="#">Settings 2</a>
-                        </li>
-                      </ul>
-                    </li>
-                    <li><a class="close-link"><i class="fa fa-close"></i></a>
-                    </li>
-                  </ul>
+                  <h2>__LANG(Statistical report)</h2>
                   <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
@@ -88,11 +73,11 @@ include  __DIR__."/include/nav.php";
                   <table class="table table-striped">
                     <thead>
                     <tr>
-                      <th>Day</th>
-                      <th>Insert Rows</th>
-                      <th>Delete Rows</th>
-                      <th>Update Rows</th>
-                      <th>Operate</th>
+                      <th>__LANG(Day)</th>
+                      <th>__LANG(Insert Rows)</th>
+                      <th>__LANG(Delete Rows)</th>
+                      <th>__LANG(Update Rows)</th>
+                      <th>__LANG(Operate)</th>
                     </tr>
                     </thead>
                     <tbody class="report-list">
@@ -176,7 +161,7 @@ include  __DIR__."/include/nav.php";
           "<td>"+row.write_rows+"</td>"+
           "<td>"+row.delete_rows+"</td>"+
           "<td>"+row.update_rows+"</td>"+
-          "<td><a class=\"r-detail\" href=\"report.detail.php?session_id="+session_id+"&day="+day+"\">Detail</a></td>"+
+          "<td><a class=\"r-detail\" href=\"report.detail.php?session_id="+session_id+"&day="+day+"\">__LANG(Detail)</a></td>"+
           "</tr>");
         }
       }
