@@ -103,8 +103,11 @@ class Lang
         ["en" => "Update Rows", "zh" => "更新行数"],
         ["en" => "Today update rows", "zh" => "今天更新行数"],
         ["en" => "Statistical report", "zh" => "统计报表"],
-        ["en" => "Day", "zh" => "日期"]
-
+        ["en" => "Day", "zh" => "日期"],
+        ["en" => "Hour", "zh" => "时间"],
+        ["en" => " update rows", "zh" => "更新行数"],
+        ["en" => " delete rows", "zh" => "删除行数"],
+        ["en" => " insert rows", "zh" => "插入行数"]
 
     ];
 

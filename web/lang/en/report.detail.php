@@ -45,21 +45,6 @@ include  __DIR__."/include/nav.php";
               <div class="x_panel">
                 <div class="x_title">
                   <h2><?php echo $day; ?> detail report </h2>
-                  <ul class="nav navbar-right panel_toolbox">
-                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                    </li>
-                    <li class="dropdown">
-                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                      <ul class="dropdown-menu" role="menu">
-                        <li><a href="#">Settings 1</a>
-                        </li>
-                        <li><a href="#">Settings 2</a>
-                        </li>
-                      </ul>
-                    </li>
-                    <li><a class="close-link"><i class="fa fa-close"></i></a>
-                    </li>
-                  </ul>
                   <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
@@ -74,49 +59,6 @@ include  __DIR__."/include/nav.php";
                     </tr>
                     </thead>
                     <tbody class="report-list">
-                    <?php //$reports = \Seals\Web\Logic\Node::getNodeDayReport($session_id, "20170317", date("Ymd"));
-                    //var_dump($reports);
-//                    foreach ($reports as $day => $report) {
-//                    ?>
-<!--                    <tr>-->
-<!--                      <th scope="row">--><?php //echo $day; ?><!--</th>-->
-<!--                      <td>--><?php //echo $report["insert"]; ?><!--/--><?php //echo $report["write_rows"]; ?><!--</td>-->
-<!--                      <td>--><?php //echo $report["delete"]; ?><!--/--><?php //echo $report["delete_rows"]; ?><!--</td>-->
-<!--                      <td>--><?php //echo $report["update"]; ?><!--/--><?php //echo $report["update_rows"]; ?><!--</td>-->
-<!--                      <td>--><?php //echo $report["select"]; ?><!--</td>-->
-<!--                      <td>--><?php //echo $report["read_max"]; ?><!--</td>-->
-<!--                      <td>--><?php //echo $report["write_max"]; ?><!--</td>-->
-<!--                      <td>--><?php //echo $report["read_total"]; ?><!--</td>-->
-<!--                      <td>--><?php //echo $report["write_total"]; ?><!--</td>-->
-<!--                      <td><a class="r-detail" href="#">Detail</a></td>-->
-<!--                    </tr>-->
-<!--                    --><?php //} ?>
-<!--                    <tr>-->
-<!--                      <th scope="row">2017-03-02</th>-->
-<!--                      <td>1</td>-->
-<!--                      <td>1/1000</td>-->
-<!--                      <td>100/1000</td>-->
-<!--                      <td>100/1000</td>-->
-<!--                      <td>100</td>-->
-<!--                      <td>100</td>-->
-<!--                      <td>100</td>-->
-<!--                      <td>100</td>-->
-<!--                      <td>100</td>-->
-<!--                      <td><a class="r-detail" href="#">Detail</a></td>-->
-<!--                    </tr>-->
-<!--                    <tr>-->
-<!--                      <th scope="row">2017-03-03</th>-->
-<!--                      <td>1</td>-->
-<!--                      <td>1/1000</td>-->
-<!--                      <td>100/1000</td>-->
-<!--                      <td>100/1000</td>-->
-<!--                      <td>100</td>-->
-<!--                      <td>100</td>-->
-<!--                      <td>100</td>-->
-<!--                      <td>100</td>-->
-<!--                      <td>100</td>-->
-<!--                      <td><a class="r-detail" href="#">Detail</a></td>-->
-<!--                    </tr>-->
                     </tbody>
                   </table>
 
