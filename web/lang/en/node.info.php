@@ -15,17 +15,6 @@ include  __DIR__."/include/nav.php";
               <div class="title_left">
                 <h3>Node info</h3>
               </div>
-
-              <div class="title_right">
-                <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
-                  <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Search for...">
-                    <span class="input-group-btn">
-                      <button class="btn btn-default" type="button">Go!</button>
-                    </span>
-                  </div>
-                </div>
-              </div>
             </div>
             <div class="clearfix"></div>
             <div class="row">
@@ -36,21 +25,6 @@ include  __DIR__."/include/nav.php";
                     <?php $sysinfo = \Seals\Library\Worker::getSystemInfo(); ?>
                     Total memory <?php echo $sysinfo["memory_total"] ?>M, usage <?php echo $sysinfo["memory_usage"]; ?>M, <?php echo bcdiv($sysinfo["memory_usage"]*100/$sysinfo["memory_total"],1,2); ?>%, Cpu usage <?php echo $sysinfo["cpu_usage"]; ?>%
                   </small>
-                  <ul class="nav navbar-right panel_toolbox">
-                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                    </li>
-                    <li class="dropdown">
-                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                      <ul class="dropdown-menu" role="menu">
-                        <li><a href="#">Settings 1</a>
-                        </li>
-                        <li><a href="#">Settings 2</a>
-                        </li>
-                      </ul>
-                    </li>
-                    <li><a class="close-link"><i class="fa fa-close"></i></a>
-                    </li>
-                  </ul>
                   <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
@@ -63,7 +37,7 @@ include  __DIR__."/include/nav.php";
                       <th>User</th>
                       <th>Memory Peak Usage</th>
                       <th>Memory Usage</th>
-                      <th>Cpu Usage</th>
+                      <th>Cpu usage </th>
                       <th>Status</th>
                     </tr>
                     </thead>

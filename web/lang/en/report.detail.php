@@ -14,7 +14,7 @@ include  __DIR__."/include/nav.php";
                     \Seals\Library\Report::getDayEventAll(date("Ymd",strtotime($day)), "write_rows");
                     ?></div>
                   <h3>Insert Rows</h3>
-                  <p><?php echo $day; ?> insert rows</p>
+                  <p><?php echo $day; ?>Insert Rows</p>
                 </div>
               </div>
               <div class="animated flipInY col-lg-4 col-md-4 col-sm-6 col-xs-12">
@@ -24,7 +24,7 @@ include  __DIR__."/include/nav.php";
                     \Seals\Library\Report::getDayEventAll(date("Ymd",strtotime($day)), "delete_rows");
                     ?></div>
                   <h3>Delete Rows</h3>
-                  <p><?php echo $day; ?> delete rows</p>
+                  <p><?php echo $day; ?>Delete Rows</p>
                 </div>
               </div>
               <div class="animated flipInY col-lg-4 col-md-4 col-sm-6 col-xs-12">
@@ -34,7 +34,7 @@ include  __DIR__."/include/nav.php";
                     \Seals\Library\Report::getDayEventAll(date("Ymd",strtotime($day)), "update_rows");
                     ?></div>
                   <h3>Update Rows</h3>
-                  <p><?php echo $day; ?> update rows</p>
+                  <p><?php echo $day; ?>Update Rows</p>
                 </div>
               </div>
             </div>

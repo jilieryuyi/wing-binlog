@@ -107,7 +107,15 @@ class Lang
         ["en" => "Hour", "zh" => "时间"],
         ["en" => " update rows", "zh" => "更新行数"],
         ["en" => " delete rows", "zh" => "删除行数"],
-        ["en" => " insert rows", "zh" => "插入行数"]
+        ["en" => " insert rows", "zh" => "插入行数"],
+        ["en" => "Node info", "zh" => "节点详情"],
+        ["en" => "Process List", "zh" => "进程列表"],
+        ["en" => "Total memory ", "zh" => "总内存"],
+        ["en" => "usage ", "zh" => "已使用"],
+        ["en" => "Cpu usage ", "zh" => "Cpu已使用"],
+        ["en" => "Process ID", "zh" => "进程ID"],
+        ["en" => "Memory Peak Usage", "zh" => "内存峰值"],
+        ["en" => "Memory Usage", "zh" => "已使用内存"]
 
     ];
 
@@ -147,9 +155,8 @@ class Lang
                                 $zh   = $lang;
 
                                 foreach (self::$lang as $_l) {
-                                    if ($_l["en"] == $lang ||
-                                        $_l["zh"] == $lang
-                                    ) {
+                                    if (strtolower(trim($_l["en"])) == strtolower(trim($lang)) ||
+                                        strtolower(trim($_l["zh"])) == strtolower(trim($lang))) {
                                         $en = $_l["en"];
                                         $zh = $_l["zh"];
                                         break;
