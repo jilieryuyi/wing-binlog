@@ -122,72 +122,63 @@ class Lang
     public static function parse()
     {
         $path[] = __APP_DIR__.'/web/*';
-        $files  = [];
         while (count($path) != 0) {
             $v = array_shift($path);
             foreach(glob($v) as $item) {
                 if (is_dir($item)) {
-                    if(strpos($item,"/lang") !== false //||
-                      //  strpos($item,"/vendors") !== false
-                    ) {
-                        //echo $item,"\r\n";
+                    if (strpos($item, "/lang") !== false) {
                         continue;
                     }
                     $path[] = $item . '/*';
-                } elseif (is_file($item)) {
-                    $info = pathinfo($item);
-                       // continue;
-                    //$files[] = $item;
+                }
+                elseif (is_file($item)) {
+                    $info    = pathinfo($item);
                     $content = $en_content = $zh_content = file_get_contents($item);
-                    if (!isset($info['extension']))
+
+                    if (!isset($info['extension'])) {
                         $info['extension'] = "";
-                    if (in_array($info['extension'],["php","js","html"])) {
+                    }
+
+                    if (in_array($info['extension'], ["php", "js", "html"])) {
                         preg_match_all("/__LANG\([\s\S]{1,}?\)/", $content, $matches);
                         if (count($matches[0]) > 0) {
                             echo $item, "\r\n";
                             var_dump($matches[0]);
                             foreach ($matches[0] as $_lang) {
-
-
-
-                                $lang = substr($_lang,7,strlen($_lang)-8);//ltrim($_lang, "__LANG(");
+                                $lang = substr($_lang, 7, strlen($_lang) - 8);//ltrim($_lang, "__LANG(");
                                 $en   = $lang;
                                 $zh   = $lang;
 
                                 foreach (self::$lang as $_l) {
                                     if (strtolower(trim($_l["en"])) == strtolower(trim($lang)) ||
-                                        strtolower(trim($_l["zh"])) == strtolower(trim($lang))) {
+                                        strtolower(trim($_l["zh"])) == strtolower(trim($lang))
+                                    ) {
                                         $en = $_l["en"];
                                         $zh = $_l["zh"];
                                         break;
                                     }
                                 }
 
-//                                echo $en,$zh,"\r\n";
-//                                if (strpos($_lang,"Logs") !== false)
-//                                    exit;
                                 $en_content = str_replace($_lang, $en, $en_content);
                                 $zh_content = str_replace($_lang, $zh, $zh_content);
                             }
                         }
                     }
 
-                    $target_file = __APP_DIR__."/web/lang/en".str_replace(__APP_DIR__."/web","",$item);
-                    $wfile = new WFile($target_file);
+                    $target_file = __APP_DIR__ . "/web/lang/en" . str_replace(__APP_DIR__ . "/web", "", $item);
+                    $wfile       = new WFile($target_file);
                     $wfile->touch();
 
                     file_put_contents($target_file, $en_content);
 
-                    $target_file = __APP_DIR__."/web/lang/zh".str_replace(__APP_DIR__."/web","",$item);
-                    $wfile = new WFile($target_file);
+                    $target_file = __APP_DIR__ . "/web/lang/zh" . str_replace(__APP_DIR__ . "/web", "", $item);
+                    $wfile       = new WFile($target_file);
                     $wfile->touch();
                     file_put_contents($target_file, $zh_content);
                     echo "编译完成：";
-                    echo $target_file,"\r\n";
+                    echo $target_file, "\r\n";
                 }
             }
         }
-        //return $files;
-
     }
 }
