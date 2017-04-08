@@ -13,7 +13,7 @@ include  __DIR__."/include/nav.php";
               <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
                   <div class="x_title">
-                    <h2>Role edit</h2>
+                    <h2 style="width:auto; padding-right:12px;">Role edit</h2>
                     <small>
                       <a href="roles.php" style="text-decoration: underline;     float: left;margin-top: 7px;margin-left: 12px;">Roles manager</a>
                     </small>
@@ -33,7 +33,7 @@ include  __DIR__."/include/nav.php";
 
                       <div class="form-group">
                         <label class="col-md-3 col-sm-3 col-xs-12 control-label">
-                          Powers <span class="required">*</span>
+                            Powers <span class="required">*</span>
                         </label>
 
                         <div class="col-md-9 col-sm-9 col-xs-12">

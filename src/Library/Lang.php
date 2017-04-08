@@ -115,7 +115,18 @@ class Lang
         ["en" => "Cpu usage ", "zh" => "Cpu已使用"],
         ["en" => "Process ID", "zh" => "进程ID"],
         ["en" => "Memory Peak Usage", "zh" => "内存峰值"],
-        ["en" => "Memory Usage", "zh" => "已使用内存"]
+        ["en" => "Memory Usage", "zh" => "已使用内存"],
+        ["en" => "User add", "zh" => "添加用户"],
+        ["en" => "User Name", "zh" =>"用户名"],
+        ["en" => "Add Role", "zh" => "添加角色"],
+        ["en" => "User edit", "zh" => "用户编辑"],
+        ["en" => "Save Update", "zh" => "保存更新"],
+        ["en" => "Add User", "zh" => "添加用户"],
+        ["en" => "Role add", "zh" => "添加角色"],
+        ["en" => "Role Name", "zh" => "角色名称"],
+        ["en" => "Select All", "zh" => "全选"],
+        ["en" => "Role detail", "zh" => "角色详情"],
+        ["en" => "Role edit", "zh" => "角色编辑"]
 
     ];
 

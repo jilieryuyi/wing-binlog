@@ -12,10 +12,10 @@ include  __DIR__."/include/nav.php";
               <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="x_panel">
                   <div class="x_title">
-                    <h2>Role detail</h2><small>
+                    <h2 style="width:auto; padding-right:12px;">角色详情</h2><small>
                       <a href="roles.php" style="text-decoration: underline;     float: left;
     margin-top: 7px;
-    margin-left: 12px;">Roles manager</a>
+    margin-left: 12px;">角色管理</a>
                     </small>
                     <div class="clearfix"></div>
                   </div>
@@ -24,7 +24,7 @@ include  __DIR__."/include/nav.php";
                     <form id="demo-form2" data-parsley-validate="" class="form-horizontal form-label-left" novalidate="">
 
                       <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Role Name <span class="required">*</span>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">角色名称 <span class="required">*</span>
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                           <span class="form-control col-md-7 col-xs-12" style="border: none;box-shadow: none;"><?php echo $role; ?></span>
@@ -33,7 +33,7 @@ include  __DIR__."/include/nav.php";
 
                       <div class="form-group">
                         <label class="col-md-3 col-sm-3 col-xs-12 control-label">
-                          Powers <span class="required">*</span>
+                            权限 <span class="required">*</span>
                         </label>
 
                         <div class="col-md-9 col-sm-9 col-xs-12">
@@ -56,7 +56,7 @@ include  __DIR__."/include/nav.php";
                       <div class="ln_solid"></div>
                       <div class="form-group">
                         <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
-                          <a href="roles.php" style="text-decoration: underline; ">Roles manager</a>
+                          <a href="roles.php" style="text-decoration: underline; ">角色管理</a>
                         </div>
                       </div>
 
