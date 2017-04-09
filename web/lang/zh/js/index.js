@@ -37,10 +37,10 @@ function nodeRefresh(v, group_id, session_id)
 
             if (data.is_leader == 1) {
                 $(v).find(".last-pos").html(data.last_binlog+" => "+data.last_pos);
-                $(v).find(".is-leader").html("Yes");
+                $(v).find(".is-leader").html("是");
             } else {
                 $(v).find(".last-pos").html('');
-                $(v).find(".is-leader").html("No");
+                $(v).find(".is-leader").html("否");
             }
 
             $(v).find(".time-len").html(data.time_len);
@@ -307,9 +307,9 @@ function appendNode(group_id, session_id, node)
                 '<td class="is-leader">';
                     if (parseInt(node.is_leader) == 1) {
                         last_read = node.last_binlog+" => "+node.last_pos;
-                        html += "Yes";
+                        html += "是";
                     } else {
-                        html += "No";
+                        html += "否";
                     }
                     html +=
                 '</td>'+

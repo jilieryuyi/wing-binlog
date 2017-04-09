@@ -124,5 +124,7 @@ return [
     ["en" => "First page", "zh" => "首页"],
     ["en" => "The", "zh" => "第"],
     ["en" => "page", "zh" => "页"],
-    ["en" => "jump" ,"zh" => "跳转" ]
+    ["en" => "jump" ,"zh" => "跳转" ],
+    ["en" => "Yes", "zh" => "是"],
+    ["en" => "No", "zh" => "否"]
 ];
