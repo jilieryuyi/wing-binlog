@@ -126,7 +126,14 @@ class Lang
         ["en" => "Role Name", "zh" => "角色名称"],
         ["en" => "Select All", "zh" => "全选"],
         ["en" => "Role detail", "zh" => "角色详情"],
-        ["en" => "Role edit", "zh" => "角色编辑"]
+        ["en" => "Role edit", "zh" => "角色编辑"],
+        ["en" => "Next page", "zh" => "下一页"],
+        ["en" => "Last page", "zh" => "最后一页"],
+        ["en" => "Prev page", "zh" => "上一页"],
+        ["en" => "First page", "zh" => "首页"],
+        ["en" => "The", "zh" => "第"],
+        ["en" => "page", "zh" => "页"],
+        ["en" => "jump" ,"zh" => "跳转" ]
 
     ];
 

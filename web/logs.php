@@ -76,18 +76,18 @@ include  __DIR__."/include/nav.php";
                     echo $prev_page;
                     if ($session_id)
                       echo "&session_id=".$session_id;
-                    ?>">上一页</a>
+                    ?>">__LANG(Prev page)</a>
                     <a class="page-item" href="logs.php?page=1<?php  if ($session_id)
-                      echo "&session_id=".$session_id; ?>">首页</a>
-                    <a class="page-item">第<?php echo $page; ?>/<?php echo $all_page; ?>页</a>
+                      echo "&session_id=".$session_id; ?>">__LANG(First page)</a>
+                    <a class="page-item">__LANG(The) <?php echo $page; ?>/<?php echo $all_page; ?> __LANG( page)</a>
                     <span class="page-item">
-                      第<input title="jump to page" style="width: 36px; text-align: center; height: 17px;" type="text" value="<?php echo $page; ?>"/>页
-                      <a class="jump-to" onclick="jumpTo(this)">跳转</a>
+                      __LANG(The)<input title="jump to page" style="width: 36px; text-align: center; height: 17px;" type="text" value="<?php echo $page; ?>"/>__LANG(page)
+                      <a class="jump-to" onclick="jumpTo(this)">__LANG(Jump)</a>
                     </span>
                     <a class="page-item" href="logs.php?page=<?php echo $all_page; if ($session_id)
-                      echo "&session_id=".$session_id;?>">最后一页</a>
+                      echo "&session_id=".$session_id;?>">__LANG(Last page)</a>
                     <a class="page-item" href="logs.php?page=<?php echo $next_page;if ($session_id)
-                      echo "&session_id=".$session_id; ?>">下一页</a>
+                      echo "&session_id=".$session_id; ?>">__LANG(Next page)</a>
                   </div>
                   <table class="table table-striped"><!--  jambo_table bulk_action-->
                     <thead style="    background: #26B99A !important;color: #fff;">
@@ -146,18 +146,18 @@ include  __DIR__."/include/nav.php";
                     echo $prev_page;
                     if ($session_id)
                       echo "&session_id=".$session_id;
-                    ?>">上一页</a>
+                    ?>">__LANG(Prev page)</a>
                     <a class="page-item" href="logs.php?page=1<?php  if ($session_id)
-                      echo "&session_id=".$session_id; ?>">首页</a>
-                    <a class="page-item">第<?php echo $page; ?>/<?php echo $all_page; ?>页</a>
+                      echo "&session_id=".$session_id; ?>">__LANG(First page)</a>
+                    <a class="page-item">__LANG(The) <?php echo $page; ?>/<?php echo $all_page; ?> __LANG(page)</a>
                     <span class="page-item">
-                      第<input title="jump to page" style="width: 36px; text-align: center; height: 17px;" type="text" value="<?php echo $page; ?>"/>页
-                      <a class="jump-to" onclick="jumpTo(this)">跳转</a>
+                      __LANG(The)<input title="jump to page" style="width: 36px; text-align: center; height: 17px;" type="text" value="<?php echo $page; ?>"/>__LANG(page)
+                      <a class="jump-to" onclick="jumpTo(this)">__LANG(Jump)</a>
                     </span>
                     <a class="page-item" href="logs.php?page=<?php echo $all_page; if ($session_id)
-                      echo "&session_id=".$session_id;?>">最后一页</a>
+                      echo "&session_id=".$session_id;?>">__LANG(Last page)</a>
                     <a class="page-item" href="logs.php?page=<?php echo $next_page;if ($session_id)
-                      echo "&session_id=".$session_id; ?>">下一页</a>
+                      echo "&session_id=".$session_id; ?>">__LANG(Next page)</a>
                   </div>
                 </div>
               </div>

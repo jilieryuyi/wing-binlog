@@ -79,7 +79,7 @@ include  __DIR__."/include/nav.php";
                     ?>">上一页</a>
                     <a class="page-item" href="logs.php?page=1<?php  if ($session_id)
                       echo "&session_id=".$session_id; ?>">首页</a>
-                    <a class="page-item">第<?php echo $page; ?>/<?php echo $all_page; ?>页</a>
+                    <a class="page-item">第 <?php echo $page; ?>/<?php echo $all_page; ?> 页</a>
                     <span class="page-item">
                       第<input title="jump to page" style="width: 36px; text-align: center; height: 17px;" type="text" value="<?php echo $page; ?>"/>页
                       <a class="jump-to" onclick="jumpTo(this)">跳转</a>
@@ -149,7 +149,7 @@ include  __DIR__."/include/nav.php";
                     ?>">上一页</a>
                     <a class="page-item" href="logs.php?page=1<?php  if ($session_id)
                       echo "&session_id=".$session_id; ?>">首页</a>
-                    <a class="page-item">第<?php echo $page; ?>/<?php echo $all_page; ?>页</a>
+                    <a class="page-item">第 <?php echo $page; ?>/<?php echo $all_page; ?> 页</a>
                     <span class="page-item">
                       第<input title="jump to page" style="width: 36px; text-align: center; height: 17px;" type="text" value="<?php echo $page; ?>"/>页
                       <a class="jump-to" onclick="jumpTo(this)">跳转</a>
