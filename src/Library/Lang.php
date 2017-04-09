@@ -47,13 +47,15 @@ class Lang
                                 $zh   = $lang;
 
                                 foreach ($langs as $_l) {
+
                                     foreach (self::$ltypes as $ltype) {
-                                        if (!isset($_l[$ltype]))
+                                        if (!isset($_l[$ltype])) {
                                             $_l[$ltype] = null;
+                                        }
                                     }
+
                                     if (strtolower(trim($_l["en"])) == strtolower(trim($lang)) ||
-                                        strtolower(trim($_l["zh"])) == strtolower(trim($lang))
-                                    ) {
+                                        strtolower(trim($_l["zh"])) == strtolower(trim($lang))) {
                                         $en = $_l["en"];
                                         $zh = $_l["zh"];
                                         break;
