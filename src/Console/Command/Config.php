@@ -21,7 +21,9 @@ class Config extends ServerBase
         foreach ($files as $file) {
             $info = pathinfo($file);
             $target_file = $info["dirname"]."/".$info["filename"];
-            if ($info['extension'] != "php" && !file_exists($target_file)) {
+            if ($info['extension'] != "php" &&
+                $info['extension'] != "inc" &&
+                !file_exists($target_file)) {
                 echo "copy ",$file," as ",$target_file,"\r\n";
                 copy($file, $target_file);
             }

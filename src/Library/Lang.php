@@ -39,8 +39,6 @@ class Lang
                     if (in_array($info['extension'], ["php", "js", "html"])) {
                         preg_match_all("/__LANG\([\s\S]{1,}?\)/", $content, $matches);
                         if (count($matches[0]) > 0) {
-                            echo $item, "\r\n";
-                            var_dump($matches[0]);
                             foreach ($matches[0] as $_lang) {
                                 $lang = substr($_lang, 7, strlen($_lang) - 8);//ltrim($_lang, "__LANG(");
                                 $en   = $lang;
