@@ -716,6 +716,7 @@ class Worker implements Process
 
         //设置进程标题 mac 会有warning 直接忽略
         $this->setProcessTitle($process_name);
+        echo self::getCurrentProcessId()," => ", $process_name,"\r\n";
 
         //由于是多进程 redis和pdo等连接资源 需要重置
         Context::instance()
@@ -910,6 +911,7 @@ class Worker implements Process
 
         //设置进程标题 mac 会有warning 直接忽略
         $this->setProcessTitle($process_name);
+        echo self::getCurrentProcessId()," => ", $process_name,"\r\n";
 
         //由于是多进程 redis和pdo等连接资源 需要重置
         Context::instance()
@@ -1014,6 +1016,7 @@ class Worker implements Process
 
         //设置进程标题 mac 会有warning 直接忽略
         $this->setProcessTitle($process_name);
+        echo self::getCurrentProcessId()," => ", $process_name,"\r\n";
 
         //由于是多进程 redis和pdo等连接资源 需要重置
         Context::instance()
@@ -1144,8 +1147,10 @@ class Worker implements Process
 
                                 echo "push==>", $start_pos . ":" . $row["End_log_pos"], "\r\n";
 
-                                $queue->push($start_pos . ":" . $row["End_log_pos"]);
-
+                                $success = $queue->push($start_pos . ":" . $row["End_log_pos"]);
+                                if (!$success) {
+                                    Context::instance()->logger->error($queue->getQueueName()." push error => ".$start_pos . ":" . $row["End_log_pos"]);
+                                }
                                 unset($queue);
                                 //设置最后读取的位置
                                 $bin->setLastPosition($start_pos, $row["End_log_pos"]);
@@ -1158,6 +1163,7 @@ class Worker implements Process
 
                         //如果没有查找到一个事务 $limit x 2 直到超过 100000 行
                         if (!$has_session) {
+                            Context::instance()->logger->notice("没有找到事务，更新limit=".$limit);
                             $limit = 2 * $limit;
                             echo "没有找到事务，更新limit=", $limit, "\r\n";
                             if ($limit >= 80000) {
@@ -1165,6 +1171,8 @@ class Worker implements Process
                                 $row = array_pop($data);
                                 echo "查询超过8万，没有找到事务，直接更新游标";
                                 echo $start_pos, "=>", $row["End_log_pos"], "\r\n";
+
+                                Context::instance()->logger->notice("查询超过8万，没有找到事务，直接更新游标");
 
                                 $bin->setLastPosition($start_pos, $row["End_log_pos"]);
                                 $zookeeper->setLastPost($start_pos, $row["End_log_pos"]);
@@ -1254,7 +1262,11 @@ class Worker implements Process
         Context::instance()->zookeeperInit();
         //write pid file
         file_put_contents(self::$server_pid, self::getCurrentProcessId());
-        $this->setProcessTitle("php seals >> events master process - Worker");
+        $process_name = "php seals >> events master process - Worker";
+        $this->setProcessTitle($process_name);
+
+        echo self::getCurrentProcessId()," => ", $process_name,"\r\n";
+
         while (1) {
             pcntl_signal_dispatch();
 
