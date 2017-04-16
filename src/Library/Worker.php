@@ -29,11 +29,12 @@ class Worker implements Process
     protected $generallog_process = 0;
     //current is offline, default is false
     protected static  $is_offline    = false;
-    const USLEEP = 100000;
+    const USLEEP     = 100000;
 
     //队列名称
     const QUEUE_NAME = "seals:events:collector";
     const RUNTIME    = "seals.info";
+    const CACHE_FILE_TIMEOUT = 600;//binlog缓存超时时间 单位为秒
 
     /**
      * @构造函数
@@ -881,6 +882,18 @@ class Worker implements Process
 
     }
 
+    protected function checkCacheTimeout()
+    {
+        $dir   = new WDir(Context::instance()->binlog_cache_dir);
+        $files = $dir->scandir();
+
+        foreach ($files as $file) {
+            if ((time()-filectime($file)) > self::CACHE_FILE_TIMEOUT) {
+                unlink($file);
+            }
+        }
+    }
+
     /**
      * dispatch process
      *
@@ -936,6 +949,7 @@ class Worker implements Process
                 $this->setStatus($process_name);
                 $this->setIsRunning();
                 $this->setInfo();
+                $this->checkCacheTimeout();
 
                 for ($i = 0; $i < 10; $i++) {
                     do {
