@@ -19,5 +19,30 @@ define("__APP_DIR__", dirname(__DIR__));
 //var_dump($g->open());
 //var_dump($g->isOpen());
 
-$data = \Seals\Library\Context::instance()->activity_pdo->getDatabases();
-var_dump($data);
+//$data = \Seals\Library\Context::instance()->activity_pdo->getDatabases();
+//var_dump($data);
+
+while (1) {
+
+    $sql = 'INSERT INTO new_yonglibao_c.`bl_provinces`( `provinces_name`) SELECT  `provinces_name` FROM new_yonglibao_c.`bl_provinces` WHERE 1';
+    echo $sql,"\r\n";
+    \Seals\Library\Context::instance()->activity_pdo->query($sql);
+//    $sql = 'INSERT INTO new_yonglibao_c.`bl_provinces`( `provinces_name`) SELECT  `provinces_name` FROM new_yonglibao_c.`bl_provinces` WHERE 1';
+//    echo $sql,"\r\n";
+//    \Seals\Library\Context::instance()->activity_pdo->query($sql);
+//    $sql = 'INSERT INTO new_yonglibao_c.`bl_provinces`( `provinces_name`) SELECT  `provinces_name` FROM new_yonglibao_c.`bl_provinces` WHERE 1';
+//    echo $sql,"\r\n";
+//    \Seals\Library\Context::instance()->activity_pdo->query($sql);
+//    $sql = 'INSERT INTO new_yonglibao_c.`bl_provinces`( `provinces_name`) SELECT  `provinces_name` FROM new_yonglibao_c.`bl_provinces` WHERE 1';
+//    echo $sql,"\r\n";
+//    \Seals\Library\Context::instance()->activity_pdo->query($sql);
+
+    $sql = 'UPDATE new_yonglibao_c.`bl_provinces` SET `provinces_name`=substr(concat(`provinces_name`,`id`),0,8) WHERE 1';
+    echo $sql,"\r\n";
+    \Seals\Library\Context::instance()->activity_pdo->query($sql);
+    $sql = 'delete from new_yonglibao_c.`bl_provinces` where id>105';
+    echo $sql,"\r\n";
+    \Seals\Library\Context::instance()->activity_pdo->query($sql);
+
+    sleep(1);
+}

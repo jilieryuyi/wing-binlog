@@ -66,7 +66,7 @@ class BinLog
         $this->password = $db_handler->getPassword();
         $this->port     = $db_handler->getPort();
         $this->log_dir  = Context::instance()->getAppConfig("log_dir");
-        $this->cache    = new File(__APP_DIR__."/data/table");
+        $this->cache    = new \Seals\Cache\Redis(Context::instance()->redis_local);//new File(__APP_DIR__."/data/table");
     }
 
 
@@ -186,11 +186,22 @@ class BinLog
 
         $sql  = 'select @@log_bin_basename';
         $data = $this->db_handler->row($sql);
+
+        if (!isset($data["@@log_bin_basename"]))
+            return null;
+
         $path = pathinfo($data["@@log_bin_basename"],PATHINFO_DIRNAME);
         $info = $this->getCurrentLogInfo();
 
-        $path = $path.DIRECTORY_SEPARATOR.$info["File"];
-        $this->cache->set($key, $path, 60);
+        if (!isset($info["File"]))
+            return null;
+
+        $path = $path . DIRECTORY_SEPARATOR . $info["File"];
+        if (file_exists($path))
+            $this->cache->set($key, $path, 3);
+        else
+            $this->cache->del($key);
+
         return $path;
     }
 
@@ -278,6 +289,11 @@ class BinLog
     {
         //当前使用的binlog文件路径
         $current_binlog_file = $this->getCurrentLogFile();
+        if (!$current_binlog_file) {
+            $error = "get current binlog path error => ".$current_binlog_file;
+            echo $error,"\r\n";
+            Context::instance()->logger->error($error);
+        }
 
         $str1 = md5(rand(0,999999));
         $str2 = md5(rand(0,999999));
