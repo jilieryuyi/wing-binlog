@@ -126,5 +126,6 @@ return [
     ["en" => "page", "zh" => "页"],
     ["en" => "jump" ,"zh" => "跳转" ],
     ["en" => "Yes", "zh" => "是"],
-    ["en" => "No", "zh" => "否"]
+    ["en" => "No", "zh" => "否"],
+    ["en" => " detail report", "zh" => "详细报表"]
 ];

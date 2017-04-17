@@ -44,7 +44,7 @@ include  __DIR__."/include/nav.php";
               <div class="col-md-12">
               <div class="x_panel">
                 <div class="x_title">
-                  <h2><?php echo $day; ?> detail report </h2>
+                  <h2><?php echo $day; ?>详细报表 </h2>
                   <div class="clearfix"></div>
                 </div>
                 <div class="x_content">

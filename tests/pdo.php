@@ -37,12 +37,16 @@ while (1) {
 //    echo $sql,"\r\n";
 //    \Seals\Library\Context::instance()->activity_pdo->query($sql);
 
-    $sql = 'UPDATE new_yonglibao_c.`bl_provinces` SET `provinces_name`=substr(concat(`provinces_name`,`id`),0,8) WHERE 1';
+    $sql = 'UPDATE new_yonglibao_c.`bl_provinces` SET `provinces_name`="121212" WHERE 1';
+    echo $sql,"\r\n";
+    \Seals\Library\Context::instance()->activity_pdo->query($sql);
+
+    $sql = 'UPDATE new_yonglibao_c.`bl_provinces` SET `provinces_name`=concat(`provinces_name`,`id`) WHERE 1';
     echo $sql,"\r\n";
     \Seals\Library\Context::instance()->activity_pdo->query($sql);
     $sql = 'delete from new_yonglibao_c.`bl_provinces` where id>105';
     echo $sql,"\r\n";
     \Seals\Library\Context::instance()->activity_pdo->query($sql);
 
-    sleep(1);
+    sleep(10);
 }
