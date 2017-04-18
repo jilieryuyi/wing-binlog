@@ -644,12 +644,21 @@ class Worker implements Process
         $keys = Context::instance()->redis_zookeeper->keys("wing-binlog-process-info:".$session_id.":*");
 
         $info = [];
+        $processes = [];
         foreach ($keys as $key) {
             list(,,$process_id) = explode(":", $key);
+            $processes[] = $process_id;
             $info[$process_id]  = Context::instance()->redis_zookeeper->get($key);
         }
 
-        return $info;
+        sort($processes);
+        $_info = [];
+        foreach ($processes as $process) {
+            $_info[$process] = $info[$process];
+        }
+        unset($info);
+
+        return $_info;
     }
 
 
