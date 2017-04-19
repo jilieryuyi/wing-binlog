@@ -857,7 +857,12 @@ class Worker implements Process
                     unset($file);
 
                     echo "unlink cache file => ",$cache_file,"\r\n";
-                    $success = unlink($cache_file);
+                    $success = false;
+                    if (file_exists($cache_file))
+                        $success = unlink($cache_file);
+                    else {
+                        Context::instance()->logger->error($cache_file." does not exists");
+                    }
 
                     if (!$success) {
                         echo "unlink failure \r\n";
@@ -893,13 +898,18 @@ class Worker implements Process
 
     protected function checkCacheTimeout()
     {
-        $dir   = new WDir(Context::instance()->binlog_cache_dir);
-        $files = $dir->scandir();
+        try {
+            $dir = new WDir(Context::instance()->binlog_cache_dir);
+            $files = $dir->scandir();
 
-        foreach ($files as $file) {
-            if ((time()-filectime($file)) > self::CACHE_FILE_TIMEOUT) {
-                unlink($file);
+            foreach ($files as $file) {
+                $t = filectime($file);
+                if ($t && (time() - $t) > self::CACHE_FILE_TIMEOUT) {
+                    unlink($file);
+                }
             }
+        } catch(\Exception $e) {
+            Context::instance()->logger->error($e->getMessage());
         }
     }
 
