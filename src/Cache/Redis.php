@@ -30,10 +30,10 @@ class Redis implements CacheInterface
     {
         $data = $this->redis->get($key);
 
-        $_data = @@json_decode($data, true);
-
-        if (is_array($_data))
-            return $_data;
+//        $_data = @@json_decode($data, true);
+//
+//        if (is_array($_data))
+//            return $_data;
 
         return $data;
 
