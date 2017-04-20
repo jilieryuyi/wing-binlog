@@ -48,5 +48,6 @@ while (1) {
     echo $sql,"\r\n";
     \Seals\Library\Context::instance()->activity_pdo->query($sql);
 
-    sleep(10);
+    //usleep(1000);
+    sleep(1);
 }

@@ -53,13 +53,13 @@ class Local implements LoggerInterface
 
         $content .= "\r\n";
 
-        $file = new WFile($this->log_dir . "/" . $name . "_" . date("Ymd") . ".log");
-        $file->write($content,1,1);
-//        file_put_contents(
-//            $this->log_dir . "/" . $name . "_" . date("Ymd") . ".log",
-//            $content,
-//            FILE_APPEND
-//        );
+//        $file = new WFile($this->log_dir . "/" . $name . "_" . date("Ymd") . ".log");
+//        $file->write($content,1,1);
+        file_put_contents(
+            $this->log_dir . "/" . $name . "_" . date("Ymd") . ".log",
+            $content,
+            FILE_APPEND
+        );
         unset($file);
 
         if (!Context::instance()->redis_zookeeper)
