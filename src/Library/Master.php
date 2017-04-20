@@ -262,7 +262,7 @@ class Master implements Process
 
     public static function getUpdateVersion()
     {
-        clearstatcache();
+        //clearstatcache();
         if(file_exists(__APP_DIR__ . "/update")) {
             $version = file_get_contents(__APP_DIR__ . "/update");
             if ($version)

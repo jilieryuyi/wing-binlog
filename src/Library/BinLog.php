@@ -300,9 +300,9 @@ class BinLog
         $str3 = md5(rand(0,999999));
 
         $cache_file  = $this->cache_dir."/seals_".time().
-            substr($str1,rand(0,strlen($str1)-16),16).
-            substr($str2,rand(0,strlen($str2)-16),16).
-            substr($str3,rand(0,strlen($str3)-16),16);
+            substr($str1,rand(0,strlen($str1)-16),8).
+            substr($str2,rand(0,strlen($str2)-16),8).
+            substr($str3,rand(0,strlen($str3)-16),8);
 
         unset($str1,$str2,$str3);
 

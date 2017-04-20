@@ -776,17 +776,17 @@ class Worker implements Process
                         break;
                     }
 
-                    if (!file_exists($cache_file) || !is_file($cache_file)) {
+                    if (!file_exists($cache_file)) {
                         echo "cache file error => ",$cache_file,"\r\n";
                         echo "queue => ",$queue->getQueueName(),"\r\n";
-                        $queue_all  = $queue->getAll();
+                        //$queue_all  = $queue->getAll();
 
-                        $error_info = "redis pop error => ". $cache_file ."\r\n".$this->getQueueName()."\r\n";
+                        $error_info = "file does not exists => ". $cache_file ."\r\n".$this->getQueueName()."\r\n";
 
-                        if (is_array($queue_all))
-                            $error_info .= json_encode($queue_all,JSON_UNESCAPED_UNICODE);
-                        else
-                            $error_info .= $queue_all;
+//                        if (is_array($queue_all))
+//                            $error_info .= json_encode($queue_all,JSON_UNESCAPED_UNICODE);
+//                        else
+//                            $error_info .= $queue_all;
 
                         Context::instance()->logger->error($error_info);
 
@@ -959,7 +959,7 @@ class Worker implements Process
         $queue = new Queue(self::QUEUE_NAME. ":ep".$i, Context::instance()->redis_local);
 
         while (1) {
-            clearstatcache();
+            //clearstatcache();
             ob_start();
 
             try {
@@ -1071,7 +1071,7 @@ class Worker implements Process
 
         $limit = 10000;
         while (1) {
-            clearstatcache();
+            //clearstatcache();
             ob_start();
 
             try {
