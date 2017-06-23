@@ -91,34 +91,39 @@ $tcp->on(Tcp::ON_RECEIVE, function($client, $buffer, $data){
 	while ($start < strlen($data)) {
 		//$start += 1;
 		//var_dump(unpack("C", substr($data, $start)));
-		$flag   = unpack("n", substr($data, $start,1));//[1];
+		$flag   = unpack("C", substr($data, $start,1))[1];
+		$flag   = ord($flag);
 		$start += 2;
-		var_dump($flag); echo "\r\n";
+		echo "=-===>",( ($flag[1])); echo "\r\n";
 
 		//var_dump($flag);
 		//break;
 
 
 		if ($flag == 1) {
-			$namelen = unpack("nn", substr($data, $start))[1];
+			$namelen = unpack("C", substr($data, $start))[1];
+			$namelen = ord($namelen);
 			$start += 5;
 		} else {
-			$namelen = unpack("nn", substr($data, $start))[1];
+			$namelen = unpack("C", substr($data, $start))[1];
+			$namelen = ord($namelen);
 			$start += 2;
 		}
 
 		echo "namelen ===>",$namelen,"\r\n";
 
-		$flag = unpack("nn", substr($data, $start, 1))[1];
+		$flag = unpack("C", substr($data, $start, 1))[1];
 		$start += 1;
 
 		if ($flag == 1) {
 
-			$clen = unpack("nn", substr($data, $start, 4))[1];
+			$clen = unpack("C", substr($data, $start, 4))[1];
+			$clen = ord($clen);
 			$start += 5;
 		} else {
 
-			$clen = unpack("nn", substr($data, $start, 1))[1];
+			$clen = unpack("C", substr($data, $start, 1))[1];
+			$clen = ord($clen);
 			$start += 2;
 		}
 
