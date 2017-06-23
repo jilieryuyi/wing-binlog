@@ -263,9 +263,11 @@ class Tcp
     protected function read($buffer)
     {
         $i = array_search($buffer, $this->buffers);
+
         while ($read = event_buffer_read($buffer, 10240)) {
-            $this->onReceive($this->clients[$i], $buffer, $read);
+			$this->onReceive($this->clients[$i], $buffer, $read);
         }
-        $this->onClose($this->clients[$i], $buffer);
+
+		$this->onClose($this->clients[$i], $buffer);
     }
 }
