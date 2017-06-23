@@ -6,4 +6,6 @@
  * Time: 14:43
  */
 
-echo dechex(22);
+echo decbin(12);
+echo "\r\n";
+echo sprintf("%08b",(22));

@@ -115,8 +115,9 @@ $headerFormat = 'Cversion/Ctype/nrequestId/ncontentLength/CpaddingLength/x';
 
 
 //第一个包
-//$arr = unpack($headerFormat, substr($data,17,8));
-//var_dump($arr);
+$arr = unpack($headerFormat, substr($data,16,8));
+var_dump($arr);
+//exit;
 /*$arr1 = unpack("nC6", substr($data,9,$arr["contentLength"]));
 var_dump($arr1);
 
@@ -135,18 +136,20 @@ var_dump($arr2);*/
 //	echo $i,"=>length ===> " . $arr[1], "\r\n";
 //}
 
+$arr = unpack($headerFormat, substr($data,16,8));
+var_dump($arr);
 
+$content_len = $arr["contentLength"];
 
 $start = 24;
 $length = strlen($data);
 
-//while ($start < $length)
+
+while ($start < $content_len)
 {
 	$f = substr($data, $start, 1);
-	$temp = dechex(ord($f));
 
-	$temp = strlen($temp)<2? "0".$temp:$temp;
-	$flag = substr($temp,0,1);
+	$flag = substr(sprintf("%08b",(ord($f))),0,1);
 	if ($flag == "0") {
 		//echo "=================>";
 		$temp = unpack("C", substr($data, $start, 1));
@@ -167,12 +170,9 @@ $length = strlen($data);
 
 	$key = substr($data, $start, $name_len+1);
 
-
+  // echo $key,"\r\n";
 	$f    = substr($data, $start, 1);
-	$temp = dechex(ord($f));
-
-	$temp = strlen($temp)<2? "0".$temp:$temp;
-	$flag = substr($temp,0,1);
+	$flag = substr(sprintf("%08b",(ord($f))),0,1);
 	if ($flag == "0") {
 	//if (!$f) {
 		$value_len = unpack("C", substr($data, $start, 1))[1];
@@ -192,8 +192,8 @@ $length = strlen($data);
 	$value = substr($data, $start, $value_len+1);
 	$start += $value_len;
 
-	//echo $key ,"===>" , $value,"\r\n";
-	exit;
+	echo $key ,"===>" , $value,"\r\n";
+	//exit;
 }
 
 
