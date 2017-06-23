@@ -62,7 +62,7 @@ function getNameValue($name, $value)
 {
 	$nameLen  = strlen($name);
 	$valueLen = strlen($value);
-	$bin      = '';
+	//$bin      = '';
 
 	// 如果大于127，则需要4个字节来存储，下面的$valueLen也需要如此计算
 	if ($nameLen > 0x7f)
@@ -147,9 +147,9 @@ $tcp->on(Tcp::ON_RECEIVE, function($client, $buffer, $data){
 	$content_len = $arr["contentLength"];
 
 	$start = 24;
-	$length = strlen($data);
+	//$length = strlen($data);
 
-
+	$back = "";
 	while ($start < $content_len)
 	{
 		$f = substr($data, $start, 1);
@@ -157,7 +157,7 @@ $tcp->on(Tcp::ON_RECEIVE, function($client, $buffer, $data){
 		$flag = substr(sprintf("%08b",(ord($f))),0,1);
 		if ($flag == "0") {
 			//echo "=================>";
-			$temp = unpack("C", substr($data, $start, 1));
+			//$temp = unpack("C", substr($data, $start, 1));
 			//var_dump($temp);
 			$name_len = unpack("C", substr($data, $start, 1))[1];
 			$start += 1;
@@ -173,7 +173,7 @@ $tcp->on(Tcp::ON_RECEIVE, function($client, $buffer, $data){
 
 		echo $name_len,"--->";
 
-		$key = substr($data, $start, $name_len+1);
+		$key = substr($data, $start+1, $name_len);
 
 		// echo $key,"\r\n";
 		$f    = substr($data, $start, 1);
@@ -194,10 +194,12 @@ $tcp->on(Tcp::ON_RECEIVE, function($client, $buffer, $data){
 		echo $value_len,"\r\n";
 
 		$start += $name_len;
-		$value = substr($data, $start, $value_len+1);
+		$value = substr($data, $start, $value_len);
 		$start += $value_len;
 
 		echo $key ,"===>" , $value,"\r\n";
+
+		$back .= $key."====>".$value."<br/>";
 		//exit;
 	}
 
@@ -209,7 +211,7 @@ $tcp->on(Tcp::ON_RECEIVE, function($client, $buffer, $data){
 
 
 
-	$headerData1 = "Status: 200 OK\r\nContent-Type: text/html\r\nContent-Length:5\r\n\r\nhello";
+	$headerData1 = "Status: 200 OK\r\nContent-Type: text/html\r\nContent-Length:".strlen($back)."\r\n\r\n".$back;
 
 	//$this->writeResponse($requestId, $headerData, $response->getBody());
     $resquestid = $record["requestId"];
@@ -217,7 +219,7 @@ $tcp->on(Tcp::ON_RECEIVE, function($client, $buffer, $data){
 
 
 	$contentLength = strlen($headerData1);
-	$headerData    = pack('CCnnxx', FCGI_VERSION, FCGI_STDOUT, $resquestid, $contentLength);
+	$headerData    = pack('CCnnxx', FCGI_VERSION_1, FCGI_STDOUT, $resquestid, $contentLength);
 
 	event_buffer_write($buffer, $headerData.$headerData1);
 
