@@ -15,9 +15,11 @@
       <file leaf-file-name="Tcp.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/fast-cgi/Tcp.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3979">
-              <caret line="236" column="30" lean-forward="false" selection-start-line="236" selection-start-column="8" selection-end-line="236" selection-end-column="30" />
-              <folding />
+            <state relative-caret-position="288">
+              <caret line="12" column="0" lean-forward="false" selection-start-line="12" selection-start-column="0" selection-end-line="272" selection-end-column="1" />
+              <folding>
+                <element signature="n#Tcp#0;n#!!top" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -25,8 +27,8 @@
       <file leaf-file-name="test.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/fast-cgi/test.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="67">
-              <caret line="85" column="15" lean-forward="true" selection-start-line="85" selection-start-column="15" selection-end-line="85" selection-end-column="15" />
+            <state relative-caret-position="357">
+              <caret line="91" column="0" lean-forward="false" selection-start-line="91" selection-start-column="0" selection-end-line="91" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -77,7 +79,7 @@
       <file leaf-file-name="str.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/str.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1887">
+            <state relative-caret-position="-768">
               <caret line="145" column="0" lean-forward="true" selection-start-line="145" selection-start-column="0" selection-end-line="145" selection-end-column="0" />
               <folding />
             </state>
@@ -142,9 +144,9 @@
         <option value="$PROJECT_DIR$/fast-cgi/protocol-fcgi/tests/1.php" />
         <option value="$PROJECT_DIR$/fast-cgi/protocol-fcgi/src/FCGI/FrameParser.php" />
         <option value="$PROJECT_DIR$/fast-cgi/FastCGIDaemon/test.php" />
-        <option value="$PROJECT_DIR$/fast-cgi/test.php" />
         <option value="$PROJECT_DIR$/1.php" />
         <option value="$PROJECT_DIR$/str.php" />
+        <option value="$PROJECT_DIR$/fast-cgi/test.php" />
       </list>
     </option>
   </component>
@@ -372,15 +374,15 @@
       <workItem from="1498095304627" duration="4671000" />
       <workItem from="1498101155017" duration="848000" />
       <workItem from="1498102339287" duration="12901000" />
-      <workItem from="1498127892390" duration="18309000" />
+      <workItem from="1498127892390" duration="20438000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="36729000" />
+    <option name="totallyTimeSpent" value="38858000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="7" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24733475" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -761,14 +763,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/fast-cgi/Tcp.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3979">
-          <caret line="236" column="30" lean-forward="false" selection-start-line="236" selection-start-column="8" selection-end-line="236" selection-end-column="30" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/fast-cgi/FastCGIDaemon/test.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="168">
@@ -821,17 +815,27 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/fast-cgi/Tcp.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="288">
+          <caret line="12" column="0" lean-forward="false" selection-start-line="12" selection-start-column="0" selection-end-line="272" selection-end-column="1" />
+          <folding>
+            <element signature="n#Tcp#0;n#!!top" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/fast-cgi/test.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="67">
-          <caret line="85" column="15" lean-forward="true" selection-start-line="85" selection-start-column="15" selection-end-line="85" selection-end-column="15" />
+        <state relative-caret-position="357">
+          <caret line="91" column="0" lean-forward="false" selection-start-line="91" selection-start-column="0" selection-end-line="91" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/str.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1887">
+        <state relative-caret-position="-768">
           <caret line="145" column="0" lean-forward="true" selection-start-line="145" selection-start-column="0" selection-end-line="145" selection-end-column="0" />
           <folding />
         </state>

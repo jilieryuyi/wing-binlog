@@ -10,54 +10,6 @@ include __DIR__."/Tcp.php";
 $tcp = new Tcp("127.0.0.1", 6998);
 
 
-function fastcgiFormat($data)
-{
-	$arr = ["SCRIPT_FILENAME", "QUERY_STRING", "REQUEST_METHOD",
-		"CONTENT_TYPE", "CONTENT_LENGTH", "SCRIPT_NAME", "REQUEST_URI",
-		"DOCUMENT_URI", "DOCUMENT_ROOT", "SERVER_PROTOCOL",
-		"GATEWAY_INTERFACE", "SERVER_SOFTWARE", "REMOTE_ADDR",
-		"REMOTE_PORT", "SERVER_ADDR",
-		"SERVER_PORT", "SERVER_NAME",
-		"REDIRECT_STATUS",
-		"HTTP_ACCEPT_LANGUAGE",
-		"HTTP_ACCEPT",
-		"HTTP_ACCEPT_LANGUAGE",
-		"HTTP_ACCEPT_ENCODING",
-		"HTTP_USER_AGENT",
-		"HTTP_HOST",
-		"HTTP_CONNECTION",
-		"HTTP_CONTENT_TYPE",
-		"HTTP_CONTENT_LENGTH",
-		"HTTP_CACHE_CONTROL",
-		"HTTP_COOKIE",
-		"HTTP_FCGI_PARAMS_MAX","HTTP_PRAGMA","REQUEST_SCHEME","HTTP_UPGRADE_INSECURE_REQUESTS"];
-
-	$replace = [];
-	$split   = time().rand(1000000,9999999).rand(1000000,9999999).rand(1000000,9999999);
-	foreach ($arr as $v) {
-		$replace[] = $split.$v."=";
-	}
-
-	$data   = str_replace($arr,$replace,$data);
-	$arr    = explode($split,$data);
-	$result = [];
-
-	foreach ($arr as $v) {
-
-		if (strpos($v,"=") === false) {
-			continue;
-		}
-		list($key, $value) = explode("=", $v,2);
-
-		$key   = trim($key);
-		$value = str_replace("  ","",$value);
-		$value = trim($value);
-
-		$result[$key] = $value;
-	}
-	return $result;
-}
-
 
 const FCGI_VERSION           = 1;
 const FCGI_BEGIN_REQUEST     = 1;
@@ -88,6 +40,8 @@ $tcp->on(Tcp::ON_RECEIVE, function($client, $buffer, $data){
 
 	$start = 9;
 	$c = 0;
+
+	$back = "";
 	while ($start < strlen($data)) {
 		//$start += 1;
 		//var_dump(unpack("C", substr($data, $start)));
@@ -134,6 +88,8 @@ $tcp->on(Tcp::ON_RECEIVE, function($client, $buffer, $data){
 
 		$content = substr($data, $start, $clen);
 		$start += $clen + 1;
+
+
 
 		//echo $namelen,"=>",$name ."=>",$clen,"====>". $content,"\r\n";
 
