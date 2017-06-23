@@ -24,11 +24,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="test.php" pinned="false" current-in-tab="false">
+      <file leaf-file-name="test.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/fast-cgi/test.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="357">
-              <caret line="91" column="0" lean-forward="false" selection-start-line="91" selection-start-column="0" selection-end-line="91" selection-end-column="0" />
+            <state relative-caret-position="251">
+              <caret line="212" column="0" lean-forward="true" selection-start-line="212" selection-start-column="0" selection-end-line="212" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -76,11 +76,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="str.php" pinned="false" current-in-tab="true">
+      <file leaf-file-name="str.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/str.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-768">
-              <caret line="145" column="0" lean-forward="true" selection-start-line="145" selection-start-column="0" selection-end-line="145" selection-end-column="0" />
+            <state relative-caret-position="168">
+              <caret line="7" column="0" lean-forward="false" selection-start-line="7" selection-start-column="0" selection-end-line="105" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -128,8 +128,8 @@
       <find>FCGI_VERSION_1</find>
       <find>\r\n</find>
       <find>writeRecord</find>
-      <find>$start</find>
       <find>&quot;n&quot;</find>
+      <find>$start</find>
     </findStrings>
     <replaceStrings>
       <replace>\n\n</replace>
@@ -374,12 +374,12 @@
       <workItem from="1498095304627" duration="4671000" />
       <workItem from="1498101155017" duration="848000" />
       <workItem from="1498102339287" duration="12901000" />
-      <workItem from="1498127892390" duration="20438000" />
+      <workItem from="1498127892390" duration="20660000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="38858000" />
+    <option name="totallyTimeSpent" value="39080000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="7" />
@@ -825,18 +825,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/fast-cgi/test.php">
+    <entry file="file://$PROJECT_DIR$/str.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="91" column="0" lean-forward="false" selection-start-line="91" selection-start-column="0" selection-end-line="91" selection-end-column="0" />
+        <state relative-caret-position="168">
+          <caret line="7" column="0" lean-forward="false" selection-start-line="7" selection-start-column="0" selection-end-line="105" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/str.php">
+    <entry file="file://$PROJECT_DIR$/fast-cgi/test.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-768">
-          <caret line="145" column="0" lean-forward="true" selection-start-line="145" selection-start-column="0" selection-end-line="145" selection-end-column="0" />
+        <state relative-caret-position="251">
+          <caret line="212" column="0" lean-forward="true" selection-start-line="212" selection-start-column="0" selection-end-line="212" selection-end-column="0" />
           <folding />
         </state>
       </provider>
