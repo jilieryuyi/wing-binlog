@@ -109,7 +109,7 @@ $record = $header . $body . getPaddingData($paddingLength);
 
 //echo strlen(pack("nC6", FCGI_RESPONDER, 0, 0, 0, 0, 0, 0)),"\r\n";
 
-$data = file_get_contents("D:/123.log");
+$data = file_get_contents("/Users/yuyi/Downloads/123.log");
 $headerFormat = 'Cversion/Ctype/nrequestId/ncontentLength/CpaddingLength/x';
 
 
@@ -136,64 +136,72 @@ var_dump($arr2);*/
 //	echo $i,"=>length ===> " . $arr[1], "\r\n";
 //}
 
-$arr = unpack($headerFormat, substr($data,16,8));
-var_dump($arr);
+while (1) {
+    $arr = unpack($headerFormat, substr($data, 16, 8));
+    var_dump($arr);
 
-$content_len = $arr["contentLength"];
+    $content_len = $arr["contentLength"];
+    var_dump($content_len);
 
-$start = 24;
-$length = strlen($data);
+    $start       = 24;
+    $length      = strlen($data);
 
 
-while ($start < $content_len)
-{
-	$f = substr($data, $start, 1);
+    while ($start < $content_len) {
+        $f = substr($data, $start, 1);
 
-	$flag = substr(sprintf("%08b",(ord($f))),0,1);
-	if ($flag == "0") {
-		//echo "=================>";
-		$temp = unpack("C", substr($data, $start, 1));
-		//var_dump($temp);
-		$name_len = unpack("C", substr($data, $start, 1))[1];
-		$start += 1;
-	} else {
-		$temp  = unpack("C4", substr($data, $start, 4));
-		$B3 = $temp[1];
-		$B2 = $temp[2];
-		$B1 = $temp[3];
-		$B0 = $temp[4];
-		$name_len = (($B3 & 0x7f) << 24) + ($B2 << 16) + ($B1 << 8) + $B0;
-		$start +=4;
-	}
+        $flag = substr(sprintf("%08b", (ord($f))), 0, 1);
+        if ($flag == "0") {
+            //echo "=================>";
+            $temp = unpack("C", substr($data, $start, 1));
+            //var_dump($temp);
+            $name_len = unpack("C", substr($data, $start, 1))[1];
+            $start += 1;
+        } else {
+            $temp = unpack("C4", substr($data, $start, 4));
+            $B3 = $temp[1];
+            $B2 = $temp[2];
+            $B1 = $temp[3];
+            $B0 = $temp[4];
+            $name_len = (($B3 & 0x7f) << 24) + ($B2 << 16) + ($B1 << 8) + $B0;
+            $start += 4;
+        }
 
-	echo $name_len,"--->";
+        echo $name_len, "--->";
 
-	$key = substr($data, $start, $name_len+1);
+        $key = substr($data, $start, $name_len + 1);
 
-  // echo $key,"\r\n";
-	$f    = substr($data, $start, 1);
-	$flag = substr(sprintf("%08b",(ord($f))),0,1);
-	if ($flag == "0") {
-	//if (!$f) {
-		$value_len = unpack("C", substr($data, $start, 1))[1];
-		$start += 1;
-	} else {
-		$temp  = unpack("C4", substr($data, $start, 4));
-		$B3 = $temp[1];
-		$B2 = $temp[2];
-		$B1 = $temp[3];
-		$B0 = $temp[4];
-		$value_len = (($B3 & 0x7f) << 24) + ($B2 << 16) + ($B1 << 8) + $B0;
-		$start +=4;
-	}
-	echo $value_len,"\r\n";
+        // echo $key,"\r\n";
+        $f = substr($data, $start, 1);
+        $flag = substr(sprintf("%08b", (ord($f))), 0, 1);
+        if ($flag == "0") {
+            //if (!$f) {
+            $value_len = unpack("C", substr($data, $start, 1))[1];
+            $start += 1;
+        } else {
+            $temp = unpack("C4", substr($data, $start, 4));
+            $B3 = $temp[1];
+            $B2 = $temp[2];
+            $B1 = $temp[3];
+            $B0 = $temp[4];
+            $value_len = (($B3 & 0x7f) << 24) + ($B2 << 16) + ($B1 << 8) + $B0;
+            $start += 4;
+        }
+        echo $value_len, "\r\n";
 
-	$start += $name_len;
-	$value = substr($data, $start, $value_len+1);
-	$start += $value_len;
+        $start += $name_len;
+        $value = substr($data, $start, $value_len + 1);
+        $start += $value_len;
 
-	echo $key ,"===>" , $value,"\r\n";
-	//exit;
+        echo $key, "===>", $value, "\r\n";
+        //exit;
+    }
+
+    $data = substr($data, $start+16);
+
+    var_dump($data);
+    if (!$data)
+        break;
 }
 
 
