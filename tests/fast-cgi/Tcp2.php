@@ -255,93 +255,6 @@ class Tcp
         unset($this->clients[$i], $this->buffers[$i]);
     }
 
-
-//    private function parse($data, $buffer){
-//        $headerFormat = 'Cversion/Ctype/nrequestId/ncontentLength/CpaddingLength/x';
-//
-//        $record       = unpack($headerFormat, substr($data,0,8));
-//        var_dump($record);
-//
-//        if ($record["type"] == 1)
-//            return;
-//
-//        $content_len  = $record["contentLength"];
-//        $start        = 8;
-//
-//        $back = "";
-//        while ($start < $content_len)
-//        {
-//            $f = substr($data, $start, 1);
-//
-//            $flag = substr(sprintf("%08b",(ord($f))),0,1);
-//            if ($flag == "0") {
-//                $name_len = unpack("C", substr($data, $start, 1))[1];
-//                $start += 1;
-//            } else {
-//                $temp  = unpack("C4", substr($data, $start, 4));
-//                $B3 = $temp[1];
-//                $B2 = $temp[2];
-//                $B1 = $temp[3];
-//                $B0 = $temp[4];
-//                $name_len = (($B3 & 0x7f) << 24) + ($B2 << 16) + ($B1 << 8) + $B0;
-//                $start +=4;
-//            }
-//
-//            echo $name_len,"--->";
-//
-//            $key = substr($data, $start+1, $name_len);
-//
-//            // echo $key,"\r\n";
-//            $f    = substr($data, $start, 1);
-//            $flag = substr(sprintf("%08b",(ord($f))),0,1);
-//            if ($flag == "0") {
-//                //if (!$f) {
-//                $value_len = unpack("C", substr($data, $start, 1))[1];
-//                $start += 1;
-//            } else {
-//                $temp  = unpack("C4", substr($data, $start, 4));
-//                $B3 = $temp[1];
-//                $B2 = $temp[2];
-//                $B1 = $temp[3];
-//                $B0 = $temp[4];
-//                $value_len = (($B3 & 0x7f) << 24) + ($B2 << 16) + ($B1 << 8) + $B0;
-//                $start +=4;
-//            }
-//            echo $value_len,"\r\n";
-//
-//            $start += $name_len;
-//            $value = substr($data, $start, $value_len);
-//            $start += $value_len;
-//
-//            echo $key ,"===>" , $value,"\r\n";
-//
-//            $back .= $key."====>".$value."<br/>";
-//            //exit;
-//        }
-//
-//
-//
-//
-//        //var_dump($record);
-//        //var_dump(readNvpair(substr($data,9,strlen($data)-8)));
-//
-//
-//
-//        $headerData1 = "Status: 200 OK\r\nContent-Type: text/html\r\nContent-Length:".strlen($back)."\r\n\r\n".$back;
-//
-//        //$this->writeResponse($requestId, $headerData, $response->getBody());
-//        $resquestid = $record["requestId"];
-//        //event_buffer_write($buffer, "hello");// "HTTP/1.1 200 OK\n\nContent-type: text/html\n\nContent-length:5\n\n\n\nhello");
-//
-//
-//        $contentLength = strlen($headerData1);
-//        $headerData    = pack('CCnnxx', FCGI_VERSION_1, FCGI_STDOUT, $resquestid, $contentLength);
-//
-//        echo "发送响应数据\r\n";
-//        echo $headerData.$headerData1,"\r\n\r\n";
-//        event_buffer_write($buffer, $headerData.$headerData1);
-//    }
-
     /**
      * libevent read wait
      *
@@ -351,29 +264,8 @@ class Tcp
     {
         $i = array_search($buffer, $this->buffers);
 
-
-        $headerFormat = 'Cversion/Ctype/nrequestId/ncontentLength/CpaddingLength/x';
-
-        //第一次 取24字节
-        //fastcgi的header占8个字节 填充8个字节 然后是16字节
-        //取24字节是为了拿到第一个包的header
-
-
         while ($read = event_buffer_read($buffer, 10240)) {
 			$this->onReceive($this->clients[$i], $buffer, $read);
-//            $record      = unpack($headerFormat, $read);
-//
-//            $content_len = $left_read = $record["contentLength"];
-//            echo "contentlen =================>",$content_len,"\r\n";
-//
-//            $content     = $read;
-//            while ($read = event_buffer_read($buffer, $left_read)) {
-//                $content  .= $read;
-//                $left_read = $content_len - strlen($content);
-//            }
-//
-//            var_dump($content);
-//            $this->parse($content, $buffer);
         }
 
 		$this->onClose($this->clients[$i], $buffer);
