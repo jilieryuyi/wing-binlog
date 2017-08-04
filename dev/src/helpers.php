@@ -77,3 +77,10 @@ if (!function_exists("reset_std")) {
 
 	}
 }
+
+if (!function_exists("load_config")) {
+	function load_config($name)
+	{
+		return HOME . "/config/" . $name . ".php";
+	}
+}

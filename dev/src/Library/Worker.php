@@ -180,7 +180,7 @@ class Worker
                 $content = ob_get_contents();
                 ob_end_clean();
 
-                if ($this->debug) {
+                if ($this->debug && $content) {
                 	echo $content,"\r\n";
 				}
 

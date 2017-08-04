@@ -42,16 +42,16 @@ class PDO implements DbInterface
      * @param string $dbname
      * @return void
      */
-    public function __construct($user, $password, $host, $dbname, $port = 3306)
+    public function __construct()
     {
-        $this->parameters = array();
-        $this->dbname     = $dbname;
-        $this->host       = $host;
-        $this->password   = $password;
-        $this->user       = $user;
+		$config = load_config("database");
 
-        if ($port)
-            $this->port   = $port;
+        $this->parameters = array();
+        $this->dbname     = $config["db_name"];
+        $this->host       = $config["host"];
+        $this->password   = $config["password"];
+        $this->user       = $config["user"];
+		$this->port       = $config["port"];
 
         $this->connect();
     }

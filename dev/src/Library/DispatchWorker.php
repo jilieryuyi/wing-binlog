@@ -31,27 +31,18 @@ class DispatchWorker
 		}
 
 		if ($process_id > 0) {
-			$this->processes[]            = $process_id;
-			$this->dispatch_processes[$i] = $process_id;
-			return;
+			return $process_id;
 		}
 
-		if ($this->daemon) {
-			$this->resetStd();
-		}
 
-		ini_set("memory_limit", Context::instance()->memory_limit);
 
-		$process_name = "php seals >> events collector - dispatch - ".$i;
+
+		$process_name = "wing php >> dispatch process - ".$i;
 
 		//设置进程标题 mac 会有warning 直接忽略
-		$this->setProcessTitle($process_name);
-		echo self::getCurrentProcessId()," => ", $process_name,"\r\n";
+		set_process_title($process_name);
 
-		//由于是多进程 redis和pdo等连接资源 需要重置
-		Context::instance()
-			->initRedisLocal()
-			->initPdo();
+
 
 
 		$bin = new \Seals\Library\BinLog(Context::instance()->activity_pdo);
