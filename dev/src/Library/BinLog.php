@@ -1,5 +1,5 @@
 <?php namespace Wing\Library;
-use Seals\Cache\File;
+use Wing\Cache\File;
 use Wing\FileSystem\WDir;
 
 /**
