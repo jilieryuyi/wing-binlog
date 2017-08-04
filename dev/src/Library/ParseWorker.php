@@ -7,17 +7,22 @@
  */
 class ParseWorker
 {
-	public function __construct($index)
+	private $workers = 1;
+	private $index;
+	public function __construct($workers, $index)
 	{
+		$this->workers = $workers;
+		$this->index = $index;
 	}
+
+
+	/**
+	 * @return int
+	 */
 
 	public function start()
 	{
-		return 0;
-	}
-
-	protected function forkParseWorker($i)
-	{
+		$i = $this->index;
 		$process_id = pcntl_fork();
 
 		if ($process_id < 0) {
@@ -33,9 +38,10 @@ class ParseWorker
 
 		//设置进程标题 mac 会有warning 直接忽略
 		set_process_title($process_name);
+		$queue_name = "parse_process_".$i;
 
-		$queue     = new Queue("events_collector_".$i);
-		$pdo       = new PDO("root", "123456", "127.0.0.1", "test", 3306);
+		$queue     = new Queue($queue_name);
+		$pdo       = new PDO();
 		while (1) {
 			ob_start();
 			try {

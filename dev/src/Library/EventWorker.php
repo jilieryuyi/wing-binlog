@@ -7,30 +7,28 @@
  */
 class EventWorker
 {
-	public function __construct()
+	private $workers = 1;
+	public function __construct($workers)
 	{
+		$this->workers = $workers;
 	}
 
-	public function start()
+	/**
+	 * @return Queue
+	 */
+	protected function getWorker()
 	{
-		return 0;
-	}
-
-
-	protected function getWorker($base_queue_name)
-	{
-		$target_worker = new Queue($base_queue_name."1", Context::instance()->redis_local);
+		$target_worker = new Queue("dispatch_process_1");
 
 		if ($this->workers <= 1) {
 			return $target_worker;
 		}
 
 		//如果没有空闲的进程 然后判断待处理的队列长度 那个待处理的任务少 就派发给那个进程
-		$target_len    = $target_worker->length();
+		$target_len = $target_worker->length();
 
 		for ($i = 2; $i <= $this->workers; $i++) {
-
-			$_target_worker = new Queue($base_queue_name . $i, Context::instance()->redis_local);
+			$_target_worker = new Queue("dispatch_process_" . $i);
 			$len            = $_target_worker->length();
 
 			if ($len < $target_len) {
@@ -42,7 +40,7 @@ class EventWorker
 		return $target_worker;
 	}
 
-	protected function forkEventWorker()
+	public function start()
 	{
 		$process_id = pcntl_fork();
 
@@ -64,7 +62,7 @@ class EventWorker
 
 		$pdo   = new PDO();
 		$bin   = new \Wing\Library\BinLog($pdo);
-		$queue = new Queue("wing_binlog_pos");
+		//$queue = new Queue("wing_binlog_pos");
 
 
 		$limit = 10000;
@@ -76,10 +74,7 @@ class EventWorker
 
 				pcntl_signal_dispatch();
 
-
-
 					do {
-
 
 						//最后操作的binlog文件
 						$last_binlog    = $bin->getLastBinLog();
@@ -89,7 +84,6 @@ class EventWorker
 
 						//获取最后读取的位置
 						list($last_start_pos, $last_end_pos) = $bin->getLastPosition();
-
 
 						//binlog切换时，比如 .00001 切换为 .00002，重启mysql时会切换
 						//重置读取起始的位置
@@ -115,19 +109,15 @@ class EventWorker
 
 						foreach ($data as $row) {
 							if ($row["Event_type"] == "Xid") {
-								$queue = $this->getWorker(self::QUEUE_NAME . ":ep");
-
+								$queue = $this->getWorker();
 								echo "push==>", $start_pos . ":" . $row["End_log_pos"], "\r\n";
-
-								$success = $queue->push($start_pos . ":" . $row["End_log_pos"]);
+								$queue->push([$start_pos, $row["End_log_pos"]]);
 
 								unset($queue);
 								//设置最后读取的位置
 								$bin->setLastPosition($start_pos, $row["End_log_pos"]);
-
-
 								$has_session = true;
-								$start_pos = $row["End_log_pos"];
+								$start_pos   = $row["End_log_pos"];
 							}
 						}
 
@@ -141,7 +131,6 @@ class EventWorker
 								echo "查询超过8万，没有找到事务，直接更新游标";
 								echo $start_pos, "=>", $row["End_log_pos"], "\r\n";
 
-
 								$bin->setLastPosition($start_pos, $row["End_log_pos"]);
 
 								$limit = 10000;
@@ -151,14 +140,7 @@ class EventWorker
 						}
 
 					} while (0);
-					usleep(self::USLEEP);
-
-
-				unset($redis_local, $redis_config,
-					$zookeeper_config, $db_config,
-					$rabbitmq_config
-				);
-
+					usleep(100000);
 
 			} catch (\Exception $e) {
 				var_dump($e->getMessage());
@@ -175,6 +157,6 @@ class EventWorker
 			unset($output);
 			usleep(100000);
 		}
-
+		return 0;
 	}
 }

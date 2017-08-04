@@ -9,7 +9,7 @@ $start = time();
 include_once  __DIR__."/../src/Library/Queue.php";
 
 $queue = new \Wing\Library\Queue("wing");
-for($i=0;$i<1000000;$i++)
+for($i=0;$i<1000;$i++)
 $queue->push(rand(0,999999));
 
 $queue->save();

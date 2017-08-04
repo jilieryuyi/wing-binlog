@@ -7,13 +7,40 @@
  */
 class DispatchWorker
 {
-	public function __construct($index)
+	private $workers = 1;
+	private $index;
+	public function __construct($workers, $index)
 	{
+		$this->workers = $workers;
+		$this->index = $index;
 	}
 
+
+	/**
+	 * @return Queue
+	 */
 	public function start()
 	{
-		return 0;
+		$target_worker = new Queue("parse_process_1");
+
+		if ($this->workers <= 1) {
+			return $target_worker;
+		}
+
+		//如果没有空闲的进程 然后判断待处理的队列长度 那个待处理的任务少 就派发给那个进程
+		$target_len = $target_worker->length();
+
+		for ($i = 2; $i <= $this->workers; $i++) {
+			$_target_worker = new Queue("parse_process_" . $i);
+			$len            = $_target_worker->length();
+
+			if ($len < $target_len) {
+				$target_worker = $_target_worker;
+				$target_len    = $len;
+			}
+
+		}
+		return $target_worker;
 	}
 
 	/**
@@ -21,8 +48,9 @@ class DispatchWorker
 	 *
 	 * @param int $i
 	 */
-	protected function forkDispatchWorker($i)
+	protected function forkDispatchWorker()
 	{
+		$i = $this->index;
 		$process_id = pcntl_fork();
 
 		if ($process_id < 0) {
@@ -41,16 +69,15 @@ class DispatchWorker
 
 		//设置进程标题 mac 会有warning 直接忽略
 		set_process_title($process_name);
+		$dispatch_base_queue = "dispatch_process_".$i;
 
 
 
+		$pdo = new PDO();
+		$bin = new \Wing\Library\BinLog($pdo);
 
-		$bin = new \Seals\Library\BinLog(Context::instance()->activity_pdo);
-		$bin->setCacheDir(Context::instance()->binlog_cache_dir);
-		$bin->setDebug($this->debug);
-		$bin->setCacheHandler(new \Seals\Cache\File(__APP_DIR__));
 
-		$queue = new Queue(self::QUEUE_NAME. ":ep".$i, Context::instance()->redis_local);
+		$queue = new Queue($dispatch_base_queue);
 
 		while (1) {
 			//clearstatcache();
@@ -59,12 +86,9 @@ class DispatchWorker
 			try {
 
 				pcntl_signal_dispatch();
-				$this->setStatus($process_name);
-				$this->setIsRunning();
-				$this->setInfo();
-				$this->checkCacheTimeout();
 
-				for ($i = 0; $i < 10; $i++) {
+
+
 					do {
 						$res = $queue->pop();
 						if (!$res)
@@ -80,40 +104,38 @@ class DispatchWorker
 						unset($end_pos, $start_pos);
 
 						//进程调度 看看该把cache_file扔给那个进程处理
-						$target_worker = $this->getWorker(self::QUEUE_NAME);
+						$target_worker = $this->getWorker();
 						echo "cache file => ", $cache_path, "\r\n";
-						$success = $target_worker->push($cache_path);
+						$target_worker->push($cache_path);
 
-						if (!$success) {
-							Context::instance()->logger->error(" redis rPush error => " . $cache_path);
-						}
 
 						unset($target_worker, $cache_path);
 
 						unset($cache_path);
 
 					} while (0);
-					usleep(self::USLEEP);
-				}
+					usleep(100000);
 
-				$this->checkStopSignal();
+
+				//$this->checkStopSignal();
 
 			} catch (\Exception $e) {
-				Context::instance()->logger->error($e->getMessage());
+				//Context::instance()->logger->error($e->getMessage());
 				var_dump($e->getMessage());
 				unset($e);
 			}
 
 			$output = ob_get_contents();
-			Context::instance()->logger->info($output);
+			//Context::instance()->logger->info($output);
 			ob_end_clean();
 
-			if ($output && $this->debug) {
-				echo $output;
+			if ($output) {
+				echo $output, "\r\n";
 			}
 			unset($output);
-			usleep(self::USLEEP);
+			usleep(100000);
 		}
+		return 0;
 	}
 
 }

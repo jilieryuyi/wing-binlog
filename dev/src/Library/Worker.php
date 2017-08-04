@@ -121,16 +121,16 @@ class Worker
         }
 
         for ($i = 1; $i <= $this->workers; $i++) {
-        	$pid = (new ParseWorker($i))->start();
+        	$pid = (new ParseWorker($this->workers, $i))->start();
 			$this->parse_processes[] = $pid;
 			$this->processes[] = $pid;
 
-			$pid = (new DispatchWorker($i))->start();
+			$pid = (new DispatchWorker($this->workers, $i))->start();
 			$this->dispatch_processes[] = $pid;
 			$this->processes[] = $pid;
         }
 
-		$this->event_process_id = (new EventWorker())->start();
+		$this->event_process_id = (new EventWorker($this->workers))->start();
 		$this->processes[] = $this->event_process_id;
 
         file_put_contents($this->pid, get_current_processid());
@@ -153,7 +153,7 @@ class Worker
 
 
                     if ($pid == $this->event_process_id) {
-						$this->event_process_id = (new EventWorker())->start();
+						$this->event_process_id = (new EventWorker($this->workers))->start();
 						$this->processes[] = $this->event_process_id;
                         continue;
                     }
@@ -161,7 +161,7 @@ class Worker
                     $id = array_search($pid, $this->parse_processes);
                     if ($id !== false) {
                         unset($this->parse_processes[$id]);
-						$_pid = (new ParseWorker($i))->start();
+						$_pid = (new ParseWorker($this->workers, $i))->start();
 						$this->parse_processes[] = $_pid;
 						$this->processes[] = $_pid;
                         continue;
@@ -170,7 +170,7 @@ class Worker
                     $id = array_search($pid, $this->dispatch_processes);
                     if ($id !== false) {
                         unset($this->dispatch_processes[$id]);
-						$_pid = (new DispatchWorker($i))->start();
+						$_pid = (new DispatchWorker($this->workers, $i))->start();
 						$this->dispatch_processes[] = $_pid;
 						$this->processes[] = $_pid;
                         continue;
