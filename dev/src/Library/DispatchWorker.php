@@ -113,9 +113,6 @@ class DispatchWorker
 		$pdo = new PDO();
 		$bin = new \Wing\Library\BinLog($pdo);
 
-
-		//$queue = new Queue($dispatch_base_queue);
-
 		while (1) {
 			//clearstatcache();
 			ob_start();
