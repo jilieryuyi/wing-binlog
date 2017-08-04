@@ -8,7 +8,7 @@
 class EventWorker
 {
 	private $workers = 1;
-	const USLEEP = 100;
+	const USLEEP = 1000;
 
 	public function __construct($workers)
 	{
