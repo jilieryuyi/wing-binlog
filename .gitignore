@@ -1,6 +1,8 @@
 /vendor/
+/dev/vendor/
 /.idea/
 /composer.lock
+/dev/composer.lock
 /.DS_Store
 /src/Doc/.DS_Store
 /src/.DS_Store
