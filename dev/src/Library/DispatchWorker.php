@@ -19,7 +19,7 @@ class DispatchWorker
 	/**
 	 * @return Queue
 	 */
-	public function start()
+	public function getWorker()
 	{
 		$target_worker = new Queue("parse_process_1");
 
@@ -48,7 +48,7 @@ class DispatchWorker
 	 *
 	 * @param int $i
 	 */
-	protected function forkDispatchWorker()
+	public function start()
 	{
 		$i = $this->index;
 		$process_id = pcntl_fork();
