@@ -122,6 +122,7 @@ class BinLog
     {
         $sql  = 'select @@binlog_format';
         $data = $this->db_handler->row($sql);
+        var_dump($data);
         return strtolower($data["@@binlog_format"]);
     }
 
