@@ -1,5 +1,7 @@
 /vendor/
 /dev/vendor/
+/dev/cache
+/dev/*.pid
 /.idea/
 /composer.lock
 /dev/composer.lock

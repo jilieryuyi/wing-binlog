@@ -8,6 +8,8 @@
 class EventWorker
 {
 	private $workers = 1;
+	const USLEEP = 100;
+
 	public function __construct($workers)
 	{
 		$this->workers = $workers;
@@ -60,51 +62,56 @@ class EventWorker
 		set_process_title($process_name);
 
 
-		$pdo   = new PDO();
-		$bin   = new \Wing\Library\BinLog($pdo);
-		//$queue = new Queue("wing_binlog_pos");
+		$pdo             = new PDO();
+		$bin             = new \Wing\Library\BinLog($pdo);
+		$limit           = 10000;
+        $last_binlog     = null;
+        $current_binlog  = null;
+        $last_start_pos  =
+        $last_end_pos    = 0;
+        $run_count       = 0;
+        $is_run          = intval(1000000/self::USLEEP);
 
-
-		$limit = 10000;
 		while (1) {
-			//clearstatcache();
 			ob_start();
 
 			try {
 
 				pcntl_signal_dispatch();
-
-					do {
-
+                do {
+                        $run_count++;
 						//最后操作的binlog文件
-						$last_binlog    = $bin->getLastBinLog();
+                        if (null == $last_binlog || $run_count%$is_run == 0) {
+                            $last_binlog = $bin->getLastBinLog();
+                        }
 
-						//当前使用的binlog 文件
-						$current_binlog = $bin->getCurrentLogInfo()["File"];
+                        if (null == $current_binlog || $run_count%$is_run == 0) {
+                            //当前使用的binlog 文件
+                            $current_binlog = $bin->getCurrentLogInfo()["File"];
+                        }
 
-						//获取最后读取的位置
-						list($last_start_pos, $last_end_pos) = $bin->getLastPosition();
+                        if ($last_start_pos == 0 && $last_end_pos == 0) {
+                            //获取最后读取的位置
+                            list($last_start_pos, $last_end_pos) = $bin->getLastPosition();
+                        }
 
 						//binlog切换时，比如 .00001 切换为 .00002，重启mysql时会切换
 						//重置读取起始的位置
 						if ($last_binlog != $current_binlog) {
 							$bin->setLastBinLog($current_binlog);
-							$last_start_pos = $last_end_pos = 0;
+							$last_start_pos =
+                            $last_end_pos   = 0;
 							$bin->setLastPosition($last_start_pos, $last_end_pos);
-
 						}
 
-						unset($last_binlog);
-
-						//得到所有的binlog事件 记住这里不允许加limit 有坑
+						//得到所有的binlog事件
 						$data = $bin->getEvents($current_binlog, $last_end_pos, $limit);
-						if (!$data) {
-							unset($current_binlog, $last_start_pos, $last_start_pos);
+
+                        if (!$data) {
 							break;
 						}
-						unset($current_binlog, $last_start_pos, $last_start_pos);
 
-						$start_pos = $data[0]["Pos"];
+						$start_pos   = $data[0]["Pos"];
 						$has_session = false;
 
 						foreach ($data as $row) {
@@ -114,14 +121,21 @@ class EventWorker
 								$queue->push([$start_pos, $row["End_log_pos"]]);
 
 								unset($queue);
-								//设置最后读取的位置
-								$bin->setLastPosition($start_pos, $row["End_log_pos"]);
-								$has_session = true;
-								$start_pos   = $row["End_log_pos"];
+								if ($run_count%$is_run == 0) {
+                                    //设置最后读取的位置
+                                    $bin->setLastPosition($start_pos, $row["End_log_pos"]);
+                                }
+                                $last_start_pos = $start_pos;
+                                $last_end_pos   = $row["End_log_pos"];
+
+								$has_session    = true;
+								$start_pos      = $row["End_log_pos"];
 							}
 						}
 
-						//如果没有查找到一个事务 $limit x 2 直到超过 100000 行
+                        $bin->setLastPosition($last_start_pos, $last_end_pos);
+
+                        //如果没有查找到一个事务 $limit x 2 直到超过 100000 行
 						if (!$has_session) {
 							$limit = 2 * $limit;
 							echo "没有找到事务，更新limit=", $limit, "\r\n";
@@ -133,14 +147,18 @@ class EventWorker
 
 								$bin->setLastPosition($start_pos, $row["End_log_pos"]);
 
-								$limit = 10000;
+								$last_start_pos = $start_pos;
+                                $last_end_pos   = $row["End_log_pos"];
+								$limit          = 10000;
 							}
 						} else {
 							$limit = 10000;
 						}
-
+                        if ($run_count%$is_run == 0) {
+						    $run_count = 0;
+                        }
 					} while (0);
-					usleep(100000);
+					usleep(self::USLEEP);
 
 			} catch (\Exception $e) {
 				var_dump($e->getMessage());
@@ -155,7 +173,7 @@ class EventWorker
 				echo $output,"\r\n";
 			}
 			unset($output);
-			usleep(100000);
+			usleep(self::USLEEP);
 		}
 		return 0;
 	}
