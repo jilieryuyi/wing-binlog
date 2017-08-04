@@ -66,7 +66,7 @@ class BinLog
 //        $this->password = $db_handler->getPassword();
 //        $this->port     = $db_handler->getPort();
        // $this->log_dir  = Context::instance()->getAppConfig("log_dir");
-        //$this->cache    = new \Seals\Cache\Redis(Context::instance()->redis_local);//new File(__APP_DIR__."/data/table");
+        $this->cache_handler    = new File(HOME."/cache/binlog");
     }
 
 
