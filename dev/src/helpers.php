@@ -81,6 +81,7 @@ if (!function_exists("reset_std")) {
 if (!function_exists("load_config")) {
 	function load_config($name)
 	{
-		return HOME . "/config/" . $name . ".php";
+		$config_file = HOME . "/config/" . $name . ".php";
+		return include_once $config_file;
 	}
 }
