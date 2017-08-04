@@ -25,7 +25,7 @@ class BinLog
     /**
      * @var string
      */
-    private $cache_dir;
+    //private $cache_dir;
     private $cache_handler;
 
     /**
@@ -295,7 +295,7 @@ class BinLog
      *
      * @return string 缓存文件路径
      */
-    public function getSessions($start_pos, $end_pos)
+    public function getSessions($worker, $start_pos, $end_pos)
     {
         //当前使用的binlog文件路径
         $current_binlog_file = $this->getCurrentLogFile();
@@ -308,8 +308,10 @@ class BinLog
         $str1 = md5(rand(0,999999));
         $str2 = md5(rand(0,999999));
         $str3 = md5(rand(0,999999));
+        $dir = HOME."/cache/binfile/".$worker;
+            (new WDir($dir))->mkdir();
 
-        $cache_file  = $this->cache_dir."/seals_".time().
+        $cache_file  = $dir."/__".time().
             substr($str1,rand(0,strlen($str1)-16),8).
             substr($str2,rand(0,strlen($str2)-16),8).
             substr($str3,rand(0,strlen($str3)-16),8);

@@ -15,8 +15,25 @@ class ParseWorker
 		$this->index = $index;
 	}
 
+    protected function scandir($callback)
+    {
+        $path[] = HOME."/cache/binfile/parse_process_".$this->index.'/*';
+        //$files  = [];
+        while (count($path) != 0) {
+            $v = array_shift($path);
+            foreach(glob($v) as $item) {
+                if (is_file($item)) {
+                    //$files[] = $item;
+                    $callback($item);
+                    unlink($item);
+                }
+            }
+        }
+        //return $files;
+    }
 
-	/**
+
+    /**
 	 * @return int
 	 */
 
@@ -38,62 +55,38 @@ class ParseWorker
 
 		//设置进程标题 mac 会有warning 直接忽略
 		set_process_title($process_name);
-		$queue_name = "parse_process_".$i;
+		//$queue_name = "parse_process_".$i;
 
-		$queue     = new Queue($queue_name);
+		//$queue     = new Queue($queue_name);
 		$pdo       = new PDO();
 		while (1) {
 			ob_start();
 			try {
 				pcntl_signal_dispatch();
+$this->scandir(function($cache_file) use($pdo){
+    do {
 
-				do {
+        if (!$cache_file || !file_exists($cache_file)) {
+            break;
+        }
 
-					$len = $queue->length();
-					if ($len <= 0) {
-						unset($len);
-						break;
-					}
 
-					unset($len);
 
-					$cache_file = $queue->pop();
+        $file = new FileFormat($cache_file, $pdo);
 
-					if (!$cache_file) {
-						unset($cache_file);
-						break;
-					}
+        $file->parse(function ($database_name, $table_name, $event) {
+            $params = [
+                "database_name" => $database_name,
+                "table_name"    => $table_name,
+                "event_data"    => $event,
+            ];
+            var_dump($params);
+        });
 
-					if (!file_exists($cache_file)) {
-						echo "cache file error => ",$cache_file,"\r\n";
-						unset($cache_file);
-						break;
-					}
+        unset($file);
+    } while (0);
+});
 
-					echo "parse cache file => ",$cache_file,"\r\n";
-
-					$file = new FileFormat($cache_file, $pdo);
-
-					$file->parse(function ($database_name, $table_name, $event) {
-
-						$params = [
-							"database_name" => $database_name,
-							"table_name"    => $table_name,
-							"event_data"    => $event,
-						];
-						var_dump($params);
-					});
-
-					unset($file);
-
-					echo "unlink cache file => ",$cache_file,"\r\n";
-
-					if (file_exists($cache_file))
-						unlink($cache_file);
-
-					unset($cache_file);
-
-				} while (0);
 
 			} catch (\Exception $e) {
 				var_dump($e->getMessage());
