@@ -7,103 +7,63 @@
  */
 class Queue
 {
-	private $index = 0;
 	private $cache = null;
+	private $datas = [];
 	public function __construct($queue_name)
 	{
 		$cache_dir = dirname(dirname(__DIR__))."/cache";
-		if (is_dir($cache_dir)) {
+		if (!is_dir($cache_dir)) {
 			mkdir($cache_dir);
 		}
 
 		$queue_dir = $cache_dir."/queue";
-		if (is_dir($queue_dir)) {
+		if (!is_dir($queue_dir)) {
 			mkdir($queue_dir);
 		}
 
-		$queue_dir =  $cache_dir."/queue/".$queue_name;
-		if (is_dir($queue_dir)) {
-			mkdir($queue_dir);
+		$queue_file =  $cache_dir."/queue/____queue_".$queue_name;
+
+
+		$this->cache = $queue_file;
+
+		if (file_exists($queue_file)) {
+			$datas_str   = file_get_contents($queue_file);
+			$this->datas = json_decode($datas_str, true);
 		}
 
-		$this->cache = $queue_dir;
-		$this->index = 0;
+	}
 
-		$path[] = $queue_dir.'/*';
-
-		while (count($path) != 0) {
-			$v = array_shift($path);
-			foreach(glob($v) as $item) {
-				if (is_file($item)) {
-					 $temp = explode("/", $item);
-					 $this->index = array_pop($temp);
-				}
-			}
-		}
-
-		if ($this->index > 99999990) {
-			$this->index = 0;
-		}
-
+	public function save()
+	{
+		return file_put_contents($this->cache, json_encode($this->datas));
 	}
 
 	public function push($data)
 	{
-		$this->index++;
-		return file_put_contents($this->cache."/".$this->index, json_encode($data));
+		$this->datas[] = $data;
 	}
 
 	public function pop()
 	{
-		$path[] = $this->cache.'/*';
-
-		while (count($path) != 0) {
-			$v = array_shift($path);
-			foreach(glob($v) as $item) {
-				if (is_file($item)) {
-					$data = file_get_contents($item);
-					$data = json_decode($data, true);
-					unlink($item);
-					return $data;
-				}
-			}
-		}
-
-		return null;
+		echo count($this->datas),"\r\n";
+		return array_shift($this->datas);
 	}
 
 	public function length()
 	{
-		$path[] = $this->cache.'/*';
-
-		$length = 0;
-		while (count($path) != 0) {
-			$v = array_shift($path);
-			foreach(glob($v) as $item) {
-				if (is_file($item)) {
-					$length++;
-				}
-			}
+		if (is_array($this->datas)) {
+			return count($this->datas);
 		}
-
-		return $length;
+		return 0;
 	}
 
 	public function peek()
 	{
-		$path[] = $this->cache.'/*';
-
-		while (count($path) != 0) {
-			$v = array_shift($path);
-			foreach(glob($v) as $item) {
-				if (is_file($item)) {
-					$data = file_get_contents($item);
-					$data = json_decode($data, true);
-					return $data;
-				}
+		if (is_array($this->datas) && count($this->datas) > 0) {
+			foreach ($this->datas as $v) {
+				return $v;
 			}
 		}
-
 		return null;
 	}
 }
