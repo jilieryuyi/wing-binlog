@@ -5,31 +5,27 @@
  * Created: 2017/8/4 12:23
  * Email: huangxiaoan@xunlei.com
  */
-class ParseWorker
+class ParseWorker extends BaseWorker
 {
-	private $workers = 1;
 	private $index;
 	public function __construct($workers, $index)
 	{
 		$this->workers = $workers;
-		$this->index = $index;
+		$this->index   = $index;
 	}
 
     protected function scandir($callback)
     {
         $path[] = HOME."/cache/binfile/parse_process_".$this->index.'/*';
-        //$files  = [];
         while (count($path) != 0) {
             $v = array_shift($path);
             foreach(glob($v) as $item) {
                 if (is_file($item)) {
-                    //$files[] = $item;
                     $callback($item);
                     unlink($item);
                 }
             }
         }
-        //return $files;
     }
 
 
@@ -39,7 +35,6 @@ class ParseWorker
 
 	public function start()
 	{
-		$i = $this->index;
 		$process_id = pcntl_fork();
 
 		if ($process_id < 0) {
@@ -51,41 +46,40 @@ class ParseWorker
 			return $process_id;
 		}
 
-		$process_name = "wing php >> events collector process - ".$i;
+		$process_name = "wing php >> events collector process - ".$this->index;
 
 		//设置进程标题 mac 会有warning 直接忽略
 		set_process_title($process_name);
-		//$queue_name = "parse_process_".$i;
 
-		//$queue     = new Queue($queue_name);
-		$pdo       = new PDO();
+		$pdo = new PDO();
+
 		while (1) {
 			ob_start();
 			try {
 				pcntl_signal_dispatch();
-$this->scandir(function($cache_file) use($pdo){
-    do {
+                $this->scandir(function($cache_file) use($pdo){
+                    do {
 
-        if (!$cache_file || !file_exists($cache_file)) {
-            break;
-        }
+                        if (!$cache_file || !file_exists($cache_file)) {
+                            break;
+                        }
 
 
 
-        $file = new FileFormat($cache_file, $pdo);
+                        $file = new FileFormat($cache_file, $pdo);
 
-        $file->parse(function ($database_name, $table_name, $event) {
-            $params = [
-                "database_name" => $database_name,
-                "table_name"    => $table_name,
-                "event_data"    => $event,
-            ];
-            var_dump($params);
-        });
+                        $file->parse(function ($database_name, $table_name, $event) {
+                            $params = [
+                                "database_name" => $database_name,
+                                "table_name"    => $table_name,
+                                "event_data"    => $event,
+                            ];
+                            var_dump($params);
+                        });
 
-        unset($file);
-    } while (0);
-});
+                        unset($file);
+                    } while (0);
+                });
 
 
 			} catch (\Exception $e) {

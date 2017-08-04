@@ -8,12 +8,8 @@ use Wing\FileSystem\WFile;
  * Created: 2017/8/4 12:26
  * Email: huangxiaoan@xunlei.com
  */
-class EventWorker
+class EventWorker extends BaseWorker
 {
-	private $workers = 1;
-	const USLEEP = 100000;
-
-	private $task = [];
 
 	public function __construct($workers)
 	{
@@ -21,47 +17,6 @@ class EventWorker
 		for ($i = 1; $i <= $workers; $i++) {
 		    $this->task[$i] = 0;
         }
-	}
-
-	/**
-	 * @return string
-	 */
-	private function getWorker()
-	{
-		$target_worker = "dispatch_process_1";
-
-		if ($this->workers <= 1) {
-		    $this->task[1] = $this->task[1] + 1;
-		    if ($this->task[1] > 999999990) {
-                $this->task[1] = 0;
-            }
-			return $target_worker;
-		}
-
-		//如果没有空闲的进程 然后判断待处理的队列长度 那个待处理的任务少 就派发给那个进程
-		$target_len   = $this->task[1];
-		$target_index = 1;
-
-		for ($i = 2; $i <= $this->workers; $i++) {
-
-            if ($this->task[$i] > 999999990) {
-                $this->task[$i] = 0;
-            }
-
-		    $_target_worker = "dispatch_process_" . $i;
-			$len            = $this->task[$i];
-
-			if ($len < $target_len) {
-				$target_worker  = $_target_worker;
-				$target_len     = $len;
-                $target_index   = $i;
-			}
-
-		}
-
-        $this->task[$target_index] = $this->task[$target_index] + 1;
-
-        return $target_worker;
 	}
 
 	private function writePos($worker, $start_pos, $end_pos)
@@ -143,14 +98,13 @@ class EventWorker
                         break;
                     }
 
-                    $start_pos = $data[0]["Pos"];
+                    $start_pos   = $data[0]["Pos"];
                     $has_session = false;
 
                     foreach ($data as $row) {
                         if ($row["Event_type"] == "Xid") {
-                            $worker = $this->getWorker();
+                            $worker = $this->getWorker("dispatch_process");
                             echo "push==>", $start_pos . ":" . $row["End_log_pos"], "\r\n";
-                            //$queue->push([$start_pos, $row["End_log_pos"]]);
                             $this->writePos($worker, $start_pos, $row["End_log_pos"]);
 
 //                            if ($run_count % $is_run == 0) {
@@ -189,7 +143,6 @@ class EventWorker
 						    $run_count = 0;
                         }
 					} while (0);
-                    usleep(self::USLEEP);
 
 			} catch (\Exception $e) {
 				var_dump($e->getMessage());

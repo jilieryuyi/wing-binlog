@@ -143,38 +143,40 @@ class Worker
             try {
                 ob_start();
 
+                var_dump($this->processes);
                 $status = 0;
                 $pid    = pcntl_wait($status, WNOHANG);//WUNTRACED);
 
                 if ($pid > 0) {
+                    do {
+                        $id = array_search($pid, $this->processes);
+                        unset($this->processes[$id]);
 
-					$id = array_search($pid, $this->processes);
-					unset($this->processes[$id]);
 
+                        if ($pid == $this->event_process_id) {
+                            $this->event_process_id = (new EventWorker($this->workers))->start();
+                            $this->processes[] = $this->event_process_id;
+                            break;
+                        }
 
-                    if ($pid == $this->event_process_id) {
-						$this->event_process_id = (new EventWorker($this->workers))->start();
-						$this->processes[] = $this->event_process_id;
-                        continue;
-                    }
+                        $id = array_search($pid, $this->parse_processes);
+                        if ($id !== false) {
+                            unset($this->parse_processes[$id]);
+                            $_pid = (new ParseWorker($this->workers, $i))->start();
+                            $this->parse_processes[] = $_pid;
+                            $this->processes[] = $_pid;
+                            break;
+                        }
 
-                    $id = array_search($pid, $this->parse_processes);
-                    if ($id !== false) {
-                        unset($this->parse_processes[$id]);
-						$_pid = (new ParseWorker($this->workers, $i))->start();
-						$this->parse_processes[] = $_pid;
-						$this->processes[] = $_pid;
-                        continue;
-                    }
-
-                    $id = array_search($pid, $this->dispatch_processes);
-                    if ($id !== false) {
-                        unset($this->dispatch_processes[$id]);
-						$_pid = (new DispatchWorker($this->workers, $i))->start();
-						$this->dispatch_processes[] = $_pid;
-						$this->processes[] = $_pid;
-                        continue;
-                    }
+                        $id = array_search($pid, $this->dispatch_processes);
+                        if ($id !== false) {
+                            unset($this->dispatch_processes[$id]);
+                            $_pid = (new DispatchWorker($this->workers, $i))->start();
+                            $this->dispatch_processes[] = $_pid;
+                            $this->processes[] = $_pid;
+                            break;
+                        }
+                    } while(0);
 
                 }
                 $content = ob_get_contents();

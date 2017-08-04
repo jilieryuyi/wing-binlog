@@ -55,51 +55,8 @@ class BinLog
             exit;
         }
 
-//        $this->host     = $db_handler->getHost();
-//        $this->user     = $db_handler->getUser();
-//        $this->password = $db_handler->getPassword();
-//        $this->port     = $db_handler->getPort();
-       // $this->log_dir  = Context::instance()->getAppConfig("log_dir");
         $this->cache_handler    = new File(HOME."/cache/binlog");
     }
-
-
-    /**
-     * 设置缓存目录
-     *
-     * @param string $dir
-     */
-//    public function setCacheDir($dir)
-//    {
-//        $dir = str_replace("\\","/",$dir);
-//        $dir = rtrim($dir,"/");
-//
-//        $this->cache_dir = $dir;
-//
-//        $dir = new WDir($this->cache_dir);
-//        $dir->mkdir();
-//
-//        if (!$dir->isWrite()) {
-//            die($this->cache_dir ." is not writeable \r\n");
-//        }
-//
-//        unset($dir);
-//    }
-//
-//    public function setCacheHandler(CacheInterface $cache)
-//    {
-//        $this->cache_handler = $cache;
-//    }
-
-    /**
-     * 设置debug
-     * @param bool $debug
-     */
-//    public function setDebug($debug)
-//    {
-//        $this->debug = $debug;
-//    }
-
 
     /**
      * 获取所有的logs
