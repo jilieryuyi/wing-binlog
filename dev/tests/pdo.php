@@ -14,6 +14,6 @@ $sql2 = 'update new_yonglibao_c.bl_city set provinces_id=(provinces_id-1) where 
 while (1) {
     $pdo->query($sql1);
     $pdo->query($sql2);
-    usleep(1000);
+    //usleep(1000);
 }
 

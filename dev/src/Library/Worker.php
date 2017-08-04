@@ -27,8 +27,8 @@ class Worker
     public function __construct($params = [
     	"daemon"  => false,
 		"debug"   => true,
-		"workers" => 2]
-	)
+		"workers" => 4
+    ])
     {
     	//默认的pid路径，即根目录 wing.pid
 		$this->pid = dirname(dirname(__DIR__))."/wing.pid";

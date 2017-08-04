@@ -37,6 +37,7 @@ class DispatchWorker
 
         //如果没有空闲的进程 然后判断待处理的队列长度 那个待处理的任务少 就派发给那个进程
         $target_len = $this->task[1];
+        $target_index = 1;
 
         for ($i = 2; $i <= $this->workers; $i++) {
 
@@ -48,12 +49,14 @@ class DispatchWorker
             $len            = $this->task[$i];
 
             if ($len < $target_len) {
-                $this->task[$i] = $this->task[$i] + 1;
+                $target_index = $i;
                 $target_worker  = $_target_worker;
                 $target_len     = $len;
             }
 
         }
+        $this->task[$target_index] = $this->task[$target_index] + 1;
+
         return $target_worker;
     }
 
