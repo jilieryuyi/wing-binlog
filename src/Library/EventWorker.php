@@ -47,7 +47,7 @@ class EventWorker extends BaseWorker
 		    reset_std();
         }
 
-		$process_name = "wing php >> events base collector";
+		$process_name = "wing php >> events collector process";
 
 		//设置进程标题 mac 会有warning 直接忽略
 		set_process_title($process_name);
