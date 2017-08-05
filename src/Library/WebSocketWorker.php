@@ -2,7 +2,7 @@
 use Wing\FileSystem\WDir;
 use Wing\Net\Tcp;
 use Wing\Net\WebSocket;
-use Workerman\Worker;
+//use Workerman\Worker;
 /**
  * Created by PhpStorm.
  * User: yuyi
@@ -219,7 +219,7 @@ class WebSocketWorker extends BaseWorker
         }
 
         // Create a Websocket server
-        $ws_worker = new Worker("websocket://0.0.0.0:9998");
+        $ws_worker = new \Workerman\Worker("websocket://0.0.0.0:9998");
 
 // 4 processes
         $ws_worker->count = $this->workers;
