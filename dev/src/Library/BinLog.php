@@ -31,7 +31,7 @@ class BinLog
     /**
      * @var bool
      */
-    private $debug = false;
+    public static $debug = false;
 
 
     /**
@@ -66,6 +66,7 @@ class BinLog
     public function getLogs()
     {
         $sql  = 'show binary logs';
+        if (self::$debug)
         echo $sql, "\r\n";
         return $this->db_handler->query($sql);
     }
@@ -73,7 +74,9 @@ class BinLog
     public function getFormat()
     {
         $sql  = 'select @@binlog_format';
-        echo $sql, "\r\n";
+        if (self::$debug)
+
+            echo $sql, "\r\n";
 
         $data = $this->db_handler->row($sql);
         //var_dump($data);
@@ -101,7 +104,8 @@ class BinLog
 //        }
 
         $sql  = 'show master status';
-        echo $sql, "\r\n";
+        if (self::$debug)
+            echo $sql, "\r\n";
 
         $data = $this->db_handler->row($sql);
         //$this->cache->set($key, $data, 60);
@@ -117,7 +121,8 @@ class BinLog
     {
         $logs  = $this->getLogs();
         $sql   = 'select @@log_bin_basename';
-        echo $sql, "\r\n";
+        if (self::$debug)
+            echo $sql, "\r\n";
 
         $data  = $this->db_handler->row($sql);
         $path  = pathinfo($data["@@log_bin_basename"],PATHINFO_DIRNAME);
@@ -144,7 +149,8 @@ class BinLog
 //        }
 
         $sql  = 'select @@log_bin_basename';
-        echo $sql, "\r\n";
+        if (self::$debug)
+            echo $sql, "\r\n";
 
         $data = $this->db_handler->row($sql);
 
@@ -174,7 +180,8 @@ class BinLog
     public function isOpen()
     {
         $sql  = 'select @@sql_log_bin';
-        echo $sql, "\r\n";
+        if (self::$debug)
+            echo $sql, "\r\n";
 
         $data = $this->db_handler->row($sql);
         return isset($data["@@sql_log_bin"]) && $data["@@sql_log_bin"] == 1;
@@ -188,7 +195,8 @@ class BinLog
      */
     public function setLastBinLog($binlog)
     {
-        echo "保存最后的读取的binlog文件：",$binlog,"\r\n";
+        if (self::$debug)
+            echo "保存最后的读取的binlog文件：",$binlog,"\r\n";
         return $this->cache_handler->set("mysql.last", $binlog);
     }
 
@@ -199,7 +207,8 @@ class BinLog
      */
     public function getLastBinLog()
     {
-        echo "获取最后读取的binlog\r\n";
+        if (self::$debug)
+            echo "获取最后读取的binlog\r\n";
         return $this->cache_handler->get("mysql.last");
     }
 
@@ -212,7 +221,8 @@ class BinLog
      */
     public function setLastPosition($start_pos,$end_pos)
     {
-        echo "保存最后读取为位置：", $start_pos,":",$end_pos,"\r\n";
+        if (self::$debug)
+            echo "保存最后读取为位置：", $start_pos,":",$end_pos,"\r\n";
         return $this->cache_handler->set("mysql.pos", [$start_pos,$end_pos]);
     }
 
@@ -223,7 +233,8 @@ class BinLog
      */
     public function getLastPosition()
     {
-        echo "获取最后读取的位置\r\n";
+        if (self::$debug)
+            echo "获取最后读取的位置\r\n";
         return $this->cache_handler->get("mysql.pos");
     }
 
@@ -241,7 +252,8 @@ class BinLog
         $datas = $this->db_handler->query($sql);
 
         if ($datas) {
-            echo $sql,"\r\n";
+            if (self::$debug)
+                echo $sql,"\r\n";
         }
 
         return $datas;
@@ -258,7 +270,8 @@ class BinLog
         $current_binlog_file = $this->getCurrentLogFile();
         if (!$current_binlog_file) {
             $error = "get current binlog path error => ".$current_binlog_file;
-            echo $error,"\r\n";
+            if (self::$debug)
+                echo $error,"\r\n";
            // Context::instance()->logger->error($error);
         }
 
@@ -294,7 +307,8 @@ class BinLog
             " --start-position=" . $start_pos .
             " --stop-position=" . $end_pos . "  \"" . $current_binlog_file . "\" > ".$cache_file ;
 
-        echo $command,"\r\n";
+        if (self::$debug)
+            echo $command,"\r\n";
 
         unset($current_binlog_file);
         system($command);

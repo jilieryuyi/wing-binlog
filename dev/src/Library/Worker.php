@@ -18,6 +18,7 @@ class Worker
 
 	//子进程相关信息
 	private $event_process_id   = 0;
+	private $websocket_process_id = 0;
 	private $parse_processes    = [];
 	private $dispatch_processes = [];
 	private $processes          = [];
@@ -133,6 +134,11 @@ class Worker
 		$this->event_process_id = (new EventWorker($this->workers))->start();
 		$this->processes[] = $this->event_process_id;
 
+		$this->websocket_process_id = (new WebSocketWorker())->start();
+        $this->processes[] = $this->websocket_process_id;
+
+
+
         file_put_contents($this->pid, get_current_processid());
         $process_name = "wing php => master process";
         set_process_title($process_name);
@@ -143,7 +149,7 @@ class Worker
             try {
                 ob_start();
 
-                var_dump($this->processes);
+                //var_dump($this->processes);
                 $status = 0;
                 $pid    = pcntl_wait($status, WNOHANG);//WUNTRACED);
 
@@ -174,6 +180,12 @@ class Worker
                             $_pid = (new DispatchWorker($this->workers, $i))->start();
                             $this->dispatch_processes[] = $_pid;
                             $this->processes[] = $_pid;
+                            break;
+                        }
+
+                        if ($pid == $this->websocket_process_id) {
+                            $this->websocket_process_id = (new WebSocketWorker())->start();
+                            $this->processes[] = $this->websocket_process_id;
                             break;
                         }
                     } while(0);

@@ -1,4 +1,6 @@
 <?php namespace Wing\Library;
+use Wing\Subscribe\WebSocket;
+
 /**
  * ParseWorker.php
  * User: huangxiaoan
@@ -52,12 +54,13 @@ class ParseWorker extends BaseWorker
 		set_process_title($process_name);
 
 		$pdo = new PDO();
+		$websocket = new WebSocket();
 
 		while (1) {
 			ob_start();
 			try {
 				pcntl_signal_dispatch();
-                $this->scandir(function($cache_file) use($pdo){
+                $this->scandir(function($cache_file) use($pdo, $websocket){
                     do {
 
                         if (!$cache_file || !file_exists($cache_file)) {
@@ -68,13 +71,14 @@ class ParseWorker extends BaseWorker
 
                         $file = new FileFormat($cache_file, $pdo);
 
-                        $file->parse(function ($database_name, $table_name, $event) {
+                        $file->parse(function ($database_name, $table_name, $event) use($websocket) {
                             $params = [
                                 "database_name" => $database_name,
                                 "table_name"    => $table_name,
                                 "event_data"    => $event,
                             ];
                             var_dump($params);
+                            $websocket->onchange($database_name, $table_name, $event);
                         });
 
                         unset($file);

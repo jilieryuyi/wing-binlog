@@ -29,6 +29,6 @@ class WebSocket implements ISubscribe
             substr($str2,rand(0,strlen($str2)-16),8).
             substr($str3,rand(0,strlen($str3)-16),8);
 
-        file_put_contents($cache_file, json_encode($database_name, $table_name, $event));
+        file_put_contents($cache_file, json_encode([$database_name, $table_name, $event]));
     }
 }

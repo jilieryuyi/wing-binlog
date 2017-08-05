@@ -4,11 +4,12 @@
  * @created 2016/8/13 20:32
  * @email 297341015@qq.com
  */
-class WebSocket{
+class WebSocket extends Tcp
+{
     /**
      * @获取websocket握手消息
      */
-    public static function handshake( $recv_msg ){
+    public function handshake($buffer, $recv_msg, $client ){
 
         $heder_end_pos = strpos($recv_msg, "\r\n\r\n");
 
@@ -28,7 +29,7 @@ class WebSocket{
         $handshake_message .= "Connection: Upgrade\r\n";
         $handshake_message .= "Sec-WebSocket-Accept: " . $new_key . "\r\n\r\n";
 
-        return $handshake_message;
+        return $this->send($buffer, $handshake_message, $client);
     }
 
     /**
@@ -78,4 +79,27 @@ class WebSocket{
         return $decoded;
 
     }
+
+    public function send($buffer, $data, $client)
+    {
+        $data = self::encode($data);
+        if ($buffer) {
+            $success = event_buffer_write($buffer,$data);
+        }
+        else
+            $success = $this->sendSocket($client, $data);
+        if (!$success) {
+            $this->send_fail_times++;
+            $i = array_search($client, $this->clients);
+            fclose($client);
+            if ($buffer) {
+                event_buffer_free($buffer);
+                unset($this->buffers[$i]);
+            }
+            unset($this->clients[$i]);
+        }
+        return $success;
+    }
+
+
 }
