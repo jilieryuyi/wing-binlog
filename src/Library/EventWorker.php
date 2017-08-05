@@ -26,7 +26,7 @@ class EventWorker extends BaseWorker
         $dir->mkdir();
 
         $file = new WFile($dir_str."/".$start_pos."_".$end_pos);
-        $file->touch();
+        return $file->touch();
     }
 
 	public function start()
@@ -105,8 +105,10 @@ class EventWorker extends BaseWorker
                         if ($row["Event_type"] == "Xid") {
                             $worker = $this->getWorker("dispatch_process");
                             echo "push==>", $start_pos . ":" . $row["End_log_pos"], "\r\n";
-                            $this->writePos($worker, $start_pos, $row["End_log_pos"]);
-
+                            $res = $this->writePos($worker, $start_pos, $row["End_log_pos"]);
+                            if (!$res) {
+                                echo "失败\r\n";
+                            }
 //                            if ($run_count % $is_run == 0) {
 //                                //设置最后读取的位置
 //                                $bin->setLastPosition($start_pos, $row["End_log_pos"]);

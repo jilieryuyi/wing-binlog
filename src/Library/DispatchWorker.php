@@ -82,6 +82,10 @@ class DispatchWorker extends BaseWorker
 
                         echo "生成缓存文件",$cache_path,"\r\n";
 
+                        if (!file_exists($cache_path)) {
+                            echo "文件不存在\r\n";
+                        }
+
                     } while (0);
                 });
 
