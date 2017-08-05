@@ -19,7 +19,7 @@ class WebSocketWorker extends BaseWorker
         (new WDir($dir))->mkdir();
     }
 
-    private function broadcast()
+    private function broadcast3()
     {
 //        $pid = pcntl_fork();
 //        if ($pid != 0) {
@@ -113,7 +113,7 @@ class WebSocketWorker extends BaseWorker
     /**
      * @param WebSocket $tcp
      */
-    private function broadcast2($tcp)
+    private function broadcast($tcp)
     {
 //        $pid = pcntl_fork();
 //        if ($pid != 0) {
@@ -205,7 +205,7 @@ class WebSocketWorker extends BaseWorker
         }
     }
 
-    public function start()
+    public function start3()
     {
         $process_id = pcntl_fork();
 
@@ -259,7 +259,7 @@ class WebSocketWorker extends BaseWorker
 
         return 0;
     }
-    public function start2()
+    public function start()
     {
         $process_id = pcntl_fork();
 
