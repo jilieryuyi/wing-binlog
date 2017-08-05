@@ -37,12 +37,9 @@ class DispatchWorker extends BaseWorker
 
 	/**
 	 * dispatch process
-	 *
-	 * @param int $i
 	 */
 	public function start($daemon = false)
 	{
-		$i = $this->index;
 		$process_id = pcntl_fork();
 
 		if ($process_id < 0) {
@@ -58,7 +55,7 @@ class DispatchWorker extends BaseWorker
 		    reset_std();
         }
 
-		$process_name = "wing php >> dispatch process - ".$i;
+		$process_name = "wing php >> dispatch process - ".$this->index;
 
 		//设置进程标题 mac 会有warning 直接忽略
 		set_process_title($process_name);
