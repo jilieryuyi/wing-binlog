@@ -20,7 +20,9 @@ class EventWorker extends BaseWorker
 	private function writePos($worker, $start_pos, $end_pos)
     {
         $this->event_times++;
-        echo get_current_processid(),"写入pos的次数：", $this->event_times,"\r\n";
+        $debug = get_current_processid()."写入pos的次数：".$this->event_times."\r\n";
+        file_put_contents(HOME."/logs/event_worker.log", $debug);
+        echo $debug;
         $dir_str = HOME."/cache/pos/".$worker;
         $dir = new WDir($dir_str);
         $dir->mkdir();
