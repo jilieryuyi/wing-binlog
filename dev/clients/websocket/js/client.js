@@ -102,6 +102,7 @@ function start_service(){
         //     if (im.online)
             ws.send(_msg);
         //},1000);
+        im.onConnect();
 
     };
 

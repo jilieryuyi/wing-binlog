@@ -103,53 +103,6 @@ class WebSocketWorker extends BaseWorker
         }
     }
 
-    /**
-     * @param WebSocket $tcp
-     */
-//    private function writeNum($clients, $tcp)
-//    {
-//        $num = count($clients);
-//        $file = HOME."/cache/websocket/clients";
-////        if (!file_exists($file)) {
-////            touch($file);
-////        }
-////        $handle = fopen($file,"w+");
-////        flock($handle, LOCK_EX);
-////        fwrite($handle, $num);
-////        flock($handle, LOCK_UN);
-////        fclose($handle);
-//        file_put_contents($file, 1);
-//
-//        $pid = pcntl_fork();
-//        if ($pid > 0) {
-//            return;
-//        }
-//
-//        set_process_title("wing php >> websocket broadcast process")
-//        while (1) {
-//            if (1 == file_get_contents($file)) {
-//                echo
-//                exit;
-//            }
-//            $path[] = HOME . "/cache/websocket/*";
-//            while (count($path) != 0) {
-//                $v = array_shift($path);
-//                foreach (glob($v) as $item) {
-//                    if (is_file($item)) {
-//                        $content = file_get_contents($item);
-//                        //$client, $buffer, $data
-//                        foreach ($clients as $w) {
-//                            $tcp->send($w[1],$w[2], $w[0]);
-//                        }
-//                        unlink($item);
-//                    }
-//                }
-//            }
-//
-//            usleep(self::USLEEP);
-//        }
-//    }
-
     public function start()
     {
         $process_id = pcntl_fork();

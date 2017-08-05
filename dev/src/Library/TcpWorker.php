@@ -23,11 +23,41 @@ class TcpWorker extends BaseWorker
      */
     private function broadcast($tcp)
     {
+//        $pid = pcntl_fork();
+//        if ($pid != 0) {
+//            return;
+//        }
         $pid = pcntl_fork();
         if ($pid > 0) {
             foreach ($this->process as $_pid) {
                 (new Signal($_pid))->kill();
+                //exec("kill -9 ".$_pid);
             }
+//            $this->process = [];
+//            $this->process[] = $pid;
+
+
+            //必须等待子进程全部退出 否则子进程全部变成僵尸进程
+            $start_wait = time();
+            while (1) {
+                $__pid = pcntl_wait($status, WNOHANG);
+                if ($__pid > 0) {
+                    echo $__pid, "tcp父进程等待子进程退出\r\n";
+                    foreach ($this->process as $k => $v) {
+                        if ($v == $__pid) {
+                            unset($this->process[$k]);
+                        }
+                    }
+                }
+                if (count($this->process) <= 0 || !$this->process) {
+                    break;
+                }
+
+                if ((time() - $start_wait) > 5) {
+                    echo "error : tcp等待子进程退出超时\r\n";
+                }
+            }
+
             $this->process = [];
             $this->process[] = $pid;
             echo "tcp广播子进程";
@@ -35,7 +65,7 @@ class TcpWorker extends BaseWorker
             return;
         }
 
-        set_process_title("wing php >> websocket broadcast process");
+        set_process_title("wing php >> tcp broadcast process");
         $current_process_id = get_current_processid();
         $signal = new Signal($current_process_id);
 
@@ -45,12 +75,13 @@ class TcpWorker extends BaseWorker
             if ($run_count%$cc == 0) {
                 if ($signal->checkStopSignal()) {
                     echo $current_process_id,"tcp广播进程收到终止信息号\r\n";
+                    // exec("kill -9 ".$current_process_id);
                     exit;
                 }
                 $run_count = 0;
             }
             //广播消息
-            $path[] = HOME . "/cache/websocket/*";
+            $path[] = HOME . "/cache/tcp/*";
             //var_dump($this->clients);
             while (count($path) != 0) {
                 $v = array_shift($path);
@@ -59,7 +90,7 @@ class TcpWorker extends BaseWorker
                         $content = file_get_contents($item);
                         //$client, $buffer, $data
                         foreach ($this->clients as $w) {
-                            echo "发送消息：", $content, "\r\n";
+                            echo "tcp发送消息：", $content, "\r\n";
                             $tcp->send($w[0], $content, $w[1]);
                         }
                         unlink($item);
@@ -71,53 +102,6 @@ class TcpWorker extends BaseWorker
             usleep(self::USLEEP);
         }
     }
-
-    /**
-     * @param WebSocket $tcp
-     */
-//    private function writeNum($clients, $tcp)
-//    {
-//        $num = count($clients);
-//        $file = HOME."/cache/websocket/clients";
-////        if (!file_exists($file)) {
-////            touch($file);
-////        }
-////        $handle = fopen($file,"w+");
-////        flock($handle, LOCK_EX);
-////        fwrite($handle, $num);
-////        flock($handle, LOCK_UN);
-////        fclose($handle);
-//        file_put_contents($file, 1);
-//
-//        $pid = pcntl_fork();
-//        if ($pid > 0) {
-//            return;
-//        }
-//
-//        set_process_title("wing php >> websocket broadcast process")
-//        while (1) {
-//            if (1 == file_get_contents($file)) {
-//                echo
-//                exit;
-//            }
-//            $path[] = HOME . "/cache/websocket/*";
-//            while (count($path) != 0) {
-//                $v = array_shift($path);
-//                foreach (glob($v) as $item) {
-//                    if (is_file($item)) {
-//                        $content = file_get_contents($item);
-//                        //$client, $buffer, $data
-//                        foreach ($clients as $w) {
-//                            $tcp->send($w[1],$w[2], $w[0]);
-//                        }
-//                        unlink($item);
-//                    }
-//                }
-//            }
-//
-//            usleep(self::USLEEP);
-//        }
-//    }
 
     public function start()
     {
@@ -132,7 +116,9 @@ class TcpWorker extends BaseWorker
             return $process_id;
         }
 
-        $tcp     = new \Wing\Net\Tcp();
+        //pcntl_signal(SIGCLD, SIG_IGN);
+
+        $tcp     = new \Wing\Net\Tcp("0.0.0.0", 9997);
         //$clients = $this->clients;
 
         //$is_start = false;
@@ -155,13 +141,13 @@ class TcpWorker extends BaseWorker
             //var_dump(func_get_args());
 
 //            if (0 === strpos($recv_msg, 'GET')) {
-//              //  echo "收到握手消息：",($recv_msg),"\r\n\r\n";
+//                //  echo "收到握手消息：",($recv_msg),"\r\n\r\n";
 //                //握手消息
 //                $tcp->handshake($buffer, $recv_msg, $client);//, $recv_msg), $client );
 //                return;
 //            }
 
-           // echo "收到的消息：",\Wing\Net\WebSocket::decode($recv_msg),"\r\n\r\n";
+            // echo "收到的消息：",\Wing\Net\WebSocket::decode($recv_msg),"\r\n\r\n";
             //一般的消息响应
             //$tcp->send($buffer, "1239999999999", $client);
 
