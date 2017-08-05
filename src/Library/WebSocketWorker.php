@@ -162,7 +162,7 @@ class WebSocketWorker extends BaseWorker
 
            // echo "收到的消息：",\Wing\Net\WebSocket::decode($recv_msg),"\r\n\r\n";
             //一般的消息响应
-            //$tcp->send($buffer, "1239999999999", $client);
+            $tcp->send($buffer, "hello", $client);
 
         });
 
