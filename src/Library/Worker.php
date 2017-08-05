@@ -135,11 +135,11 @@ class Worker
 		$this->event_process_id = (new EventWorker($this->workers))->start();
 		$this->processes[] = $this->event_process_id;
 
-		$this->websocket_process_id = (new WebSocketWorker())->start();
-        $this->processes[] = $this->websocket_process_id;
-
-        $this->tcp_process_id = (new TcpWorker())->start();
-        $this->processes[] = $this->tcp_process_id;
+//		$this->websocket_process_id = (new WebSocketWorker())->start();
+//        $this->processes[] = $this->websocket_process_id;
+//
+//        $this->tcp_process_id = (new TcpWorker())->start();
+//        $this->processes[] = $this->tcp_process_id;
 
         file_put_contents($this->pid, get_current_processid());
         $process_name = "wing php >> master process";
@@ -185,17 +185,17 @@ class Worker
                             break;
                         }
 
-                        if ($pid == $this->websocket_process_id) {
-                            $this->websocket_process_id = (new WebSocketWorker())->start();
-                            $this->processes[] = $this->websocket_process_id;
-                            break;
-                        }
-
-                        if ($pid == $this->tcp_process_id) {
-                            $this->tcp_process_id = (new TcpWorker())->start();
-                            $this->processes[] = $this->tcp_process_id;
-                            break;
-                        }
+//                        if ($pid == $this->websocket_process_id) {
+//                            $this->websocket_process_id = (new WebSocketWorker())->start();
+//                            $this->processes[] = $this->websocket_process_id;
+//                            break;
+//                        }
+//
+//                        if ($pid == $this->tcp_process_id) {
+//                            $this->tcp_process_id = (new TcpWorker())->start();
+//                            $this->processes[] = $this->tcp_process_id;
+//                            break;
+//                        }
                     } while(0);
 
                 }

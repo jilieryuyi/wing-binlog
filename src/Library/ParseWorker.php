@@ -11,6 +11,7 @@ use Wing\Subscribe\WebSocket;
 class ParseWorker extends BaseWorker
 {
 	private $index;
+	private $events_count = 0;
 	public function __construct($workers, $index)
 	{
 		$this->workers = $workers;
@@ -83,6 +84,9 @@ class ParseWorker extends BaseWorker
                             $websocket->onchange($database_name, $table_name, $event);
                             $tcp->onchange($database_name, $table_name, $event);
 
+                            $this->events_count++;
+
+                            echo get_current_processid(),"处理事件次数：",$this->events_count,"\r\n";
                         });
 
                         unset($file);
