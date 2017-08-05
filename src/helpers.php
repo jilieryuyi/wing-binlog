@@ -70,7 +70,7 @@ if (!function_exists("reset_std")) {
 
         global $STDOUT, $STDERR;
 
-        $_file  = HOME."/logs/wing.log";
+        $_file  = HOME."/logs/wing_".get_current_processid().".log";
         $file   = new \Wing\FileSystem\WFile($_file);
         $file->touch();
 
