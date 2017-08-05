@@ -98,10 +98,10 @@ function start_service(){
     ws.onopen = function() {
         im.online = 1;
         var _msg='{"service":"login","username":"root2","password":"123456"}';
-        window.setInterval(function(){
-            if (im.online)
+        // window.setInterval(function(){
+        //     if (im.online)
             ws.send(_msg);
-        },1000);
+        //},1000);
 
     };
 

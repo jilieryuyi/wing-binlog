@@ -11,10 +11,65 @@ use Wing\Net\WebSocket;
 class WebSocketWorker extends BaseWorker
 {
     private $clients = [];
+    private $process = [];
     public function __construct()
     {
         $dir = HOME."/cache/websocket";
         (new WDir($dir))->mkdir();
+    }
+
+    /**
+     * @param WebSocket $tcp
+     */
+    private function broadcast($tcp)
+    {
+        $pid = pcntl_fork();
+        if ($pid > 0) {
+            foreach ($this->process as $pid) {
+                (new Signal($pid))->kill();
+            }
+            $this->process = [];
+            $this->process[] = $pid;
+            echo "广播子进程";
+            var_dump($this->process);
+            return;
+        }
+
+        set_process_title("wing php >> websocket broadcast process");
+        $current_process_id = get_current_processid();
+        $signal = new Signal($current_process_id);
+
+        $run_count = 0;
+        $cc        = intval(1000000/self::USLEEP);
+        while (1) {
+            if ($run_count%$cc == 0) {
+                if ($signal->checkStopSignal()) {
+                    echo "广播进程收到终止信息号\r\n";
+                    exit;
+                }
+                $run_count = 0;
+            }
+            //广播消息
+            $path[] = HOME . "/cache/websocket/*";
+            //var_dump($this->clients);
+            while (count($path) != 0) {
+                $v = array_shift($path);
+                foreach (glob($v) as $item) {
+                    if (is_file($item)) {
+                        $content = file_get_contents($item);
+                        //$client, $buffer, $data
+                        foreach ($this->clients as $w) {
+                            echo "发送消息：", $content, "\r\n";
+                            $tcp->send($w[0], $content, $w[1]);
+                        }
+                        unlink($item);
+                    }
+                }
+            }
+
+            $run_count++;
+            usleep(self::USLEEP);
+        }
     }
 
     /**
@@ -90,6 +145,7 @@ class WebSocketWorker extends BaseWorker
         $tcp->on(\Wing\Net\Tcp::ON_CONNECT, function($client, $buffer, $data) use($tcp) {
             //var_dump(func_get_args());
             $this->clients[intval($client)] = [$buffer, $client];
+            $this->broadcast($tcp);
             //$this->writeNum($clients, $tcp);
 //            if (!$is_start)pcntl_alarm(1);
 //            $is_start = true;
@@ -109,33 +165,17 @@ class WebSocketWorker extends BaseWorker
             //一般的消息响应
             //$tcp->send($buffer, "1239999999999", $client);
 
-            //广播消息
-            $path[] = HOME . "/cache/websocket/*";
-            //var_dump($this->clients);
-            while (count($path) != 0) {
-                $v = array_shift($path);
-                foreach (glob($v) as $item) {
-                    if (is_file($item)) {
-                        $content = file_get_contents($item);
-                        //$client, $buffer, $data
-                        foreach ($this->clients as $w) {
-                            echo "发送消息：",$content,"\r\n";
-                            $tcp->send($w[0],$content, $w[1]);
-                        }
-                        unlink($item);
-                    }
-                }
-            }
-
         });
 
         $tcp->on(Tcp::ON_CLOSE, function($client, $buffer) use($tcp){
             unset($this->clients[intval($client)]);
+            $this->broadcast($tcp);
             //$this->writeNum($clients, $tcp);
         });
 
-        $tcp->on(Tcp::ON_ERROR,function($client, $buffer, $error){
+        $tcp->on(Tcp::ON_ERROR,function($client, $buffer, $error) use($tcp){
             unset($this->clients[intval($client)]);
+            $this->broadcast($tcp);
         });
         //pcntl_alarm(1);
         $tcp->start();
