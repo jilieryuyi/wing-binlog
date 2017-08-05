@@ -11,6 +11,7 @@ use Wing\FileSystem\WFile;
 class EventWorker extends BaseWorker
 {
 
+    private $event_times = 0;
 	public function __construct($workers)
 	{
 		$this->workers = $workers;
@@ -21,6 +22,8 @@ class EventWorker extends BaseWorker
 
 	private function writePos($worker, $start_pos, $end_pos)
     {
+        $this->event_times++;
+        echo get_current_processid(),"写入pos的次数：", $this->event_times,"\r\n";
         $dir_str = HOME."/cache/pos/".$worker;
         $dir = new WDir($dir_str);
         $dir->mkdir();
