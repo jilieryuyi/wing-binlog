@@ -84,7 +84,7 @@ class ParseWorker extends BaseWorker
                                 "table_name"    => $table_name,
                                 "event_data"    => $event,
                             ];
-                            //var_dump($params);
+                            var_dump($params);
                             $websocket->onchange($database_name, $table_name, $event);
                             $tcp->onchange($database_name, $table_name, $event);
 
