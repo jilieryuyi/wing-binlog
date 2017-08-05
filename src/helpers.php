@@ -68,6 +68,7 @@ if (!function_exists("reset_std")) {
 			return;
 		}
 
+		file_put_contents(HOME."/logs/".get_current_processid().".log", "1");
         $file = new \Wing\FileSystem\WFile(HOME."/logs/wing.log");
         $file->touch();
         unset($file);
