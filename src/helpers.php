@@ -73,18 +73,18 @@ if (!function_exists("reset_std")) {
         $file = new \Wing\FileSystem\WFile(HOME."/logs/wing.log");
         $file->touch();
         unset($file);
-        //$std = fopen(HOME."/logs/wing.log", "a+");
+        $std = fopen(HOME."/logs/wing.log", "a+");
 
 		global $STDOUT, $STDERR;
 //
-//		if ($std) {
-//		    unset($std);
+		if ($std) {
+		    unset($std);
             //$std = fopen(HOME."/logs/wing.log", "a+");
             @fclose(STDOUT);
             @fclose(STDERR);
             $STDOUT = fopen(HOME."/logs/wing.log", "a+");
             $STDERR = fopen(HOME."/logs/wing.log", "a+");
-      //  }
+        }
 
 	}
 }
