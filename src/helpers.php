@@ -70,20 +70,20 @@ if (!function_exists("reset_std")) {
 
         global $STDOUT, $STDERR;
 
-        $_file  = HOME."/logs/wing_".get_current_processid().".log";
+        $_file  = HOME."/logs/wing.log";
         $file   = new \Wing\FileSystem\WFile($_file);
         $file->touch();
 
-        $handle = fopen($_file, "a+");
-        if ($handle) {
-            unset($handle);
+//        $handle = fopen($_file, "a+");
+//        if ($handle) {
+//            unset($handle);
             @fclose(STDOUT);
             @fclose(STDERR);
             $STDOUT = fopen($_file, "a+");
             $STDERR = fopen($_file, "a+");
-        } else {
-            throw new \Exception('can not open stdout file ' . $_file);
-        }
+//        } else {
+//            throw new \Exception('can not open stdout file ' . $_file);
+//        }
 
 	}
 }
