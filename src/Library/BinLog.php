@@ -324,6 +324,23 @@ class BinLog
             pclose($handle);
         }
 
+        if (!file_exists($cache_file)) {
+            system($command);
+        }
+        if (!file_exists($cache_file)) {
+            system($command);
+        }
+        if (!file_exists($cache_file)) {
+            system($command);
+        }
+        if (!file_exists($cache_file)) {
+            system($command);
+        }
+        if (!file_exists($cache_file)) {
+            system($command);
+        }
+
+
         unset($command);
         return $cache_file;
     }
