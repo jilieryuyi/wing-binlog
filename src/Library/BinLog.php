@@ -316,7 +316,9 @@ class BinLog
         echo $command,"\r\n";
 
         unset($current_binlog_file);
-        system($command);
+        if(!system($command)){
+            echo "命令执行失败\r\n";
+        }
 
         unset($command);
         return $cache_file;
