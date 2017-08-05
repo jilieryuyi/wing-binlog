@@ -1,5 +1,5 @@
 <?php namespace Wing\Library;
-use Wing\FileSystem\WFile;
+//use Wing\FileSystem\WFile;
 
 /**
  * @author yuyi
@@ -121,28 +121,26 @@ class Worker
 
         if ($this->daemon) {
             enable_deamon();
-            (new WFile(HOME."/logs/wing.log"))->touch();
-            $std = fopen(HOME."/logs/wing.log", "a+");
-            reset_std($std, $std);
+            reset_std();
         }
 
         for ($i = 1; $i <= $this->workers; $i++) {
-        	$pid = (new ParseWorker($this->workers, $i))->start();
+        	$pid = (new ParseWorker($this->workers, $i))->start($this->daemon);
 			$this->parse_processes[] = $pid;
 			$this->processes[] = $pid;
 
-			$pid = (new DispatchWorker($this->workers, $i))->start();
+			$pid = (new DispatchWorker($this->workers, $i))->start($this->daemon);
 			$this->dispatch_processes[] = $pid;
 			$this->processes[] = $pid;
         }
 
-		$this->event_process_id = (new EventWorker($this->workers))->start();
+		$this->event_process_id = (new EventWorker($this->workers))->start($this->daemon);
 		$this->processes[] = $this->event_process_id;
 
-//		$this->websocket_process_id = (new WebSocketWorker())->start();
+//		$this->websocket_process_id = (new WebSocketWorker())->start($this->daemon);
 //        $this->processes[] = $this->websocket_process_id;
 //
-//        $this->tcp_process_id = (new TcpWorker())->start();
+//        $this->tcp_process_id = (new TcpWorker())->start($this->daemon);
 //        $this->processes[] = $this->tcp_process_id;
 
         file_put_contents($this->pid, get_current_processid());
@@ -166,7 +164,7 @@ class Worker
                         unset($this->processes[$id]);
 
                         if ($pid == $this->event_process_id) {
-                            $this->event_process_id = (new EventWorker($this->workers))->start();
+                            $this->event_process_id = (new EventWorker($this->workers))->start($this->daemon);
                             $this->processes[] = $this->event_process_id;
                             break;
                         }
@@ -174,7 +172,7 @@ class Worker
                         $id = array_search($pid, $this->parse_processes);
                         if ($id !== false) {
                             unset($this->parse_processes[$id]);
-                            $_pid = (new ParseWorker($this->workers, $i))->start();
+                            $_pid = (new ParseWorker($this->workers, $i))->start($this->daemon);
                             $this->parse_processes[] = $_pid;
                             $this->processes[] = $_pid;
                             break;
@@ -183,20 +181,20 @@ class Worker
                         $id = array_search($pid, $this->dispatch_processes);
                         if ($id !== false) {
                             unset($this->dispatch_processes[$id]);
-                            $_pid = (new DispatchWorker($this->workers, $i))->start();
+                            $_pid = (new DispatchWorker($this->workers, $i))->start($this->daemon);
                             $this->dispatch_processes[] = $_pid;
                             $this->processes[] = $_pid;
                             break;
                         }
 
 //                        if ($pid == $this->websocket_process_id) {
-//                            $this->websocket_process_id = (new WebSocketWorker())->start();
+//                            $this->websocket_process_id = (new WebSocketWorker())->start($this->daemon);
 //                            $this->processes[] = $this->websocket_process_id;
 //                            break;
 //                        }
 //
 //                        if ($pid == $this->tcp_process_id) {
-//                            $this->tcp_process_id = (new TcpWorker())->start();
+//                            $this->tcp_process_id = (new TcpWorker())->start($this->daemon);
 //                            $this->processes[] = $this->tcp_process_id;
 //                            break;
 //                        }

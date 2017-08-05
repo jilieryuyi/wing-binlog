@@ -29,7 +29,7 @@ class EventWorker extends BaseWorker
         return $file->touch();
     }
 
-	public function start()
+	public function start($daemon = false)
 	{
 		$process_id = pcntl_fork();
 
@@ -42,6 +42,10 @@ class EventWorker extends BaseWorker
 			return $process_id;
 		}
 
+
+		if ($daemon) {
+		    reset_std();
+        }
 
 		$process_name = "wing php >> events base collector";
 

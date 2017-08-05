@@ -40,7 +40,7 @@ class DispatchWorker extends BaseWorker
 	 *
 	 * @param int $i
 	 */
-	public function start()
+	public function start($daemon = false)
 	{
 		$i = $this->index;
 		$process_id = pcntl_fork();
@@ -53,6 +53,10 @@ class DispatchWorker extends BaseWorker
 		if ($process_id > 0) {
 			return $process_id;
 		}
+
+		if ($daemon) {
+		    reset_std();
+        }
 
 		$process_name = "wing php >> dispatch process - ".$i;
 

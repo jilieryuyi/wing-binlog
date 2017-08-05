@@ -10,7 +10,7 @@ abstract class BaseWorker
     protected $workers = 1;
     protected $task    = [];
     const USLEEP       = 1000;
-    abstract public function start();
+    abstract public function start($daemon = false);
     /**
      * @return string
      */

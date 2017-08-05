@@ -37,7 +37,7 @@ class ParseWorker extends BaseWorker
 	 * @return int
 	 */
 
-	public function start()
+	public function start($daemon = false)
 	{
 		$process_id = pcntl_fork();
 
@@ -49,6 +49,10 @@ class ParseWorker extends BaseWorker
 		if ($process_id > 0) {
 			return $process_id;
 		}
+
+		if ($daemon) {
+		    reset_std();
+        }
 
 		$process_name = "wing php >> parse process - ".$this->index;
 

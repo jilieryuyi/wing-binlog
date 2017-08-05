@@ -62,18 +62,23 @@ if (!function_exists("enable_deamon")) {
 }
 
 if (!function_exists("reset_std")) {
-	function reset_std($stdout_resource, $stderr_resource)
+	function reset_std()
 	{
 		if (strtolower(substr(php_uname('s'), 0, 3)) == "win") {
 			return;
 		}
 
+        $file = new \Wing\FileSystem\WFile(HOME."/logs/wing.log");
+        $file->touch();
+        unset($file);
+        $std = fopen(HOME."/logs/wing.log", "a+");
+
 		global $STDOUT, $STDERR;
 
 		@fclose(STDOUT);
 		@fclose(STDERR);
-		$STDOUT = $stdout_resource;
-		$STDERR = $stderr_resource;
+		$STDOUT = $std;
+		$STDERR = $std;
 
 	}
 }

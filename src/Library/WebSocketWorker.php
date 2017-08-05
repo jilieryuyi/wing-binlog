@@ -259,7 +259,7 @@ class WebSocketWorker extends BaseWorker
 
         return 0;
     }
-    public function start()
+    public function start($daemon = false)
     {
         $process_id = pcntl_fork();
 
@@ -272,6 +272,9 @@ class WebSocketWorker extends BaseWorker
             return $process_id;
         }
 
+        if ($daemon) {
+            reset_std();
+        }
         //pcntl_signal(SIGCLD, SIG_IGN);
 
         $tcp     = new \Wing\Net\WebSocket();

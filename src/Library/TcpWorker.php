@@ -103,7 +103,7 @@ class TcpWorker extends BaseWorker
         }
     }
 
-    public function start()
+    public function start($daemon = fasle)
     {
         $process_id = pcntl_fork();
 
@@ -114,6 +114,10 @@ class TcpWorker extends BaseWorker
 
         if ($process_id > 0) {
             return $process_id;
+        }
+
+        if ($daemon) {
+            reset_std();
         }
 
         //pcntl_signal(SIGCLD, SIG_IGN);
