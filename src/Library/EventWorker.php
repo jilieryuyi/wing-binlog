@@ -70,7 +70,6 @@ class EventWorker extends BaseWorker
 
 				pcntl_signal_dispatch();
                 do {
-                    echo $run_count,"\r\n";
                     $run_count++;
                     //最后操作的binlog文件
                     if (null == $last_binlog || $run_count % $is_run == 0) {
@@ -109,7 +108,7 @@ class EventWorker extends BaseWorker
                     foreach ($data as $row) {
                         if ($row["Event_type"] == "Xid") {
                             $worker = $this->getWorker("dispatch_process");
-                            //echo "push==>", $start_pos . ":" . $row["End_log_pos"], "\r\n";
+                            echo "写入pos位置：", $start_pos . "-" . $row["End_log_pos"], "\r\n";
                             $res = $this->writePos($worker, $start_pos, $row["End_log_pos"]);
                             if (!$res) {
                                 echo "失败\r\n";
