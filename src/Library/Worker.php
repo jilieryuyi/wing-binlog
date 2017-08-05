@@ -121,7 +121,6 @@ class Worker
 
         if ($this->daemon) {
             enable_deamon();
-            reset_std();
         }
 
         for ($i = 1; $i <= $this->workers; $i++) {
