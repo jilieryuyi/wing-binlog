@@ -320,6 +320,7 @@ class BinLog
         if (!$handle) {
             echo "执行失败\r\n";
         } else {
+            echo fread($handle, 1024),"\r\n";
             pclose($handle);
         }
 
