@@ -255,7 +255,7 @@ class WebSocketWorker extends BaseWorker
         };
 
 // Run worker
-        Worker::runAll();
+        \Workerman\Worker::runAll();
 
         return 0;
     }
