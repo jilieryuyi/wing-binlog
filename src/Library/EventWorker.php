@@ -104,7 +104,7 @@ class EventWorker extends BaseWorker
                     foreach ($data as $row) {
                         if ($row["Event_type"] == "Xid") {
                             $worker = $this->getWorker("dispatch_process");
-                            echo "push==>", $start_pos . ":" . $row["End_log_pos"], "\r\n";
+                            //echo "push==>", $start_pos . ":" . $row["End_log_pos"], "\r\n";
                             $res = $this->writePos($worker, $start_pos, $row["End_log_pos"]);
                             if (!$res) {
                                 echo "失败\r\n";
