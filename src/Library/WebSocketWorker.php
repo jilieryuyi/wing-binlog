@@ -2,6 +2,7 @@
 use Wing\FileSystem\WDir;
 use Wing\Net\Tcp;
 use Wing\Net\WebSocket;
+use Workerman\Worker;
 /**
  * Created by PhpStorm.
  * User: yuyi
@@ -18,10 +19,101 @@ class WebSocketWorker extends BaseWorker
         (new WDir($dir))->mkdir();
     }
 
+    private function broadcast()
+    {
+//        $pid = pcntl_fork();
+//        if ($pid != 0) {
+//            return;
+//        }
+        $pid = pcntl_fork();
+        if ($pid > 0) {
+            foreach ($this->process as $_pid) {
+                (new Signal($_pid))->kill();
+                //exec("kill -9 ".$_pid);
+            }
+//            $this->process = [];
+//            $this->process[] = $pid;
+
+
+            //必须等待子进程全部退出 否则子进程全部变成僵尸进程
+            $start_wait = time();
+            while (1) {
+                $__pid = pcntl_wait($status, WNOHANG);
+                if ($__pid > 0) {
+                    echo $__pid, "父进程等待子进程退出\r\n";
+                    foreach ($this->process as $k => $v) {
+                        if ($v == $__pid) {
+                            unset($this->process[$k]);
+                        }
+                    }
+                }
+                if (count($this->process) <= 0 || !$this->process) {
+                    break;
+                }
+
+                if ((time() - $start_wait) > 5) {
+                    echo "error : websocket等待子进程退出超时\r\n";
+                }
+            }
+
+            $this->process = [];
+            $this->process[] = $pid;
+            echo "广播子进程";
+            var_dump($this->process);
+            return;
+        }
+
+        set_process_title("wing php >> websocket broadcast process");
+        $current_process_id = get_current_processid();
+        $signal = new Signal($current_process_id);
+
+        $run_count = 0;
+        $cc        = intval(1000000/self::USLEEP);
+        while (1) {
+            if ($run_count%$cc == 0) {
+                if ($signal->checkStopSignal()) {
+                    echo $current_process_id,"广播进程收到终止信息号\r\n";
+                    // exec("kill -9 ".$current_process_id);
+                    exit;
+                }
+                $run_count = 0;
+            }
+            //广播消息
+            $path[] = HOME . "/cache/websocket/*";
+            //var_dump($this->clients);
+            while (count($path) != 0) {
+                $v = array_shift($path);
+                foreach (glob($v) as $item) {
+                    if (is_file($item)) {
+                        $content = file_get_contents($item);
+                        //$client, $buffer, $data
+                        foreach ($this->clients as $w) {
+                            echo "发送消息：", $content, "\r\n";
+                            $w->send($content);
+                        }
+                        unlink($item);
+
+                        if ($run_count%$cc == 0) {
+                            if ($signal->checkStopSignal()) {
+                                echo $current_process_id,"广播进程收到终止信息号\r\n";
+                                // exec("kill -9 ".$current_process_id);
+                                exit;
+                            }
+                            $run_count = 0;
+                        }
+                        $run_count++;
+                    }
+                }
+            }
+
+            $run_count++;
+            usleep(self::USLEEP);
+        }
+    }
     /**
      * @param WebSocket $tcp
      */
-    private function broadcast($tcp)
+    private function broadcast2($tcp)
     {
 //        $pid = pcntl_fork();
 //        if ($pid != 0) {
@@ -114,6 +206,60 @@ class WebSocketWorker extends BaseWorker
     }
 
     public function start()
+    {
+        $process_id = pcntl_fork();
+
+        if ($process_id < 0) {
+            echo "fork a process fail\r\n";
+            exit;
+        }
+
+        if ($process_id > 0) {
+            return $process_id;
+        }
+
+        // Create a Websocket server
+        $ws_worker = new Worker("websocket://0.0.0.0:9998");
+
+// 4 processes
+        $ws_worker->count = $this->workers;
+
+// Emitted when new connection come
+        $ws_worker->onConnect = function($connection)
+        {
+            $this->clients[] = $connection;
+            echo "New connection\n";
+            $this->broadcast();
+        };
+
+// Emitted when data received
+        $ws_worker->onMessage = function($connection, $data)
+        {
+            // Send hello $data
+            $connection->send('hello ' . $data);
+        };
+
+// Emitted when connection closed
+        $ws_worker->onClose = function($connection)
+        {
+            $key = array_search($connection, $this->clients);
+            unset($this->clients[$key]);
+            $this->broadcast();
+            echo "Connection closed\n";
+        };
+
+        $ws_worker->onError = function ($connection){
+            $key = array_search($connection, $this->clients);
+            unset($this->clients[$key]);
+            $this->broadcast();
+        };
+
+// Run worker
+        Worker::runAll();
+
+        return 0;
+    }
+    public function start2()
     {
         $process_id = pcntl_fork();
 
