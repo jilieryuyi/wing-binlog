@@ -155,7 +155,8 @@ class WebSocketWorker extends BaseWorker
             if (0 === strpos($recv_msg, 'GET')) {
                 echo "收到握手消息：",($recv_msg),"\r\n\r\n";
                 //握手消息
-                $tcp->handshake($buffer, $recv_msg, $client);//, $recv_msg), $client );
+                $res = $tcp->handshake($buffer, $recv_msg, $client);//, $recv_msg), $client );
+                var_dump($res);
                 return;
             }
 
