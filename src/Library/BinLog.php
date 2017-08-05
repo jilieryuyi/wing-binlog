@@ -312,13 +312,13 @@ class BinLog
             " --start-position=" . $start_pos .
             " --stop-position=" . $end_pos . "  \"" . $current_binlog_file . "\" > ".$cache_file ;
 
-        //if (self::$debug)
+        if (self::$debug)
         echo $command,"\r\n";
 
         unset($current_binlog_file);
         $handle = popen($command,"r");
         if (!$handle) {
-            echo "执行失败\r\n";
+            //echo "执行失败\r\n";
         } else {
             echo fread($handle, 1024),"\r\n";
             pclose($handle);
