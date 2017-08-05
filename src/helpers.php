@@ -68,11 +68,12 @@ if (!function_exists("reset_std")) {
 			return;
 		}
 
+		$process_id = get_current_processid();
 		//file_put_contents(HOME."/logs/".get_current_processid().".log", "1");
-        $file = new \Wing\FileSystem\WFile(HOME."/logs/wing.log");
+        $file = new \Wing\FileSystem\WFile(HOME."/logs/wing_".$process_id.".log");
         $file->touch();
         unset($file);
-        $std = fopen(HOME."/logs/wing.log", "a+");
+        $std = fopen(HOME."/logs/wing_".$process_id.".log", "a+");
 
 		global $STDOUT, $STDERR;
 
