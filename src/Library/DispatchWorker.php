@@ -30,6 +30,19 @@ class DispatchWorker extends BaseWorker
                     list($start, $end) = explode("_", $file);
                     $callback($start, $end);
                     unlink($item);
+
+                    if (file_exists($item)) {
+                        unlink($item);
+                        if (file_exists($item)) {
+                            unlink($item);
+                            if (file_exists($item)) {
+                                unlink($item);
+                                if (file_exists($item)) {
+                                    unlink($item);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
