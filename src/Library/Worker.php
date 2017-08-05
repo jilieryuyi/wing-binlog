@@ -1,4 +1,5 @@
 <?php namespace Wing\Library;
+use Wing\FileSystem\WFile;
 
 /**
  * @author yuyi
@@ -120,6 +121,9 @@ class Worker
 
         if ($this->daemon) {
             enable_deamon();
+            (new WFile(HOME."/logs/wing.log"))->touch();
+            $std = fopen(HOME."/logs/wing.log", "a+");
+            reset_std($std, $std);
         }
 
         for ($i = 1; $i <= $this->workers; $i++) {
