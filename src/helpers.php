@@ -70,17 +70,21 @@ if (!function_exists("reset_std")) {
 
 		$process_id = get_current_processid();
 		//file_put_contents(HOME."/logs/".get_current_processid().".log", "1");
-        $file = new \Wing\FileSystem\WFile(HOME."/logs/wing_".$process_id.".log");
+        $file = new \Wing\FileSystem\WFile(HOME."/logs/wing.log");
         $file->touch();
         unset($file);
-        $std = fopen(HOME."/logs/wing_".$process_id.".log", "a+");
+        //$std = fopen(HOME."/logs/wing.log", "a+");
 
 		global $STDOUT, $STDERR;
-
-		@fclose(STDOUT);
-		@fclose(STDERR);
-		$STDOUT = $std;
-		$STDERR = $std;
+//
+//		if ($std) {
+//		    unset($std);
+            //$std = fopen(HOME."/logs/wing.log", "a+");
+            @fclose(STDOUT);
+            @fclose(STDERR);
+            $STDOUT = fopen(HOME."/logs/wing.log", "a+");
+            $STDERR = fopen(HOME."/logs/wing.log", "a+");
+      //  }
 
 	}
 }
