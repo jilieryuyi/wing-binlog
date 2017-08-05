@@ -73,19 +73,19 @@ if (!function_exists("reset_std")) {
         $file = new \Wing\FileSystem\WDir(HOME."/logs");
         $file->mkdir();
         unset($file);
-        $std = fopen(HOME."/logs/wing.log", "a+");
+        //$std = fopen(HOME."/logs/wing.log", "a+");
 
 		global $STDOUT, $STDERR;
 //
-		if ($std) {
-		    fclose($std);
-		    unset($std);
+//		if ($std) {
+//		    fclose($std);
+//		    unset($std);
             //$std = fopen(HOME."/logs/wing.log", "a+");
             @fclose(STDOUT);
             @fclose(STDERR);
-            $STDOUT = fopen(HOME."/logs/wing.log", "a+");
-            $STDERR = fopen(HOME."/logs/wing.log", "a+");
-        }
+            $STDOUT = fopen(HOME."/logs/wing_".$process_id.".log", "a+");
+            $STDERR = fopen(HOME."/logs/wing_".$process_id.".log", "a+");
+       // }
 
 	}
 }
