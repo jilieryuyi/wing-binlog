@@ -357,4 +357,25 @@ class Tcp
             echo "当前连接数", count($this->clients), "-buffers数量", count($this->buffers), "\r\n";
         }
     }
+
+    public function send($buffer, $data, $client)
+    {
+        if ($buffer) {
+            $success = event_buffer_write($buffer,$data);
+        }
+        else
+            $success = $this->sendSocket($client, $data);
+        if (!$success) {
+            $this->send_fail_times++;
+            $i = array_search($client, $this->clients);
+            fclose($client);
+            if ($buffer) {
+                event_buffer_free($buffer);
+                unset($this->buffers[$i]);
+            }
+            unset($this->clients[$i]);
+        }
+        return $success;
+    }
+
 }

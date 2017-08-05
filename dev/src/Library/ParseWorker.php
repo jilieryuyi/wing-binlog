@@ -1,4 +1,5 @@
 <?php namespace Wing\Library;
+use Wing\Subscribe\Tcp;
 use Wing\Subscribe\WebSocket;
 
 /**
@@ -55,12 +56,13 @@ class ParseWorker extends BaseWorker
 
 		$pdo = new PDO();
 		$websocket = new WebSocket();
+		$tcp = new Tcp();
 
 		while (1) {
 			ob_start();
 			try {
 				pcntl_signal_dispatch();
-                $this->scandir(function($cache_file) use($pdo, $websocket){
+                $this->scandir(function($cache_file) use($pdo, $websocket, $tcp){
                     do {
 
                         if (!$cache_file || !file_exists($cache_file)) {
@@ -71,7 +73,7 @@ class ParseWorker extends BaseWorker
 
                         $file = new FileFormat($cache_file, $pdo);
 
-                        $file->parse(function ($database_name, $table_name, $event) use($websocket) {
+                        $file->parse(function ($database_name, $table_name, $event) use($websocket, $tcp) {
                             $params = [
                                 "database_name" => $database_name,
                                 "table_name"    => $table_name,
@@ -79,6 +81,8 @@ class ParseWorker extends BaseWorker
                             ];
                             var_dump($params);
                             $websocket->onchange($database_name, $table_name, $event);
+                            $tcp->onchange($database_name, $table_name, $event);
+
                         });
 
                         unset($file);

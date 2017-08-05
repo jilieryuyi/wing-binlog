@@ -19,6 +19,7 @@ class Worker
 	//子进程相关信息
 	private $event_process_id   = 0;
 	private $websocket_process_id = 0;
+	private $tcp_process_id     = 0;
 	private $parse_processes    = [];
 	private $dispatch_processes = [];
 	private $processes          = [];
@@ -137,7 +138,8 @@ class Worker
 		$this->websocket_process_id = (new WebSocketWorker())->start();
         $this->processes[] = $this->websocket_process_id;
 
-
+        $this->tcp_process_id = (new TcpWorker())->start();
+        $this->processes[] = $this->tcp_process_id;
 
         file_put_contents($this->pid, get_current_processid());
         $process_name = "wing php => master process";
@@ -154,10 +156,10 @@ class Worker
                 $pid    = pcntl_wait($status, WNOHANG);//WUNTRACED);
 
                 if ($pid > 0) {
+                    echo $pid,"进程退出\r\n";
                     do {
                         $id = array_search($pid, $this->processes);
                         unset($this->processes[$id]);
-
 
                         if ($pid == $this->event_process_id) {
                             $this->event_process_id = (new EventWorker($this->workers))->start();
@@ -186,6 +188,12 @@ class Worker
                         if ($pid == $this->websocket_process_id) {
                             $this->websocket_process_id = (new WebSocketWorker())->start();
                             $this->processes[] = $this->websocket_process_id;
+                            break;
+                        }
+
+                        if ($pid == $this->tcp_process_id) {
+                            $this->tcp_process_id = (new TcpWorker())->start();
+                            $this->processes[] = $this->tcp_process_id;
                             break;
                         }
                     } while(0);

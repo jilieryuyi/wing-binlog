@@ -8,54 +8,29 @@ use Wing\Net\WebSocket;
  * Date: 17/8/5
  * Time: 07:45
  */
-class WebSocketWorker extends BaseWorker
+class TcpWorker extends BaseWorker
 {
     private $clients = [];
     private $process = [];
     public function __construct()
     {
-        $dir = HOME."/cache/websocket";
+        $dir = HOME."/cache/tcp";
         (new WDir($dir))->mkdir();
     }
 
     /**
-     * @param WebSocket $tcp
+     * @param Tcp $tcp
      */
     private function broadcast($tcp)
     {
-//        $pid = pcntl_fork();
-//        if ($pid != 0) {
-//            return;
-//        }
         $pid = pcntl_fork();
         if ($pid > 0) {
             foreach ($this->process as $_pid) {
                 (new Signal($_pid))->kill();
-                //exec("kill -9 ".$_pid);
             }
-//            $this->process = [];
-//            $this->process[] = $pid;
-
-
-            //必须等待子进程全部退出 否则子进程全部变成僵尸进程
-            while (1) {
-                $__pid = pcntl_wait($status, WNOHANG);
-                if ($__pid > 0) {
-                    echo $__pid, "父进程等待子进程退出\r\n";
-                    foreach ($this->process as $k => $v) {
-                        if ($v == $__pid) {
-                            unset($this->process[$k]);
-                        }
-                    }
-                }
-                if (count($this->process) <= 0 || !$this->process) {
-                    break;
-                }
-            }
-
             $this->process = [];
             $this->process[] = $pid;
-            echo "广播子进程";
+            echo "tcp广播子进程";
             var_dump($this->process);
             return;
         }
@@ -69,8 +44,7 @@ class WebSocketWorker extends BaseWorker
         while (1) {
             if ($run_count%$cc == 0) {
                 if ($signal->checkStopSignal()) {
-                    echo $current_process_id,"广播进程收到终止信息号\r\n";
-                   // exec("kill -9 ".$current_process_id);
+                    echo $current_process_id,"tcp广播进程收到终止信息号\r\n";
                     exit;
                 }
                 $run_count = 0;
@@ -158,9 +132,7 @@ class WebSocketWorker extends BaseWorker
             return $process_id;
         }
 
-        //pcntl_signal(SIGCLD, SIG_IGN);
-
-        $tcp     = new \Wing\Net\WebSocket();
+        $tcp     = new \Wing\Net\Tcp();
         //$clients = $this->clients;
 
         //$is_start = false;
@@ -182,12 +154,12 @@ class WebSocketWorker extends BaseWorker
         $tcp->on(\Wing\Net\Tcp::ON_RECEIVE, function($client, $buffer, $recv_msg) use($tcp){
             //var_dump(func_get_args());
 
-            if (0 === strpos($recv_msg, 'GET')) {
-              //  echo "收到握手消息：",($recv_msg),"\r\n\r\n";
-                //握手消息
-                $tcp->handshake($buffer, $recv_msg, $client);//, $recv_msg), $client );
-                return;
-            }
+//            if (0 === strpos($recv_msg, 'GET')) {
+//              //  echo "收到握手消息：",($recv_msg),"\r\n\r\n";
+//                //握手消息
+//                $tcp->handshake($buffer, $recv_msg, $client);//, $recv_msg), $client );
+//                return;
+//            }
 
            // echo "收到的消息：",\Wing\Net\WebSocket::decode($recv_msg),"\r\n\r\n";
             //一般的消息响应
