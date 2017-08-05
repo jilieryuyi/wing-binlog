@@ -321,6 +321,8 @@ class Tcp
      */
     protected function error($buffer, $error)
     {
+        echo "发生错误了\r\n";
+        var_dump($buffer, $error);
         event_buffer_disable($buffer, EV_READ | EV_WRITE);
         event_buffer_free($buffer);
 
@@ -341,6 +343,7 @@ class Tcp
         while ($read = event_buffer_read($buffer, 10240)) {
             $this->onReceive($this->clients[$i], $buffer, $read);
         }
+        echo "read error\r\n";
         $this->onClose($this->clients[$i], $buffer);
     }
 
