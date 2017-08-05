@@ -70,6 +70,7 @@ class EventWorker extends BaseWorker
 
 				pcntl_signal_dispatch();
                 do {
+                    echo $run_count,"\r\n";
                     $run_count++;
                     //最后操作的binlog文件
                     if (null == $last_binlog || $run_count % $is_run == 0) {
