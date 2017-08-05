@@ -27,6 +27,18 @@ class ParseWorker extends BaseWorker
                 if (is_file($item)) {
                     $callback($item);
                     unlink($item);
+                    if (file_exists($item)) {
+                        unlink($item);
+                        if (file_exists($item)) {
+                            unlink($item);
+                            if (file_exists($item)) {
+                                unlink($item);
+                                if (file_exists($item)) {
+                                    unlink($item);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
