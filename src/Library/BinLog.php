@@ -1,5 +1,5 @@
-<?php namespace Seals\Library;
-use Seals\Cache\File;
+<?php namespace Wing\Library;
+use Wing\Cache\File;
 use Wing\FileSystem\WDir;
 
 /**
@@ -25,20 +25,14 @@ class BinLog
     /**
      * @var string
      */
-    private $cache_dir;
-    private $log_dir;
+    //private $cache_dir;
     private $cache_handler;
 
     /**
      * @var bool
      */
-    private $debug       = false;
+    public static $debug = false;
 
-    private $host;
-    private $password;
-    private $user;
-    private $port = 3306;
-    private $cache;
 
     /**
      * 构造函数
@@ -49,7 +43,7 @@ class BinLog
     public function __construct(DbInterface $db_handler)
     {
         $this->db_handler  = $db_handler;
-        $this->mysqlbinlog = Context::instance()->mysqlbinlog_bin;
+        $this->mysqlbinlog = "mysqlbinlog";
 
         if (!$this->isOpen()) {
             echo "请开启mysql binlog日志\r\n";
@@ -61,51 +55,8 @@ class BinLog
             exit;
         }
 
-        $this->host     = $db_handler->getHost();
-        $this->user     = $db_handler->getUser();
-        $this->password = $db_handler->getPassword();
-        $this->port     = $db_handler->getPort();
-        $this->log_dir  = Context::instance()->getAppConfig("log_dir");
-        $this->cache    = new \Seals\Cache\Redis(Context::instance()->redis_local);//new File(__APP_DIR__."/data/table");
+        $this->cache_handler    = new File(HOME."/cache/binlog");
     }
-
-
-    /**
-     * 设置缓存目录
-     *
-     * @param string $dir
-     */
-    public function setCacheDir($dir)
-    {
-        $dir = str_replace("\\","/",$dir);
-        $dir = rtrim($dir,"/");
-
-        $this->cache_dir = $dir;
-
-        $dir = new WDir($this->cache_dir);
-        $dir->mkdir();
-
-        if (!$dir->isWrite()) {
-            die($this->cache_dir ." is not writeable \r\n");
-        }
-
-        unset($dir);
-    }
-
-    public function setCacheHandler(CacheInterface $cache)
-    {
-        $this->cache_handler = $cache;
-    }
-
-    /**
-     * 设置debug
-     * @param bool $debug
-     */
-    public function setDebug($debug)
-    {
-        $this->debug = $debug;
-    }
-
 
     /**
      * 获取所有的logs
@@ -115,13 +66,20 @@ class BinLog
     public function getLogs()
     {
         $sql  = 'show binary logs';
+        if (self::$debug)
+        echo $sql, "\r\n";
         return $this->db_handler->query($sql);
     }
 
     public function getFormat()
     {
         $sql  = 'select @@binlog_format';
+        if (self::$debug)
+
+            echo $sql, "\r\n";
+
         $data = $this->db_handler->row($sql);
+        //var_dump($data);
         return strtolower($data["@@binlog_format"]);
     }
 
@@ -139,15 +97,18 @@ class BinLog
      */
     public function getCurrentLogInfo()
     {
-        $key  = "show.master.status.table";
-        $data = $this->cache->get($key);
-        if ($data && is_array($data)) {
-            return $data;
-        }
+//        $key  = "show.master.status.table";
+//        $data = $this->cache->get($key);
+//        if ($data && is_array($data)) {
+//            return $data;
+//        }
 
         $sql  = 'show master status';
+        if (self::$debug)
+            echo $sql, "\r\n";
+
         $data = $this->db_handler->row($sql);
-        $this->cache->set($key, $data, 60);
+        //$this->cache->set($key, $data, 60);
         return $data;
     }
 
@@ -160,6 +121,9 @@ class BinLog
     {
         $logs  = $this->getLogs();
         $sql   = 'select @@log_bin_basename';
+        if (self::$debug)
+            echo $sql, "\r\n";
+
         $data  = $this->db_handler->row($sql);
         $path  = pathinfo($data["@@log_bin_basename"],PATHINFO_DIRNAME);
         $files = [];
@@ -178,13 +142,16 @@ class BinLog
      */
     public function getCurrentLogFile()
     {
-        $key  = "select.log_bin_basename.table";
-        $path = $this->cache->get($key);
-        if ($path) {
-            return $path;
-        }
+//        $key  = "select.log_bin_basename.table";
+//        $path = $this->cache->get($key);
+//        if ($path) {
+//            return $path;
+//        }
 
         $sql  = 'select @@log_bin_basename';
+        if (self::$debug)
+            echo $sql, "\r\n";
+
         $data = $this->db_handler->row($sql);
 
         if (!isset($data["@@log_bin_basename"]))
@@ -197,10 +164,10 @@ class BinLog
             return null;
 
         $path = $path . DIRECTORY_SEPARATOR . $info["File"];
-        if (file_exists($path))
-            $this->cache->set($key, $path, 3);
-        else
-            $this->cache->del($key);
+//        if (file_exists($path))
+//            $this->cache->set($key, $path, 3);
+//        else
+//            $this->cache->del($key);
 
         return $path;
     }
@@ -213,6 +180,9 @@ class BinLog
     public function isOpen()
     {
         $sql  = 'select @@sql_log_bin';
+        if (self::$debug)
+            echo $sql, "\r\n";
+
         $data = $this->db_handler->row($sql);
         return isset($data["@@sql_log_bin"]) && $data["@@sql_log_bin"] == 1;
     }
@@ -225,6 +195,8 @@ class BinLog
      */
     public function setLastBinLog($binlog)
     {
+        if (self::$debug)
+            echo "保存最后的读取的binlog文件：",$binlog,"\r\n";
         return $this->cache_handler->set("mysql.last", $binlog);
     }
 
@@ -235,6 +207,8 @@ class BinLog
      */
     public function getLastBinLog()
     {
+        if (self::$debug)
+            echo "获取最后读取的binlog\r\n";
         return $this->cache_handler->get("mysql.last");
     }
 
@@ -247,6 +221,8 @@ class BinLog
      */
     public function setLastPosition($start_pos,$end_pos)
     {
+        if (self::$debug)
+            echo "保存最后读取为位置：", $start_pos,":",$end_pos,"\r\n";
         return $this->cache_handler->set("mysql.pos", [$start_pos,$end_pos]);
     }
 
@@ -257,6 +233,8 @@ class BinLog
      */
     public function getLastPosition()
     {
+        if (self::$debug)
+            echo "获取最后读取的位置\r\n";
         return $this->cache_handler->get("mysql.pos");
     }
 
@@ -274,7 +252,8 @@ class BinLog
         $datas = $this->db_handler->query($sql);
 
         if ($datas) {
-            echo $sql,"\r\n";
+            if (self::$debug)
+                echo $sql,"\r\n";
         }
 
         return $datas;
@@ -285,21 +264,24 @@ class BinLog
      *
      * @return string 缓存文件路径
      */
-    public function getSessions($start_pos, $end_pos)
+    public function getSessions($worker, $start_pos, $end_pos)
     {
         //当前使用的binlog文件路径
         $current_binlog_file = $this->getCurrentLogFile();
         if (!$current_binlog_file) {
             $error = "get current binlog path error => ".$current_binlog_file;
-            echo $error,"\r\n";
-            Context::instance()->logger->error($error);
+            if (self::$debug)
+                echo $error,"\r\n";
+           // Context::instance()->logger->error($error);
         }
 
         $str1 = md5(rand(0,999999));
         $str2 = md5(rand(0,999999));
         $str3 = md5(rand(0,999999));
+        $dir = HOME."/cache/binfile/".$worker;
+            (new WDir($dir))->mkdir();
 
-        $cache_file  = $this->cache_dir."/seals_".time().
+        $cache_file  = $dir."/__".time().
             substr($str1,rand(0,strlen($str1)-16),8).
             substr($str2,rand(0,strlen($str2)-16),8).
             substr($str3,rand(0,strlen($str3)-16),8);
@@ -325,7 +307,8 @@ class BinLog
             " --start-position=" . $start_pos .
             " --stop-position=" . $end_pos . "  \"" . $current_binlog_file . "\" > ".$cache_file ;
 
-        echo $command,"\r\n";
+        if (self::$debug)
+            echo $command,"\r\n";
 
         unset($current_binlog_file);
         system($command);

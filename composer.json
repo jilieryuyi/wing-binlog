@@ -1,5 +1,5 @@
 {
-  "name": "Seals/Collector",
+  "name": "Wing/Collector",
   "type": "library",
   "description": "mysqlbinlog事件采集系统",
   "keywords": ["ylb"],
@@ -43,7 +43,7 @@
     "phpunit/phpunit": "~5.0"
   },
   "autoload": {
-    "psr-4": {"Seals\\": "src/"},
+    "psr-4": {"Wing\\": "src/"},
     "classmap": ["tests/unit/"],
     "files": [
       "src/helpers.php"

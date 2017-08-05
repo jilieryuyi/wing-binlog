@@ -1,4 +1,4 @@
-<?php namespace Seals\Cache;
+<?php namespace Wing\Cache;
 use Seals\Library\CacheInterface;
 use Seals\Library\Context;
 use Seals\Library\RedisInterface;

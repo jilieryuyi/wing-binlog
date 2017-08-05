@@ -1,101 +1,69 @@
-<?php namespace Seals\Library;
-
-
+<?php namespace Wing\Library;
 /**
- * @author yuyi
- * @created 2016/9/23 8:38
- * @email 297341015@qq.com
- * @property \Redis $redis
+ * Queue.php
+ * User: huangxiaoan
+ * Created: 2017/8/4 13:14
+ * Email: huangxiaoan@xunlei.com
  */
-class Queue implements QueueInterface
+class Queue
 {
+	private $cache = null;
+	private $datas = [];
+	public function __construct($queue_name)
+	{
+		$cache_dir = dirname(dirname(__DIR__))."/cache";
+		if (!is_dir($cache_dir)) {
+			mkdir($cache_dir);
+		}
 
-    private $queue_name;
-    private $redis;
+		$queue_dir = $cache_dir."/queue";
+		if (!is_dir($queue_dir)) {
+			mkdir($queue_dir);
+		}
 
-    public function __construct($queue_name, RedisInterface $redis)
-    {
-        $this->queue_name = $queue_name;
-        $this->redis      = $redis;
-    }
+		$queue_file =  $cache_dir."/queue/____queue_".$queue_name;
 
-    public function getQueueName()
-    {
-        return $this->queue_name;
-    }
 
-    public function getAll()
-    {
-        return $this->redis->lRange($this->queue_name, 0, -1);
-    }
+		$this->cache = $queue_file;
 
-    /**
-     * @加入到队列
-     *
-     * @param mixed $data 事件数据
-     * @return bool
-     */
-    public function push($data)
-    {
-        if (is_array($data))
-            $data = json_encode($data);
-        return $this->redis->rPush($this->queue_name, $data);
-    }
-    /**
-     * @弹出队列首部数据
-     *
-     * @return mixed
-     */
-    public function pop()
-    {
+		if (file_exists($queue_file)) {
+			$datas_str   = file_get_contents($queue_file);
+			$this->datas = json_decode($datas_str, true);
+		}
 
-        $data = $this->redis->lPop($this->queue_name);
+	}
 
-        if ($data === false)
-            return null;
+	public function save()
+	{
+		return file_put_contents($this->cache, json_encode($this->datas));
+	}
 
-        $arr = @json_decode($data,true);
-        if (is_array($arr)) {
-            return $arr;
-        }
+	public function push($data)
+	{
+		$this->datas[] = $data;
+	}
 
-        return $data;
-    }
+	public function pop()
+	{
+		echo count($this->datas),"\r\n";
+		return array_shift($this->datas);
+	}
 
-    /**
-     * @只返回队首部元素 不弹出 不阻塞
-     *
-     * @return array
-     */
-    public function peek()
-    {
-        $data =  $this->redis->lRange( $this->queue_name, 0, 1);
-        if (isset($data[0])) {
-            $res = @json_decode($data[0],true);
-            if (is_array($res))
-                return $res;
-            return $data[0];
-        }
-        return null;
-    }
+	public function length()
+	{
+		if (is_array($this->datas)) {
+			return count($this->datas);
+		}
+		return 0;
+	}
 
-    /**
-     * @返回消息队列长度
-     *
-     * @return int
-     */
-    public function length()
-    {
-        return $this->redis->lLen($this->queue_name);
-    }
-
-    /**
-     * @清空队列
-     *
-     * @return bool
-     */
-    public function clear()
-    {
-        return !!$this->redis->del($this->queue_name);
-    }
+	public function peek()
+	{
+		if (is_array($this->datas) && count($this->datas) > 0) {
+			foreach ($this->datas as $v) {
+				return $v;
+			}
+		}
+		return null;
+	}
 }

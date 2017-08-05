@@ -1,4 +1,4 @@
-<?php namespace Seals\Library;
+<?php namespace Wing\Library;
 
 /**
  * @author yuyi
@@ -42,16 +42,20 @@ class PDO implements DbInterface
      * @param string $dbname
      * @return void
      */
-    public function __construct($user, $password, $host, $dbname, $port = 3306)
+    public function __construct()
     {
-        $this->parameters = array();
-        $this->dbname     = $dbname;
-        $this->host       = $host;
-        $this->password   = $password;
-        $this->user       = $user;
+		$config = load_config("database");
+		if (!is_array($config)) {
+			echo "数据库配置错误";
+			exit;
+		}
 
-        if ($port)
-            $this->port   = $port;
+        $this->parameters = array();
+        $this->dbname     = $config["db_name"];
+        $this->host       = $config["host"];
+        $this->password   = $config["password"];
+        $this->user       = $config["user"];
+		$this->port       = $config["port"];
 
         $this->connect();
     }
@@ -106,7 +110,7 @@ class PDO implements DbInterface
 
             $this->bconnected = true;
         } catch (\PDOException $e) {
-            Context::instance()->logger->error("pdo connect error", $e->errorInfo);
+            //Context::instance()->logger->error("pdo connect error", $e->errorInfo);
             var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             sleep(1);
             $this->connect();
@@ -157,7 +161,7 @@ class PDO implements DbInterface
         } catch (\PDOException $e) {
             $this->close();
             $this->connect();
-            Context::instance()->logger->error("pdo init", $e->errorInfo);
+         //   Context::instance()->logger->error("pdo init", $e->errorInfo);
             var_dump("pdo ".__FUNCTION__,$e->errorInfo);
         }
         $this->parameters = array();
@@ -204,7 +208,7 @@ class PDO implements DbInterface
                     return 0;
             }
         } catch (\PDOException $e) {
-            Context::instance()->logger->error("pdo query", $e->errorInfo);
+          //  Context::instance()->logger->error("pdo query", $e->errorInfo);
             var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             $this->close();
             $this->connect();
@@ -226,7 +230,7 @@ class PDO implements DbInterface
             else
                 return 0;
         } catch (\PDOException $e) {
-            Context::instance()->logger->error("pdo lastInsertId", $e->errorInfo);
+          //  Context::instance()->logger->error("pdo lastInsertId", $e->errorInfo);
             var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             $this->close();
             $this->connect();
@@ -245,7 +249,7 @@ class PDO implements DbInterface
             if ($this->pdo)
                 return $this->pdo->beginTransaction();
         } catch (\PDOException $e) {
-            Context::instance()->logger->error("pdo startTransaction", $e->errorInfo);
+          //  Context::instance()->logger->error("pdo startTransaction", $e->errorInfo);
             var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             $this->close();
             $this->connect();
@@ -264,7 +268,7 @@ class PDO implements DbInterface
             if ($this->pdo)
                 return $this->pdo->commit();
         } catch (\PDOException $e) {
-            Context::instance()->logger->error("pdo commit", $e->errorInfo);
+          //  Context::instance()->logger->error("pdo commit", $e->errorInfo);
             var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             $this->close();
             $this->connect();
@@ -283,7 +287,7 @@ class PDO implements DbInterface
             if ($this->pdo)
                 return $this->pdo->rollBack();
         } catch (\PDOException $e) {
-            Context::instance()->logger->error("pdo rollBack", $e->errorInfo);
+           // Context::instance()->logger->error("pdo rollBack", $e->errorInfo);
             var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             $this->close();
             $this->connect();
@@ -310,7 +314,7 @@ class PDO implements DbInterface
                 return $result;
             }
         } catch (\PDOException $e) {
-            Context::instance()->logger->error("pdo row", $e->errorInfo);
+          //  Context::instance()->logger->error("pdo row", $e->errorInfo);
             var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             $this->close();
             $this->connect();

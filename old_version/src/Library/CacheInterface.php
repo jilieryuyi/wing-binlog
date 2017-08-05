@@ -1,4 +1,4 @@
-<?php namespace Wing\Library;
+<?php namespace Seals\Library;
 /**
  * Created by PhpStorm.
  * User: yuyi

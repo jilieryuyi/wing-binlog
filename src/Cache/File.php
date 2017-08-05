@@ -1,5 +1,5 @@
-<?php namespace Seals\Cache;
-use Seals\Library\CacheInterface;
+<?php namespace Wing\Cache;
+use Wing\Library\CacheInterface;
 use Wing\FileSystem\WDir;
 
 /**
@@ -10,8 +10,8 @@ use Wing\FileSystem\WDir;
  */
 class File implements CacheInterface
 {
-    protected $cache_dir = __APP_DIR__."/process_cache";
-    public function __construct($cache_dir = __APP_DIR__."/process_cache")
+    protected $cache_dir = HOME."/process_cache";
+    public function __construct($cache_dir = HOME."/process_cache")
     {
         if ($cache_dir) {
             $dir = str_replace("\\","/",$cache_dir);

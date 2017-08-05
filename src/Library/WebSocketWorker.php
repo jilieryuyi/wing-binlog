@@ -94,6 +94,16 @@ class WebSocketWorker extends BaseWorker
                             $tcp->send($w[0], $content, $w[1]);
                         }
                         unlink($item);
+
+                        if ($run_count%$cc == 0) {
+                            if ($signal->checkStopSignal()) {
+                                echo $current_process_id,"广播进程收到终止信息号\r\n";
+                                // exec("kill -9 ".$current_process_id);
+                                exit;
+                            }
+                            $run_count = 0;
+                        }
+                        $run_count++;
                     }
                 }
             }

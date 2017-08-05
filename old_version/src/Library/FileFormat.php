@@ -1,4 +1,5 @@
-<?php namespace Wing\Library;
+<?php namespace Seals\Library;
+use Seals\Cache\File;
 
 /**
  * Created by PhpStorm.
@@ -33,8 +34,7 @@ class FileFormat
      * @数据库句柄
      */
     private $db_handler;
-    private $caches = [];
-    private $start_time = 0;
+    private $cache;
 
     /**
      * @构造函数
@@ -45,7 +45,7 @@ class FileFormat
     {
         $this->file       = $file;
         $this->db_handler = $db_handler;
-        $this->start_time = time();
+        $this->cache      = new File(__APP_DIR__."/data/table");
     }
 
     /**
@@ -318,11 +318,13 @@ class FileFormat
      */
     protected function getColumns($database_name, $table_name)
     {
-        if (isset($this->caches[$database_name][$table_name]) &&
-            (time() - $this->start_time) < 5 //5秒缓存
-        ) {
-            return $this->caches[$database_name][$table_name];
+        //use file cache
+
+        $columns = $this->cache->get($database_name.".".$table_name.".table");
+        if ($columns && is_array($columns)) {
+            return $columns;
         }
+
         $sql     = 'SHOW COLUMNS FROM `' . $database_name . '`.`' . $table_name . '`';
         $columns = $this->db_handler->query($sql);
 
@@ -330,8 +332,7 @@ class FileFormat
             return null;
         }
         $columns = array_column($columns, "Field");
-        $this->caches[$database_name][$table_name] = $columns;
-        $this->start_time = time();
+        $this->cache->set($database_name.".".$table_name.".table", $columns, 86400);
         return $columns;
     }
 
