@@ -64,28 +64,26 @@ if (!function_exists("enable_deamon")) {
 if (!function_exists("reset_std")) {
 	function reset_std()
 	{
-		if (strtolower(substr(php_uname('s'), 0, 3)) == "win") {
-			return;
-		}
+        if (strtolower(substr(php_uname('s'),0,3)) == "win") {
+            return;
+        }
 
-		$process_id = get_current_processid();
-		//file_put_contents(HOME."/logs/".get_current_processid().".log", "1");
-        $file = new \Wing\FileSystem\WDir(HOME."/logs");
-        $file->mkdir();
-        unset($file);
-        //$std = fopen(HOME."/logs/wing.log", "a+");
+        global $STDOUT, $STDERR;
 
-		global $STDOUT, $STDERR;
-//
-//		if ($std) {
-//		    fclose($std);
-//		    unset($std);
-            //$std = fopen(HOME."/logs/wing.log", "a+");
+        $_file  = HOME."/logs/wing.log";
+        $file   = new \Wing\FileSystem\WFile($_file);
+        $file->touch();
+
+        $handle = fopen($_file, "a+");
+        if ($handle) {
+            unset($handle);
             @fclose(STDOUT);
             @fclose(STDERR);
-            $STDOUT = fopen(HOME."/logs/wing_".$process_id.".log", "a+");
-            $STDERR = fopen(HOME."/logs/wing_".$process_id.".log", "a+");
-       // }
+            $STDOUT = fopen($_file, "a+");
+            $STDERR = fopen($_file, "a+");
+        } else {
+            throw new \Exception('can not open stdout file ' . $_file);
+        }
 
 	}
 }
