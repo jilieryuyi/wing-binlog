@@ -70,14 +70,15 @@ if (!function_exists("reset_std")) {
 
 		$process_id = get_current_processid();
 		//file_put_contents(HOME."/logs/".get_current_processid().".log", "1");
-        $file = new \Wing\FileSystem\WFile(HOME."/logs/wing.log");
-        $file->touch();
+        $file = new \Wing\FileSystem\WDir(HOME."/logs");
+        $file->mkdir();
         unset($file);
         $std = fopen(HOME."/logs/wing.log", "a+");
 
 		global $STDOUT, $STDERR;
 //
 		if ($std) {
+		    fclose($std);
 		    unset($std);
             //$std = fopen(HOME."/logs/wing.log", "a+");
             @fclose(STDOUT);
