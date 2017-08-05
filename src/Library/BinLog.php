@@ -42,8 +42,13 @@ class BinLog
      */
     public function __construct(DbInterface $db_handler)
     {
+        $config = load_config("app");
         $this->db_handler  = $db_handler;
         $this->mysqlbinlog = "mysqlbinlog";
+
+        if (isset($config["mysqlbinlog"])) {
+            $this->mysqlbinlog = $config["mysqlbinlog"];
+        }
 
         if (!$this->isOpen()) {
             echo "请开启mysql binlog日志\r\n";
