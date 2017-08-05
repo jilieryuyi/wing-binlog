@@ -31,7 +31,7 @@ class BinLog
     /**
      * @var bool
      */
-    public static $debug = false;
+    public static $debug = true;
 
 
     /**
