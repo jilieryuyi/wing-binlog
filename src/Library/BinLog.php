@@ -316,7 +316,12 @@ class BinLog
         echo $command,"\r\n";
 
         unset($current_binlog_file);
-        exec($command);
+        $handle = popen($command,"r");
+        if (!$handle) {
+            echo "执行失败\r\n";
+        } else {
+            pclose($handle);
+        }
 
         unset($command);
         return $cache_file;
