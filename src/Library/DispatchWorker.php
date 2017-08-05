@@ -80,7 +80,7 @@ class DispatchWorker extends BaseWorker
                         $worker     = $this->getWorker("parse_process");
                         $cache_path = $bin->getSessions($worker, $start_pos, $end_pos);
 
-                        echo "生成缓存文件",$cache_path,"\r\n";
+                        //echo "生成缓存文件",$cache_path,"\r\n";
 
                         if (!file_exists($cache_path)) {
                             echo "文件不存在\r\n";
