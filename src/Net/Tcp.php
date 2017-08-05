@@ -34,6 +34,8 @@ class Tcp
 
     protected $is_epoll = false;
 
+    private $use_libevent = false;
+
     /**
      * construct
      *
@@ -60,8 +62,8 @@ class Tcp
         }
 
         stream_set_blocking($this->socket, 0);
-
-        if (!function_exists("event_base_new")) {
+        //function_exists("event_base_new")
+        if (!$this->use_libevent) {
             $this->clients[] = $this->socket;
         } else {
             $this->is_epoll = true;
@@ -140,7 +142,8 @@ class Tcp
     public function start()
     {
         //if libevent support, then use it
-        if (function_exists("event_base_new")) {
+        //function_exists("event_base_new")
+        if ($this->use_libevent) {
             $base  = event_base_new();
             $event = event_new();
 
