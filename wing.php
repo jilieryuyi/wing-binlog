@@ -18,7 +18,7 @@ try {
 //        \Seals\Console\Command\UnitTest::class,
 //        \Seals\Console\Command\ServerStop::class,
 //        \Seals\Console\Command\ServerStatus::class,
-        \Seals\Console\Command\ServerStart::class,
+        \Wing\Command\ServerStart::class,
 //        \Seals\Console\Command\ServerVersion::class,
 //        \Seals\Console\Command\ServerRestart::class,
 //        \Seals\Console\Command\Help::class,
