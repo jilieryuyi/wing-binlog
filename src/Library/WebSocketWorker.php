@@ -139,7 +139,8 @@ class WebSocketWorker extends BaseWorker
 //        }, true);
 
         $tcp->on(\Wing\Net\Tcp::ON_CONNECT, function($client, $buffer) use($tcp) {
-            //var_dump(func_get_args());
+            echo "websocket新的连接\r\n";
+            var_dump(func_get_args());
             $this->clients[intval($client)] = [$buffer, $client];
             $this->broadcast($tcp);
             //$this->writeNum($clients, $tcp);
@@ -148,10 +149,11 @@ class WebSocketWorker extends BaseWorker
         });
 
         $tcp->on(\Wing\Net\Tcp::ON_RECEIVE, function($client, $buffer, $recv_msg) use($tcp){
-            //var_dump(func_get_args());
+
+            var_dump(func_get_args());
 
             if (0 === strpos($recv_msg, 'GET')) {
-              //  echo "收到握手消息：",($recv_msg),"\r\n\r\n";
+                echo "收到握手消息：",($recv_msg),"\r\n\r\n";
                 //握手消息
                 $tcp->handshake($buffer, $recv_msg, $client);//, $recv_msg), $client );
                 return;
@@ -164,12 +166,14 @@ class WebSocketWorker extends BaseWorker
         });
 
         $tcp->on(Tcp::ON_CLOSE, function($client, $buffer) use($tcp){
+            echo "连接关闭\r\n";
             unset($this->clients[intval($client)]);
             $this->broadcast($tcp);
             //$this->writeNum($clients, $tcp);
         });
 
         $tcp->on(Tcp::ON_ERROR,function($client, $buffer, $error) use($tcp){
+            echo "连接关闭发生错误\r\n";
             unset($this->clients[intval($client)]);
             $this->broadcast($tcp);
         });
