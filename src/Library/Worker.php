@@ -142,7 +142,7 @@ class Worker
         $this->processes[] = $this->tcp_process_id;
 
         file_put_contents($this->pid, get_current_processid());
-        $process_name = "wing php => master process";
+        $process_name = "wing php >> master process";
         set_process_title($process_name);
 
         while (1) {
