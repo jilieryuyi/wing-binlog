@@ -50,7 +50,7 @@ class ParseWorker extends BaseWorker
 			return $process_id;
 		}
 
-		$process_name = "wing php >> events parse process - ".$this->index;
+		$process_name = "wing php >> parse process - ".$this->index;
 
 		//设置进程标题 mac 会有warning 直接忽略
 		set_process_title($process_name);
