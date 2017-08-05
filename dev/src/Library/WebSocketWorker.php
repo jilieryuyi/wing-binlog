@@ -38,6 +38,7 @@ class WebSocketWorker extends BaseWorker
 
 
             //必须等待子进程全部退出 否则子进程全部变成僵尸进程
+            $start_wait = time();
             while (1) {
                 $__pid = pcntl_wait($status, WNOHANG);
                 if ($__pid > 0) {
@@ -50,6 +51,10 @@ class WebSocketWorker extends BaseWorker
                 }
                 if (count($this->process) <= 0 || !$this->process) {
                     break;
+                }
+
+                if ((time() - $start_wait) > 5) {
+                    echo "error : websocket等待子进程退出超时\r\n";
                 }
             }
 
