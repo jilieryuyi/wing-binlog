@@ -19,8 +19,8 @@ class Worker
 
 	//子进程相关信息
 	private $event_process_id   = 0;
-	private $websocket_process_id = 0;
-	private $tcp_process_id     = 0;
+	//private $websocket_process_id = 0;
+	//private $tcp_process_id     = 0;
 	private $parse_processes    = [];
 	private $dispatch_processes = [];
 	private $processes          = [];
@@ -214,13 +214,13 @@ class Worker
 
         $this->processes[] = $this->event_process_id;
 
-		$this->websocket_process_id = (new WebSocketWorker())->start($this->daemon);
-        //echo "websocket worker => ",$i," 进程id => ", $this->websocket_process_id, "\r\n";
-
-        $this->processes[] = $this->websocket_process_id;
-
-        $this->tcp_process_id = (new TcpWorker())->start($this->daemon);
-        $this->processes[] = $this->tcp_process_id;
+//		$this->websocket_process_id = (new WebSocketWorker())->start($this->daemon);
+//        //echo "websocket worker => ",$i," 进程id => ", $this->websocket_process_id, "\r\n";
+//
+//        $this->processes[] = $this->websocket_process_id;
+//
+//        $this->tcp_process_id = (new TcpWorker())->start($this->daemon);
+//        $this->processes[] = $this->tcp_process_id;
 
         file_put_contents(self::$pid, get_current_processid());
         $process_name = "wing php >> master process";
@@ -266,17 +266,17 @@ class Worker
                             break;
                         }
 
-                        if ($pid == $this->websocket_process_id) {
-                            $this->websocket_process_id = (new WebSocketWorker())->start($this->daemon);
-                            $this->processes[] = $this->websocket_process_id;
-                            break;
-                        }
+//                        if ($pid == $this->websocket_process_id) {
+//                            $this->websocket_process_id = (new WebSocketWorker())->start($this->daemon);
+//                            $this->processes[] = $this->websocket_process_id;
+//                            break;
+//                        }
 //
-                        if ($pid == $this->tcp_process_id) {
-                            $this->tcp_process_id = (new TcpWorker())->start($this->daemon);
-                            $this->processes[] = $this->tcp_process_id;
-                            break;
-                        }
+//                        if ($pid == $this->tcp_process_id) {
+//                            $this->tcp_process_id = (new TcpWorker())->start($this->daemon);
+//                            $this->processes[] = $this->tcp_process_id;
+//                            break;
+//                        }
                     } while(0);
 
                 }

@@ -90,25 +90,25 @@ $(document).ready(function(){
 });
 
 
-
+var interval = null;
 function start_service(){
     //114.55.56.167
+
+    if (null != interval) {
+        window.clearInterval(interval);
+    }
+
     var ws = new WebSocket("ws://127.0.0.1:9998/");
     im.socket = ws;
 
     ws.onopen = function() {
         im.online = 1;
-        var _msg='{"service":"login","username":"root2","password":"123456"}';
-        // window.setInterval(function(){
-        //     if (im.online)
-            ws.send(_msg);
-        //},1000);
+        var _msg='tick';
+        ws.send(_msg);
         im.onConnect();
-
-        // window.setInterval(function(){
-        //     //     if (im.online)
-        //     ws.send("tick");
-        // },500);
+        interval = window.setInterval(function(){
+            ws.send(_msg);
+        },500);
 
     };
 
@@ -129,4 +129,4 @@ window.setInterval(function(){
     if(!im.online){
         start_service();
     }
-},5000);
+},1000);
