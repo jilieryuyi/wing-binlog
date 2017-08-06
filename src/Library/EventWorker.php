@@ -15,6 +15,9 @@ class EventWorker extends BaseWorker
 	public function __construct($workers)
 	{
 		$this->workers = $workers;
+		for ($i = 1; $i <= $this->workers; $i++) {
+		    $this->task[$i] = 0;
+        }
 	}
 
 	private function writePos($worker, $start_pos, $end_pos)

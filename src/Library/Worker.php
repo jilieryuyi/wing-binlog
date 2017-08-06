@@ -127,7 +127,7 @@ class Worker
         	$pid = (new ParseWorker($this->workers, $i))->start($this->daemon);
 			$this->parse_processes[] = $pid;
 			$this->processes[] = $pid;
-
+//
 			$pid = (new DispatchWorker($this->workers, $i))->start($this->daemon);
 			$this->dispatch_processes[] = $pid;
 			$this->processes[] = $pid;
@@ -171,7 +171,7 @@ class Worker
                         $id = array_search($pid, $this->parse_processes);
                         if ($id !== false) {
                             unset($this->parse_processes[$id]);
-                            $_pid = (new ParseWorker($this->workers, $i))->start($this->daemon);
+                            $_pid = (new ParseWorker($this->workers, $id))->start($this->daemon);
                             $this->parse_processes[] = $_pid;
                             $this->processes[] = $_pid;
                             break;
@@ -180,7 +180,7 @@ class Worker
                         $id = array_search($pid, $this->dispatch_processes);
                         if ($id !== false) {
                             unset($this->dispatch_processes[$id]);
-                            $_pid = (new DispatchWorker($this->workers, $i))->start($this->daemon);
+                            $_pid = (new DispatchWorker($this->workers, $id))->start($this->daemon);
                             $this->dispatch_processes[] = $_pid;
                             $this->processes[] = $_pid;
                             break;

@@ -8,6 +8,7 @@
 class DispatchWorker extends BaseWorker
 {
 	private $index;
+	private $event_times = 0;
 
     public function __construct($workers, $index)
 	{
@@ -28,6 +29,10 @@ class DispatchWorker extends BaseWorker
                     $temp = explode("/", $item);
                     $file = array_pop($temp);
                     list($start, $end) = explode("_", $file);
+
+                    echo "正在处理文件：",$item,"--";
+                    echo $start,":",$end,"\r\n";
+
                     $callback($start, $end);
                     unlink($item);
 
@@ -70,6 +75,7 @@ class DispatchWorker extends BaseWorker
 
 		$process_name = "wing php >> dispatch process - ".$this->index;
 
+		echo $process_name,"\r\n";
 		//设置进程标题 mac 会有warning 直接忽略
 		set_process_title($process_name);
 
@@ -86,19 +92,22 @@ class DispatchWorker extends BaseWorker
 				pcntl_signal_dispatch();
                 $this->scandir(function($start_pos, $end_pos) use($bin){
                     do {
-
                         if (!$end_pos) {
+                            echo "非法endpos\r\n";
                             break;
                         }
 
                         $worker     = $this->getWorker("parse_process");
                         $cache_path = $bin->getSessions($worker, $start_pos, $end_pos);
 
-                        //echo "生成缓存文件",$cache_path,"\r\n";
+                        echo "生成缓存文件",$cache_path,"\r\n";
 
-                        if (!file_exists($cache_path)) {
-                            echo "文件不存在\r\n";
-                        }
+//                        if (!file_exists($cache_path)) {
+//                            echo "文件不存在\r\n";
+//                        } else {
+                            $this->event_times++;
+                            file_put_contents(HOME."/logs/dispatch_worker".get_current_processid().".log", $this->event_times);
+                        //}
 
                     } while (0);
                 });

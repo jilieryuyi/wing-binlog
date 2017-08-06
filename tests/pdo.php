@@ -12,8 +12,8 @@ $pdo = new \Wing\Library\PDO();
 $sql1 = 'update new_yonglibao_c.bl_city set provinces_id=(provinces_id+1) where id=5753598';
 $sql2 = 'update new_yonglibao_c.bl_city set provinces_id=(provinces_id-1) where id=5753598';
 
-$sql1 = 'update xsl.x_messages set phone=(phone+1) where 1';
-$sql2 = 'update xsl.x_messages set phone=(phone-1) where 1';
+//$sql1 = 'update xsl.x_messages set phone=(phone+1) where 1';
+//$sql2 = 'update xsl.x_messages set phone=(phone-1) where 1';
 $count = 0;
 while ($count<10000) {
     $count +=2;

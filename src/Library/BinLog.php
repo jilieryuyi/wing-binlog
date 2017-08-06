@@ -286,10 +286,12 @@ class BinLog
         $dir = HOME."/cache/binfile/".$worker;
             (new WDir($dir))->mkdir();
 
-        $cache_file  = $dir."/__".time().
-            substr($str1,rand(0,strlen($str1)-16),8).
-            substr($str2,rand(0,strlen($str2)-16),8).
-            substr($str3,rand(0,strlen($str3)-16),8);
+            $file_name = time().
+                substr($str1,rand(0,strlen($str1)-16),8).
+                substr($str2,rand(0,strlen($str2)-16),8).
+                substr($str3,rand(0,strlen($str3)-16),8);
+
+        $cache_file  = $dir."/lock__".$file_name;
 
         unset($str1,$str2,$str3);
 
@@ -340,6 +342,17 @@ class BinLog
             system($command);
         }
 
+        if (file_exists($cache_file)) {
+            rename($cache_file, $dir."/".$file_name);
+        }
+
+        if (file_exists($cache_file)) {
+            rename($cache_file, $dir."/".$file_name);
+        }
+
+        if (file_exists($cache_file)) {
+            rename($cache_file, $dir."/".$file_name);
+        }
 
         unset($command);
         return $cache_file;

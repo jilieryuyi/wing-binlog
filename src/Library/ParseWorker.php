@@ -12,6 +12,7 @@ class ParseWorker extends BaseWorker
 {
 	private $index;
 	private $events_count = 0;
+	private $file_times = 0;
 	public function __construct($workers, $index)
 	{
 		$this->workers = $workers;
@@ -25,6 +26,15 @@ class ParseWorker extends BaseWorker
             $v = array_shift($path);
             foreach(glob($v) as $item) {
                 if (is_file($item)) {
+                    $t = explode("/", $item);
+                    $t = array_pop($t);
+                    $sub = substr($t, 0, 4);
+                    if ($sub == "lock") {
+                        unset($t,$sub);
+                        continue;
+                    }
+                    unset($t,$sub);
+                    $this->file_times++;
                     $callback($item);
                     unlink($item);
                     if (file_exists($item)) {
@@ -102,7 +112,9 @@ class ParseWorker extends BaseWorker
 
                             $this->events_count++;
 
-                            echo get_current_processid(),"处理事件次数：",$this->events_count,"\r\n";
+                            $debug = get_current_processid()."处理事件次数：".$this->events_count."，文件次数：".$this->file_times."\r\n";
+                            file_put_contents(HOME."/logs/parse_worker_".get_current_processid().".log", $debug);
+                            echo $debug;
                         });
 
                         unset($file);
