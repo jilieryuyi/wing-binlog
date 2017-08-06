@@ -15,7 +15,7 @@ class Worker
 	private $daemon  = false;
 	private $debug   = true;
 	private $workers = 2;
-	private $pid     = null;
+	private static $pid     = null;
 
 	//子进程相关信息
 	private $event_process_id   = 0;
@@ -34,7 +34,7 @@ class Worker
     ])
     {
     	//默认的pid路径，即根目录 wing.pid
-		$this->pid = dirname(dirname(__DIR__))."/wing.pid";
+		self::$pid = dirname(dirname(__DIR__))."/wing.pid";
     	foreach ($params as $key => $value) {
     		$this->$key = $value;
 		}
@@ -53,51 +53,84 @@ class Worker
      *
      * @param int $signal
      */
-//    public function signalHandler($signal)
-//    {
-//        $server_id = file_get_contents($this->pid);
-//
-//        switch ($signal) {
-//            //stop all
-//            case SIGINT:
+    public function signalHandler($signal)
+    {
+        $server_id = file_get_contents(self::$pid);
+
+        switch ($signal) {
+            //stop all
+            case SIGINT:
+                if ($server_id == get_current_processid()) {
+                    foreach ($this->processes as $id => $pid) {
+                        posix_kill($pid, SIGINT);
+                    }
+
+                    $start = time();
+                    while (1) {
+                        $pid = pcntl_wait($status, WNOHANG);//WUNTRACED);
+                        if ($pid > 0) {
+                            $id = array_search($pid, $this->processes);
+                            unset($this->processes[$id]);
+                        }
+
+                        if (!$this->processes || count($this->processes) <= 0) {
+                            break;
+                        }
+
+                        if ((time() - $start) >= 5) {
+                            echo "退出进城超时\r\n";
+                            break;
+                        }
+
+                        foreach ($this->processes as $id => $pid) {
+                            posix_kill($pid, SIGINT);
+                        }
+                    }
+                    echo "父进程";
+                }
+                echo get_current_processid(),"收到退出信号退出\r\n";
+                exit(0);
+                break;
+            //restart
+            case SIGUSR1:
 //                if ($server_id == get_current_processid()) {
 //                    foreach ($this->processes as $id => $pid) {
-//                        posix_kill($pid, SIGINT);
+//                        posix_kill($pid,SIGINT);
 //                    }
 //                }
-//                exit(0);
-//                break;
-//            //restart
-//            case SIGUSR1:
-////                if ($server_id == get_current_processid()) {
-////                    foreach ($this->processes as $id => $pid) {
-////                        posix_kill($pid,SIGINT);
-////                    }
-////                }
+
+//                $cache = new File(__APP_DIR__);
+//                list($deamon, $workers, $debug, $clear) = $cache->get(self::RUNTIME);
 //
-////                $cache = new File(__APP_DIR__);
-////                list($deamon, $workers, $debug, $clear) = $cache->get(self::RUNTIME);
-////
-////                $command = "php ".__APP_DIR__."/seals server:start --n ".$workers;
-////                if ($deamon)
-////                    $command .= ' --d';
-////                if ($debug)
-////                    $command .= ' --debug';
-////                if ($clear)
-////                    $command .= ' --clear';
-////
-////                //$shell = "#!/bin/bash\r\n".$command;
-////                //file_put_contents(__APP_DIR__."/restart.sh", $shell);
-////                $handle = popen("/bin/sh -c \"".$command."\" >>".Context::instance()->log_dir."/server_restart.log&","r");
-////
-////                if ($handle) {
-////                    pclose($handle);
-////                }
+//                $command = "php ".__APP_DIR__."/seals server:start --n ".$workers;
+//                if ($deamon)
+//                    $command .= ' --d';
+//                if ($debug)
+//                    $command .= ' --debug';
+//                if ($clear)
+//                    $command .= ' --clear';
 //
-//                exit(0);
-//                break;
-//        }
-//    }
+//                //$shell = "#!/bin/bash\r\n".$command;
+//                //file_put_contents(__APP_DIR__."/restart.sh", $shell);
+//                $handle = popen("/bin/sh -c \"".$command."\" >>".Context::instance()->log_dir."/server_restart.log&","r");
+//
+//                if ($handle) {
+//                    pclose($handle);
+//                }
+
+                exit(0);
+                break;
+        }
+    }
+
+    public static function stopAll()
+    {
+
+        self::$pid = dirname(dirname(__DIR__))."/wing.pid";
+
+        $server_id = file_get_contents(self::$pid);
+        posix_kill($server_id, SIGINT);
+    }
 
     /**
      * @启动进程 入口函数
@@ -114,9 +147,9 @@ class Worker
         echo "\r\n";
 
 
-//        pcntl_signal(SIGINT,  [$this, 'signalHandler'], false);
-//        pcntl_signal(SIGUSR1, [$this, 'signalHandler'], false);
-//        pcntl_signal(SIGPIPE, SIG_IGN, false);
+        pcntl_signal(SIGINT,  [$this, 'signalHandler'], false);
+        pcntl_signal(SIGUSR1, [$this, 'signalHandler'], false);
+        pcntl_signal(SIGPIPE, SIG_IGN, false);
 
 
         if ($this->daemon) {
@@ -142,7 +175,7 @@ class Worker
 //        $this->tcp_process_id = (new TcpWorker())->start($this->daemon);
 //        $this->processes[] = $this->tcp_process_id;
 
-        file_put_contents($this->pid, get_current_processid());
+        file_put_contents(self::$pid, get_current_processid());
         $process_name = "wing php >> master process";
         set_process_title($process_name);
 

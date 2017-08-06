@@ -19,6 +19,7 @@ try {
 //        \Seals\Console\Command\ServerStop::class,
 //        \Seals\Console\Command\ServerStatus::class,
         \Wing\Command\ServerStart::class,
+        \Wing\Command\ServerStop::class,
 //        \Seals\Console\Command\ServerVersion::class,
 //        \Seals\Console\Command\ServerRestart::class,
 //        \Seals\Console\Command\Help::class,

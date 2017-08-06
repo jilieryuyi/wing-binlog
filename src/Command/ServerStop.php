@@ -1,6 +1,6 @@
-<?php namespace Seals\Console\Command;
+<?php namespace Wing\Command;
 
-use Seals\Library\Worker;
+use Wing\Library\Worker;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
