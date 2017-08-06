@@ -170,7 +170,6 @@ class WebSocketWorker extends BaseWorker
         });
 
         $tcp->on(Tcp::ON_ERROR,function($client, $buffer, $error) use($tcp){
-            echo "连接关闭发生错误\r\n";
             unset($this->clients[intval($client)]);
             $this->broadcast($tcp);
         });

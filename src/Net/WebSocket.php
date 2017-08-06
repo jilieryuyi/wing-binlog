@@ -84,11 +84,9 @@ class WebSocket extends Tcp
     {
         $data = self::encode($data);
         if ($buffer) {
-            echo "libevent 发送\r\n";
             $success = event_buffer_write($buffer,$data);
         }
         else{
-            echo "socket 发送\r\n";
             $success = $this->sendSocket($client, $data);
         }
         if (!$success) {
