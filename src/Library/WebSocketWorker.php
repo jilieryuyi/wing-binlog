@@ -25,103 +25,103 @@ class WebSocketWorker extends BaseWorker
     /**
      * @param WebSocket $tcp
      */
-    private function broadcast($tcp)
-    {
-        return;
-        if (count($this->clients) < 0) {
-            return;
-        }
-
-        $_dir = HOME."/cache/running";
-        if (!is_dir($_dir)) {
-            $dir = new WDir($_dir);
-            $dir->mkdir();
-            unset($dir);
-        }
-
-        $running_file = $_dir."/websocket_broadcast";
-        $exit_file    = $_dir."/websocket_exit_signal";
-//        $is_running   = false;
-//
-//        if (file_exists($running_file)) {
-//            if ((time() - file_get_contents($running_file))<=3) {
-//                $is_running = true;
-//            }
+//    private function broadcast($tcp)
+//    {
+//        return;
+//        if (count($this->clients) < 0) {
+//            return;
 //        }
-
-        while (1) {
-            if ((time() - file_get_contents($running_file))>3) {
-                break;
-            }
-            file_put_contents($exit_file ,  1);
-            usleep(self::USLEEP*2);
-        }
-
-        file_put_contents($exit_file ,  0);
-
-        $new_processid = pcntl_fork();
-        if ($new_processid > 0) {
-
-            //必须等待子进程全部退出 否则子进程全部变成僵尸进程
-            if (count($this->processes) > 0) {
-
-                $start = time();
-                while (1) {
-                    $pid = pcntl_wait($status, WNOHANG);//WUNTRACED);
-                    if ($pid > 0) {
-                        $id = array_search($pid, $this->processes);
-                        unset($this->processes[$id]);
-                    }
-
-                    if (!$this->processes || count($this->processes) <= 0) {
-                        break;
-                    }
-
-                    if ((time() - $start) >= 5) {
-                        echo "退出进程超时\r\n";
-                        break;
-                    }
-                }
-            }
-
-            $this->processes[] = $new_processid;
-            $this->processes   = array_values($this->processes);
-
-            return;
-        }
-
-        set_process_title("wing php >> websocket broadcast process");
-
-        while (1) {
-            file_put_contents($running_file, time());
-
-            if (file_exists($exit_file) && file_get_contents($exit_file) == 1) {
-                exit;
-            }
-            //广播消息
-            $path[] = HOME . "/cache/websocket/*";
-            while (count($path) != 0) {
-                $v = array_shift($path);
-                foreach (glob($v) as $item) {
-                    if (is_file($item)) {
-                        file_put_contents($running_file, time());
-
-                        $content = file_get_contents($item);
-                        foreach ($this->clients as $w) {
-                            $tcp->send($w[0], $content, $w[1]);
-                        }
-                        unlink($item);
-
-                        if (file_exists($exit_file) && file_get_contents($exit_file) == 1) {
-                            exit;
-                        }
-                    }
-                }
-            }
-
-            usleep(self::USLEEP);
-        }
-    }
+//
+//        $_dir = HOME."/cache/running";
+//        if (!is_dir($_dir)) {
+//            $dir = new WDir($_dir);
+//            $dir->mkdir();
+//            unset($dir);
+//        }
+//
+//        $running_file = $_dir."/websocket_broadcast";
+//        $exit_file    = $_dir."/websocket_exit_signal";
+////        $is_running   = false;
+////
+////        if (file_exists($running_file)) {
+////            if ((time() - file_get_contents($running_file))<=3) {
+////                $is_running = true;
+////            }
+////        }
+//
+//        while (1) {
+//            if ((time() - file_get_contents($running_file))>3) {
+//                break;
+//            }
+//            file_put_contents($exit_file ,  1);
+//            usleep(self::USLEEP*2);
+//        }
+//
+//        file_put_contents($exit_file ,  0);
+//
+//        $new_processid = pcntl_fork();
+//        if ($new_processid > 0) {
+//
+//            //必须等待子进程全部退出 否则子进程全部变成僵尸进程
+//            if (count($this->processes) > 0) {
+//
+//                $start = time();
+//                while (1) {
+//                    $pid = pcntl_wait($status, WNOHANG);//WUNTRACED);
+//                    if ($pid > 0) {
+//                        $id = array_search($pid, $this->processes);
+//                        unset($this->processes[$id]);
+//                    }
+//
+//                    if (!$this->processes || count($this->processes) <= 0) {
+//                        break;
+//                    }
+//
+//                    if ((time() - $start) >= 5) {
+//                        echo "退出进程超时\r\n";
+//                        break;
+//                    }
+//                }
+//            }
+//
+//            $this->processes[] = $new_processid;
+//            $this->processes   = array_values($this->processes);
+//
+//            return;
+//        }
+//
+//        set_process_title("wing php >> websocket broadcast process");
+//
+//        while (1) {
+//            file_put_contents($running_file, time());
+//
+//            if (file_exists($exit_file) && file_get_contents($exit_file) == 1) {
+//                exit;
+//            }
+//            //广播消息
+//            $path[] = HOME . "/cache/websocket/*";
+//            while (count($path) != 0) {
+//                $v = array_shift($path);
+//                foreach (glob($v) as $item) {
+//                    if (is_file($item)) {
+//                        file_put_contents($running_file, time());
+//
+//                        $content = file_get_contents($item);
+//                        foreach ($this->clients as $w) {
+//                            $tcp->send($w[0], $content, $w[1]);
+//                        }
+//                        unlink($item);
+//
+//                        if (file_exists($exit_file) && file_get_contents($exit_file) == 1) {
+//                            exit;
+//                        }
+//                    }
+//                }
+//            }
+//
+//            usleep(self::USLEEP);
+//        }
+//    }
 
 
     public function start($daemon = false)
