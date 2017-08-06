@@ -40,19 +40,17 @@ class WebSocketWorker extends BaseWorker
 
         $running_file = $_dir."/websocket_broadcast";
         $exit_file    = $_dir."/websocket_exit_signal";
-        $is_running   = false;
+//        $is_running   = false;
+//
+//        if (file_exists($running_file)) {
+//            if ((time() - file_get_contents($running_file))<=3) {
+//                $is_running = true;
+//            }
+//        }
 
-        if (file_exists($running_file)) {
-            if ((time() - file_get_contents($running_file))<=3) {
-                $is_running = true;
-            }
-        }
-
-        while ($is_running) {
-            if ((time() - file_get_contents($running_file))<=3) {
-                $is_running = true;
-            } else {
-                $is_running = false;
+        while (1) {
+            if ((time() - file_get_contents($running_file))>3) {
+                break;
             }
             file_put_contents($exit_file ,  1);
             usleep(self::USLEEP*2);
@@ -97,7 +95,6 @@ class WebSocketWorker extends BaseWorker
             file_put_contents($running_file, time());
 
             if (file_exists($exit_file) && file_get_contents($exit_file) == 1) {
-                file_put_contents($exit_file, 0);
                 exit;
             }
             //广播消息
@@ -115,7 +112,6 @@ class WebSocketWorker extends BaseWorker
                         unlink($item);
 
                         if (file_exists($exit_file) && file_get_contents($exit_file) == 1) {
-                            file_put_contents($exit_file, 0);
                             exit;
                         }
                     }
