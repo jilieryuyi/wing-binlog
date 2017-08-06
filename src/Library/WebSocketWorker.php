@@ -137,9 +137,11 @@ class WebSocketWorker extends BaseWorker
             } else {
                 $is_running = false;
             }
+            if (count($this->process) > 1) {
+                file_put_contents($exit_file ,  1);
+            }
             usleep(self::USLEEP*2);
         }
-
 
         $new_processid = pcntl_fork();
         if ($new_processid > 0) {
@@ -227,20 +229,20 @@ class WebSocketWorker extends BaseWorker
 
     public function start($daemon = false)
     {
-//        $process_id = pcntl_fork();
-//
-//        if ($process_id < 0) {
-//            echo "fork a process fail\r\n";
-//            exit;
-//        }
-//
-//        if ($process_id > 0) {
-//            return $process_id;
-//        }
+        $process_id = pcntl_fork();
 
-//        if ($daemon) {
-//            reset_std();
-//        }
+        if ($process_id < 0) {
+            echo "fork a process fail\r\n";
+            exit;
+        }
+
+        if ($process_id > 0) {
+            return $process_id;
+        }
+
+        if ($daemon) {
+            reset_std();
+        }
         //pcntl_signal(SIGCLD, SIG_IGN);
 
 //        pcntl_signal(SIGINT,  [$this, 'signalHandler'], false);
