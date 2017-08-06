@@ -17,11 +17,12 @@ class Tcp
     protected $buffers = [];
     protected $debug = false;
 
-    const ON_RECEIVE = "on_read";
-    const ON_WRITE   = "on_write";
-    const ON_CONNECT = "on_connect";
-    const ON_ERROR   = "on_error";
-    const ON_CLOSE   = "on_close";
+    const ON_RECEIVE = "_on_read";
+    const ON_WRITE   = "_on_write";
+    const ON_CONNECT = "_on_connect";
+    const ON_ERROR   = "_on_error";
+    const ON_CLOSE   = "_on_close";
+    const ON_TICK    = "_on_tick";
 
     protected $callbacks = [];
 
@@ -155,14 +156,18 @@ class Tcp
             //if not, use the socket select mode
             $_w = $_e = null;
             while (1) {
+                //pcntl_signal_dispatch();
+                $this->call(self::ON_TICK);
+                //echo "select process \r\n";
                 $read   = $this->clients;
-                $mod_fd = stream_select($read, $_w, $_e, 5);
+                $mod_fd = stream_select($read, $_w, $_e, 1);
 
                 if ($mod_fd === false) {
                     break;
                 }
 
                 if ($mod_fd === 0) {
+                    usleep(1000);
                     continue;
                 }
 

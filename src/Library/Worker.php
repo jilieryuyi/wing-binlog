@@ -66,29 +66,69 @@ class Worker
                     }
 
                     $start = time();
+                    $max = 1;
                     while (1) {
                         $pid = pcntl_wait($status, WNOHANG);//WUNTRACED);
                         if ($pid > 0) {
+
+
+                            /**
+                            private $event_process_id   = 0;
+                            private $websocket_process_id = 0;
+                            private $tcp_process_id     = 0;
+                            private $parse_processes    = [];
+                            private $dispatch_processes = [];
+                            private $processes          = [];
+                             */
+
+                            if ($pid == $this->event_process_id) {
+                                echo $pid,"事件收集进程退出\r\n";
+                            }
+
+                            if ($pid == $this->websocket_process_id) {
+                                echo $pid,"websocket进程退出\r\n";
+                            }
+
+                            if ($pid == $this->tcp_process_id) {
+                                echo $pid,"tcp进程退出\r\n";
+                            }
+
+                            if (in_array($pid, $this->parse_processes)) {
+                                echo $pid,"parse进程退出\r\n";
+                            }
+
+                            if (in_array($pid, $this->dispatch_processes)) {
+                                echo $pid,"dispatch进程退出\r\n";
+                            }
+
                             $id = array_search($pid, $this->processes);
                             unset($this->processes[$id]);
+                            //echo $pid,"进程退出\r\n";
+
                         }
 
                         if (!$this->processes || count($this->processes) <= 0) {
                             break;
                         }
 
+                        if ((time() - $start) >= $max) {
+                            foreach ($this->processes as $id => $pid) {
+                                posix_kill($pid, SIGINT);
+                            }
+                            $max++;
+                        }
+
                         if ((time() - $start) >= 5) {
-                            echo "退出进城超时\r\n";
+                            //var_dump($this->processes);
+                            echo "退出进程超时\r\n";
                             break;
                         }
 
-                        foreach ($this->processes as $id => $pid) {
-                            posix_kill($pid, SIGINT);
-                        }
+
                     }
-                    echo "父进程";
+                    echo "父进程退出\r\n";
                 }
-                echo get_current_processid(),"收到退出信号退出\r\n";
+                echo "==>",get_current_processid(),"收到退出信号退出\r\n";
                 exit(0);
                 break;
             //restart
@@ -158,22 +198,29 @@ class Worker
 
         for ($i = 1; $i <= $this->workers; $i++) {
         	$pid = (new ParseWorker($this->workers, $i))->start($this->daemon);
-			$this->parse_processes[] = $pid;
+			//echo "parse worker => ",$i," 进程id => ", $pid, "\r\n";
+        	$this->parse_processes[] = $pid;
 			$this->processes[] = $pid;
 //
 			$pid = (new DispatchWorker($this->workers, $i))->start($this->daemon);
-			$this->dispatch_processes[] = $pid;
+            //echo "dispatch worker => ",$i," 进程id => ", $pid, "\r\n";
+
+            $this->dispatch_processes[] = $pid;
 			$this->processes[] = $pid;
         }
 
 		$this->event_process_id = (new EventWorker($this->workers))->start($this->daemon);
-		$this->processes[] = $this->event_process_id;
+        //echo "event worker => ",$i," 进程id => ", $this->event_process_id, "\r\n";
+
+        $this->processes[] = $this->event_process_id;
 
 		$this->websocket_process_id = (new WebSocketWorker())->start($this->daemon);
+        //echo "websocket worker => ",$i," 进程id => ", $this->websocket_process_id, "\r\n";
+
         $this->processes[] = $this->websocket_process_id;
 
-//        $this->tcp_process_id = (new TcpWorker())->start($this->daemon);
-//        $this->processes[] = $this->tcp_process_id;
+        $this->tcp_process_id = (new TcpWorker())->start($this->daemon);
+        $this->processes[] = $this->tcp_process_id;
 
         file_put_contents(self::$pid, get_current_processid());
         $process_name = "wing php >> master process";
@@ -225,11 +272,11 @@ class Worker
                             break;
                         }
 //
-//                        if ($pid == $this->tcp_process_id) {
-//                            $this->tcp_process_id = (new TcpWorker())->start($this->daemon);
-//                            $this->processes[] = $this->tcp_process_id;
-//                            break;
-//                        }
+                        if ($pid == $this->tcp_process_id) {
+                            $this->tcp_process_id = (new TcpWorker())->start($this->daemon);
+                            $this->processes[] = $this->tcp_process_id;
+                            break;
+                        }
                     } while(0);
 
                 }

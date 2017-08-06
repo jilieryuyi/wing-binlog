@@ -23,9 +23,13 @@ echo "连接成功\n";
 //socket_write($socket, $msg);
 
 //socket_write($socket, \Wing\Net\WebSocket::encode("hello"));
+$count = 0;
 while($msg = socket_read($socket,10240))
 {
+    $count++;
     echo $msg,"\r\n";
+
+    echo "收到消息次数：", $count, "\r\n\r\n";
 }
 
 echo "连接关闭\r\n";

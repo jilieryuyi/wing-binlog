@@ -6,6 +6,42 @@
  */
 class WebSocket extends Tcp
 {
+    const WEBSOCKET_ON_MESSAGE = "websocket_on_message";
+    const WEBSOCKET_ON_CONNECT = "websocket_on_connect";
+    const WEBSOCKET_ON_CLOSE   = "websocket_on_close";
+    public function __construct($ip = "0.0.0.0", $port = 9998)
+    {
+        parent::__construct($ip, $port);
+        $this->on(self::ON_RECEIVE,[$this, "onMessage"]);
+        $this->on(self::ON_CONNECT, [$this, "onConnect"]);
+        $this->on(self::ON_CLOSE, [$this, "onClose"]);
+        $this->on(self::ON_ERROR, [$this, "onClose"]);
+    }
+
+
+    public function onMessage($client, $buffer, $recv_msg)
+    {
+        if (0 === strpos($recv_msg, 'GET')) {
+            $this->handshake($buffer, $recv_msg, $client);//, $recv_msg), $client );
+            return;
+        }
+
+        $_client = new WebSocketClient($this,$client, $buffer);
+        $this->call(self::WEBSOCKET_ON_MESSAGE, [$_client, $recv_msg]);
+    }
+
+    public function onConnect($client, $buffer)
+    {
+        $_client = new WebSocketClient($this,$client, $buffer);
+        $this->call(self::WEBSOCKET_ON_CONNECT, [$_client]);
+    }
+
+    public function onClose($client, $buffer, $error=null)
+    {
+        $_client = new WebSocketClient($this,$client, $buffer);
+        $this->call(self::WEBSOCKET_ON_CLOSE, [$_client]);
+    }
+
     /**
      * @获取websocket握手消息
      */
