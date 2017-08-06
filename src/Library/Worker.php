@@ -15,6 +15,10 @@ class Worker
 	private $daemon  = false;
 	private $debug   = true;
 	private $workers = 2;
+	private $with_websocket = false;
+	private $with_tcp = false;
+	private $with_redis = false;
+
 	private static $pid     = null;
 
 	//子进程相关信息
@@ -38,14 +42,6 @@ class Worker
     	foreach ($params as $key => $value) {
     		$this->$key = $value;
 		}
-    }
-
-    /**
-     * 析构函数
-     */
-    public function __destruct()
-    {
-
     }
 
     /**
@@ -85,13 +81,13 @@ class Worker
                                 echo $pid,"事件收集进程退出\r\n";
                             }
 
-                            if ($pid == $this->websocket_process_id) {
-                                echo $pid,"websocket进程退出\r\n";
-                            }
-
-                            if ($pid == $this->tcp_process_id) {
-                                echo $pid,"tcp进程退出\r\n";
-                            }
+//                            if ($pid == $this->websocket_process_id) {
+//                                echo $pid,"websocket进程退出\r\n";
+//                            }
+//
+//                            if ($pid == $this->tcp_process_id) {
+//                                echo $pid,"tcp进程退出\r\n";
+//                            }
 
                             if (in_array($pid, $this->parse_processes)) {
                                 echo $pid,"parse进程退出\r\n";
@@ -178,12 +174,12 @@ class Worker
     public function start(){
 
         echo "帮助：\r\n";
-        echo "启动服务：php wing server:start\r\n";
-        echo "指定进程数量：php wing server:start --n 4\r\n";
-        echo "4个进程以守护进程方式启动服务：php seals server:start --n 4 --d\r\n";
-        echo "重启服务：php wing server:restart\r\n";
-        echo "停止服务：php wing server:stop\r\n";
-        echo "服务状态：php wing server:status\r\n";
+        echo "启动服务：php wing start\r\n";
+        echo "指定进程数量：php wing start --n 4\r\n";
+        echo "4个进程以守护进程方式启动服务：php seals start --n 4 --d\r\n";
+        echo "重启服务：php wing restart\r\n";
+        echo "停止服务：php wing stop\r\n";
+        echo "服务状态：php wing status\r\n";
         echo "\r\n";
 
 
