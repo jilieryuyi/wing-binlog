@@ -24,10 +24,8 @@ class ServerStart extends ServerBase
     {
         $deamon      = $input->getOption("d");
         $debug       = $input->getOption("debug");
-        //$clear       = $input->getOption("clear");
         $workers     = $input->getOption("n");
 
-        //$this->start($deamon, $workers, $debug, $clear);
         $worker = new \Wing\Library\Worker(
             [
                 "daemon"  => !!$deamon,
