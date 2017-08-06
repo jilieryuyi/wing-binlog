@@ -110,6 +110,9 @@ class WebSocketWorker extends BaseWorker
      */
     private function broadcast($tcp)
     {
+        if (count($this->clients) < 0) {
+            return;
+        }
         $_dir = HOME."/cache/running";
         if (!is_dir($_dir)) {
             $dir = new WDir($_dir);
