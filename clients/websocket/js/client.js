@@ -91,6 +91,7 @@ $(document).ready(function(){
 
 
 var interval = null;
+var msg_count = 0;
 function start_service(){
     //114.55.56.167
 
@@ -114,7 +115,8 @@ function start_service(){
 
     var message_temp = [];
     ws.onmessage = function(e) {
-        console.log(e.data);
+        msg_count++;
+        console.log("第"+msg_count+"条消息=>",e.data);
         im.onMessage(e.data);
     };
     ws.onclose=function(){

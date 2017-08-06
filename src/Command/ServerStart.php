@@ -47,4 +47,14 @@ class ServerStart extends ServerBase
         );
         $worker->start();
     }
+
+    private function startWebsocketService()
+    {
+        $command = "php ".HOME."/websocket start";
+        $handle = popen("/bin/sh -c \"".$command."\" >>".HOME."/logs/websocket.log&","r");
+
+        if ($handle) {
+            pclose($handle);
+        }
+    }
 }
