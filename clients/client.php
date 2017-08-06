@@ -34,11 +34,27 @@ if ($pid > 0) {
     echo "连接关闭\r\n";
     socket_shutdown($socket);
     socket_close($socket);
+
+    $start = 0;
+    while(1) {
+        $status = 0;
+        $pid = pcntl_wait($status);
+        if ($pid > 0) {
+            break;
+        }
+
+        if ((time()-$start) > 5) break;
+    }
+
 } else {
     //子进程发送心跳包
     while(1) {
-        socket_write($socket, "tick");
-        usleep(500000);
+        try {
+            socket_write($socket, "tick");
+            usleep(500000);
+        }catch(\Exception $e){
+            exit;
+        }
     }
 
 }

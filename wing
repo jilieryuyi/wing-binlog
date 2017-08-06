@@ -9,6 +9,10 @@ date_default_timezone_set("PRC");
 
 use Symfony\Component\Console\Application;
 
+unlink(HOME."/websocket.pid");
+unlink(HOME."/tcp.pid");
+
+
 try {
 
     $application = new Application("wing-binlog");

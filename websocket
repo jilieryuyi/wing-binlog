@@ -20,14 +20,17 @@ $ws_worker->onConnect = function($connection)
     echo "New connection\n";
 };
 
+
 // Emitted when data received
 $ws_worker->onMessage = function($connection, $data)
 {
     global $ws_worker;
+    $current_process_id = get_current_processid();
+
     // Send hello $data
     //$connection->send('hello ' . $data);
     ob_start();
-    $path[] = HOME . "/cache/websocket/*";
+    $path[] = HOME . "/cache/websocket/".$current_process_id."/*";
     while (count($path) != 0) {
         $v = array_shift($path);
         foreach (glob($v) as $item) {
@@ -54,6 +57,9 @@ $ws_worker->onMessage = function($connection, $data)
 $ws_worker->onClose = function($connection)
 {
     echo "Connection closed\n";
+};
+$ws_worker->onWorkerStart = function(){
+  file_put_contents(HOME."/websocket.pid",get_current_processid()."   ", FILE_APPEND);
 };
 
 // Run worker
