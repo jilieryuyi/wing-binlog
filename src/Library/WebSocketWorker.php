@@ -147,7 +147,7 @@ class WebSocketWorker extends BaseWorker
         if ($daemon) {
             reset_std();
         }
-
+        set_process_title("wing php >> websocket socket service process");
         $tcp = new \Wing\Net\WebSocket();
 
         $tcp->on(\Wing\Net\Tcp::ON_CONNECT, function($client, $buffer) use($tcp) {
