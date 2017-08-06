@@ -3,10 +3,6 @@ use Wing\FileSystem\WDir;
 use Wing\Net\Tcp;
 use Wing\Net\WebSocket;
 
-//use Ratchet\MessageComponentInterface;
-//use Ratchet\ConnectionInterface;
-
-//use Workerman\Worker;
 /**
  * Created by PhpStorm.
  * User: yuyi
@@ -16,8 +12,8 @@ use Wing\Net\WebSocket;
 class WebSocketWorker extends BaseWorker
 {
     private $clients = [];
-    private $process = [];
-    private $lock = false;
+    private $processes = [];
+
     public function __construct()
     {
         $dir = HOME."/cache/websocket";
@@ -37,7 +33,7 @@ class WebSocketWorker extends BaseWorker
             //stop all
             case SIGINT:
                 if ($server_id == get_current_processid()) {
-                    foreach ($this->process as $id => $pid) {
+                    foreach ($this->processes as $id => $pid) {
                         posix_kill($pid, SIGINT);
                     }
 
@@ -46,16 +42,16 @@ class WebSocketWorker extends BaseWorker
                     while (1) {
                         $pid = pcntl_wait($status, WNOHANG);//WUNTRACED);
                         if ($pid > 0) {
-                            $id = array_search($pid, $this->process);
-                            unset($this->process[$id]);
+                            $id = array_search($pid, $this->processes);
+                            unset($this->processes[$id]);
                         }
 
-                        if (!$this->process || count($this->process) <= 0) {
+                        if (!$this->processes || count($this->processes) <= 0) {
                             break;
                         }
 
-                        if (time() - $start > $max && $this->process) {
-                            foreach ($this->process as $id => $pid) {
+                        if (time() - $start > $max && $this->processes) {
+                            foreach ($this->processes as $id => $pid) {
                                 posix_kill($pid, SIGINT);
                             }
                             $max++;
@@ -76,7 +72,7 @@ class WebSocketWorker extends BaseWorker
             //restart
             case SIGUSR1:
 //                if ($server_id == get_current_processid()) {
-//                    foreach ($this->processes as $id => $pid) {
+//                    foreach ($this->processeses as $id => $pid) {
 //                        posix_kill($pid,SIGINT);
 //                    }
 //                }
@@ -140,7 +136,7 @@ class WebSocketWorker extends BaseWorker
             } else {
                 $is_running = false;
             }
-            if (count($this->process) > 1) {
+            if (count($this->processes) > 1) {
                 file_put_contents($exit_file ,  1);
             }
             usleep(self::USLEEP*2);
@@ -151,18 +147,18 @@ class WebSocketWorker extends BaseWorker
             echo $new_processid,"创建了新的广播进程\r\n";
 
             //必须等待子进程全部退出 否则子进程全部变成僵尸进程
-            if (count($this->process) > 0) {
+            if (count($this->processes) > 0) {
                 echo "=======>等待子进程退出<=======\r\n";
 
                     $start = time();
                     while (1) {
                         $pid = pcntl_wait($status, WNOHANG);//WUNTRACED);
                         if ($pid > 0) {
-                            $id = array_search($pid, $this->process);
-                            unset($this->process[$id]);
+                            $id = array_search($pid, $this->processes);
+                            unset($this->processes[$id]);
                         }
 
-                        if (!$this->process || count($this->process) <= 0) {
+                        if (!$this->processes || count($this->processes) <= 0) {
                             break;
                         }
 
@@ -176,12 +172,12 @@ class WebSocketWorker extends BaseWorker
             }
 
             echo "这个打印必须要是空的才正常";
-            var_dump($this->process);
+            var_dump($this->processes);
 
-            $this->process[] = $new_processid;
-            $this->process   = array_values($this->process);
+            $this->processes[] = $new_processid;
+            $this->processes   = array_values($this->processes);
             echo "广播子进程";
-            var_dump($this->process);
+            var_dump($this->processes);
 
             return;
         }
