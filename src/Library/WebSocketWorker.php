@@ -100,7 +100,7 @@ class WebSocketWorker extends BaseWorker
         while (1) {
             file_put_contents($running_file, time());
 
-            if (file_get_contents($exit_file) == 1) {
+            if (file_exists($exit_file) && file_get_contents($exit_file) == 1) {
                 file_put_contents($exit_file, 0);
                 exit;
             }
@@ -118,7 +118,7 @@ class WebSocketWorker extends BaseWorker
                         }
                         unlink($item);
 
-                        if (file_get_contents($exit_file) == 1) {
+                        if (file_exists($exit_file) && file_get_contents($exit_file) == 1) {
                             file_put_contents($exit_file, 0);
                             exit;
                         }
