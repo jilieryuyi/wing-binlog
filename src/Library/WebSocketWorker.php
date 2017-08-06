@@ -27,6 +27,7 @@ class WebSocketWorker extends BaseWorker
      */
     private function broadcast($tcp)
     {
+        return;
         if (count($this->clients) < 0) {
             return;
         }
@@ -144,7 +145,7 @@ class WebSocketWorker extends BaseWorker
 
         $tcp->on(\Wing\Net\Tcp::ON_CONNECT, function($client, $buffer) use($tcp) {
             $this->clients[intval($client)] = [$buffer, $client];
-            $this->broadcast($tcp);
+            //$this->broadcast($tcp);
         });
 
         $tcp->on(\Wing\Net\Tcp::ON_RECEIVE, function($client, $buffer, $recv_msg) use($tcp){
@@ -154,16 +155,37 @@ class WebSocketWorker extends BaseWorker
             }
             //$res = $tcp->send($buffer, "hello", $client);
             //var_dump($res);
+
+            $path[] = HOME . "/cache/websocket/*";
+            while (count($path) != 0) {
+                $v = array_shift($path);
+                foreach (glob($v) as $item) {
+                    if (is_file($item)) {
+                        //file_put_contents($running_file, time());
+
+                        $content = file_get_contents($item);
+                        foreach ($this->clients as $w) {
+                            $tcp->send($w[0], $content, $w[1]);
+                        }
+                        unlink($item);
+
+//                        if (file_exists($exit_file) && file_get_contents($exit_file) == 1) {
+//                            exit;
+//                        }
+                    }
+                }
+            }
+
         });
 
         $tcp->on(Tcp::ON_CLOSE, function($client, $buffer) use($tcp){
             unset($this->clients[intval($client)]);
-            $this->broadcast($tcp);
+            //$this->broadcast($tcp);
         });
 
         $tcp->on(Tcp::ON_ERROR,function($client, $buffer, $error) use($tcp){
             unset($this->clients[intval($client)]);
-            $this->broadcast($tcp);
+            //$this->broadcast($tcp);
         });
 
         $tcp->start();

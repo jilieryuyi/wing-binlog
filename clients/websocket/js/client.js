@@ -105,6 +105,11 @@ function start_service(){
         //},1000);
         im.onConnect();
 
+        window.setInterval(function(){
+            //     if (im.online)
+            ws.send("tick");
+        },500);
+
     };
 
     var message_temp = [];
