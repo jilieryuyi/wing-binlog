@@ -43,13 +43,13 @@ class WebSocketWorker extends BaseWorker
         $is_running   = false;
 
         if (file_exists($running_file)) {
-            if ((time() - file_get_contents($running_file))<=1) {
+            if ((time() - file_get_contents($running_file))<=3) {
                 $is_running = true;
             }
         }
 
         while ($is_running) {
-            if ((time() - file_get_contents($running_file))<=1) {
+            if ((time() - file_get_contents($running_file))<=3) {
                 $is_running = true;
             } else {
                 $is_running = false;
