@@ -89,3 +89,41 @@ if (!function_exists("load_config")) {
 		return include_once $config_file;
 	}
 }
+
+if (!function_exists("try_lock")) {
+    function try_lock($key)
+    {
+        $dir = HOME."/cache/lock";
+        if (!is_dir($dir)) {
+            $obj_dir = new \Wing\FileSystem\WDir($dir);
+            $obj_dir->mkdir();
+            unset($obj_dir);
+        }
+
+        $file = $dir."/".md5($key);
+        if (file_exists($file))
+            return false;
+
+        touch($file);
+
+        return file_exists($file);
+    }
+}
+
+if (!function_exists("lock_free")) {
+    function lock_free($key)
+    {
+        $dir = HOME."/cache/lock";
+        if (!is_dir($dir)) {
+            $obj_dir = new \Wing\FileSystem\WDir($dir);
+            $obj_dir->mkdir();
+            unset($obj_dir);
+        }
+
+        $file = $dir."/".md5($key);
+        if (!file_exists($file))
+            return true;
+
+        return unlink($file);
+    }
+}

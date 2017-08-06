@@ -2,6 +2,10 @@
 use Wing\FileSystem\WDir;
 use Wing\Net\Tcp;
 use Wing\Net\WebSocket;
+
+//use Ratchet\MessageComponentInterface;
+//use Ratchet\ConnectionInterface;
+
 //use Workerman\Worker;
 /**
  * Created by PhpStorm.
@@ -13,188 +17,203 @@ class WebSocketWorker extends BaseWorker
 {
     private $clients = [];
     private $process = [];
+    private $lock = false;
     public function __construct()
     {
         $dir = HOME."/cache/websocket";
         (new WDir($dir))->mkdir();
     }
 
-    private function broadcast3()
+    /**
+     * signal handler
+     *
+     * @param int $signal
+     */
+    public function signalHandler($signal)
     {
-//        $pid = pcntl_fork();
-//        if ($pid != 0) {
-//            return;
-//        }
-        $pid = pcntl_fork();
-        if ($pid > 0) {
-            foreach ($this->process as $_pid) {
-                (new Signal($_pid))->kill();
-                //exec("kill -9 ".$_pid);
-            }
-//            $this->process = [];
-//            $this->process[] = $pid;
+        $server_id = file_get_contents(HOME."/websocket.pid");
 
-
-            //必须等待子进程全部退出 否则子进程全部变成僵尸进程
-            $start_wait = time();
-            while (1) {
-                $__pid = pcntl_wait($status, WNOHANG);
-                if ($__pid > 0) {
-                    echo $__pid, "父进程等待子进程退出\r\n";
-                    foreach ($this->process as $k => $v) {
-                        if ($v == $__pid) {
-                            unset($this->process[$k]);
-                        }
+        switch ($signal) {
+            //stop all
+            case SIGINT:
+                if ($server_id == get_current_processid()) {
+                    foreach ($this->process as $id => $pid) {
+                        posix_kill($pid, SIGINT);
                     }
-                }
-                if (count($this->process) <= 0 || !$this->process) {
-                    break;
-                }
 
-                if ((time() - $start_wait) > 5) {
-                    echo "error : websocket等待子进程退出超时\r\n";
-                }
-            }
-
-            $this->process = [];
-            $this->process[] = $pid;
-            echo "广播子进程";
-            var_dump($this->process);
-            return;
-        }
-
-        set_process_title("wing php >> websocket broadcast process");
-        $current_process_id = get_current_processid();
-        $signal = new Signal($current_process_id);
-
-        $run_count = 0;
-        $cc        = intval(1000000/self::USLEEP);
-        while (1) {
-            if ($run_count%$cc == 0) {
-                if ($signal->checkStopSignal()) {
-                    echo $current_process_id,"广播进程收到终止信息号\r\n";
-                    // exec("kill -9 ".$current_process_id);
-                    exit;
-                }
-                $run_count = 0;
-            }
-            //广播消息
-            $path[] = HOME . "/cache/websocket/*";
-            //var_dump($this->clients);
-            while (count($path) != 0) {
-                $v = array_shift($path);
-                foreach (glob($v) as $item) {
-                    if (is_file($item)) {
-                        $content = file_get_contents($item);
-                        //$client, $buffer, $data
-                        foreach ($this->clients as $w) {
-                            echo "发送消息：", $content, "\r\n";
-                            $w->send($content);
+                    $start = time();
+                    $max = 1;
+                    while (1) {
+                        $pid = pcntl_wait($status, WNOHANG);//WUNTRACED);
+                        if ($pid > 0) {
+                            $id = array_search($pid, $this->process);
+                            unset($this->process[$id]);
                         }
-                        unlink($item);
 
-                        if ($run_count%$cc == 0) {
-                            if ($signal->checkStopSignal()) {
-                                echo $current_process_id,"广播进程收到终止信息号\r\n";
-                                // exec("kill -9 ".$current_process_id);
-                                exit;
+                        if (!$this->process || count($this->process) <= 0) {
+                            break;
+                        }
+
+                        if (time() - $start > $max && $this->process) {
+                            foreach ($this->process as $id => $pid) {
+                                posix_kill($pid, SIGINT);
                             }
-                            $run_count = 0;
+                            $max++;
                         }
-                        $run_count++;
-                    }
-                }
-            }
 
-            $run_count++;
-            usleep(self::USLEEP);
+                        if ((time() - $start) >= 5) {
+                            echo "退出进程超时\r\n";
+                            break;
+                        }
+
+
+                    }
+                    echo "父进程";
+                }
+                echo get_current_processid(),"----收到退出信号退出\r\n";
+                exit(0);
+                break;
+            //restart
+            case SIGUSR1:
+//                if ($server_id == get_current_processid()) {
+//                    foreach ($this->processes as $id => $pid) {
+//                        posix_kill($pid,SIGINT);
+//                    }
+//                }
+
+//                $cache = new File(__APP_DIR__);
+//                list($deamon, $workers, $debug, $clear) = $cache->get(self::RUNTIME);
+//
+//                $command = "php ".__APP_DIR__."/seals server:start --n ".$workers;
+//                if ($deamon)
+//                    $command .= ' --d';
+//                if ($debug)
+//                    $command .= ' --debug';
+//                if ($clear)
+//                    $command .= ' --clear';
+//
+//                //$shell = "#!/bin/bash\r\n".$command;
+//                //file_put_contents(__APP_DIR__."/restart.sh", $shell);
+//                $handle = popen("/bin/sh -c \"".$command."\" >>".Context::instance()->log_dir."/server_restart.log&","r");
+//
+//                if ($handle) {
+//                    pclose($handle);
+//                }
+
+                exit(0);
+                break;
         }
     }
+
     /**
      * @param WebSocket $tcp
      */
     private function broadcast($tcp)
     {
-//        $pid = pcntl_fork();
-//        if ($pid != 0) {
-//            return;
-//        }
-        $pid = pcntl_fork();
-        if ($pid > 0) {
-            foreach ($this->process as $_pid) {
-                (new Signal($_pid))->kill();
-                //exec("kill -9 ".$_pid);
-            }
-//            $this->process = [];
-//            $this->process[] = $pid;
+        $_dir = HOME."/cache/running";
+        if (!is_dir($_dir)) {
+            $dir = new WDir($_dir);
+            $dir->mkdir();
+            unset($dir);
+        }
 
+        $running_file = $_dir."/websocket_broadcast";
+        $exit_file    = $_dir."/websocket_exit_signal";
+        $is_running   = false;
+
+        if (file_exists($running_file)) {
+            if ((time() - file_get_contents($running_file))<=1) {
+                $is_running = true;
+            }
+        }
+
+        if ($is_running) {
+            file_put_contents($exit_file ,  1);
+        }
+
+        while ($is_running) {
+            if ((time() - file_get_contents($running_file))<=1) {
+                $is_running = true;
+            } else {
+                $is_running = false;
+            }
+            usleep(self::USLEEP*2);
+        }
+
+
+        $new_processid = pcntl_fork();
+        if ($new_processid > 0) {
+            echo $new_processid,"创建了新的广播进程\r\n";
 
             //必须等待子进程全部退出 否则子进程全部变成僵尸进程
-            $start_wait = time();
-            while (1) {
-                $__pid = pcntl_wait($status, WNOHANG);
-                if ($__pid > 0) {
-                    echo $__pid, "父进程等待子进程退出\r\n";
-                    foreach ($this->process as $k => $v) {
-                        if ($v == $__pid) {
-                            unset($this->process[$k]);
+            if (count($this->process) > 0) {
+                echo "=======>等待子进程退出<=======\r\n";
+
+                    $start = time();
+                    while (1) {
+                        $pid = pcntl_wait($status, WNOHANG);//WUNTRACED);
+                        if ($pid > 0) {
+                            $id = array_search($pid, $this->process);
+                            unset($this->process[$id]);
+                        }
+
+                        if (!$this->process || count($this->process) <= 0) {
+                            break;
+                        }
+
+                        if ((time() - $start) >= 5) {
+                            echo "退出进程超时\r\n";
+                            break;
                         }
                     }
-                }
-                if (count($this->process) <= 0 || !$this->process) {
-                    break;
-                }
+                    echo "父进程";
 
-                if ((time() - $start_wait) > 5) {
-                    echo "error : websocket等待子进程退出超时\r\n";
-                }
             }
 
-            $this->process = [];
-            $this->process[] = $pid;
+            echo "这个打印必须要是空的才正常";
+            var_dump($this->process);
+
+            $this->process[] = $new_processid;
+            $this->process   = array_values($this->process);
             echo "广播子进程";
             var_dump($this->process);
+
             return;
         }
 
         set_process_title("wing php >> websocket broadcast process");
         $current_process_id = get_current_processid();
-        $signal = new Signal($current_process_id);
 
         $run_count = 0;
-        $cc        = intval(1000000/self::USLEEP);
         while (1) {
-            if ($run_count%$cc == 0) {
-                if ($signal->checkStopSignal()) {
-                    echo $current_process_id,"广播进程收到终止信息号\r\n";
-                   // exec("kill -9 ".$current_process_id);
-                    exit;
-                }
-                $run_count = 0;
+            file_put_contents($running_file, time());
+            if (file_get_contents($exit_file) == 1) {
+
+                echo $current_process_id,"****************************广播进程收到终止信息号1\r\n";
+                file_put_contents($exit_file, 0);
+                exit;
             }
             //广播消息
             $path[] = HOME . "/cache/websocket/*";
-            //var_dump($this->clients);
             while (count($path) != 0) {
                 $v = array_shift($path);
                 foreach (glob($v) as $item) {
                     if (is_file($item)) {
+                        file_put_contents($running_file, time());
                         $content = file_get_contents($item);
-                        //$client, $buffer, $data
                         foreach ($this->clients as $w) {
                             echo "发送消息：", $content, "\r\n";
                             $tcp->send($w[0], $content, $w[1]);
                         }
                         unlink($item);
 
-                        if ($run_count%$cc == 0) {
-                            if ($signal->checkStopSignal()) {
-                                echo $current_process_id,"广播进程收到终止信息号\r\n";
-                                // exec("kill -9 ".$current_process_id);
-                                exit;
-                            }
-                            $run_count = 0;
+                        if (file_get_contents($exit_file) == 1) {
+
+                            echo $current_process_id,"****************************广播进程收到终止信息号2\r\n";
+                            file_put_contents($exit_file, 0);
+                            exit;
                         }
+                            $run_count = 0;
                         $run_count++;
                     }
                 }
@@ -205,77 +224,30 @@ class WebSocketWorker extends BaseWorker
         }
     }
 
-    public function start3()
-    {
-        $process_id = pcntl_fork();
 
-        if ($process_id < 0) {
-            echo "fork a process fail\r\n";
-            exit;
-        }
-
-        if ($process_id > 0) {
-            return $process_id;
-        }
-
-        // Create a Websocket server
-        $ws_worker = new \Workerman\Worker("websocket://0.0.0.0:9998");
-
-// 4 processes
-        $ws_worker->count = $this->workers;
-
-// Emitted when new connection come
-        $ws_worker->onConnect = function($connection)
-        {
-            $this->clients[] = $connection;
-            echo "New connection\n";
-            $this->broadcast();
-        };
-
-// Emitted when data received
-        $ws_worker->onMessage = function($connection, $data)
-        {
-            // Send hello $data
-            $connection->send('hello ' . $data);
-        };
-
-// Emitted when connection closed
-        $ws_worker->onClose = function($connection)
-        {
-            $key = array_search($connection, $this->clients);
-            unset($this->clients[$key]);
-            $this->broadcast();
-            echo "Connection closed\n";
-        };
-
-        $ws_worker->onError = function ($connection){
-            $key = array_search($connection, $this->clients);
-            unset($this->clients[$key]);
-            $this->broadcast();
-        };
-
-        // Run worker
-        \Workerman\Worker::runAll();
-
-        return 0;
-    }
     public function start($daemon = false)
     {
-        $process_id = pcntl_fork();
+//        $process_id = pcntl_fork();
+//
+//        if ($process_id < 0) {
+//            echo "fork a process fail\r\n";
+//            exit;
+//        }
+//
+//        if ($process_id > 0) {
+//            return $process_id;
+//        }
 
-        if ($process_id < 0) {
-            echo "fork a process fail\r\n";
-            exit;
-        }
-
-        if ($process_id > 0) {
-            return $process_id;
-        }
-
-        if ($daemon) {
-            reset_std();
-        }
+//        if ($daemon) {
+//            reset_std();
+//        }
         //pcntl_signal(SIGCLD, SIG_IGN);
+
+//        pcntl_signal(SIGINT,  [$this, 'signalHandler'], false);
+//        pcntl_signal(SIGUSR1, [$this, 'signalHandler'], false);
+//        pcntl_signal(SIGPIPE, SIG_IGN, false);
+//        file_put_contents(HOME."/websocket.pid", get_current_processid());
+//
 
         $tcp     = new \Wing\Net\WebSocket();
         //$clients = $this->clients;
@@ -289,7 +261,7 @@ class WebSocketWorker extends BaseWorker
 
         $tcp->on(\Wing\Net\Tcp::ON_CONNECT, function($client, $buffer) use($tcp) {
             echo "websocket新的连接\r\n";
-            var_dump(func_get_args());
+            //var_dump(func_get_args());
             $this->clients[intval($client)] = [$buffer, $client];
             $this->broadcast($tcp);
             //$this->writeNum($clients, $tcp);
@@ -299,13 +271,13 @@ class WebSocketWorker extends BaseWorker
 
         $tcp->on(\Wing\Net\Tcp::ON_RECEIVE, function($client, $buffer, $recv_msg) use($tcp){
 
-            var_dump(func_get_args());
+          //  var_dump(func_get_args());
 
             if (0 === strpos($recv_msg, 'GET')) {
-                echo "收到握手消息：",($recv_msg),"\r\n\r\n";
+               // echo "收到握手消息：",($recv_msg),"\r\n\r\n";
                 //握手消息
                 $res = $tcp->handshake($buffer, $recv_msg, $client);//, $recv_msg), $client );
-                var_dump($res);
+               // var_dump($res);
                 return;
             }
 
@@ -332,4 +304,11 @@ class WebSocketWorker extends BaseWorker
         $tcp->start();
         return 0;
     }
+
+
+
+
+
+
+
 }

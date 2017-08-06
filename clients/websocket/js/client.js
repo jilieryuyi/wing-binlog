@@ -92,7 +92,8 @@ $(document).ready(function(){
 
 
 function start_service(){
-    var ws = new WebSocket("ws://114.55.56.167:9998");
+    //114.55.56.167
+    var ws = new WebSocket("ws://localhost:9998/");
     im.socket = ws;
 
     ws.onopen = function() {

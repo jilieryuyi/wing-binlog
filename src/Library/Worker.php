@@ -169,9 +169,9 @@ class Worker
 		$this->event_process_id = (new EventWorker($this->workers))->start($this->daemon);
 		$this->processes[] = $this->event_process_id;
 
-//		$this->websocket_process_id = (new WebSocketWorker())->start($this->daemon);
-//        $this->processes[] = $this->websocket_process_id;
-//
+		$this->websocket_process_id = (new WebSocketWorker())->start($this->daemon);
+        $this->processes[] = $this->websocket_process_id;
+
 //        $this->tcp_process_id = (new TcpWorker())->start($this->daemon);
 //        $this->processes[] = $this->tcp_process_id;
 
@@ -219,11 +219,11 @@ class Worker
                             break;
                         }
 
-//                        if ($pid == $this->websocket_process_id) {
-//                            $this->websocket_process_id = (new WebSocketWorker())->start($this->daemon);
-//                            $this->processes[] = $this->websocket_process_id;
-//                            break;
-//                        }
+                        if ($pid == $this->websocket_process_id) {
+                            $this->websocket_process_id = (new WebSocketWorker())->start($this->daemon);
+                            $this->processes[] = $this->websocket_process_id;
+                            break;
+                        }
 //
 //                        if ($pid == $this->tcp_process_id) {
 //                            $this->tcp_process_id = (new TcpWorker())->start($this->daemon);
