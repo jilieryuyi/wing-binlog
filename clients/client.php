@@ -22,9 +22,7 @@ echo "连接成功\n";
 
 $pid = pcntl_fork();
 if ($pid > 0) {
-
-
-//socket_write($socket, \Wing\Net\WebSocket::encode("hello"));
+    //父进程接收消息
     $count = 0;
     while ($msg = socket_read($socket, 10240)) {
         $count++;
@@ -37,6 +35,7 @@ if ($pid > 0) {
     socket_shutdown($socket);
     socket_close($socket);
 } else {
+    //子进程发送心跳包
     while(1) {
         socket_write($socket, "tick");
         usleep(500000);
