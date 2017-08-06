@@ -48,21 +48,17 @@ class WebSocketWorker extends BaseWorker
             }
         }
 
-        if ($is_running) {
-            file_put_contents($exit_file ,  1);
-        }
-
         while ($is_running) {
             if ((time() - file_get_contents($running_file))<=1) {
                 $is_running = true;
             } else {
                 $is_running = false;
             }
-            if (count($this->processes) > 1) {
-                file_put_contents($exit_file ,  1);
-            }
+            file_put_contents($exit_file ,  1);
             usleep(self::USLEEP*2);
         }
+
+        file_put_contents($exit_file ,  0);
 
         $new_processid = pcntl_fork();
         if ($new_processid > 0) {
