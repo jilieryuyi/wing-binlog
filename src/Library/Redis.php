@@ -56,6 +56,9 @@ class Redis
 		if (!$this->is_connect) {
 			$this->connect();
 		}
+		if (!$this->is_connect) {
+		    echo "redis连接错误\r\n";
+        }
 		try {
 			if (!$this->instance || !$this->is_connect) {
 				return false;
