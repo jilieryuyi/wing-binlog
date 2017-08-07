@@ -14,7 +14,7 @@ $send_count2 = 0;
 $ws_worker = new Worker("tcp://0.0.0.0:9997");
 
 // 4 processes
-$ws_worker->count = 4;
+$ws_worker->count = 1;
 
 // Emitted when new connection come
 $ws_worker->onConnect = function($connection)
@@ -26,12 +26,12 @@ $ws_worker->onConnect = function($connection)
 $ws_worker->onMessage = function($connection, $data)
 {
     global $ws_worker,$send_count,$send_count2;
-    $current_process_id = get_current_processid();
+    //$current_process_id = get_current_processid();
 
     // Send hello $data
     //$connection->send('hello ' . $data);
     ob_start();
-    $path[] = HOME . "/cache/tcp/".$current_process_id."/*";
+    $path[] = HOME . "/cache/tcp/*";
     while (count($path) != 0) {
         $v = array_shift($path);
         foreach (glob($v) as $item) {
@@ -65,7 +65,7 @@ $ws_worker->onClose = function($connection)
 };
 
 $ws_worker->onWorkerStart = function(){
-    file_put_contents(HOME."/tcp.pid",get_current_processid()."   ", FILE_APPEND);
+    //file_put_contents(HOME."/tcp.pid",get_current_processid()."   ", FILE_APPEND);
 };
 // Run worker
 Worker::runAll();

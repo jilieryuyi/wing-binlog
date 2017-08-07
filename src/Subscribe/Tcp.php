@@ -10,54 +10,18 @@ use Wing\Library\ISubscribe;
  */
 class Tcp implements ISubscribe
 {
-    private $processes = [];
     public function __construct()
     {
         $cache = HOME."/cache/tcp";
         (new WDir($cache))->mkdir();
-        $this->processes = self::tcpStatus();
     }
 
-    public static function tcpStatus()
-    {
-        $command = "php ".HOME."/tcp status";
-        $output = $return = null;
-        exec($command,$output,$return);
-
-//var_dump($output, $return);
-
-        $start = false;
-        $processes = [];
-        foreach ($output as $row) {
-            if (substr($row, 0, 3) == "pid") {
-                $start = true;
-                continue;
-            }
-            if ($start) {
-                list($process_id,) = preg_split("/\D/", $row, 2);
-                $processes[]= $process_id;//,"\r\n";
-            }
-        }
-    }
 
 
     public function onchange($database_name, $table_name, $event)
     {
-        if (!$this->processes) {
-            if (!file_exists(HOME."/tcp.pid")) {
-                return;
-            }
-            $str = file_get_contents(HOME."/tcp.pid");
-            $arr = preg_split("/\D/", $str);
-            foreach ($arr as $i) {
-                if (intval($i) > 0)
-                    $this->processes[] = intval($i);
-            }
-            return;
-        }
 
-        foreach ($this->processes as $process) {
-            $cache = HOME . "/cache/tcp/".$process;
+            $cache = HOME . "/cache/tcp";
             $odir = new WDir($cache);
             $odir->mkdir();
             unset($odir);
@@ -72,6 +36,5 @@ class Tcp implements ISubscribe
                 substr($str3, rand(0, strlen($str3) - 16), 8);
 
             file_put_contents($cache_file, json_encode([$database_name, $table_name, $event]));
-        }
     }
 }

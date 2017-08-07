@@ -12,7 +12,7 @@ use Workerman\Worker;
 $ws_worker = new Worker("websocket://0.0.0.0:9998");
 
 // 4 processes
-$ws_worker->count = 4;
+$ws_worker->count = 1;
 
 // Emitted when new connection come
 $ws_worker->onConnect = function($connection)
@@ -25,12 +25,12 @@ $ws_worker->onConnect = function($connection)
 $ws_worker->onMessage = function($connection, $data)
 {
     global $ws_worker;
-    $current_process_id = get_current_processid();
+    //$current_process_id = get_current_processid();
 
     // Send hello $data
     //$connection->send('hello ' . $data);
     ob_start();
-    $path[] = HOME . "/cache/websocket/".$current_process_id."/*";
+    $path[] = HOME . "/cache/websocket/*";
     while (count($path) != 0) {
         $v = array_shift($path);
         foreach (glob($v) as $item) {
@@ -59,7 +59,7 @@ $ws_worker->onClose = function($connection)
     echo "Connection closed\n";
 };
 $ws_worker->onWorkerStart = function(){
-  file_put_contents(HOME."/websocket.pid",get_current_processid()."   ", FILE_APPEND);
+  //file_put_contents(HOME."/websocket.pid",get_current_processid()."   ", FILE_APPEND);
 };
 
 // Run worker
