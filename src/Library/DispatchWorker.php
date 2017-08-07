@@ -52,7 +52,9 @@ class DispatchWorker extends BaseWorker
                 else {
                     usleep(self::USLEEP);
                 }
+                usleep(100);
             }
+            usleep(100);
         }
     }
 
