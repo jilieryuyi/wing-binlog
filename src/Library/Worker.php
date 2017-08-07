@@ -42,6 +42,17 @@ class Worker
     	foreach ($params as $key => $value) {
     		$this->$key = $value;
 		}
+
+		set_error_handler([$this, "onError"]);
+    	register_shutdown_function(function(){
+            file_put_contents(HOME."/logs/error.log", date("Y-m-d H:i:s")."=>".get_current_processid()."异常退出\r\n", FILE_APPEND);
+        });
+    }
+
+
+    public function onError()
+    {
+        file_put_contents(HOME."/logs/error.log", date("Y-m-d H:i:s")."=>".json_encode(func_get_args(), JSON_BIGINT_AS_STRING)."\r\n", FILE_APPEND);
     }
 
     /**
