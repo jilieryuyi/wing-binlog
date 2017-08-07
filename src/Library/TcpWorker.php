@@ -38,7 +38,12 @@ class TcpWorker extends BaseWorker
             reset_std();
         }
         set_process_title("wing php >> tcp service process");
-        $tcp = new \Wing\Net\TcpServer("0.0.0.0", 9997);
+
+        $config = load_config("app");
+        $ip     = isset($config["tcp"]["host"])?$config["tcp"]["host"]:"0.0.0.0";
+        $port   = isset($config["tcp"]["port"])?$config["tcp"]["port"]:9997;
+
+        $tcp = new \Wing\Net\TcpServer($ip, $port);
 
         $tcp->on(TcpServer::TCP_ON_CONNECT, function($client) use($tcp) {
             $this->clients[] = $client;

@@ -193,16 +193,21 @@ class Worker
         }
 
         for ($i = 1; $i <= $this->workers; $i++) {
-        	$pid = (new ParseWorker($this->workers, $i))->start($this->daemon, $this->with_tcp, $this->with_websocket);
-			//echo "parse worker => ",$i," 进程id => ", $pid, "\r\n";
+        	$pid = (new ParseWorker($this->workers, $i))->start(
+        	        $this->daemon,
+                    $this->with_tcp,
+                    $this->with_websocket,
+                    $this->with_redis
+            );
         	$this->parse_processes[] = $pid;
 			$this->processes[] = $pid;
-//
-			$pid = (new DispatchWorker($this->workers, $i))->start($this->daemon);
-            //echo "dispatch worker => ",$i," 进程id => ", $pid, "\r\n";
+        }
 
+
+        for ($i = 1; $i <= $this->workers; $i++) {
+            $pid = (new DispatchWorker($this->workers, $i))->start($this->daemon);
             $this->dispatch_processes[] = $pid;
-			$this->processes[] = $pid;
+            $this->processes[] = $pid;
         }
 
 		$this->event_process_id = (new EventWorker($this->workers))->start($this->daemon);
@@ -247,7 +252,12 @@ class Worker
                         $id = array_search($pid, $this->parse_processes);
                         if ($id !== false) {
                             unset($this->parse_processes[$id]);
-                            $_pid = (new ParseWorker($this->workers, $id))->start($this->daemon, $this->with_tcp, $this->with_websocket);
+                            $_pid = (new ParseWorker($this->workers, $id))->start(
+                                    $this->daemon,
+                                    $this->with_tcp,
+                                    $this->with_websocket,
+                                    $this->with_redis
+                            );
                             $this->parse_processes[] = $_pid;
                             $this->processes[] = $_pid;
                             break;

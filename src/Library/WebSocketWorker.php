@@ -38,7 +38,13 @@ class WebSocketWorker extends BaseWorker
             reset_std();
         }
         set_process_title("wing php >> websocket service process");
-        $tcp = new \Wing\Net\WebSocket();
+
+        $config = load_config("app");
+        $ip     = isset($config["websocket"]["host"])?$config["websocket"]["host"]:"0.0.0.0";
+        $port   = isset($config["websocket"]["port"])?$config["websocket"]["port"]:9998;
+
+
+        $tcp = new \Wing\Net\WebSocket($ip, $port);
 
         $tcp->on(WebSocket::WEBSOCKET_ON_CONNECT, function($client) use($tcp) {
             $this->clients[] = $client;

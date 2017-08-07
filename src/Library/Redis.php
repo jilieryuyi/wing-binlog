@@ -7,16 +7,16 @@
  */
 class Redis
 {
-	private $user;
+	private $port;
 	private $host;
 	private $password   = null;
 
 	private $is_connect = false;
 	private $instance   = null;
 
-	public function __construct($host, $user, $password = null)
+	public function __construct($host, $port = 6397, $password = null)
 	{
-		$this->user = $user;
+		$this->port = $port;
 		$this->host = $host;
 		$this->password = $password;
 	}
@@ -30,7 +30,7 @@ class Redis
 				return;
 			}
 			$redis = new \Redis();
-			$this->is_connect = $redis->connect('127.0.0.1', 6379);
+			$this->is_connect = $redis->connect('127.0.0.1', $this->port);
 			if (!$this->is_connect) {
 				return;
 			}

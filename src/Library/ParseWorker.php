@@ -59,7 +59,7 @@ class ParseWorker extends BaseWorker
 	 * @return int
 	 */
 
-	public function start($daemon = false, $with_tcp = false, $with_websocket = false)
+	public function start($daemon = false, $with_tcp = false, $with_websocket = false, $with_redis = false)
 	{
 		$process_id = pcntl_fork();
 
@@ -82,31 +82,34 @@ class ParseWorker extends BaseWorker
 		set_process_title($process_name);
 
 		$pdo = new PDO();
-		$websocket = null;
+
+        $notify = [];
 		if ($with_websocket) {
-			$websocket = new WebSocket();
+            $notify[] = new WebSocket();
 		}
-		$tcp       = null;
+
 		if ($with_tcp) {
-			$tcp = new Tcp();
+            $notify[] = new Tcp();
 		}
+
+		if ($with_redis) {
+            $notify[] = new \Wing\Subscribe\Redis();
+        }
 
 		while (1) {
 			ob_start();
 			try {
 				pcntl_signal_dispatch();
-                $this->scandir(function($cache_file) use($pdo, $websocket, $tcp){
+                $this->scandir(function($cache_file) use($pdo, $notify){
                     do {
 
                         if (!$cache_file || !file_exists($cache_file)) {
                             break;
                         }
 
-
-
                         $file = new FileFormat($cache_file, $pdo);
 
-                        $file->parse(function ($database_name, $table_name, $event) use($websocket, $tcp) {
+                        $file->parse(function ($database_name, $table_name, $event) use($notify) {
                             $params = [
                                 "database_name" => $database_name,
                                 "table_name"    => $table_name,
@@ -114,11 +117,8 @@ class ParseWorker extends BaseWorker
                             ];
                             var_dump($params);
 
-                            if ($websocket) {
-                            	$websocket->onchange($database_name, $table_name, $event);
-							}
-                            if ($tcp) {
-                            	$tcp->onchange($database_name, $table_name, $event);
+                            foreach ($notify as $no_item) {
+                                $no_item->onchange($database_name, $table_name, $event);
 							}
 
                             $this->events_count++;

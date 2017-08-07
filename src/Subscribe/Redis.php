@@ -6,33 +6,34 @@ use Wing\Library\ISubscribe;
  * User: yuyi
  * Date: 17/8/4
  * Time: 22:58
+ *
+ * @property \Redis $redis
  */
 class Redis implements ISubscribe
 {
+    private $redis;
+    private $queue;
 	public function __construct()
 	{
-
+        $config = load_config("app");
+        $this->redis = new \Wing\Library\Redis(
+            $config["redis"]["host"],
+            $config["redis"]["port"],
+            $config["redis"]["password"]
+        );
+        $this->queue = $config["redis"]["queue"];
 	}
 
 
 
 	public function onchange($database_name, $table_name, $event)
 	{
-
-		$cache = HOME . "/cache/tcp";
-		$odir = new WDir($cache);
-		$odir->mkdir();
-		unset($odir);
-		$str1 = md5(rand(0, 999999));
-		$str2 = md5(rand(0, 999999));
-		$str3 = md5(rand(0, 999999));
-
-
-		$cache_file = $cache . "/__" . time() .
-			substr($str1, rand(0, strlen($str1) - 16), 8) .
-			substr($str2, rand(0, strlen($str2) - 16), 8) .
-			substr($str3, rand(0, strlen($str3) - 16), 8);
-
-		file_put_contents($cache_file, json_encode([$database_name, $table_name, $event]));
+        $this->redis->rpush($this->queue, json_encode(
+            [
+                "database" => $database_name,
+                "table" => $table_name,
+                "event" => $event
+            ]
+        ));
 	}
 }
