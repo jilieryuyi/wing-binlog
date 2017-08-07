@@ -99,7 +99,7 @@ function start_service(){
         window.clearInterval(interval);
     }
 
-    var ws = new WebSocket("ws://127.0.0.1:9998/");
+    var ws = new WebSocket("ws://114.55.56.167:9998/");
     im.socket = ws;
 
     ws.onopen = function() {
