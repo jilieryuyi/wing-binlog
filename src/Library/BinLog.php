@@ -50,6 +50,9 @@ class BinLog
             $this->mysqlbinlog = $config["mysqlbinlog"];
         }
 
+        var_dump($config);
+        echo $this->mysqlbinlog,"\r\n";
+
         if (!$this->isOpen()) {
             echo "请开启mysql binlog日志\r\n";
             exit;
