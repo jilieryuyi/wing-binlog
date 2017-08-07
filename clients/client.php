@@ -24,11 +24,23 @@ $pid = pcntl_fork();
 if ($pid > 0) {
     //父进程接收消息
     $count = 0;
+    $msg_all = "";
+    $split = "\r\n\r\n\r\n";
     while ($msg = socket_read($socket, 10240)) {
-        $count++;
-        echo $msg, "\r\n";
-
-        echo "收到消息次数：", $count, "\r\n\r\n";
+        $msg_all.=$msg;
+        $temp = explode($split, $msg_all);
+        if (count($temp) >= 2) {
+            $msg_all = array_pop($temp);
+            foreach ($temp as $v) {
+                if (!$v) {
+                    continue;
+                }
+                $count++;
+                echo $v, "\r\n";
+                echo "收到消息次数：", $count, "\r\n\r\n";
+            }
+        }
+        unset($temp);
     }
 
     echo "连接关闭\r\n";

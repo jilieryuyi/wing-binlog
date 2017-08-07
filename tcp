@@ -39,10 +39,10 @@ $ws_worker->onMessage = function($connection, $data)
                 $send_count++;
                 $content = file_get_contents($item);
                 foreach ($ws_worker->connections as $c) {
-                    $c->send($content);
+                    $c->send($content."\r\n\r\n\r\n");
                     $send_count2++;
                 }
-                file_put_contents(HOME."/logs/tcp_".get_current_processid(), $send_count.":".$send_count2);
+                file_put_contents(HOME."/logs/tcp", $send_count.":".$send_count2);
 
                 unlink($item);
             }
