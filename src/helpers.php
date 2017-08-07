@@ -86,7 +86,7 @@ if (!function_exists("load_config")) {
 	function load_config($name)
 	{
 		$config_file = HOME . "/config/" . $name . ".php";
-		return include_once $config_file;
+		return include $config_file;
 	}
 }
 
