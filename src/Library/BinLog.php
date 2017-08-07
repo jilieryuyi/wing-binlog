@@ -7,12 +7,12 @@ use Wing\FileSystem\WDir;
  * User: yuyi
  * Date: 17/2/10
  * Time: 10:23
- * @property CacheInterface $cache_handler
+ * @property ICache $cache_handler
  */
 class BinLog
 {
     /**
-     * @var DbInterface
+     * @var IDb
      */
     private $db_handler;
 
@@ -37,10 +37,10 @@ class BinLog
     /**
      * 构造函数
      *
-     * @param DbInterface $db_handler
+     * @param IDb $db_handler
      * @param string $mysqlbinlog
      */
-    public function __construct(DbInterface $db_handler)
+    public function __construct(IDb $db_handler)
     {
         $config = load_config("app");
         $this->db_handler  = $db_handler;

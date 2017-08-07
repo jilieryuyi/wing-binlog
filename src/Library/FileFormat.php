@@ -8,7 +8,7 @@
  *
  * 缓存文件按行解析实现
  *
- * @property DbInterface $db_handler
+ * @property IDb $db_handler
  */
 class FileFormat
 {
@@ -39,9 +39,9 @@ class FileFormat
     /**
      * @构造函数
      * @param string $file 文件路径
-     * @param DbInterface $db_handler
+     * @param IDb $db_handler
      */
-    public function __construct($file, DbInterface $db_handler)
+    public function __construct($file, IDb $db_handler)
     {
         $this->file       = $file;
         $this->db_handler = $db_handler;

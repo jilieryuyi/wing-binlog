@@ -5,7 +5,7 @@
  * Date: 17/3/11
  * Time: 10:22
  */
-interface CacheInterface
+interface ICache
 {
     public function set($key, $value, $timeout = 0);
     public function get($key);

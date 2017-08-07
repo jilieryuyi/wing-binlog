@@ -1,5 +1,5 @@
 <?php namespace Wing\Cache;
-use Wing\Library\CacheInterface;
+use Wing\Library\ICache;
 use Wing\FileSystem\WDir;
 
 /**
@@ -8,7 +8,7 @@ use Wing\FileSystem\WDir;
  * Date: 17/3/11
  * Time: 10:22
  */
-class File implements CacheInterface
+class File implements ICache
 {
     protected $cache_dir = HOME."/process_cache";
     public function __construct($cache_dir = HOME."/process_cache")

@@ -1,7 +1,6 @@
 <?php namespace Wing\Cache;
-use Seals\Library\CacheInterface;
-use Seals\Library\Context;
-use Seals\Library\RedisInterface;
+use Wing\Library\ICache;
+use Wing\Library\IRedis;
 
 /**
  * Created by PhpStorm.
@@ -9,10 +8,10 @@ use Seals\Library\RedisInterface;
  * Date: 17/3/11
  * Time: 20:18
  */
-class Redis implements CacheInterface
+class Redis implements ICache
 {
     private $redis;
-    public function __construct(RedisInterface $redis)
+    public function __construct(IRedis $redis)
     {
         $this->redis = $redis;
     }

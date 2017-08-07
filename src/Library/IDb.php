@@ -6,7 +6,7 @@
  * Time: 18:22
  * 数据库pdo实现接口
  */
-interface DbInterface{
+interface IDb{
     public function query($sql);
     public function getDatabaseName();
     public function getTables();

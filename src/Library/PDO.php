@@ -9,7 +9,7 @@
  * 数据库操作pdo实现
  *
  */
-class PDO implements DbInterface
+class PDO implements IDb
 {
     /**
      * @var \PDO
