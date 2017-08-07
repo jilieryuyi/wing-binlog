@@ -129,7 +129,7 @@ class DispatchWorker extends BaseWorker
 				echo $output, "\r\n";
 			}
 			unset($output);
-			usleep(100000);
+			usleep(self::USLEEP * 10);
 		}
 		return 0;
 	}
