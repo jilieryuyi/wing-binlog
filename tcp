@@ -39,9 +39,17 @@ $ws_worker->onMessage = function($connection, $data)
                 $send_count++;
                 $content = file_get_contents($item);
                 foreach ($ws_worker->connections as $c) {
-                    $c->send($content."\r\n\r\n\r\n");
+                    echo "发送tcp消息：", $content,"\r\n";
+                    $res = $c->send($content."\r\n\r\n\r\n");
+                    if ($res) {
+                        echo "成功\r\n";
+                    } else {
+                        echo "失败\r\n";
+                    }
                     $send_count2++;
                 }
+
+                echo $send_count.":".$send_count2,"\r\n\r\n";
                 file_put_contents(HOME."/logs/tcp", $send_count.":".$send_count2);
 
                 unlink($item);
