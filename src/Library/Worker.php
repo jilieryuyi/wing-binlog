@@ -45,14 +45,36 @@ class Worker
 
 		set_error_handler([$this, "onError"]);
     	register_shutdown_function(function(){
-            file_put_contents(HOME."/logs/error.log", date("Y-m-d H:i:s")."=>".get_current_processid()."异常退出\r\n", FILE_APPEND);
+            file_put_contents(HOME."/logs/error.log", date("Y-m-d H:i:s")."=>".
+                $this->getProcessDisplay()."\r\n", FILE_APPEND);
         });
+    }
+
+    protected function getProcessDisplay()
+    {
+        $pid = get_current_processid();
+        if ($pid == $this->event_process_id) {
+            return $pid."事件收集进程";
+        }
+
+        if (in_array($pid, $this->parse_processes)) {
+            return $pid."parse进程";
+        }
+
+        if (in_array($pid, $this->dispatch_processes)) {
+            return $pid."dispatch进程";
+        }
+
+       return $pid;
+
     }
 
 
     public function onError()
     {
-        file_put_contents(HOME."/logs/error.log", date("Y-m-d H:i:s")."=>".json_encode(func_get_args(), JSON_BIGINT_AS_STRING)."\r\n", FILE_APPEND);
+        file_put_contents(HOME."/logs/error.log",
+            date("Y-m-d H:i:s")."=>".$this->getProcessDisplay()."发生错误：".json_encode(func_get_args(), JSON_BIGINT_AS_STRING).
+            "\r\n", FILE_APPEND);
     }
 
     /**
