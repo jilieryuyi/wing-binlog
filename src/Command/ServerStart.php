@@ -74,7 +74,7 @@ class ServerStart extends ServerBase
 		if ($deamon) {
 			$command .= " -d";
 		}
-        $handle  = popen("/bin/sh -c \"".$command."\" >>".HOME."/logs/websocket.log&","r");
+        $handle  = popen("/bin/sh -c \"".$command."\" >>".HOME."/logs/tcp.log&","r");
 
         if ($handle) {
             pclose($handle);
