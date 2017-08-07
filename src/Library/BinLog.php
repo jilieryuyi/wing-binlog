@@ -33,6 +33,9 @@ class BinLog
      */
     public static $debug = false;
 
+    private $current_binlog_file = null;
+    private $times = [];
+
 
     /**
      * 构造函数
@@ -155,6 +158,20 @@ class BinLog
 //        if ($path) {
 //            return $path;
 //        }
+        if ($this->current_binlog_file != null &&
+            $this->times[__FUNCTION__]%200 !=0 ) {
+            return $this->current_binlog_file;
+        }
+
+        if (!isset($this->times[__FUNCTION__])) {
+            $this->times[__FUNCTION__] = 0;
+        }
+
+        $this->times[__FUNCTION__]++;
+
+        if ($this->times[__FUNCTION__] > 99999990) {
+            $this->times[__FUNCTION__] = 0;
+        }
 
         $sql  = 'select @@log_bin_basename';
         if (self::$debug)
@@ -177,6 +194,7 @@ class BinLog
 //        else
 //            $this->cache->del($key);
 
+        $this->current_binlog_file = $path;
         return $path;
     }
 
