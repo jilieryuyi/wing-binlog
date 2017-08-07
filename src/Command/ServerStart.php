@@ -34,8 +34,8 @@ class ServerStart extends ServerBase
         $with_tcp    = $input->getOption("with-tcp");
         $with_redis  = $input->getOption("with-redis");
 
-        $this->startTcpService();
-        $this->startWebsocketService();
+        $this->startTcpService($deamon);
+        $this->startWebsocketService($deamon);
 
         $worker = new \Wing\Library\Worker(
             [
@@ -50,9 +50,12 @@ class ServerStart extends ServerBase
         $worker->start();
     }
 
-    private function startWebsocketService()
+    private function startWebsocketService($deamon)
     {
         $command = "php ".HOME."/websocket start";
+        if ($deamon) {
+        	$command .= " -d";
+		}
         $handle  = popen("/bin/sh -c \"".$command."\" >>".HOME."/logs/websocket.log&","r");
 
         if ($handle) {
@@ -60,9 +63,12 @@ class ServerStart extends ServerBase
         }
     }
 
-    private function startTcpService()
+    private function startTcpService($deamon)
     {
         $command = "php ".HOME."/tcp start";
+		if ($deamon) {
+			$command .= " -d";
+		}
         $handle  = popen("/bin/sh -c \"".$command."\" >>".HOME."/logs/websocket.log&","r");
 
         if ($handle) {
