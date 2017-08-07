@@ -193,7 +193,7 @@ class Worker
         }
 
         for ($i = 1; $i <= $this->workers; $i++) {
-        	$pid = (new ParseWorker($this->workers, $i))->start($this->daemon);
+        	$pid = (new ParseWorker($this->workers, $i))->start($this->daemon, $this->with_tcp, $this->with_websocket);
 			//echo "parse worker => ",$i," 进程id => ", $pid, "\r\n";
         	$this->parse_processes[] = $pid;
 			$this->processes[] = $pid;
@@ -247,7 +247,7 @@ class Worker
                         $id = array_search($pid, $this->parse_processes);
                         if ($id !== false) {
                             unset($this->parse_processes[$id]);
-                            $_pid = (new ParseWorker($this->workers, $id))->start($this->daemon);
+                            $_pid = (new ParseWorker($this->workers, $id))->start($this->daemon, $this->with_tcp, $this->with_websocket);
                             $this->parse_processes[] = $_pid;
                             $this->processes[] = $_pid;
                             break;

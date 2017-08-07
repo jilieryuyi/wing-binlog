@@ -59,7 +59,7 @@ class ParseWorker extends BaseWorker
 	 * @return int
 	 */
 
-	public function start($daemon = false)
+	public function start($daemon = false, $with_tcp = false, $with_websocket = false)
 	{
 		$process_id = pcntl_fork();
 
@@ -82,8 +82,14 @@ class ParseWorker extends BaseWorker
 		set_process_title($process_name);
 
 		$pdo = new PDO();
-		$websocket = new WebSocket();
-		$tcp = new Tcp();
+		$websocket = null;
+		if ($with_websocket) {
+			$websocket = new WebSocket();
+		}
+		$tcp       = null;
+		if ($with_tcp) {
+			$tcp = new Tcp();
+		}
 
 		while (1) {
 			ob_start();
@@ -107,8 +113,13 @@ class ParseWorker extends BaseWorker
                                 "event_data"    => $event,
                             ];
                             var_dump($params);
-                            $websocket->onchange($database_name, $table_name, $event);
-                            $tcp->onchange($database_name, $table_name, $event);
+
+                            if ($websocket) {
+                            	$websocket->onchange($database_name, $table_name, $event);
+							}
+                            if ($tcp) {
+                            	$tcp->onchange($database_name, $table_name, $event);
+							}
 
                             $this->events_count++;
 

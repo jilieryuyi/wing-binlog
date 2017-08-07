@@ -34,8 +34,13 @@ class ServerStart extends ServerBase
         $with_tcp    = $input->getOption("with-tcp");
         $with_redis  = $input->getOption("with-redis");
 
-        $this->startTcpService($deamon);
-        $this->startWebsocketService($deamon);
+        if ($with_tcp) {
+        	$this->startTcpService($deamon);
+		}
+
+		if ($with_ws) {
+			$this->startWebsocketService($deamon);
+		}
 
         $worker = new \Wing\Library\Worker(
             [
