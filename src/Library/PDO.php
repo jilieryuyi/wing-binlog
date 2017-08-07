@@ -112,8 +112,10 @@ class PDO implements DbInterface
         } catch (\PDOException $e) {
             //Context::instance()->logger->error("pdo connect error", $e->errorInfo);
             var_dump("pdo ".__FUNCTION__,$e->errorInfo);
-            sleep(1);
-            $this->connect();
+//            sleep(1);
+//            $this->connect();
+			echo "mysql连接异常\r\n";
+			exit;
         }
     }
 
