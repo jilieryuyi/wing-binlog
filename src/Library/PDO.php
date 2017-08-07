@@ -44,12 +44,13 @@ class PDO implements DbInterface
      */
     public function __construct()
     {
-		$config = load_config("database");
+		$config = load_config("app");
 		if (!is_array($config)) {
 			echo "数据库配置错误";
 			exit;
 		}
 
+		$config = $config["mysql"];
         $this->parameters = array();
         $this->dbname     = $config["db_name"];
         $this->host       = $config["host"];

@@ -1,6 +1,15 @@
 <?php
 
 return  [
-    "mysqlbinlog" => "mysqlbinlog"
+    //必须配置：mysqlbinlog 命令，如果无法识别 写绝对路径
+    "mysqlbinlog" => "mysqlbinlog",
+    //必须配置：mysql
+    "mysql" => [
+            "db_name"  => "ylb_activity",
+            "host"     => "127.0.0.1",
+            "user"     => "root",
+            "password" => "123456",
+            "port"     => 3306
+    ]
 ];
 
