@@ -8,7 +8,7 @@
 class DispatchWorker extends BaseWorker
 {
 	private $index;
-	private $event_times = 0;
+	//private $event_times = 0;
 
     public function __construct($workers, $index)
 	{
@@ -105,8 +105,8 @@ class DispatchWorker extends BaseWorker
 //                        if (!file_exists($cache_path)) {
 //                            echo "文件不存在\r\n";
 //                        } else {
-                            $this->event_times++;
-                            file_put_contents(HOME."/logs/dispatch_worker".get_current_processid().".log", $this->event_times);
+                          //  $this->event_times++;
+                           // file_put_contents(HOME."/logs/dispatch_worker".get_current_processid().".log", $this->event_times);
                         //}
 
                     } while (0);
