@@ -46,8 +46,14 @@ class Worker
 
 		set_error_handler([$this, "onError"]);
     	register_shutdown_function(function(){
-            file_put_contents(HOME."/logs/error.log", date("Y-m-d H:i:s")."=>".
-                $this->getProcessDisplay()."\r\n", FILE_APPEND);
+			$log = date("Y-m-d H:i:s")."=>". $this->getProcessDisplay()."正常退出\r\n";
+    		if (!$this->normal_stop) {
+    			$log = date("Y-m-d H:i:s")."=>". $this->getProcessDisplay()."异常退出\r\n";
+    			if (get_current_processid() == file_get_contents(self::$pid)) {
+					$log = date("Y-m-d H:i:s")."=>". $this->getProcessDisplay()."父进程异常退出\r\n";
+				}
+			}
+            file_put_contents(HOME."/logs/error.log", $log, FILE_APPEND);
 
             //如果父进程异常退出 kill掉所有子进程
             if (get_current_processid() == file_get_contents(self::$pid) && !$this->normal_stop) {
@@ -103,8 +109,8 @@ class Worker
         switch ($signal) {
             //stop all
             case SIGINT:
+				$this->normal_stop = true;
                 if ($server_id == get_current_processid()) {
-                	$this->normal_stop = true;
                     foreach ($this->processes as $id => $pid) {
                         posix_kill($pid, SIGINT);
                     }
