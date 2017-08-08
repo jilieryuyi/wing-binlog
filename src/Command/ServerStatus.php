@@ -1,7 +1,8 @@
-<?php namespace Seals\Console\Command;
+<?php namespace Wing\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Wing\Library\Worker;
 
 class ServerStatus extends ServerBase
 {
@@ -16,6 +17,6 @@ class ServerStatus extends ServerBase
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        echo $this->status();
+        Worker::showStatus();
     }
 }
