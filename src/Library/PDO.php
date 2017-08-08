@@ -112,7 +112,6 @@ class PDO implements IDb
 
             $this->bconnected = true;
         } catch (\PDOException $e) {
-            //Context::instance()->logger->error("pdo connect error", $e->errorInfo);
 			if (WING_DEBUG)
 			var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             sleep(1);
@@ -167,7 +166,6 @@ class PDO implements IDb
         } catch (\PDOException $e) {
             $this->close();
             $this->connect();
-         //   Context::instance()->logger->error("pdo init", $e->errorInfo);
 			if (WING_DEBUG)
 			var_dump("pdo ".__FUNCTION__,$e->errorInfo);
         }
@@ -215,7 +213,6 @@ class PDO implements IDb
                     return 0;
             }
         } catch (\PDOException $e) {
-          //  Context::instance()->logger->error("pdo query", $e->errorInfo);
 			if (WING_DEBUG)
 			var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             $this->close();
@@ -238,7 +235,6 @@ class PDO implements IDb
             else
                 return 0;
         } catch (\PDOException $e) {
-          //  Context::instance()->logger->error("pdo lastInsertId", $e->errorInfo);
 			if (WING_DEBUG)
 			var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             $this->close();
@@ -258,7 +254,6 @@ class PDO implements IDb
             if ($this->pdo)
                 return $this->pdo->beginTransaction();
         } catch (\PDOException $e) {
-          //  Context::instance()->logger->error("pdo startTransaction", $e->errorInfo);
 			if (WING_DEBUG)
 			var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             $this->close();
@@ -278,7 +273,6 @@ class PDO implements IDb
             if ($this->pdo)
                 return $this->pdo->commit();
         } catch (\PDOException $e) {
-          //  Context::instance()->logger->error("pdo commit", $e->errorInfo);
 			if (WING_DEBUG)
 			var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             $this->close();
@@ -298,7 +292,6 @@ class PDO implements IDb
             if ($this->pdo)
                 return $this->pdo->rollBack();
         } catch (\PDOException $e) {
-           // Context::instance()->logger->error("pdo rollBack", $e->errorInfo);
 			if (WING_DEBUG)
 			var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             $this->close();
@@ -326,7 +319,6 @@ class PDO implements IDb
                 return $result;
             }
         } catch (\PDOException $e) {
-          //  Context::instance()->logger->error("pdo row", $e->errorInfo);
 			if (WING_DEBUG)
 			var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             $this->close();
