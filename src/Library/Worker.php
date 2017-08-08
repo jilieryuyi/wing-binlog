@@ -20,6 +20,7 @@ class Worker
 	private $with_redis = false;
 
 	private static $pid     = null;
+	private $normal_stop    = false;
 
 	//子进程相关信息
 	private $event_process_id   = 0;
@@ -49,7 +50,7 @@ class Worker
                 $this->getProcessDisplay()."\r\n", FILE_APPEND);
 
             //如果父进程异常退出 kill掉所有子进程
-            if (get_current_processid() == file_get_contents(self::$pid)) {
+            if (get_current_processid() == file_get_contents(self::$pid) && !$this->normal_stop) {
 				file_put_contents(HOME."/logs/error.log", date("Y-m-d H:i:s")."=>父进程异常退出，尝试kill所有子进程".
 					$this->getProcessDisplay()."\r\n", FILE_APPEND);
 				$this->signalHandler(SIGINT);
@@ -103,6 +104,7 @@ class Worker
             //stop all
             case SIGINT:
                 if ($server_id == get_current_processid()) {
+                	$this->normal_stop = true;
                     foreach ($this->processes as $id => $pid) {
                         posix_kill($pid, SIGINT);
                     }
