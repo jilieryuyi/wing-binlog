@@ -332,9 +332,6 @@ class BinLog
         unset($current_binlog_file);
         $handle = popen($command,"r");
         if (!$handle) {
-            //echo "执行失败\r\n";
-        } else {
-            echo fread($handle, 1024),"\r\n";
             pclose($handle);
         }
 
