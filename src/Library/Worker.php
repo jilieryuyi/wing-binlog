@@ -47,6 +47,11 @@ class Worker
     	register_shutdown_function(function(){
             file_put_contents(HOME."/logs/error.log", date("Y-m-d H:i:s")."=>".
                 $this->getProcessDisplay()."\r\n", FILE_APPEND);
+
+            //如果父进程异常退出 kill掉所有子进程
+            if (get_current_processid() == file_get_contents(self::$pid)) {
+				$this->signalHandler(SIGINT);
+			}
         });
 
     	if ($params["debug"]) {
@@ -241,7 +246,7 @@ class Worker
         	$this->parse_processes[] = $pid;
 			$this->processes[] = $pid;
         }
-		
+
         for ($i = 1; $i <= $this->workers; $i++) {
             $pid = (new DispatchWorker($this->workers, $i))->start($this->daemon);
             $this->dispatch_processes[] = $pid;
