@@ -185,7 +185,7 @@ class Worker
 					}
 				} else {
 					//子进程
-					file_put_contents(get_current_processid()."_get_status", 1);
+					file_put_contents(HOME."/logs/".get_current_processid()."_get_status", 1);
 				}
 
 				break;
