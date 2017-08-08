@@ -50,6 +50,8 @@ class Worker
 
             //如果父进程异常退出 kill掉所有子进程
             if (get_current_processid() == file_get_contents(self::$pid)) {
+				file_put_contents(HOME."/logs/error.log", date("Y-m-d H:i:s")."=>父进程异常退出，尝试kill所有子进程".
+					$this->getProcessDisplay()."\r\n", FILE_APPEND);
 				$this->signalHandler(SIGINT);
 			}
         });
