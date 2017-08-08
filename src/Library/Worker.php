@@ -241,8 +241,7 @@ class Worker
         	$this->parse_processes[] = $pid;
 			$this->processes[] = $pid;
         }
-
-
+		
         for ($i = 1; $i <= $this->workers; $i++) {
             $pid = (new DispatchWorker($this->workers, $i))->start($this->daemon);
             $this->dispatch_processes[] = $pid;
@@ -250,17 +249,7 @@ class Worker
         }
 
 		$this->event_process_id = (new EventWorker($this->workers))->start($this->daemon);
-        //echo "event worker => ",$i," 进程id => ", $this->event_process_id, "\r\n";
-
         $this->processes[] = $this->event_process_id;
-
-//		$this->websocket_process_id = (new WebSocketWorker())->start($this->daemon);
-//        //echo "websocket worker => ",$i," 进程id => ", $this->websocket_process_id, "\r\n";
-//
-//        $this->processes[] = $this->websocket_process_id;
-//
-//        $this->tcp_process_id = (new TcpWorker())->start($this->daemon);
-//        $this->processes[] = $this->tcp_process_id;
 
         file_put_contents(self::$pid, get_current_processid());
         $process_name = "wing php >> master process";
@@ -272,9 +261,8 @@ class Worker
             try {
                 ob_start();
 
-                //var_dump($this->processes);
                 $status = 0;
-                $pid    = pcntl_wait($status, WNOHANG);//WUNTRACED);
+                $pid    = pcntl_wait($status, WNOHANG);
 
                 if ($pid > 0) {
                     echo $pid,"进程退出\r\n";
@@ -311,17 +299,6 @@ class Worker
                             break;
                         }
 
-//                        if ($pid == $this->websocket_process_id) {
-//                            $this->websocket_process_id = (new WebSocketWorker())->start($this->daemon);
-//                            $this->processes[] = $this->websocket_process_id;
-//                            break;
-//                        }
-//
-//                        if ($pid == $this->tcp_process_id) {
-//                            $this->tcp_process_id = (new TcpWorker())->start($this->daemon);
-//                            $this->processes[] = $this->tcp_process_id;
-//                            break;
-//                        }
                     } while(0);
 
                 }
