@@ -223,6 +223,7 @@ class Worker
 
         pcntl_signal(SIGINT,  [$this, 'signalHandler'], false);
         pcntl_signal(SIGUSR1, [$this, 'signalHandler'], false);
+		pcntl_signal(SIGUSR2, [$this, 'signalHandler'], false);
         pcntl_signal(SIGPIPE, SIG_IGN, false);
 
 
