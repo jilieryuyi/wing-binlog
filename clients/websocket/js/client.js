@@ -108,7 +108,11 @@ function start_service(){
         ws.send(_msg);
         im.onConnect();
         interval = window.setInterval(function(){
-            ws.send(_msg);
+            try {
+                ws.send(_msg);
+            } catch(e){
+                im.online = false;
+            }
         },500);
 
     };
