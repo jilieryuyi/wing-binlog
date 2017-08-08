@@ -48,6 +48,12 @@ class Worker
             file_put_contents(HOME."/logs/error.log", date("Y-m-d H:i:s")."=>".
                 $this->getProcessDisplay()."\r\n", FILE_APPEND);
         });
+
+    	if ($params["debug"]) {
+    		define("DEBUG", true);
+		} else {
+			define("DEBUG", false);
+		}
     }
 
     protected function getProcessDisplay()
@@ -100,27 +106,10 @@ class Worker
                         $pid = pcntl_wait($status, WNOHANG);//WUNTRACED);
                         if ($pid > 0) {
 
-
-                            /**
-                            private $event_process_id   = 0;
-                            private $websocket_process_id = 0;
-                            private $tcp_process_id     = 0;
-                            private $parse_processes    = [];
-                            private $dispatch_processes = [];
-                            private $processes          = [];
-                             */
-
                             if ($pid == $this->event_process_id) {
                                 echo $pid,"事件收集进程退出\r\n";
                             }
 
-//                            if ($pid == $this->websocket_process_id) {
-//                                echo $pid,"websocket进程退出\r\n";
-//                            }
-//
-//                            if ($pid == $this->tcp_process_id) {
-//                                echo $pid,"tcp进程退出\r\n";
-//                            }
 
                             if (in_array($pid, $this->parse_processes)) {
                                 echo $pid,"parse进程退出\r\n";
@@ -132,7 +121,6 @@ class Worker
 
                             $id = array_search($pid, $this->processes);
                             unset($this->processes[$id]);
-                            //echo $pid,"进程退出\r\n";
 
                         }
 
@@ -148,7 +136,6 @@ class Worker
                         }
 
                         if ((time() - $start) >= 5) {
-                            //var_dump($this->processes);
                             echo "退出进程超时\r\n";
                             break;
                         }
@@ -157,7 +144,7 @@ class Worker
                     }
                     echo "父进程退出\r\n";
                 }
-                echo "==>",get_current_processid(),"收到退出信号退出\r\n";
+                echo get_current_processid(),"收到退出信号退出\r\n";
                 exit(0);
                 break;
             //restart
@@ -189,17 +176,34 @@ class Worker
 
                 exit(0);
                 break;
+			case SIGUSR2:
+				echo get_current_processid()," show status\r\n";
+
+				if ($server_id == get_current_processid()) {
+					foreach ($this->processes as $id => $pid) {
+						posix_kill($pid, SIGUSR2);
+					}
+				} else {
+					//子进程
+				}
+
+				break;
         }
     }
 
     public static function stopAll()
     {
-
         self::$pid = dirname(dirname(__DIR__))."/wing.pid";
-
         $server_id = file_get_contents(self::$pid);
         posix_kill($server_id, SIGINT);
     }
+
+	public static function showStatus()
+	{
+		self::$pid = dirname(dirname(__DIR__))."/wing.pid";
+		$server_id = file_get_contents(self::$pid);
+		posix_kill($server_id, SIGUSR2);
+	}
 
     /**
      * @启动进程 入口函数
