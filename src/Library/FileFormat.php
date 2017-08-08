@@ -172,7 +172,7 @@ class FileFormat
                 $str1 = md5(rand(0, 999999));
                 $str2 = md5(rand(0, 999999));
                 $str3 = md5(rand(0, 999999));
-                $event["__enevt_id"] = "seals_" . time() . "_" .
+                $event["__enevt_id"] = "wing_binlog_" . time() . "_" .
                     substr($str1, rand(0, strlen($str1) - 16), 16) . "_" .
                     substr($str2, rand(0, strlen($str2) - 16), 16) . "_" .
                     substr($str3, rand(0, strlen($str3) - 16), 16);
