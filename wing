@@ -9,6 +9,18 @@ date_default_timezone_set("PRC");
 
 use Symfony\Component\Console\Application;
 
+$debug = false;
+foreach ($argv as $item) {
+    if (strpos($item, "debug") !== false) {
+		$debug = true;
+    }
+}
+if ($debug) {
+	define("WING_DEBUG", true);
+} else {
+	define("WING_DEBUG", false);
+}
+
 
 try {
 

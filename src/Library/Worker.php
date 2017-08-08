@@ -53,21 +53,25 @@ class Worker
 					$log = date("Y-m-d H:i:s")."=>". $this->getProcessDisplay()."父进程异常退出\r\n";
 				}
 			}
+			if (WING_DEBUG) {
+    			echo $log;
+			}
             file_put_contents(HOME."/logs/error.log", $log, FILE_APPEND);
 
             //如果父进程异常退出 kill掉所有子进程
             if (get_current_processid() == file_get_contents(self::$pid) && !$this->normal_stop) {
-				file_put_contents(HOME."/logs/error.log", date("Y-m-d H:i:s")."=>父进程异常退出，尝试kill所有子进程".
-					$this->getProcessDisplay()."\r\n", FILE_APPEND);
+            	$log = date("Y-m-d H:i:s")."=>父进程异常退出，尝试kill所有子进程".
+					$this->getProcessDisplay()."\r\n";
+				if (WING_DEBUG) {
+					echo $log;
+				}
+				file_put_contents(HOME."/logs/error.log",
+					$log, FILE_APPEND);
 				$this->signalHandler(SIGINT);
 			}
         });
 
-    	if ($params["debug"]) {
-    		define("DEBUG", true);
-		} else {
-			define("DEBUG", false);
-		}
+
     }
 
     protected function getProcessDisplay()
@@ -95,6 +99,9 @@ class Worker
         file_put_contents(HOME."/logs/error.log",
             date("Y-m-d H:i:s")."=>".$this->getProcessDisplay()."发生错误：".json_encode(func_get_args(), JSON_BIGINT_AS_STRING).
             "\r\n", FILE_APPEND);
+        if (WING_DEBUG) {
+			var_dump(func_get_args());
+		}
     }
 
     /**
@@ -200,7 +207,7 @@ class Worker
 					}
 				} else {
 					//子进程
-					file_put_contents(HOME."/logs/".get_current_processid()."_get_status", 1);
+					//file_put_contents(HOME."/logs/".get_current_processid()."_get_status", 1);
 				}
 
 				break;
@@ -320,11 +327,12 @@ class Worker
                 $content = ob_get_contents();
                 ob_end_clean();
 
-                if ($this->debug && $content) {
+                if (WING_DEBUG && $content) {
                 	echo $content,"\r\n";
 				}
 
             } catch (\Exception $e) {
+            	if (WING_DEBUG)
 				var_dump($e->getMessage());
             }
             sleep(1);

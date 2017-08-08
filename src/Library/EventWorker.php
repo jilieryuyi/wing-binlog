@@ -25,7 +25,10 @@ class EventWorker extends BaseWorker
         $this->event_times++;
         $debug = get_current_processid()."写入pos的次数：".$this->event_times."\r\n";
         file_put_contents(HOME."/logs/event_worker.log", $debug);
-        echo $debug;
+
+        if (WING_DEBUG)
+        	echo $debug;
+
         $dir_str = HOME."/cache/pos/".$worker;
         $dir = new WDir($dir_str);
         $dir->mkdir();
@@ -113,9 +116,10 @@ class EventWorker extends BaseWorker
                     foreach ($data as $row) {
                         if ($row["Event_type"] == "Xid") {
                             $worker = $this->getWorker("dispatch_process");
+							if (WING_DEBUG)
                             echo "写入pos位置：", $start_pos . "-" . $row["End_log_pos"], "\r\n";
                             $res = $this->writePos($worker, $start_pos, $row["End_log_pos"]);
-                            if (!$res) {
+                            if (!$res && WING_DEBUG) {
                                 echo "失败\r\n";
                             }
 //                            if ($run_count % $is_run == 0) {
@@ -134,12 +138,15 @@ class EventWorker extends BaseWorker
                         //如果没有查找到一个事务 $limit x 2 直到超过 100000 行
 						if (!$has_session) {
 							$limit = 2 * $limit;
+							if (WING_DEBUG)
 							echo "没有找到事务，更新limit=", $limit, "\r\n";
 							if ($limit >= 80000) {
 								//如果超过8万 仍然没有找到事务的结束点 放弃采集 直接更新游标
 								$row = array_pop($data);
-								echo "查询超过8万，没有找到事务，直接更新游标";
-								echo $start_pos, "=>", $row["End_log_pos"], "\r\n";
+								if (WING_DEBUG) {
+									echo "查询超过8万，没有找到事务，直接更新游标";
+									echo $start_pos, "=>", $row["End_log_pos"], "\r\n";
+								}
 
 								$bin->setLastPosition($start_pos, $row["End_log_pos"]);
 
@@ -156,6 +163,7 @@ class EventWorker extends BaseWorker
 					} while (0);
 
 			} catch (\Exception $e) {
+				if (WING_DEBUG)
 				var_dump($e->getMessage());
 				unset($e);
 			}
@@ -164,7 +172,7 @@ class EventWorker extends BaseWorker
 
 			ob_end_clean();
 
-			if ($output) {
+			if ($output && WING_DEBUG) {
 				echo $output,"\r\n";
 			}
 			unset($output);

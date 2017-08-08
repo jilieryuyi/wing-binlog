@@ -115,6 +115,8 @@ class ParseWorker extends BaseWorker
                                 "table_name"    => $table_name,
                                 "event_data"    => $event,
                             ];
+
+							if (WING_DEBUG)
                             var_dump($params);
 
                             foreach ($notify as $no_item) {
@@ -125,6 +127,7 @@ class ParseWorker extends BaseWorker
 
                             $debug = get_current_processid()."处理事件次数：".$this->events_count."，文件次数：".$this->file_times."\r\n";
                             file_put_contents(HOME."/logs/parse_worker_".get_current_processid().".log", $debug);
+							if (WING_DEBUG)
                             echo $debug;
                         });
 
@@ -134,6 +137,7 @@ class ParseWorker extends BaseWorker
 
 
 			} catch (\Exception $e) {
+				if (WING_DEBUG)
 				var_dump($e->getMessage());
 				unset($e);
 			}
@@ -142,7 +146,7 @@ class ParseWorker extends BaseWorker
 			ob_end_clean();
 			usleep(100000);
 
-			if ($output) {
+			if ($output && WING_DEBUG) {
 				echo $output;
 			}
 			unset($output);

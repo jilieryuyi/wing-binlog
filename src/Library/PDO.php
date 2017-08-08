@@ -46,6 +46,7 @@ class PDO implements IDb
     {
 		$config = load_config("app");
 		if (!is_array($config)) {
+			if (WING_DEBUG)
 			echo "数据库配置错误";
 			exit;
 		}
@@ -112,9 +113,11 @@ class PDO implements IDb
             $this->bconnected = true;
         } catch (\PDOException $e) {
             //Context::instance()->logger->error("pdo connect error", $e->errorInfo);
-            var_dump("pdo ".__FUNCTION__,$e->errorInfo);
+			if (WING_DEBUG)
+			var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             sleep(1);
             $this->connect();
+			if (WING_DEBUG)
 			echo "mysql连接异常\r\n";
 			//exit;
         }
@@ -165,7 +168,8 @@ class PDO implements IDb
             $this->close();
             $this->connect();
          //   Context::instance()->logger->error("pdo init", $e->errorInfo);
-            var_dump("pdo ".__FUNCTION__,$e->errorInfo);
+			if (WING_DEBUG)
+			var_dump("pdo ".__FUNCTION__,$e->errorInfo);
         }
         $this->parameters = array();
         return false;
@@ -212,7 +216,8 @@ class PDO implements IDb
             }
         } catch (\PDOException $e) {
           //  Context::instance()->logger->error("pdo query", $e->errorInfo);
-            var_dump("pdo ".__FUNCTION__,$e->errorInfo);
+			if (WING_DEBUG)
+			var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             $this->close();
             $this->connect();
         }
@@ -234,7 +239,8 @@ class PDO implements IDb
                 return 0;
         } catch (\PDOException $e) {
           //  Context::instance()->logger->error("pdo lastInsertId", $e->errorInfo);
-            var_dump("pdo ".__FUNCTION__,$e->errorInfo);
+			if (WING_DEBUG)
+			var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             $this->close();
             $this->connect();
         }
@@ -253,7 +259,8 @@ class PDO implements IDb
                 return $this->pdo->beginTransaction();
         } catch (\PDOException $e) {
           //  Context::instance()->logger->error("pdo startTransaction", $e->errorInfo);
-            var_dump("pdo ".__FUNCTION__,$e->errorInfo);
+			if (WING_DEBUG)
+			var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             $this->close();
             $this->connect();
         }
@@ -272,7 +279,8 @@ class PDO implements IDb
                 return $this->pdo->commit();
         } catch (\PDOException $e) {
           //  Context::instance()->logger->error("pdo commit", $e->errorInfo);
-            var_dump("pdo ".__FUNCTION__,$e->errorInfo);
+			if (WING_DEBUG)
+			var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             $this->close();
             $this->connect();
         }
@@ -291,7 +299,8 @@ class PDO implements IDb
                 return $this->pdo->rollBack();
         } catch (\PDOException $e) {
            // Context::instance()->logger->error("pdo rollBack", $e->errorInfo);
-            var_dump("pdo ".__FUNCTION__,$e->errorInfo);
+			if (WING_DEBUG)
+			var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             $this->close();
             $this->connect();
         }
@@ -318,7 +327,8 @@ class PDO implements IDb
             }
         } catch (\PDOException $e) {
           //  Context::instance()->logger->error("pdo row", $e->errorInfo);
-            var_dump("pdo ".__FUNCTION__,$e->errorInfo);
+			if (WING_DEBUG)
+			var_dump("pdo ".__FUNCTION__,$e->errorInfo);
             $this->close();
             $this->connect();
         }

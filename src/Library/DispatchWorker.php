@@ -30,8 +30,10 @@ class DispatchWorker extends BaseWorker
                     $file = array_pop($temp);
                     list($start, $end) = explode("_", $file);
 
-                    echo "正在处理文件：",$item,"--";
-                    echo $start,":",$end,"\r\n";
+                    if (WING_DEBUG) {
+						echo "正在处理文件：", $item, "--";
+						echo $start, ":", $end, "\r\n";
+					}
 
                     $callback($start, $end);
                     unlink($item);
@@ -80,7 +82,7 @@ class DispatchWorker extends BaseWorker
 
 		$process_name = "wing php >> dispatch process - ".$this->index;
 
-		echo $process_name,"\r\n";
+		//echo $process_name,"\r\n";
 		//设置进程标题 mac 会有warning 直接忽略
 		set_process_title($process_name);
 
@@ -98,13 +100,13 @@ class DispatchWorker extends BaseWorker
                 $this->scandir(function($start_pos, $end_pos) use($bin){
                     do {
                         if (!$end_pos) {
-                            echo "非法endpos\r\n";
+                            //echo "非法endpos\r\n";
                             break;
                         }
 
                         $worker     = $this->getWorker("parse_process");
                         $cache_path = $bin->getSessions($worker, $start_pos, $end_pos);
-
+						if (WING_DEBUG)
                         echo "生成缓存文件",$cache_path,"\r\n";
 
 //                        if (!file_exists($cache_path)) {
@@ -118,6 +120,7 @@ class DispatchWorker extends BaseWorker
                 });
 
 			} catch (\Exception $e) {
+				if (WING_DEBUG)
 				var_dump($e->getMessage());
 				unset($e);
 			}
@@ -125,7 +128,7 @@ class DispatchWorker extends BaseWorker
 			$output = ob_get_contents();
 			ob_end_clean();
 
-			if ($output) {
+			if ($output && WING_DEBUG ) {
 				echo $output, "\r\n";
 			}
 			unset($output);
