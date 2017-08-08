@@ -208,6 +208,7 @@ class Worker
 				} else {
 					//子进程
 					//file_put_contents(HOME."/logs/".get_current_processid()."_get_status", 1);
+				    //sprintf("","进程id 事件次数 运行时间 进程名称");
 				}
 
 				break;
