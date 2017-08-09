@@ -286,7 +286,7 @@ class Worker
         $str .=sprintf("%-12s%-21s%s\r\n","process_id","start_time","process_name");
         $str .= "--------------------------------------------------------------------------------------\r\n";
 
-        $str .= sprintf("%-12s%-14s%-21s%-36s%s\r\n",
+        $str .= sprintf("%-12s%-21s%s\r\n",
             get_current_processid(),
             $this->start_time,
             "wing php >> master process"
