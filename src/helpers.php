@@ -21,6 +21,16 @@ if (!function_exists("set_process_title")) {
 	}
 }
 
+if (!function_exists("get_process_title")) {
+    function get_process_title()
+    {
+        if (function_exists("cli_get_process_title")) {
+            return cli_get_process_title();
+        }
+        return "";
+    }
+}
+
 if (!function_exists("get_current_processid")) {
 	/***
 	 * 获取当前进程id

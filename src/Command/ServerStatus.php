@@ -18,5 +18,7 @@ class ServerStatus extends ServerBase
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         Worker::showStatus();
+        sleep(1);
+        echo file_get_contents(HOME."/logs/status.log");
     }
 }

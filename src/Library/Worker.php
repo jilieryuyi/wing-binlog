@@ -29,6 +29,7 @@ class Worker
 	private $parse_processes    = [];
 	private $dispatch_processes = [];
 	private $processes          = [];
+	private $start_time         = null;
     /**
      * @构造函数
      */
@@ -38,6 +39,7 @@ class Worker
 		"workers" => 4
     ])
     {
+        $this->start_time = date("Y-m-d H:i:s");
     	//默认的pid路径，即根目录 wing.pid
 		self::$pid = dirname(dirname(__DIR__))."/wing.pid";
     	foreach ($params as $key => $value) {
@@ -202,19 +204,26 @@ class Worker
 				echo get_current_processid()," show status\r\n";
 
 				if ($server_id == get_current_processid()) {
+                    $str ="--------------------------------------------------------------------------------------------------------------------------\r\n";
+                    $str .=sprintf("%-12s%-14s%-21s%-36s%s\r\n","process_id","events_times","start_time","running_time_len","process_name");
+                    $str .= "--------------------------------------------------------------------------------------------------------------------------\r\n";
+
+                    file_put_contents(HOME."/logs/status.log", $str);
 					foreach ($this->processes as $id => $pid) {
 						posix_kill($pid, SIGUSR2);
 					}
 				} else {
+
 					//子进程
 					//file_put_contents(HOME."/logs/".get_current_processid()."_get_status", 1);
 				    //sprintf("","进程id 事件次数 运行时间 进程名称");
-                    echo "--------------------------------------------------------------------------------------------------------------------------\r\n";
-                    echo sprintf("%-12s%-14s%-21s%-36s%s\r\n","process_id","events_times","start_time","running_time_len","process_name");
-                    echo "--------------------------------------------------------------------------------------------------------------------------\r\n";
 
-                    echo sprintf("%-12s%-14s%-21s%-36s%s\r\n","21399","1213131","2017-08-09 12:00:00","1day12hours30minutes50seconds","wing php >> parse process - 1");
-                    echo "--------------------------------------------------------------------------------------------------------------------------\r\n";
+                    $str = sprintf("%-12s%-14s%-21s%-36s%s\r\n",
+                        get_current_processid(),
+                        "1213131",$this->start_time,
+                        "1day12hours30minutes50seconds",
+                        get_process_title());
+                    file_put_contents(HOME."/logs/status.log", $str, FILE_APPEND);
 
                 }
 
