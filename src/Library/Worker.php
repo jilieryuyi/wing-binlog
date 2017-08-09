@@ -281,12 +281,14 @@ class Worker
             enable_deamon();
         }
 
+        $format = "%-12s%-21s%s\r\n";
         $str = "\r\n".'wing-binlog, version: '.self::VERSION.' auth: yuyi email: 297341015@qq.com  QQ group: 535218312'."\r\n";
         $str .="--------------------------------------------------------------------------------------\r\n";
-        $str .=sprintf("%-12s%-21s%s\r\n","process_id","start_time","process_name");
+        $str .=sprintf($format,"process_id","start_time","process_name");
         $str .= "--------------------------------------------------------------------------------------\r\n";
 
-        $str .= sprintf("%-12s%-21s%s\r\n",
+        $str .= sprintf(
+            $format,
             get_current_processid(),
             $this->start_time,
             "wing php >> master process"
@@ -301,7 +303,8 @@ class Worker
                     $this->with_redis
             );
 
-            echo sprintf("%-12s%-21s%s\r\n",
+            echo sprintf(
+                $format,
                 $pid,
                 $this->start_time,
                 "wing php >> parse process - ".$i
@@ -314,7 +317,8 @@ class Worker
         for ($i = 1; $i <= $this->workers; $i++) {
             $pid = (new DispatchWorker($this->workers, $i))->start($this->daemon);
 
-            echo sprintf("%-12s%-21s%s\r\n",
+            echo sprintf(
+                $format,
                 $pid,
                 $this->start_time,
                 "wing php >> dispatch process - ".$i
