@@ -143,6 +143,7 @@ class BinLog
      *
      * @return string
      */
+    private $start_getCurrentLogFile = null;
     public function getCurrentLogFile()
     {
 //        $key  = "select.log_bin_basename.table";
@@ -150,8 +151,15 @@ class BinLog
 //        if ($path) {
 //            return $path;
 //        }
+        if ($this->start_getCurrentLogFile == null) {
+            $this->start_getCurrentLogFile = time();
+        }
         if ($this->current_binlog_file != null ) {
-            return $this->current_binlog_file;
+            if ((time() - $this->start_getCurrentLogFile) < 5) {
+                return $this->current_binlog_file;
+            } else {
+                $this->start_getCurrentLogFile = time();
+            }
         }
 
 //        if (!isset($this->times[__FUNCTION__])) {
