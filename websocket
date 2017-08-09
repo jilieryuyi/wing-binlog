@@ -11,20 +11,27 @@ use Workerman\Worker;
 
 $host = "0.0.0.0";
 $port = 9998;
+$workers = 1;
+
 
 foreach ($argv as $item) {
     if (strpos($item,"--host") === 0)
         list(,$host) = explode("=",$item);
     if (strpos($item,"--port") === 0)
         list(,$port) = explode("=",$item);
+    if (strpos($item,"--workers") === 0)
+        list(,$workers) = explode("=",$item);
 }
 
+$workers = intval($workers);
+if ($workers <= 0)
+    $workers = 1;
 //echo "websocket://".$host.":".$port;
 // Create a Websocket server
 $ws_worker = new Worker("websocket://".$host.":".$port);
 
 // 4 processes
-$ws_worker->count = 1;
+$ws_worker->count = $workers;
 
 // Emitted when new connection come
 $ws_worker->onConnect = function($connection)
@@ -36,36 +43,13 @@ $ws_worker->onConnect = function($connection)
 // Emitted when data received
 $ws_worker->onMessage = function($connection, $data)
 {
-    global $ws_worker;
+    //global $ws_worker;
     //$current_process_id = get_current_processid();
 
     // Send hello $data
     //$connection->send('hello ' . $data);
-    ob_start();
-    $path[] = HOME . "/cache/websocket/*";
-    while (count($path) != 0) {
-        $v = array_shift($path);
-        foreach (glob($v) as $item) {
-            if (is_file($item)) {
-                $content = file_get_contents($item);
-                if (!$content) {
-                    continue;
-                }
-                foreach ($ws_worker->connections as $c) {
-                    $c->send($content);
-                }
-                unlink($item);
-            }
-        }
-    }
-    $debug = ob_get_contents();
-    ob_end_clean();
 
-    if ($debug) {
-        echo $debug;
-    }
-
-    unset($debug, $recv_msg);
+   // unset($debug, $recv_msg);
 };
 
 // Emitted when connection closed
@@ -73,8 +57,33 @@ $ws_worker->onClose = function($connection)
 {
     echo "Connection closed\n";
 };
-$ws_worker->onWorkerStart = function(){
-  //file_put_contents(HOME."/websocket.pid",get_current_processid()."   ", FILE_APPEND);
+$ws_worker->onWorkerStart = function($ws_worker){
+    \Workerman\Lib\Timer::add(1, function() use($ws_worker){
+        ob_start();
+        $path[] = HOME . "/cache/websocket/*";
+        while (count($path) != 0) {
+            $v = array_shift($path);
+            foreach (glob($v) as $item) {
+                if (is_file($item)) {
+                    $content = file_get_contents($item);
+                    if (!$content) {
+                        continue;
+                    }
+                    foreach ($ws_worker->connections as $c) {
+                        $c->send($content);
+                    }
+                    unlink($item);
+                }
+            }
+        }
+        $debug = ob_get_contents();
+        ob_end_clean();
+
+        if ($debug) {
+            echo $debug;
+        }
+
+    });
 };
 
 // Run worker
