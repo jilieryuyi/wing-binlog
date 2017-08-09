@@ -80,6 +80,7 @@ class DispatchWorker extends BaseWorker
         }
 
 		$process_name = "wing php >> dispatch process - ".$this->index;
+        self::$process_title = $process_name;
 
 		//echo $process_name,"\r\n";
 		//设置进程标题 mac 会有warning 直接忽略

@@ -213,7 +213,7 @@ class Worker
                         $this->exit_times,//->getEventTimes(),
                         $this->start_time,
                         timelen_format(time() - strtotime($this->start_time)),
-                        get_process_title()
+                        "wing php >> master process"
                     );
                     file_put_contents(HOME."/logs/status.log", $str);
 					foreach ($this->processes as $id => $pid) {
@@ -231,7 +231,7 @@ class Worker
                         BaseWorker::$event_times,//->getEventTimes(),
                         $this->start_time,
                         timelen_format(time() - strtotime($this->start_time)),
-                        get_process_title()
+                        BaseWorker::$process_title
                     );
                     file_put_contents(HOME."/logs/status.log", $str, FILE_APPEND);
 
@@ -260,14 +260,14 @@ class Worker
      */
     public function start(){
 
-        echo "帮助：\r\n";
-        echo "启动服务：php wing start\r\n";
-        echo "指定进程数量：php wing start --n 4\r\n";
-        echo "4个进程以守护进程方式启动服务：php seals start --n 4 --d\r\n";
-        echo "重启服务：php wing restart\r\n";
-        echo "停止服务：php wing stop\r\n";
-        echo "服务状态：php wing status\r\n";
-        echo "\r\n";
+//        echo "帮助：\r\n";
+//        echo "启动服务：php wing start\r\n";
+//        echo "指定进程数量：php wing start --n 4\r\n";
+//        echo "4个进程以守护进程方式启动服务：php seals start --n 4 --d\r\n";
+//        echo "重启服务：php wing restart\r\n";
+//        echo "停止服务：php wing stop\r\n";
+//        echo "服务状态：php wing status\r\n";
+//        echo "\r\n";
 
 
         pcntl_signal(SIGINT,  [$this, 'signalHandler'], false);
@@ -281,6 +281,18 @@ class Worker
             enable_deamon();
         }
 
+        $str = "\r\n".'wing-binlog, version: '.self::VERSION.' auth: yuyi email: 297341015@qq.com  QQ group: 535218312'."\r\n";
+        $str .="--------------------------------------------------------------------------------------\r\n";
+        $str .=sprintf("%-12s%-21s%s\r\n","process_id","start_time","process_name");
+        $str .= "--------------------------------------------------------------------------------------\r\n";
+
+        $str .= sprintf("%-12s%-14s%-21s%-36s%s\r\n",
+            get_current_processid(),
+            $this->start_time,
+            "wing php >> master process"
+        );
+        echo $str;
+
         for ($i = 1; $i <= $this->workers; $i++) {
             $pid = (new ParseWorker($this->workers, $i))->start(
         	        $this->daemon,
@@ -289,12 +301,25 @@ class Worker
                     $this->with_redis
             );
 
+            echo sprintf("%-12s%-21s%s\r\n",
+                $pid,
+                $this->start_time,
+                "wing php >> parse process - ".$i
+            );
+
         	$this->parse_processes[] = $pid;
 			$this->processes[] = $pid;
         }
 
         for ($i = 1; $i <= $this->workers; $i++) {
             $pid = (new DispatchWorker($this->workers, $i))->start($this->daemon);
+
+            echo sprintf("%-12s%-21s%s\r\n",
+                $pid,
+                $this->start_time,
+                "wing php >> dispatch process - ".$i
+            );
+
             $this->dispatch_processes[] = $pid;
             $this->processes[] = $pid;
         }
@@ -303,9 +328,19 @@ class Worker
         $this->processes[] = $this->event_process_id;
 
 
+        echo sprintf("%-12s%-21s%s\r\n",
+            $this->event_process_id,
+            $this->start_time,
+            "wing php >> events collector process"
+        );
+
         file_put_contents(self::$pid, get_current_processid());
         $process_name = "wing php >> master process";
         set_process_title($process_name);
+
+
+
+
 
         while (1) {
             pcntl_signal_dispatch();

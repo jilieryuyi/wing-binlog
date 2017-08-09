@@ -15,6 +15,20 @@ foreach ($argv as $item) {
 		$debug = true;
     }
 }
+
+$str_argv = '';
+for ($i = 1; $i < $argc; $i++) {
+    $str_argv .= ' '.$argv[$i];
+}
+
+$file_name = str_replace(__DIR__, "", __FILE__);
+$file_name = trim($file_name, "/");
+$file_name = trim($file_name, "\\");
+
+$command_line = 'php '.$file_name.' '.$str_argv;
+define("WING_COMMAND_LINE", $command_line);
+//echo $command_line,"\r\n";
+
 if ($debug) {
 	define("WING_DEBUG", true);
 } else {

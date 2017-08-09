@@ -25,9 +25,12 @@ if (!function_exists("get_process_title")) {
     function get_process_title()
     {
         if (function_exists("cli_get_process_title")) {
-            return cli_get_process_title();
+            $title =  cli_get_process_title();
+            if ($title) {
+                return $title;
+            }
         }
-        return "";
+        return WING_COMMAND_LINE;
     }
 }
 
