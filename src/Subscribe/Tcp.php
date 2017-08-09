@@ -13,6 +13,7 @@ class Tcp implements ISubscribe
     private $workers = 1;
     public function __construct($workers)
     {
+        $this->workers = $workers;
         for ($i = 0; $i < $this->workers; $i++) {
             $cache = HOME . "/cache/tcp/".$i;
             (new WDir($cache))->mkdir();
