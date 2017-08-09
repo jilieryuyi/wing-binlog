@@ -15,4 +15,5 @@ mysqlbinlog 监控系统
 4、执行 php wing start 开启服务进程，可选参数 --d 以守护进程执行，--with-tcp 启用tcp服务，--with-websocket启用websocket服务，--with-redis启用redis队列通知服务         
      如：php wing start --d --with-tcp --with-websocket --with-redis          
 5、clients下面有两个测试的客户端，一个websocket和一个php实现的tcp      
-6、执行php wing stop 停止所有服务             
+6、执行php wing stop 停止所有服务  
+7、执行php wing status 查看服务状态           
