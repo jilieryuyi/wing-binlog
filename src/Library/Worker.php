@@ -221,7 +221,7 @@ class Worker
                     $str = sprintf("%-12s%-14s%-21s%-36s%s\r\n",
                         get_current_processid(),
                         "1213131",$this->start_time,
-                        "1day12hours30minutes50seconds",
+                        timelen_format(time() - strtotime($this->start_time)),
                         get_process_title());
                     file_put_contents(HOME."/logs/status.log", $str, FILE_APPEND);
 
