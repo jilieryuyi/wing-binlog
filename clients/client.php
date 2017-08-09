@@ -36,7 +36,7 @@ function start_service()
 {
 
     $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-    $con = socket_connect($socket, '114.55.56.167', 9997);
+    $con = socket_connect($socket, '127.0.0.1', 9997);
 
     if (!$con) {
         socket_close($socket);

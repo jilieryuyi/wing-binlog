@@ -56,7 +56,11 @@ class ServerStart extends ServerBase
 
     private function startWebsocketService($deamon)
     {
-        $command = "php ".HOME."/websocket start";
+        $config = load_config("app");
+        $host = isset($config["websocket"]["host"])?$config["websocket"]["host"]:"0.0.0.0";
+        $port = isset($config["websocket"]["port"])?$config["websocket"]["port"]:9998;
+
+        $command = "php ".HOME."/websocket start --host=".$host." --port=".$port;
         if ($deamon) {
         	$command .= " -d";
 		}
@@ -69,7 +73,11 @@ class ServerStart extends ServerBase
 
     private function startTcpService($deamon)
     {
-        $command = "php ".HOME."/tcp start";
+        $config = load_config("app");
+        $host = isset($config["tcp"]["host"])?$config["tcp"]["host"]:"0.0.0.0";
+        $port = isset($config["tcp"]["port"])?$config["tcp"]["port"]:9997;
+
+        $command = "php ".HOME."/tcp start --host=".$host." --port=".$port;
 		if ($deamon) {
 			$command .= " -d";
 		}

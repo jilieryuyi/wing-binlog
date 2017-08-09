@@ -95,11 +95,20 @@ if (!function_exists("reset_std")) {
 	}
 }
 
+static $all_configs = [];
+
 if (!function_exists("load_config")) {
 	function load_config($name)
 	{
+	    global $all_configs;
 		$config_file = HOME . "/config/" . $name . ".php";
-		return include $config_file;
+
+		if (isset($all_configs[$name])) {
+		    return $all_configs[$name];
+        } else {
+            $all_configs[$name] = include $config_file;
+        }
+		return $all_configs[$name];
 	}
 }
 
