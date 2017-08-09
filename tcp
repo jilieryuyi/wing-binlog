@@ -14,10 +14,10 @@ $host = "0.0.0.0";
 $port = 9997;
 
 foreach ($argv as $item) {
-    if ($item == "--host")
-        $host = $item;
-    if ($item == "--port")
-        $port = $item;
+    if (strpos($item,"--host") === 0)
+        list(,$host) = explode("=",$item);
+    if (strpos($item,"--port") === 0)
+        list(,$port) = explode("=",$item);
 }
 
 // Create a Websocket server
