@@ -25,7 +25,6 @@ class BinLog
     /**
      * @var string
      */
-    //private $cache_dir;
     private $cache_handler;
 
     private $current_binlog_file = null;
@@ -46,9 +45,6 @@ class BinLog
         if (isset($config["mysqlbinlog"])) {
             $this->mysqlbinlog = $config["mysqlbinlog"];
         }
-
-//        var_dump($config);
-//        echo $this->mysqlbinlog,"\r\n";
 
         if (!$this->isOpen() && WING_DEBUG) {
             echo "请开启mysql binlog日志\r\n";
@@ -100,18 +96,11 @@ class BinLog
      */
     public function getCurrentLogInfo()
     {
-//        $key  = "show.master.status.table";
-//        $data = $this->cache->get($key);
-//        if ($data && is_array($data)) {
-//            return $data;
-//        }
-
         $sql  = 'show master status';
 		if (WING_DEBUG)
             echo $sql, "\r\n";
 
         $data = $this->db_handler->row($sql);
-        //$this->cache->set($key, $data, 60);
         return $data;
     }
 
@@ -146,11 +135,6 @@ class BinLog
     private $start_getCurrentLogFile = null;
     public function getCurrentLogFile()
     {
-//        $key  = "select.log_bin_basename.table";
-//        $path = $this->cache->get($key);
-//        if ($path) {
-//            return $path;
-//        }
         if ($this->start_getCurrentLogFile == null) {
             $this->start_getCurrentLogFile = time();
         }
@@ -161,16 +145,6 @@ class BinLog
                 $this->start_getCurrentLogFile = time();
             }
         }
-
-//        if (!isset($this->times[__FUNCTION__])) {
-//            $this->times[__FUNCTION__] = 0;
-//        }
-//
-//        $this->times[__FUNCTION__]++;
-//
-//        if ($this->times[__FUNCTION__] > 99999990) {
-//            $this->times[__FUNCTION__] = 0;
-//        }
 
         $sql  = 'select @@log_bin_basename';
 		if (WING_DEBUG)
