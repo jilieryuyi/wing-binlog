@@ -10,8 +10,6 @@ use Wing\FileSystem\WFile;
  */
 class EventWorker extends BaseWorker
 {
-
-    private $event_times = 0;
 	public function __construct($workers)
 	{
 		$this->workers = $workers;
@@ -22,7 +20,7 @@ class EventWorker extends BaseWorker
 
 	private function writePos($worker, $start_pos, $end_pos)
     {
-        $this->event_times++;
+        self::$event_times++;
         $debug = get_current_processid()."写入pos的次数：".$this->event_times."\r\n";
         file_put_contents(HOME."/logs/event_worker.log", $debug);
 
@@ -36,6 +34,11 @@ class EventWorker extends BaseWorker
         $file = new WFile($dir_str."/".$start_pos."_".$end_pos);
         return $file->touch();
     }
+
+//    public function getEventTimes()
+//    {
+//        return $this->event_times;
+//    }
 
 	public function start($daemon = false)
 	{

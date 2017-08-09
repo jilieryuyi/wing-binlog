@@ -8,7 +8,6 @@
 class DispatchWorker extends BaseWorker
 {
 	private $index;
-	//private $event_times = 0;
 
     public function __construct($workers, $index)
 	{
@@ -108,7 +107,8 @@ class DispatchWorker extends BaseWorker
                         $cache_path = $bin->getSessions($worker, $start_pos, $end_pos);
 						if (WING_DEBUG)
                         echo "生成缓存文件",$cache_path,"\r\n";
-
+                        self::$event_times++;
+						//$this->event_times++;
 //                        if (!file_exists($cache_path)) {
 //                            echo "文件不存在\r\n";
 //                        } else {
@@ -136,5 +136,11 @@ class DispatchWorker extends BaseWorker
 		}
 		return 0;
 	}
+
+//	public function getEventTimes()
+//    {
+//        // TODO: Implement getEventTimes() method.
+//        return $this->event_times;
+//    }
 
 }

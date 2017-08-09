@@ -10,6 +10,7 @@ abstract class BaseWorker
     protected $workers = 1;
     protected $task    = [];
     const USLEEP       = 10000;
+    public static $event_times = 0;
     abstract public function start($daemon = false);
     /**
      * @return string
@@ -52,4 +53,5 @@ abstract class BaseWorker
 
         return $target_worker;
     }
+    //abstract public function getEventTimes();
 }

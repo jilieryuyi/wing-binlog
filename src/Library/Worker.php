@@ -30,6 +30,8 @@ class Worker
 	private $dispatch_processes = [];
 	private $processes          = [];
 	private $start_time         = null;
+
+	private $processes_obj = [];
     /**
      * @构造函数
      */
@@ -204,7 +206,7 @@ class Worker
 				echo get_current_processid()," show status\r\n";
 
 				if ($server_id == get_current_processid()) {
-				    $str = 'wing-binlog, version: '.self::VERSION.' auth: yuyi email: 297341015@qq.com  QQ group: 535218312'."\r\n";
+				    $str = "\r\n".'wing-binlog, version: '.self::VERSION.' auth: yuyi email: 297341015@qq.com  QQ group: 535218312'."\r\n";
                     $str .="--------------------------------------------------------------------------------------------------------------------------\r\n";
                     $str .=sprintf("%-12s%-14s%-21s%-36s%s\r\n","process_id","events_times","start_time","running_time_len","process_name");
                     $str .= "--------------------------------------------------------------------------------------------------------------------------\r\n";
@@ -218,12 +220,18 @@ class Worker
 					//子进程
 					//file_put_contents(HOME."/logs/".get_current_processid()."_get_status", 1);
 				    //sprintf("","进程id 事件次数 运行时间 进程名称");
+                    $current_processid = get_current_processid();
 
+                    //$times =
+//                        isset($this->processes_obj[$current_processid])?
+//                        $this->processes_obj[$current_processid]->getEventTimes():0;
                     $str = sprintf("%-12s%-14s%-21s%-36s%s\r\n",
-                        get_current_processid(),
-                        "1213131",$this->start_time,
+                        $current_processid,
+                        BaseWorker::$event_times,//->getEventTimes(),
+                        $this->start_time,
                         timelen_format(time() - strtotime($this->start_time)),
-                        get_process_title());
+                        get_process_title()
+                    );
                     file_put_contents(HOME."/logs/status.log", $str, FILE_APPEND);
 
                 }
@@ -272,24 +280,34 @@ class Worker
         }
 
         for ($i = 1; $i <= $this->workers; $i++) {
-        	$pid = (new ParseWorker($this->workers, $i))->start(
+            $p   = new ParseWorker($this->workers, $i);
+
+            $pid = $p->start(
         	        $this->daemon,
                     $this->with_tcp,
                     $this->with_websocket,
                     $this->with_redis
             );
+
+            $this->processes_obj[$pid] = $p;
         	$this->parse_processes[] = $pid;
 			$this->processes[] = $pid;
         }
 
         for ($i = 1; $i <= $this->workers; $i++) {
-            $pid = (new DispatchWorker($this->workers, $i))->start($this->daemon);
+            $p   = new DispatchWorker($this->workers, $i);
+            $pid = $p->start($this->daemon);
+            $this->processes_obj[$pid] = $p;
             $this->dispatch_processes[] = $pid;
             $this->processes[] = $pid;
         }
 
-		$this->event_process_id = (new EventWorker($this->workers))->start($this->daemon);
+        $p = new EventWorker($this->workers);
+		$this->event_process_id = $p->start($this->daemon);
         $this->processes[] = $this->event_process_id;
+        $this->processes_obj[$this->event_process_id] = $p;
+
+        var_dump($this->processes_obj);
 
         file_put_contents(self::$pid, get_current_processid());
         $process_name = "wing php >> master process";
@@ -309,17 +327,21 @@ class Worker
                     do {
                         $id = array_search($pid, $this->processes);
                         unset($this->processes[$id]);
+                        unset($this->processes_obj[$pid]);
 
                         if ($pid == $this->event_process_id) {
-                            $this->event_process_id = (new EventWorker($this->workers))->start($this->daemon);
+                            $p = new EventWorker($this->workers);
+                            $this->event_process_id = $p->start($this->daemon);
                             $this->processes[] = $this->event_process_id;
+                            $this->processes_obj[$this->event_process_id] = $p;
                             break;
                         }
 
                         $id = array_search($pid, $this->parse_processes);
                         if ($id !== false) {
                             unset($this->parse_processes[$id]);
-                            $_pid = (new ParseWorker($this->workers, $id))->start(
+                            $p = new ParseWorker($this->workers, $id);
+                            $_pid = $p->start(
                                     $this->daemon,
                                     $this->with_tcp,
                                     $this->with_websocket,
@@ -327,15 +349,18 @@ class Worker
                             );
                             $this->parse_processes[] = $_pid;
                             $this->processes[] = $_pid;
+                            $this->processes_obj[$_pid] = $p;
                             break;
                         }
 
                         $id = array_search($pid, $this->dispatch_processes);
                         if ($id !== false) {
                             unset($this->dispatch_processes[$id]);
-                            $_pid = (new DispatchWorker($this->workers, $id))->start($this->daemon);
+                            $p = new DispatchWorker($this->workers, $id);
+                            $_pid = $p->start($this->daemon);
                             $this->dispatch_processes[] = $_pid;
                             $this->processes[] = $_pid;
+                            $this->processes_obj[$_pid] = $p;
                             break;
                         }
 

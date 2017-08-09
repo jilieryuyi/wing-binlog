@@ -11,8 +11,9 @@ use Wing\Subscribe\WebSocket;
 class ParseWorker extends BaseWorker
 {
 	private $index;
-	private $events_count = 0;
+	//private $events_count = 0;
 	private $file_times = 0;
+
 	public function __construct($workers, $index)
 	{
 		$this->workers = $workers;
@@ -123,9 +124,9 @@ class ParseWorker extends BaseWorker
                                 $no_item->onchange($database_name, $table_name, $event);
 							}
 
-                            $this->events_count++;
-
-                            $debug = get_current_processid()."处理事件次数：".$this->events_count."，文件次数：".$this->file_times."\r\n";
+                           // $this->event_times++;
+                            self::$event_times++;
+                            $debug = get_current_processid()."处理事件次数：".self::$event_times."，文件次数：".$this->file_times."\r\n";
                             file_put_contents(HOME."/logs/parse_worker_".get_current_processid().".log", $debug);
 							if (WING_DEBUG)
                             echo $debug;
@@ -155,4 +156,9 @@ class ParseWorker extends BaseWorker
 
 		return 0;
 	}
+//    public function getEventTimes()
+//    {
+//        // TODO: Implement getEventTimes() method.
+//        return $this->event_times;
+//    }
 }
