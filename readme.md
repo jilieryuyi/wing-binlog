@@ -16,4 +16,7 @@ mysqlbinlog 监控系统
      如：php wing start --d --with-tcp --with-websocket --with-redis          
 5、clients下面有两个测试的客户端，一个websocket和一个php实现的tcp      
 6、执行php wing stop 停止所有服务  
-7、执行php wing status 查看服务状态           
+7、执行php wing status 查看服务状态  
+         
+### 帮助
+   QQ群咨询 535218312      
