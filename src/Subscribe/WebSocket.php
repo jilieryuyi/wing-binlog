@@ -10,17 +10,22 @@ use Wing\Library\ISubscribe;
  */
 class WebSocket implements ISubscribe
 {
-    public function __construct()
+    private $workers = 1;
+    public function __construct($workers)
     {
-        $cache = HOME."/cache/websocket";
-        (new WDir($cache))->mkdir();
+        $this->workers = $workers;
+        for ($i = 0; $i < $this->workers; $i++) {
+            $cache = HOME."/cache/websocket/".$i;
+            (new WDir($cache))->mkdir();
+        }
     }
 
 
     public function onchange($database_name, $table_name, $event)
     {
 
-            $cache = HOME . "/cache/websocket";
+        for ($i = 0; $i < $this->workers; $i++) {
+            $cache = HOME . "/cache/websocket/".$i;
 
             $str1 = md5(rand(0, 999999));
             $str2 = md5(rand(0, 999999));
@@ -32,11 +37,12 @@ class WebSocket implements ISubscribe
                 substr($str2, rand(0, strlen($str2) - 16), 8) .
                 substr($str3, rand(0, strlen($str3) - 16), 8);
 
-		file_put_contents($cache_file, json_encode([
-			"database"=>$database_name,
-			"table"=>$table_name,
-			"event"=>$event
-		]));
+            file_put_contents($cache_file, json_encode([
+                "database" => $database_name,
+                "table" => $table_name,
+                "event" => $event
+            ]));
+        }
         //    file_put_contents($cache_file, json_encode([$database_name, $table_name, $event]));
     }
 }

@@ -47,7 +47,7 @@ $ws_worker->onWorkerStart = function($ws_worker)
     {
         \Workerman\Lib\Timer::add(1, function() use($ws_worker){
             ob_start();
-            $path[] = HOME . "/cache/tcp/*";
+            $path[] = HOME . "/cache/tcp/".$ws_worker->id."/*";
             while (count($path) != 0) {
                 $v = array_shift($path);
                 foreach (glob($v) as $item) {

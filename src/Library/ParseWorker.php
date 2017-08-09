@@ -86,11 +86,11 @@ class ParseWorker extends BaseWorker
 
         $notify = [];
 		if ($with_websocket) {
-            $notify[] = new WebSocket();
+            $notify[] = new WebSocket($this->workers);
 		}
 
 		if ($with_tcp) {
-            $notify[] = new Tcp();
+            $notify[] = new Tcp($this->workers);
 		}
 
 		if ($with_redis) {

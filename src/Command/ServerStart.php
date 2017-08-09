@@ -34,11 +34,11 @@ class ServerStart extends ServerBase
         $with_redis  = $input->getOption("with-redis");
 
         if ($with_tcp) {
-        	$this->startTcpService($deamon);
+        	$this->startTcpService($deamon, $workers);
 		}
 
 		if ($with_ws) {
-			$this->startWebsocketService($deamon);
+			$this->startWebsocketService($deamon, $workers);
 		}
 
         $worker = new \Wing\Library\Worker(
@@ -54,13 +54,13 @@ class ServerStart extends ServerBase
         $worker->start();
     }
 
-    private function startWebsocketService($deamon)
+    private function startWebsocketService($deamon, $workers)
     {
         $config = load_config("app");
         $host = isset($config["websocket"]["host"])?$config["websocket"]["host"]:"0.0.0.0";
         $port = isset($config["websocket"]["port"])?$config["websocket"]["port"]:9998;
 
-        $command = "php ".HOME."/websocket start --host=".$host." --port=".$port;
+        $command = "php ".HOME."/websocket start --host=".$host." --port=".$port." --workers=".$workers;
         if ($deamon) {
         	$command .= " -d";
 		}
@@ -72,13 +72,13 @@ class ServerStart extends ServerBase
         }
     }
 
-    private function startTcpService($deamon)
+    private function startTcpService($deamon, $workers)
     {
         $config = load_config("app");
         $host = isset($config["tcp"]["host"])?$config["tcp"]["host"]:"0.0.0.0";
         $port = isset($config["tcp"]["port"])?$config["tcp"]["port"]:9997;
 
-        $command = "php ".HOME."/tcp start --host=".$host." --port=".$port;
+        $command = "php ".HOME."/tcp start --host=".$host." --port=".$port." --workers=".$workers;
 		if ($deamon) {
 			$command .= " -d";
 		}
