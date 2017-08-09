@@ -64,6 +64,7 @@ class ServerStart extends ServerBase
         if ($deamon) {
         	$command .= " -d";
 		}
+		echo $command,"\r\n";
         $handle  = popen("/bin/sh -c \"".$command."\" >>".HOME."/logs/websocket.log&","r");
 
         if ($handle) {
@@ -81,6 +82,8 @@ class ServerStart extends ServerBase
 		if ($deamon) {
 			$command .= " -d";
 		}
+        echo $command,"\r\n";
+
         $handle  = popen("/bin/sh -c \"".$command."\" >>".HOME."/logs/tcp.log&","r");
 
         if ($handle) {
