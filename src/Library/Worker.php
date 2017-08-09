@@ -200,7 +200,7 @@ class Worker
                 exit(0);
                 break;
 			case SIGUSR2:
-				echo get_current_processid()," show status\r\n";
+				//echo get_current_processid()," show status\r\n";
 
 				if ($server_id == get_current_processid()) {
 				    $str = "\r\n".'wing-binlog, version: '.self::VERSION.' auth: yuyi email: 297341015@qq.com  QQ group: 535218312'."\r\n";
@@ -277,6 +277,7 @@ class Worker
 
 
         if ($this->daemon) {
+            $this->normal_stop = true;
             enable_deamon();
         }
 
