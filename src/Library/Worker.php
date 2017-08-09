@@ -27,6 +27,7 @@ class Worker
 	private $dispatch_processes = [];
 	private $processes          = [];
 	private $start_time         = null;
+	private $exit_times = 0; //子进程退出次数
 
     /**
      * @构造函数
@@ -207,6 +208,13 @@ class Worker
                     $str .=sprintf("%-12s%-14s%-21s%-36s%s\r\n","process_id","events_times","start_time","running_time_len","process_name");
                     $str .= "--------------------------------------------------------------------------------------------------------------------------\r\n";
 
+                    $str .= sprintf("%-12s%-14s%-21s%-36s%s\r\n",
+                        $server_id,
+                        $this->exit_times,//->getEventTimes(),
+                        $this->start_time,
+                        timelen_format(time() - strtotime($this->start_time)),
+                        get_process_title()
+                    );
                     file_put_contents(HOME."/logs/status.log", $str);
 					foreach ($this->processes as $id => $pid) {
 						posix_kill($pid, SIGUSR2);
@@ -309,6 +317,7 @@ class Worker
 
                 if ($pid > 0) {
                     echo $pid,"进程退出\r\n";
+                    $this->exit_times++;
                     do {
                         $id = array_search($pid, $this->processes);
                         unset($this->processes[$id]);
