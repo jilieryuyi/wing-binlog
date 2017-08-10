@@ -296,13 +296,14 @@ class Worker
         echo $str;
 
         for ($i = 1; $i <= $this->workers; $i++) {
-            $pid = (new ParseWorker($this->workers, $i))->start(
+            $p = new ParseWorker($this->workers, $i);
+            $pid = $p->start(
         	        $this->daemon,
                     $this->with_tcp,
                     $this->with_websocket,
                     $this->with_redis
             );
-
+            unset($p);
             echo sprintf(
                 $format,
                 $pid,
@@ -315,8 +316,9 @@ class Worker
         }
 
         for ($i = 1; $i <= $this->workers; $i++) {
-            $pid = (new DispatchWorker($this->workers, $i))->start($this->daemon);
-
+            $p = new DispatchWorker($this->workers, $i);
+            $pid = $p->start($this->daemon);
+            unset($p);
             echo sprintf(
                 $format,
                 $pid,
@@ -363,7 +365,9 @@ class Worker
                         unset($this->processes[$id]);
 
                         if ($pid == $this->event_process_id) {
-                            $this->event_process_id = (new EventWorker($this->workers))->start($this->daemon);
+                            $p = new EventWorker($this->workers);
+                            $this->event_process_id = $p->start($this->daemon);
+                            unset($p);
                             $this->processes[] = $this->event_process_id;
                             break;
                         }
@@ -371,12 +375,14 @@ class Worker
                         $id = array_search($pid, $this->parse_processes);
                         if ($id !== false) {
                             unset($this->parse_processes[$id]);
-                            $_pid = (new ParseWorker($this->workers, $id))->start(
+                            $p = new ParseWorker($this->workers, $id);
+                            $_pid = $p->start(
                                     $this->daemon,
                                     $this->with_tcp,
                                     $this->with_websocket,
                                     $this->with_redis
                             );
+                            unset($p);
                             $this->parse_processes[] = $_pid;
                             $this->processes[] = $_pid;
                             break;
@@ -385,7 +391,9 @@ class Worker
                         $id = array_search($pid, $this->dispatch_processes);
                         if ($id !== false) {
                             unset($this->dispatch_processes[$id]);
-                            $_pid = (new DispatchWorker($this->workers, $id))->start($this->daemon);
+                            $p = new DispatchWorker($this->workers, $id);
+                            $_pid = $p->start($this->daemon);
+                            unset($p);
                             $this->dispatch_processes[] = $_pid;
                             $this->processes[] = $_pid;
                             break;
