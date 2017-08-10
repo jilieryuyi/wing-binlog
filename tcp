@@ -46,6 +46,7 @@ $ws_worker->onWorkerStart = function($ws_worker)
    // if($worker->id === 0)
     {
         \Workerman\Lib\Timer::add(1, function() use($ws_worker){
+            file_put_contents(HOME."/logs/timer_".get_current_processid().".log", time(), FILE_APPEND);
             ob_start();
             $path[] = HOME . "/cache/tcp/".$ws_worker->id."/*";
             while (count($path) != 0) {
