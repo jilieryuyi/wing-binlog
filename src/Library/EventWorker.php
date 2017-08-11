@@ -93,6 +93,9 @@ class EventWorker extends BaseWorker
 					$events = fread($sock, 10240);//, "\r\n";
 					var_dump($events);
 
+					self::$event_times++;
+					echo "总事件次数：", self::$event_times, "\r\n";
+
 					$id = array_search($sock, $this->parse_pipes);
 					unset($this->parse_pipes[$id]);
 					proc_close($this->parse_processes[$id]);
@@ -137,7 +140,7 @@ class EventWorker extends BaseWorker
 			$except   = null;
 			$timeleft = 60;//$endtime - time();
 
-			$ret      = stream_select(
+			$ret = stream_select(
 				$read,
 				$write,// = null,
 				$except,// = null,
@@ -147,12 +150,9 @@ class EventWorker extends BaseWorker
 			if ($ret === false) {
 				continue;
 			} else if ($ret === 0) {
-				$timeleft = 0;
 				continue;
-			} else {
-				//var_dump($ret);
+			} else {;
 				foreach ($read as $sock) {
-					//if ($sock === $pipes[1]) {
 					$cache_file = fread($sock, 10240);//, "\r\n";
 					echo $cache_file,"\r\n";
 					if (file_exists($cache_file)) {
@@ -164,30 +164,10 @@ class EventWorker extends BaseWorker
 					unset($this->dispatch_pipes[$id]);
 					proc_close($this->dispatch_processes[$id]);
 					unset($this->dispatch_processes[$id]);
-//				} else if ($sock === $pipes[2]) {
-//					echo  fread($sock, 4096),"\r\n";
-//				}
 					fclose($sock);
 				}
 			}
 		}
-		//}while(count($all_pipes) > 0 && $timeleft > 0 );
-
-//	fclose($pipes[1]);
-//	fclose($pipes[2]);
-//		if($timeleft <= 0) {
-//			foreach ($processes as $process)
-//				proc_terminate($process);
-//			$stderr_str = "操作已超时(".$timeout."秒)";
-//		}
-//
-//		if (isset($err) && $err === true){  //这种情况的出现是通过信号发送中断时产生
-//			foreach ($processes as $process)
-//				proc_terminate($process);
-//			$stderr_str = "操作被用户取消";
-//		}
-//		foreach ($processes as $process)
-//			proc_close($process);
 		return true;
 	}
 
@@ -205,68 +185,7 @@ class EventWorker extends BaseWorker
 		}
 
 		$this->waitDispatchProcess();
-
-//        self::$event_times++;
-//        $debug = get_current_processid()."写入pos的次数：".$this->event_times."\r\n";
-//        file_put_contents(HOME."/logs/event_worker.log", $debug);
-//
-//        if (WING_DEBUG)
-//        	echo $debug;
-//
-//        $dir_str = HOME."/cache/pos/".$worker;
-//        $dir = new WDir($dir_str);
-//        $dir->mkdir();
-//
-//        $file = new WFile($dir_str."/".$start_pos."_".$end_pos);
-//        return $file->touch();
-
-
-		//启动 $this->workers 个进程去处理
-//		$processes = [];
-//		$all_pipes = [];
-//
-//		for ($i = 0; $i < 1; $i++) {
-//			$descriptorspec = array(
-//				0 => array("pipe", "r"),
-//				1 => array("pipe", "w"),
-//				2 => array("pipe", "w")
-//			);
-//			$cmd = "php " . HOME . "/dispatch_worker --start=".$start_pos." --end=".$end_pos;
-//			$processes[$i] = proc_open($cmd, $descriptorspec, $pipes);
-//			$all_pipes[]   = $pipes[1];
-//			//$all_pipes[] = $pipes[2];
-//			stream_set_blocking($pipes[1], 0);
-//			//stream_set_blocking($pipes[2], 0);  //不阻塞
-//			fwrite($pipes[0], $i);
-//			fclose($pipes[0]);
-//			fclose($pipes[2]); //标准错误直接关闭 不需要
-//
-//		}
-//$stdout_str = $stderr_str = $stdin_str ="";
-		//$timeout = 60;
-
-
-
-//if (is_resource($process))
-		//{
-			//执行成功
-
-
-			//设置超时时钟
-		//	$endtime = time() + $timeout;
-
-			//return true;
-		//}
-//else {
-//	return false;
-//}
-
     }
-
-//    public function getEventTimes()
-//    {
-//        return $this->event_times;
-//    }
 
 	public function start($daemon = false)
 	{
