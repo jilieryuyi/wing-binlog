@@ -34,11 +34,15 @@ if ($debug) {
 	define("WING_DEBUG", false);
 }
 
-$cache_file = null;
+$start_pos = 0;
+$end_pos   = 0;
 foreach ($argv as $item) {
-	if (strpos($item,"--file") === 0)
-		list(,$cache_file) = explode("=",$item);
+	if (strpos($item,"--start") === 0)
+		list(,$start_pos) = explode("=",$item);
+	if (strpos($item,"--end") === 0)
+		list(,$end_pos) = explode("=",$item);
 }
 
-$res = \Wing\Library\ParseWorker::process($cache_file);
-echo json_encode($res);
+
+$datas = \Wing\Library\ParseWorker::process($start_pos, $end_pos);
+echo json_encode($datas);

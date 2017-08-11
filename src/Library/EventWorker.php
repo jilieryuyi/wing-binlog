@@ -12,117 +12,19 @@ class EventWorker extends BaseWorker
 	private $dispatch_pipes     = [];
 	private $dispatch_processes = [];
 
-	private $parse_pipes        = [];
-	private $parse_processes    = [];
-
-	private $all_cache_file     = [];
 	private $write_run_time     = 0;
+	private $pdo;
 
 	public function __construct($workers)
 	{
+        $this->pdo   = new PDO();
 		$this->workers = $workers;
 		for ($i = 1; $i <= $this->workers; $i++) {
 		    $this->task[$i] = 0;
         }
 	}
 
-
 	private function startParseProcess()
-	{
-		$cache_file = array_shift($this->all_cache_file);
-		if (!$cache_file) {
-			return false;
-		}
-		$descriptorspec = array(
-			0 => array("pipe", "r"),
-			1 => array("pipe", "w"),
-			2 => array("pipe", "w")
-		);
-		$cmd = "php " . HOME . "/services/parse_worker --file=".$cache_file;
-		echo "开启新的解析进程,", $cmd,"\r\n";
-		$this->parse_processes[] = proc_open($cmd, $descriptorspec, $pipes);
-		$this->parse_pipes[]     = $pipes[1];
-		//不阻塞
-		stream_set_blocking($pipes[1], 0);
-		fclose($pipes[0]);
-		fclose($pipes[2]); //标准错误直接关闭 不需要
-		return true;
-	}
-
-	private function forkParseWorker()
-	{
-
-		if (count($this->all_cache_file) <= 0) {
-			return;
-		}
-
-		if (count($this->dispatch_pipes) < $this->workers) {
-			$count = $this->workers - count($this->dispatch_pipes);
-			//启动 $count 个 dispatch 进程
-			for ($i = 0; $i < $count; $i++) {
-				$this->startParseProcess();
-			}
-		}
-
-		$this->waitParseProcess();
-
-	}
-
-	private function waitParseProcess()
-	{
-
-		if (count($this->parse_pipes) <= 0) {
-			return;
-		}
-
-		while (1) {
-			$all_count = count($this->parse_pipes);
-			$read = $this->parse_pipes;
-			$write = null;
-			$except = null;
-			$timeleft = 60;
-
-			$ret = stream_select(
-				$read,
-				$write,
-				$except,
-				$timeleft
-			);
-
-			if ($ret === false || $ret === 0) {
-				foreach ($this->parse_pipes as $id => $sock) {
-					fclose($sock);
-					unset($this->parse_pipes[$id]);
-					proc_close($this->parse_processes[$id]);
-					unset($this->parse_processes[$id]);
-				}
-				return;
-			}
-
-			foreach ($read as $sock) {
-
-				$events = stream_get_contents($sock);
-				$events = json_decode($events, true);
-				var_dump($events);
-
-				self::$event_times += count($events);
-				echo "总事件次数：", self::$event_times, "\r\n";
-				fclose($sock);
-				$id = array_search($sock, $this->parse_pipes);
-				unset($this->parse_pipes[$id]);
-				proc_close($this->parse_processes[$id]);
-				unset($this->parse_processes[$id]);
-				$all_count--;
-			}
-
-			if ($all_count <= 0) {
-				break;
-			}
-		}
-
-	}
-
-	private function startDisplatchProcess()
 	{
 		if (count($this->all_pos) <= 0) {
 			return false;
@@ -145,7 +47,7 @@ class EventWorker extends BaseWorker
 	}
 
 
-	private function waitDispatchProcess()
+	private function waitParseProcess()
 	{
 		if (count($this->dispatch_pipes) <= 0) {
 			return;
@@ -179,12 +81,10 @@ class EventWorker extends BaseWorker
 			}
 
 			foreach ($read as $sock) {
-				$cache_file = stream_get_contents($sock);
-				echo "dispatch进程返回值===", $cache_file, "\r\n";
-				if (file_exists($cache_file)) {
-					//进行解析进程
-					$this->all_cache_file[] = $cache_file;
-				}
+				$raw = stream_get_contents($sock);
+				echo "dispatch进程返回值===", "\r\n";
+				$events = json_decode($raw, true);
+				var_dump($events);
 				fclose($sock);
 				$id = array_search($sock, $this->dispatch_pipes);
 				unset($this->dispatch_pipes[$id]);
@@ -211,11 +111,11 @@ class EventWorker extends BaseWorker
     		$count = $this->workers - count($this->dispatch_pipes);
     		//启动 $count 个 dispatch 进程
 			for ($i = 0; $i < $count; $i++) {
-				$this->startDisplatchProcess();
+				$this->startParseProcess();
 			}
 		}
 
-		$this->waitDispatchProcess();
+		$this->waitParseProcess();
     }
 
 	public function start($daemon = false)
@@ -263,16 +163,12 @@ class EventWorker extends BaseWorker
 					if (count($this->all_pos) >= $this->workers) {
 						echo count($this->all_pos) ,"待处理任务\r\n";
 						$this->forkDispathWorker();
-						if (count($this->all_cache_file) >= $this->workers) {
-							$this->forkParseWorker();
-						}
 						break;
 					}
 
 					if (count($this->all_pos) >= $this->workers || (time()- $this->write_run_time) >= 1) {
 						echo count($this->all_pos) ,"待处理任务\r\n";
 						$this->forkDispathWorker();
-						$this->forkParseWorker();
 					}
 
                     $run_count++;
@@ -313,11 +209,12 @@ class EventWorker extends BaseWorker
                     $start_pos   = $data[0]["Pos"];
                     $has_session = false;
 
+                    $all_pos = [];
                     foreach ($data as $row) {
                         if ($row["Event_type"] == "Xid") {
                            // $worker = $this->getWorker("dispatch_process");
 
-							$this->all_pos[] = [$start_pos, $row["End_log_pos"]];
+                            $all_pos[] = [$start_pos, $row["End_log_pos"]];
                             //if (WING_DEBUG)
                            // echo "写入pos位置：", $start_pos . "-" . $row["End_log_pos"], "\r\n";
 
@@ -337,6 +234,12 @@ class EventWorker extends BaseWorker
                     }
 
 					$bin->setLastPosition($last_start_pos, $last_end_pos);
+                    if (count($all_pos) > 0) {
+                        $s = $all_pos[0][0];
+                        $t = array_pop($all_pos);
+                        $e = $t[1];
+                        $this->all_pos[] = [$s, $e];
+                    }
 
                         //如果没有查找到一个事务 $limit x 2 直到超过 100000 行
 						if (!$has_session) {

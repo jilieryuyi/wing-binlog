@@ -54,25 +54,88 @@ class FileFormat
      * @param \Closure $callback 如 function($db,$table,$event){}
      * @return array
      */
+//    public function parse()
+//    {
+//        $fh = fopen($this->file, 'r');
+//
+//        if (!$fh || !is_resource($fh)) {
+//            return null;
+//        }
+//
+//        $file_size = filesize($this->file);
+//        $read_size = 0;
+//        $lines     = [];
+//
+//        $all_res   = [];
+//
+//        while (!feof($fh)) {
+//
+//            $line  = fgets($fh);
+//
+//            $read_size += sizeof($line);
+//
+//            $_line = ltrim($line,"#");
+//            $_line = trim($_line);
+//
+//            $e = strtolower(substr($_line,0,6));
+//            unset($_line);
+//
+//            //遇到分隔符 重置
+//            if (preg_match("/#[\s]{1,}at[\s]{1,}[0-9]{1,}/",$line) ||
+//                $e == "insert" ||
+//                $e == "update" ||
+//                $e == "delete"
+//            ) {
+//
+//                if ($lines) {
+//					$res = $this->linesParse($lines);
+//					foreach ($res as $item) {
+//						$all_res[] = $item;
+//					}
+//                }
+//                unset($lines);
+//                $lines = [];
+//            }
+//
+//            $lines[] = $line;
+//            unset($line);
+//
+//            if ($read_size >= $file_size)
+//                break;
+//        }
+//
+//        if ($lines) {
+//            $res = $this->linesParse($lines);
+//			foreach ($res as $item) {
+//				$all_res[] = $item;
+//			}
+//        }
+//
+//        fclose($fh);
+//        return $all_res;
+//    }
+
     public function parse()
     {
-        $fh = fopen($this->file, 'r');
-
-        if (!$fh || !is_resource($fh)) {
-            return null;
-        }
+//        $fh = fopen($this->file, 'r');
+//
+//        if (!$fh || !is_resource($fh)) {
+//            return null;
+//        }
 
         $file_size = filesize($this->file);
         $read_size = 0;
-        $lines     = [];
+        $lines     = explode("\n", $this->file);
 
         $all_res   = [];
 
-        while (!feof($fh)) {
+       // while (!feof($fh))
+        foreach ($lines as $line)
+        {
 
-            $line  = fgets($fh);
+           // $line  = fgets($fh);
 
-            $read_size += sizeof($line);
+           // $read_size += sizeof($line);
 
             $_line = ltrim($line,"#");
             $_line = trim($_line);
@@ -88,10 +151,10 @@ class FileFormat
             ) {
 
                 if ($lines) {
-					$res = $this->linesParse($lines);
-					foreach ($res as $item) {
-						$all_res[] = $item;
-					}
+                    $res = $this->linesParse($lines);
+                    foreach ($res as $item) {
+                        $all_res[] = $item;
+                    }
                 }
                 unset($lines);
                 $lines = [];
@@ -106,15 +169,14 @@ class FileFormat
 
         if ($lines) {
             $res = $this->linesParse($lines);
-			foreach ($res as $item) {
-				$all_res[] = $item;
-			}
+            foreach ($res as $item) {
+                $all_res[] = $item;
+            }
         }
 
-        fclose($fh);
+        //fclose($fh);
         return $all_res;
     }
-
     /**
      * @获取事件发生的时间
      *

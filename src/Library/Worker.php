@@ -1,5 +1,4 @@
 <?php namespace Wing\Library;
-//use Wing\FileSystem\WFile;
 
 /**
  * @author yuyi
@@ -64,7 +63,9 @@ class Worker
 				if (WING_DEBUG) {
 					echo $log;
 				}
-				file_put_contents(HOME."/logs/error.log",
+                $log .= json_encode(error_get_last() , JSON_UNESCAPED_UNICODE);
+
+                file_put_contents(HOME."/logs/error.log",
 					$log, FILE_APPEND);
 				$this->signalHandler(SIGINT);
 			}

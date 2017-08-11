@@ -306,32 +306,35 @@ class BinLog
             $this->mysqlbinlog .
             " --base64-output=DECODE-ROWS -v".
             " --start-position=" . $start_pos .
-            " --stop-position=" . $end_pos . "  \"" . $current_binlog_file . "\" > ".$cache_file ;
+            " --stop-position=" . $end_pos . "  \"" . $current_binlog_file . "\"";//.$cache_file ;
 
 		//if (WING_DEBUG)
-       // echo $command,"\r\n\r\n";
+        //echo $command,"\r\n\r\n";
 
         unset($current_binlog_file);
-        $handle = popen($command,"r");
-        if (!$handle) {
-            pclose($handle);
-        }
 
-        if (!file_exists($cache_file)) {
-            system($command);
-        }
-        if (!file_exists($cache_file)) {
-            system($command);
-        }
-        if (!file_exists($cache_file)) {
-            system($command);
-        }
-        if (!file_exists($cache_file)) {
-            system($command);
-        }
-        if (!file_exists($cache_file)) {
-            system($command);
-        }
+        exec($command, $out);
+
+//        $handle = popen($command,"r");
+//        if (!$handle) {
+//            pclose($handle);
+//        }
+//
+//        if (!file_exists($cache_file)) {
+//            system($command);
+//        }
+//        if (!file_exists($cache_file)) {
+//            system($command);
+//        }
+//        if (!file_exists($cache_file)) {
+//            system($command);
+//        }
+//        if (!file_exists($cache_file)) {
+//            system($command);
+//        }
+//        if (!file_exists($cache_file)) {
+//            system($command);
+//        }
 
        // echo "生成cachefile=",$cache_file,"\r\n\r\n";
 //        if (file_exists($cache_file)) {
@@ -347,6 +350,6 @@ class BinLog
 //        }
 
         unset($command);
-        return $cache_file;
+        return implode("\n", $out);
     }
 }
