@@ -15,10 +15,10 @@ class EventWorker extends BaseWorker
 	private $write_run_time     = 0;
 	private $pdo;
 
-	public function __construct()
+	public function __construct($workers)
 	{
-        $this->pdo   = new PDO();
-		$this->workers = 32;//$workers;
+        $this->pdo     = new PDO();
+		$this->workers = $workers;//$workers;
 		for ($i = 1; $i <= $this->workers; $i++) {
 		    $this->task[$i] = 0;
         }
@@ -163,16 +163,16 @@ class EventWorker extends BaseWorker
 
 				pcntl_signal_dispatch();
                 do {
-					if (count($this->all_pos) > 0) {
-						echo count($this->all_pos) ,"待处理任务\r\n";
+					if (count($this->all_pos) > $this->workers) {
+						echo count($this->all_pos) ,"--1待处理任务\r\n";
 						$this->forkParseWorker();
 						break;
 					}
 
-//					if (count($this->all_pos) >= $this->workers || (time()- $this->write_run_time) >= 1) {
-//						echo count($this->all_pos) ,"待处理任务\r\n";
-//						$this->forkParseWorker();
-//					}
+					if (count($this->all_pos) >= $this->workers || (time()- $this->write_run_time) >= 1) {
+						echo count($this->all_pos) ,"--2待处理任务\r\n";
+						$this->forkParseWorker();
+					}
 
                     $run_count++;
                     //最后操作的binlog文件
