@@ -35,7 +35,7 @@ class EventWorker extends BaseWorker
 			1 => array("pipe", "w"),
 			2 => array("pipe", "w")
 		);
-		$cmd = "php " . HOME . "/services/dispatch_worker --start=".$start_pos." --end=".$end_pos;
+		$cmd = "php " . HOME . "/services/parse_worker --start=".$start_pos." --end=".$end_pos;
 		echo "开启dispatch进程, ", $cmd,"\r\n";
 		$this->dispatch_processes[] = proc_open($cmd, $descriptorspec, $pipes);
 		$this->dispatch_pipes[]     = $pipes[1];
