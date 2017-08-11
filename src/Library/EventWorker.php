@@ -252,6 +252,12 @@ class EventWorker extends BaseWorker
 
 				pcntl_signal_dispatch();
                 do {
+					if (count($this->all_pos) >= $this->workers) {
+						echo count($this->all_pos) ,"待处理任务\r\n";
+						$this->writePos();
+						continue;
+					}
+
                     $run_count++;
                     //最后操作的binlog文件
                     if (null == $last_binlog || $run_count % $is_run == 0) {
