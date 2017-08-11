@@ -18,7 +18,7 @@ class EventWorker extends BaseWorker
 	public function __construct($workers)
 	{
         $this->pdo   = new PDO();
-		$this->workers = $workers;
+		$this->workers = 32;//$workers;
 		for ($i = 1; $i <= $this->workers; $i++) {
 		    $this->task[$i] = 0;
         }
