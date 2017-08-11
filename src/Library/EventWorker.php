@@ -101,9 +101,10 @@ class EventWorker extends BaseWorker
 				foreach ($read as $sock) {
 					//if ($sock === $pipes[1]) {
 					$events = fread($sock, 10240);//, "\r\n";
+					$events = json_decode($events, true);
 					var_dump($events);
 
-					self::$event_times++;
+					self::$event_times += count($events);
 					echo "总事件次数：", self::$event_times, "\r\n";
 					fclose($sock);
 					$id = array_search($sock, $this->parse_pipes);

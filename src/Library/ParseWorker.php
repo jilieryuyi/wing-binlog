@@ -19,14 +19,7 @@ class ParseWorker
 
 		$pdo   = new PDO();
 		$file  = new FileFormat($cache_file, $pdo);
-		$datas = [];
-		$file->parse(function ($database_name, $table_name, $event) use($datas) {
-			$datas[] = [
-				"database_name" => $database_name,
-				"table_name" => $table_name,
-				"event_data" => $event,
-			];
-		});
+		$datas = $file->parse();
 		echo json_encode($datas);
 		unset($file);
 	}

@@ -52,19 +52,21 @@ class FileFormat
      * 按行解析文件
      *
      * @param \Closure $callback 如 function($db,$table,$event){}
-     * @return bool
+     * @return array
      */
-    public function parse($callback)
+    public function parse()
     {
         $fh = fopen($this->file, 'r');
 
         if (!$fh || !is_resource($fh)) {
-            return false;
+            return null;
         }
 
         $file_size = filesize($this->file);
         $read_size = 0;
         $lines     = [];
+
+        $all_res   = [];
 
         while (!feof($fh)) {
 
@@ -86,7 +88,10 @@ class FileFormat
             ) {
 
                 if ($lines) {
-                    $this->linesParse($lines,$callback);
+					$res = $this->linesParse($lines);
+					foreach ($res as $item) {
+						$all_res[] = $item;
+					}
                 }
                 unset($lines);
                 $lines = [];
@@ -100,11 +105,14 @@ class FileFormat
         }
 
         if ($lines) {
-            $this->linesParse($lines,$callback);
+            $res = $this->linesParse($lines);
+			foreach ($res as $item) {
+				$all_res[] = $item;
+			}
         }
 
         fclose($fh);
-        return true;
+        return $all_res;
     }
 
     /**
@@ -126,10 +134,10 @@ class FileFormat
      * 行解析
      *
      * @param array $lines 行
-     * @param \Closure $callback
      */
-    protected function linesParse($lines,$callback)
+    protected function linesParse($lines)
     {
+    	$result = [];
         do {
             //处理流程
             $item = implode("", $lines);
@@ -177,9 +185,10 @@ class FileFormat
                     substr($str2, rand(0, strlen($str2) - 16), 16) . "_" .
                     substr($str3, rand(0, strlen($str3) - 16), 16);
                 //执行事件回调函数
-                $callback($database_name, $table_name, $event);
+				$result[] = ["database"=>$database_name, "table"=>$table_name, "event"=>$event];
             }
         } while (0);
+        return $result;
     }
 
     /**
