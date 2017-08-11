@@ -263,14 +263,14 @@ class BinLog
      *
      * @return string 缓存文件路径
      */
-    public function getSessions($worker, $start_pos, $end_pos)
+    public function getSessions($start_pos, $end_pos)
     {
         //当前使用的binlog文件路径
         $current_binlog_file = $this->getCurrentLogFile();
         if (!$current_binlog_file) {
             $error = "get current binlog path error => ".$current_binlog_file;
-			if (WING_DEBUG)
-                echo $error,"\r\n";
+			//if (WING_DEBUG)
+			echo $error,"\r\n";
            // Context::instance()->logger->error($error);
         }
 
@@ -308,8 +308,8 @@ class BinLog
             " --start-position=" . $start_pos .
             " --stop-position=" . $end_pos . "  \"" . $current_binlog_file . "\" > ".$cache_file ;
 
-		if (WING_DEBUG)
-        echo $command,"\r\n";
+		//if (WING_DEBUG)
+        echo $command,"\r\n\r\n";
 
         unset($current_binlog_file);
         $handle = popen($command,"r");
@@ -333,7 +333,7 @@ class BinLog
             system($command);
         }
 
-        echo "生成cachefile=",$cache_file;
+        echo "生成cachefile=",$cache_file,"\r\n\r\n";
 //        if (file_exists($cache_file)) {
 //            rename($cache_file, $dir."/".$file_name);
 //        }
