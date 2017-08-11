@@ -351,6 +351,8 @@ class FileFormat
                 } else {
                     $set_data[$columns[$index]] = $target_line;
                 }
+
+                echo $columns[$index],"====>", $target_line,"\r\n";
                 $index++;
             }
 
