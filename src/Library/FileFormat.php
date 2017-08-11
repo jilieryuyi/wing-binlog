@@ -152,7 +152,6 @@ class FileFormat
             ) {
 
                 if ($lines) {
-                    //var_dump($lines);
                     $res = $this->linesParse($lines);
                     foreach ($res as $item) {
                         $all_res[] = $item;
@@ -229,7 +228,6 @@ class FileFormat
 
             //得到表字段
             $columns = $this->getColumns($database_name, $table_name);
-            var_dump($columns);
             if (!$columns) {
                 break;
             }
