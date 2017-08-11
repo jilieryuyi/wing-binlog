@@ -60,7 +60,7 @@ class ServerStart extends ServerBase
         $host = isset($config["websocket"]["host"])?$config["websocket"]["host"]:"0.0.0.0";
         $port = isset($config["websocket"]["port"])?$config["websocket"]["port"]:9998;
 
-        $command = "php ".HOME."/websocket start --host=".$host." --port=".$port." --workers=".$workers;
+        $command = "php ".HOME."/services/websocket start --host=".$host." --port=".$port." --workers=".$workers;
         if ($deamon) {
         	$command .= " -d";
 		}
@@ -78,7 +78,7 @@ class ServerStart extends ServerBase
         $host = isset($config["tcp"]["host"])?$config["tcp"]["host"]:"0.0.0.0";
         $port = isset($config["tcp"]["port"])?$config["tcp"]["port"]:9997;
 
-        $command = "php ".HOME."/tcp start --host=".$host." --port=".$port." --workers=".$workers;
+        $command = "php ".HOME."/services/tcp start --host=".$host." --port=".$port." --workers=".$workers;
 		if ($deamon) {
 			$command .= " -d";
 		}

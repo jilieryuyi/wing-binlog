@@ -39,7 +39,7 @@ class EventWorker extends BaseWorker
 			1 => array("pipe", "w"),
 			2 => array("pipe", "w")
 		);
-		$cmd = "php " . HOME . "/parse_worker --file=".$cache_file;
+		$cmd = "php " . HOME . "/services/parse_worker --file=".$cache_file;
 		echo "开启新的解析进程,", $cmd,"\r\n";
 		$this->parse_processes[] = proc_open($cmd, $descriptorspec, $pipes);
 		$this->parse_pipes[]     = $pipes[1];
@@ -128,7 +128,7 @@ class EventWorker extends BaseWorker
 			1 => array("pipe", "w"),
 			2 => array("pipe", "w")
 		);
-		$cmd = "php " . HOME . "/dispatch_worker --start=".$start_pos." --end=".$end_pos;
+		$cmd = "php " . HOME . "/services/dispatch_worker --start=".$start_pos." --end=".$end_pos;
 		echo "开启dispatch进程, ", $cmd,"\r\n";
 		$this->dispatch_processes[] = proc_open($cmd, $descriptorspec, $pipes);
 		$this->dispatch_pipes[]     = $pipes[1];
@@ -198,9 +198,6 @@ class EventWorker extends BaseWorker
     	if (count($this->dispatch_pipes) < $this->workers) {
     		$count = $this->workers - count($this->dispatch_pipes);
     		//启动 $count 个 dispatch 进程
-			if ($count > count($this->all_pos)) {
-				$count = count($this->all_pos);
-			}
 			for ($i = 0; $i < $count; $i++) {
 				$this->startDisplatchProcess();
 			}

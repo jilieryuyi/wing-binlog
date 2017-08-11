@@ -1,9 +1,9 @@
 #!/usr/bin/env php
 <?php
 //declare(ticks = 1);
-require __DIR__.'/vendor/autoload.php';
+require __DIR__.'/../vendor/autoload.php';
 
-define("HOME", __DIR__);
+define("HOME", dirname(__DIR__));
 
 date_default_timezone_set("PRC");
 use Workerman\Worker;
