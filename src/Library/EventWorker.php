@@ -103,7 +103,7 @@ class EventWorker extends BaseWorker
 	}
 
 
-	private function forkDispathWorker()
+	private function forkParseWorker()
     {
     	echo "发生事件\r\n";
 		$this->write_run_time = time();
@@ -165,13 +165,13 @@ class EventWorker extends BaseWorker
                 do {
 					if (count($this->all_pos) >= $this->workers) {
 						echo count($this->all_pos) ,"待处理任务\r\n";
-						$this->forkDispathWorker();
+						$this->forkParseWorker();
 						break;
 					}
 
 					if (count($this->all_pos) >= $this->workers || (time()- $this->write_run_time) >= 1) {
 						echo count($this->all_pos) ,"待处理任务\r\n";
-						$this->forkDispathWorker();
+						$this->forkParseWorker();
 					}
 
                     $run_count++;
