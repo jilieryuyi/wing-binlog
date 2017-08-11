@@ -72,8 +72,10 @@ class EventWorker extends BaseWorker
 	private function waitParseProcess()
 	{
 
+		if (count($this->parse_pipes) <= 0) return false;
 		//	do {
-		while (count($this->parse_pipes) > 0) {
+		//while (count($this->parse_pipes) > 0)
+		{
 			$read     = $this->parse_pipes;//array($pipes[1],$pipes[2]);
 			$write    = null;
 			$except   = null;
@@ -86,11 +88,13 @@ class EventWorker extends BaseWorker
 				$timeleft
 			);
 
-			if ($ret === false) {
-				continue;
-			} else if ($ret === 0) {
-				$timeleft = 0;
-				continue;
+			if ($ret === false || $ret === 0) {
+				foreach ($this->parse_pipes as $id => $sock) {
+					fclose($sock);
+					unset($this->parse_pipes[$id]);
+					proc_close($this->parse_processes[$id]);
+					unset($this->parse_processes[$id]);
+				}
 			} else {
 				//var_dump($ret);
 				foreach ($read as $sock) {
@@ -140,10 +144,10 @@ class EventWorker extends BaseWorker
 
 	private function waitDispatchProcess()
 	{
-
+		if (count($this->dispatch_pipes) <= 0) return false;
 	//	do {
 		echo "等待dispatch进程返回结果\r\n";
-		while (count($this->dispatch_pipes) > 0)
+		//while (count($this->dispatch_pipes) > 0)
 		{
 			$read     = $this->dispatch_pipes;//array($pipes[1],$pipes[2]);
 			$write    = null;
@@ -157,13 +161,15 @@ class EventWorker extends BaseWorker
 				$timeleft
 			);
 
-			if ($ret === false) {
+			if ($ret === false || $ret === 0) {
 				echo "等待出错\r\n";
-				continue;
-			} else if ($ret === 0) {
-				echo "等待超时\r\n";
-				continue;
-			} else {;
+				foreach ($this->dispatch_pipes as $key => $value) {
+					fclose($value);
+					unset($this->dispatch_pipes[$key]);
+					proc_close($this->dispatch_processes[$key]);
+					unset($this->dispatch_processes[$key]);
+				}
+			} else {
 				foreach ($read as $sock) {
 					$cache_file = fread($sock, 10240);//, "\r\n";
 					echo "dispatch进程返回值===",$cache_file,"\r\n";
