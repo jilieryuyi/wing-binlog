@@ -44,4 +44,4 @@ foreach ($argv as $item) {
 }
 
 
-\Wing\Library\DispatchWorker::process($start_pos, $end_pos);
+echo \Wing\Library\DispatchWorker::process($start_pos, $end_pos);

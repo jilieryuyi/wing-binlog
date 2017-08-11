@@ -40,5 +40,5 @@ foreach ($argv as $item) {
 		list(,$cache_file) = explode("=",$item);
 }
 
-
-\Wing\Library\ParseWorker::process($cache_file);
+$res = \Wing\Library\ParseWorker::process($cache_file);
+echo json_encode($res);

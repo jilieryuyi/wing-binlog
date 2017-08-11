@@ -10,12 +10,12 @@ class DispatchWorker
 	public static function process($start_pos, $end_pos)
 	{
 		if (!$end_pos) {
-			return;
+			return null;
 		}
 
 		$pdo = new PDO();
 		$bin = new \Wing\Library\BinLog($pdo);
-		echo $bin->getSessions($start_pos, $end_pos);
+		return $bin->getSessions($start_pos, $end_pos);
 	}
 
 }

@@ -14,14 +14,14 @@ class ParseWorker
 	public static function process($cache_file)
 	{
 		if (!file_exists($cache_file)) {
-			return;
+			return null;
 		}
 
 		$pdo   = new PDO();
 		$file  = new FileFormat($cache_file, $pdo);
 		$datas = $file->parse();
-		echo json_encode($datas);
 		unset($file);
+		return $datas;
 	}
 
 
