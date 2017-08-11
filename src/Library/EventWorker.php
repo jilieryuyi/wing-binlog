@@ -100,13 +100,13 @@ class EventWorker extends BaseWorker
 
 					self::$event_times++;
 					echo "总事件次数：", self::$event_times, "\r\n";
-
+					fclose($sock);
 					$id = array_search($sock, $this->parse_pipes);
 					unset($this->parse_pipes[$id]);
 					proc_close($this->parse_processes[$id]);
 					unset($this->parse_processes[$id]);
 
-					fclose($sock);
+
 				}
 			}
 		}
@@ -171,12 +171,12 @@ class EventWorker extends BaseWorker
 						//进行解析进程
 						$this->setCacheFile($cache_file);
 					}
-
+					fclose($sock);
 					$id = array_search($sock, $this->dispatch_pipes);
 					unset($this->dispatch_pipes[$id]);
 					proc_close($this->dispatch_processes[$id]);
 					unset($this->dispatch_processes[$id]);
-					fclose($sock);
+
 				}
 			}
 		}
