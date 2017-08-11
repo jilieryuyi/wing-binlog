@@ -277,7 +277,7 @@ class BinLog
         $str1 = md5(rand(0,999999));
         $str2 = md5(rand(0,999999));
         $str3 = md5(rand(0,999999));
-        $dir = HOME."/cache/binfile/".$worker;
+        $dir = HOME."/cache/binfile";
             (new WDir($dir))->mkdir();
 
             $file_name = time().
@@ -285,7 +285,7 @@ class BinLog
                 substr($str2,rand(0,strlen($str2)-16),8).
                 substr($str3,rand(0,strlen($str3)-16),8);
 
-        $cache_file  = $dir."/lock__".$file_name;
+        $cache_file  = $dir."/".$file_name;
 
         unset($str1,$str2,$str3);
 
@@ -333,17 +333,18 @@ class BinLog
             system($command);
         }
 
-        if (file_exists($cache_file)) {
-            rename($cache_file, $dir."/".$file_name);
-        }
-
-        if (file_exists($cache_file)) {
-            rename($cache_file, $dir."/".$file_name);
-        }
-
-        if (file_exists($cache_file)) {
-            rename($cache_file, $dir."/".$file_name);
-        }
+        echo "生成cachefile=",$cache_file;
+//        if (file_exists($cache_file)) {
+//            rename($cache_file, $dir."/".$file_name);
+//        }
+//
+//        if (file_exists($cache_file)) {
+//            rename($cache_file, $dir."/".$file_name);
+//        }
+//
+//        if (file_exists($cache_file)) {
+//            rename($cache_file, $dir."/".$file_name);
+//        }
 
         unset($command);
         return $cache_file;
