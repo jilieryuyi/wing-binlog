@@ -85,8 +85,9 @@ class EventWorker extends BaseWorker
 				echo "parse进程返回值===", "\r\n";
 				$events = json_decode($raw, true);
 				self::$event_times += count($events);
+                var_dump($events);
 				echo "总事件次数：", self::$event_times, "\r\n";
-				var_dump($events);
+
 				fclose($sock);
 				$id = array_search($sock, $this->dispatch_pipes);
 				unset($this->dispatch_pipes[$id]);
