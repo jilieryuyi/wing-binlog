@@ -114,6 +114,7 @@ class EventWorker extends BaseWorker
 			2 => array("pipe", "w")
 		);
 		$cmd = "php " . HOME . "/dispatch_worker --start=".$start_pos." --end=".$end_pos;
+		echo "开启dispatch进程, ", $cmd,"\r\n";
 		$this->dispatch_processes[] = proc_open($cmd, $descriptorspec, $pipes);
 		$this->dispatch_pipes[]     = $pipes[1];
 		//$all_pipes[] = $pipes[2];
@@ -153,7 +154,7 @@ class EventWorker extends BaseWorker
 				foreach ($read as $sock) {
 					//if ($sock === $pipes[1]) {
 					$cache_file = fread($sock, 10240);//, "\r\n";
-
+					echo $cache_file,"\r\n";
 					if (file_exists($cache_file)) {
 						//进行解析进程
 						$this->setCacheFile($cache_file);
