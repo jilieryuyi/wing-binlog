@@ -260,7 +260,7 @@ class EventWorker extends BaseWorker
 						continue;
 					}
 
-					if (count($this->all_cache_file) >= $this->workers) {
+					if (count($this->all_cache_file) > 0) {
 						echo count($this->all_cache_file) ,"待处理文件\r\n";
 						$this->setCacheFile();
 						continue;
