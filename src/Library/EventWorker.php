@@ -257,6 +257,7 @@ class EventWorker extends BaseWorker
 					if (count($this->all_pos) >= $this->workers) {
 						echo count($this->all_pos) ,"待处理任务\r\n";
 						$this->writePos();
+						if (count($this->all_cache_file) >= $this->workers)
 						$this->setCacheFile();
 						continue;
 					}
