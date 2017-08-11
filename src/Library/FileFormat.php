@@ -151,6 +151,7 @@ class FileFormat
             ) {
 
                 if ($lines) {
+                    var_dump($lines);
                     $res = $this->linesParse($lines);
                     foreach ($res as $item) {
                         $all_res[] = $item;
