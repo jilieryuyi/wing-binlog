@@ -111,7 +111,7 @@ class EventWorker extends BaseWorker
 	private function startDisplatchProcess()
 	{
 		if (count($this->all_pos) <= 0) {
-			return;
+			return false;
 		}
 		list($start_pos, $end_pos) = array_shift($this->all_pos);
 		$descriptorspec = array(
@@ -137,6 +137,7 @@ class EventWorker extends BaseWorker
 	{
 
 	//	do {
+		echo "等待dispatch进程返回结果\r\n";
 		while (count($this->dispatch_pipes) >= 4) {
 			$read     = $this->dispatch_pipes;//array($pipes[1],$pipes[2]);
 			$write    = null;
@@ -151,8 +152,10 @@ class EventWorker extends BaseWorker
 			);
 
 			if ($ret === false) {
+				echo "等待出错\r\n";
 				continue;
 			} else if ($ret === 0) {
+				echo "等待超时\r\n";
 				continue;
 			} else {;
 				foreach ($read as $sock) {
