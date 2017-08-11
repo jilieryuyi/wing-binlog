@@ -309,7 +309,7 @@ class EventWorker extends BaseWorker
                         }
                     }
 
-                    if (count($this->all_pos) >= 4 || (time()- $this->write_run_time) > 1) {
+                    if (count($this->all_pos) >= $this->workers || (time()- $this->write_run_time) > 1) {
 						echo count($this->all_pos) ,"待处理任务\r\n";
                     	$this->writePos();
 					}
