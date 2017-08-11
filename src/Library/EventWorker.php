@@ -262,10 +262,16 @@ class EventWorker extends BaseWorker
 						continue;
 					}
 
-					if (count($this->all_cache_file) > 0) {
-						echo count($this->all_cache_file) ,"待处理文件\r\n";
+//					if (count($this->all_cache_file) > 0) {
+//						echo count($this->all_cache_file) ,"待处理文件\r\n";
+//						$this->setCacheFile();
+//						continue;
+//					}
+
+					if (count($this->all_pos) >= $this->workers || (time()- $this->write_run_time) >= 1) {
+						echo count($this->all_pos) ,"待处理任务\r\n";
+						$this->writePos();
 						$this->setCacheFile();
-						continue;
 					}
 
                     $run_count++;
@@ -325,11 +331,6 @@ class EventWorker extends BaseWorker
                             $start_pos      = $row["End_log_pos"];
                         }
                     }
-
-                    if (count($this->all_pos) >= $this->workers || (time()- $this->write_run_time) > 1) {
-						echo count($this->all_pos) ,"待处理任务\r\n";
-                    	$this->writePos();
-					}
 
 					$bin->setLastPosition($last_start_pos, $last_end_pos);
 
