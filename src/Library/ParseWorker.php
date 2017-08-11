@@ -195,7 +195,8 @@ class ParseWorker extends BaseWorker
 								"event_data"    => $event,
 							];
 
-							$this->response($params);
+							echo json_encode($params);
+
 //							if (WING_DEBUG)
 //								var_dump($params);
 //
@@ -204,11 +205,11 @@ class ParseWorker extends BaseWorker
 //							}
 
 							// $this->event_times++;
-							self::$event_times++;
-							$debug = get_current_processid()."处理事件次数：".self::$event_times."，文件次数：".$this->file_times."\r\n";
-							file_put_contents(HOME."/logs/parse_worker_".get_current_processid().".log", $debug);
-							if (WING_DEBUG)
-								echo $debug;
+//							self::$event_times++;
+//							$debug = get_current_processid()."处理事件次数：".self::$event_times."，文件次数：".$this->file_times."\r\n";
+//							file_put_contents(HOME."/logs/parse_worker_".get_current_processid().".log", $debug);
+//							if (WING_DEBUG)
+//								echo $debug;
 						});
 
 						unset($file);

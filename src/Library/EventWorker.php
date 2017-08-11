@@ -31,12 +31,16 @@ class EventWorker extends BaseWorker
 	private function startParseProcess()
 	{
 		$cache_file = array_shift($this->all_cache_file);
+		if (!$cache_file) {
+			return false;
+		}
 		$descriptorspec = array(
 			0 => array("pipe", "r"),
 			1 => array("pipe", "w"),
 			2 => array("pipe", "w")
 		);
 		$cmd = "php " . HOME . "/parse_worker --file=".$cache_file;
+		echo "开启新的解析进程,", $cmd,"\r\n";
 		$this->parse_processes[] = proc_open($cmd, $descriptorspec, $pipes);
 		$this->parse_pipes[]     = $pipes[1];
 		//$all_pipes[] = $pipes[2];
@@ -50,6 +54,7 @@ class EventWorker extends BaseWorker
 
 	private function setCacheFile($cache_file)
 	{
+		echo "新的待解析文件：", $cache_file, "\r\n";
 		$this->all_cache_file[] = $cache_file;
 
 		if (count($this->dispatch_pipes) < $this->workers) {
@@ -68,7 +73,7 @@ class EventWorker extends BaseWorker
 	{
 
 		//	do {
-		while (count($this->parse_pipes) >= 4) {
+		while (count($this->parse_pipes) > 0) {
 			$read     = $this->parse_pipes;//array($pipes[1],$pipes[2]);
 			$write    = null;
 			$except   = null;

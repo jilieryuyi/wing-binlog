@@ -178,7 +178,6 @@ class FileFormat
                     substr($str3, rand(0, strlen($str3) - 16), 16);
                 //执行事件回调函数
                 $callback($database_name, $table_name, $event);
-                echo "事件次数", $this->events_times, "\r\n\r\n";
             }
         } while (0);
     }
