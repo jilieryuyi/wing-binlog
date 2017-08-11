@@ -174,6 +174,7 @@ class EventWorker extends BaseWorker
 
 	private function writePos($worker, $start_pos, $end_pos)
     {
+    	echo "发生事件".$start_pos,"==", $end_pos, "\r\n";
     	$this->all_pos[] = [$start_pos, $end_pos];
 
     	if (count($this->dispatch_pipes) < $this->workers) {
