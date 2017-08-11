@@ -53,7 +53,7 @@ class EventWorker extends BaseWorker
 			return;
 		}
 
-		echo "等待dispatch进程返回结果\r\n";
+		echo "等待parse进程返回结果\r\n";
 
 		while (1) {
 			$all_count= count($this->dispatch_pipes);
