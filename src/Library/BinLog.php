@@ -309,7 +309,7 @@ class BinLog
             " --stop-position=" . $end_pos . "  \"" . $current_binlog_file . "\" > ".$cache_file ;
 
 		//if (WING_DEBUG)
-        echo $command,"\r\n\r\n";
+       // echo $command,"\r\n\r\n";
 
         unset($current_binlog_file);
         $handle = popen($command,"r");
@@ -333,7 +333,7 @@ class BinLog
             system($command);
         }
 
-        echo "生成cachefile=",$cache_file,"\r\n\r\n";
+       // echo "生成cachefile=",$cache_file,"\r\n\r\n";
 //        if (file_exists($cache_file)) {
 //            rename($cache_file, $dir."/".$file_name);
 //        }
