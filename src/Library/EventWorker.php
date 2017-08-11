@@ -102,7 +102,7 @@ class EventWorker extends BaseWorker
 				//var_dump($ret);
 				foreach ($read as $sock) {
 					//if ($sock === $pipes[1]) {
-					$events = fread($sock, 10240);//, "\r\n";
+					$events = stream_get_contents($sock);//, "\r\n";
 					$events = json_decode($events, true);
 					var_dump($events);
 
@@ -175,7 +175,7 @@ class EventWorker extends BaseWorker
 				}
 			} else {
 				foreach ($read as $sock) {
-					$cache_file = fread($sock, 10240);//, "\r\n";
+					$cache_file = stream_get_contents($sock);//, "\r\n";
 					echo "dispatch进程返回值===",$cache_file,"\r\n";
 					if (file_exists($cache_file)) {
 						//进行解析进程
