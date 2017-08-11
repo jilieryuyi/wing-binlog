@@ -1,6 +1,4 @@
 <?php namespace Wing\Library;
-use Wing\FileSystem\WDir;
-use Wing\FileSystem\WFile;
 
 /**
  * EventWorker.php
@@ -10,15 +8,15 @@ use Wing\FileSystem\WFile;
  */
 class EventWorker extends BaseWorker
 {
-	private $all_pos = [];
-	private $dispatch_pipes = [];
+	private $all_pos            = [];
+	private $dispatch_pipes     = [];
 	private $dispatch_processes = [];
 
-	private $parse_pipes = [];
-	private $parse_processes = [];
+	private $parse_pipes        = [];
+	private $parse_processes    = [];
 
-	private $all_cache_file = [];
-	private $write_run_time = 0;
+	private $all_cache_file     = [];
+	private $write_run_time     = 0;
 
 	public function __construct($workers)
 	{
@@ -44,16 +42,14 @@ class EventWorker extends BaseWorker
 		echo "开启新的解析进程,", $cmd,"\r\n";
 		$this->parse_processes[] = proc_open($cmd, $descriptorspec, $pipes);
 		$this->parse_pipes[]     = $pipes[1];
-		//$all_pipes[] = $pipes[2];
+		//不阻塞
 		stream_set_blocking($pipes[1], 0);
-		//stream_set_blocking($pipes[2], 0);  //不阻塞
-		//fwrite($pipes[0], "");
 		fclose($pipes[0]);
 		fclose($pipes[2]); //标准错误直接关闭 不需要
 		return true;
 	}
 
-	private function setCacheFile()
+	private function forkParseWorker()
 	{
 
 		if (count($this->all_cache_file) <= 0) {
@@ -75,50 +71,48 @@ class EventWorker extends BaseWorker
 	private function waitParseProcess()
 	{
 
-		if (count($this->parse_pipes) <= 0) return false;
-		//	do {
-		//while (count($this->parse_pipes) > 0)
-		{
-			$read     = $this->parse_pipes;//array($pipes[1],$pipes[2]);
-			$write    = null;
-			$except   = null;
-			$timeleft = 60;//$endtime - time();
-
-			$ret      = stream_select(
-				$read,
-				$write,// = null,
-				$except,// = null,
-				$timeleft
-			);
-
-			if ($ret === false || $ret === 0) {
-				foreach ($this->parse_pipes as $id => $sock) {
-					fclose($sock);
-					unset($this->parse_pipes[$id]);
-					proc_close($this->parse_processes[$id]);
-					unset($this->parse_processes[$id]);
-				}
-			} else {
-				//var_dump($ret);
-				foreach ($read as $sock) {
-					//if ($sock === $pipes[1]) {
-					$events = stream_get_contents($sock);//, "\r\n";
-					$events = json_decode($events, true);
-					var_dump($events);
-
-					self::$event_times += count($events);
-					echo "总事件次数：", self::$event_times, "\r\n";
-					fclose($sock);
-					$id = array_search($sock, $this->parse_pipes);
-					unset($this->parse_pipes[$id]);
-					proc_close($this->parse_processes[$id]);
-					unset($this->parse_processes[$id]);
-
-
-				}
-			}
+		if (count($this->parse_pipes) <= 0) {
+			return;
 		}
-		return true;
+
+
+		$read     = $this->parse_pipes;
+		$write    = null;
+		$except   = null;
+		$timeleft = 60;
+
+		$ret = stream_select(
+			$read,
+			$write,
+			$except,
+			$timeleft
+		);
+
+		if ($ret === false || $ret === 0) {
+			foreach ($this->parse_pipes as $id => $sock) {
+				fclose($sock);
+				unset($this->parse_pipes[$id]);
+				proc_close($this->parse_processes[$id]);
+				unset($this->parse_processes[$id]);
+			}
+			return;
+		}
+
+		foreach ($read as $sock) {
+
+			$events = stream_get_contents($sock);
+			$events = json_decode($events, true);
+			var_dump($events);
+
+			self::$event_times += count($events);
+			echo "总事件次数：", self::$event_times, "\r\n";
+			fclose($sock);
+			$id = array_search($sock, $this->parse_pipes);
+			unset($this->parse_pipes[$id]);
+			proc_close($this->parse_processes[$id]);
+			unset($this->parse_processes[$id]);
+		}
+
 	}
 
 	private function startDisplatchProcess()
@@ -136,10 +130,8 @@ class EventWorker extends BaseWorker
 		echo "开启dispatch进程, ", $cmd,"\r\n";
 		$this->dispatch_processes[] = proc_open($cmd, $descriptorspec, $pipes);
 		$this->dispatch_pipes[]     = $pipes[1];
-		//$all_pipes[] = $pipes[2];
+		//不阻塞
 		stream_set_blocking($pipes[1], 0);
-		//stream_set_blocking($pipes[2], 0);  //不阻塞
-		//fwrite($pipes[0], "");
 		fclose($pipes[0]);
 		fclose($pipes[2]); //标准错误直接关闭 不需要
 		return true;
@@ -148,53 +140,52 @@ class EventWorker extends BaseWorker
 
 	private function waitDispatchProcess()
 	{
-		if (count($this->dispatch_pipes) <= 0) return false;
-	//	do {
-		echo "等待dispatch进程返回结果\r\n";
-		//while (count($this->dispatch_pipes) > 0)
-		{
-			$read     = $this->dispatch_pipes;//array($pipes[1],$pipes[2]);
-			$write    = null;
-			$except   = null;
-			$timeleft = 60;//$endtime - time();
-
-			$ret = stream_select(
-				$read,
-				$write,// = null,
-				$except,// = null,
-				$timeleft
-			);
-
-			if ($ret === false || $ret === 0) {
-				echo "等待出错\r\n";
-				foreach ($this->dispatch_pipes as $key => $value) {
-					fclose($value);
-					unset($this->dispatch_pipes[$key]);
-					proc_close($this->dispatch_processes[$key]);
-					unset($this->dispatch_processes[$key]);
-				}
-			} else {
-				foreach ($read as $sock) {
-					$cache_file = stream_get_contents($sock);//, "\r\n";
-					echo "dispatch进程返回值===",$cache_file,"\r\n";
-					if (file_exists($cache_file)) {
-						//进行解析进程
-						$this->all_cache_file[] = $cache_file;
-					}
-					fclose($sock);
-					$id = array_search($sock, $this->dispatch_pipes);
-					unset($this->dispatch_pipes[$id]);
-					proc_close($this->dispatch_processes[$id]);
-					unset($this->dispatch_processes[$id]);
-
-				}
-			}
+		if (count($this->dispatch_pipes) <= 0) {
+			return;
 		}
-		return true;
+
+		echo "等待dispatch进程返回结果\r\n";
+
+		$read     = $this->dispatch_pipes;
+		$write    = null;
+		$except   = null;
+		$timeleft = 60;
+
+		$ret = stream_select(
+			$read,
+			$write,// = null,
+			$except,// = null,
+			$timeleft
+		);
+
+		if ($ret === false || $ret === 0) {
+			echo "等待出错\r\n";
+			foreach ($this->dispatch_pipes as $key => $value) {
+				fclose($value);
+				unset($this->dispatch_pipes[$key]);
+				proc_close($this->dispatch_processes[$key]);
+				unset($this->dispatch_processes[$key]);
+			}
+			return;
+		}
+
+		foreach ($read as $sock) {
+			$cache_file = stream_get_contents($sock);
+			echo "dispatch进程返回值===",$cache_file,"\r\n";
+			if (file_exists($cache_file)) {
+				//进行解析进程
+				$this->all_cache_file[] = $cache_file;
+			}
+			fclose($sock);
+			$id = array_search($sock, $this->dispatch_pipes);
+			unset($this->dispatch_pipes[$id]);
+			proc_close($this->dispatch_processes[$id]);
+			unset($this->dispatch_processes[$id]);
+		}
 	}
 
 
-	private function writePos()
+	private function forkDispathWorker()
     {
     	echo "发生事件\r\n";
 		$this->write_run_time = time();
@@ -238,7 +229,7 @@ class EventWorker extends BaseWorker
 
 
 		$pdo             = new PDO();
-		$bin             = new \Wing\Library\BinLog($pdo);
+		$bin             = new BinLog($pdo);
 		$limit           = 10000;
         $last_binlog     = null;
         $current_binlog  = null;
@@ -256,22 +247,17 @@ class EventWorker extends BaseWorker
                 do {
 					if (count($this->all_pos) >= $this->workers) {
 						echo count($this->all_pos) ,"待处理任务\r\n";
-						$this->writePos();
-						if (count($this->all_cache_file) >= $this->workers)
-						$this->setCacheFile();
-						continue;
+						$this->forkDispathWorker();
+						if (count($this->all_cache_file) >= $this->workers) {
+							$this->forkParseWorker();
+						}
+						break;
 					}
-
-//					if (count($this->all_cache_file) > 0) {
-//						echo count($this->all_cache_file) ,"待处理文件\r\n";
-//						$this->setCacheFile();
-//						continue;
-//					}
 
 					if (count($this->all_pos) >= $this->workers || (time()- $this->write_run_time) >= 1) {
 						echo count($this->all_pos) ,"待处理任务\r\n";
-						$this->writePos();
-						$this->setCacheFile();
+						$this->forkDispathWorker();
+						$this->forkParseWorker();
 					}
 
                     $run_count++;
