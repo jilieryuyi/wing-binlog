@@ -201,7 +201,7 @@ class EventWorker extends BaseWorker
                     //得到所有的binlog事件
                     $data = $bin->getEvents($current_binlog, $last_end_pos, $limit);
                     if (is_array($data) && count($data) > 0) {
-                    	var_dump($data);
+                    	//var_dump($data);
 					}
 
                     if (!$data) {
