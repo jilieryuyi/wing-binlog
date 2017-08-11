@@ -153,9 +153,9 @@ class DispatchWorker extends BaseWorker
 		$bin = new \Wing\Library\BinLog($pdo);
 
 		//$worker     = $this->getWorker("parse_process");
-		$cache_path = $bin->getSessions($start_pos, $end_pos);
+		echo $bin->getSessions($start_pos, $end_pos);
 
-		$this->response($cache_path);
+		//$this->response($cache_path);
 	}
 
 }
