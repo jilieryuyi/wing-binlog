@@ -285,7 +285,7 @@ class BinLog
                 substr($str2,rand(0,strlen($str2)-16),8).
                 substr($str3,rand(0,strlen($str3)-16),8);
 
-        $cache_file  = $dir."/".$file_name;
+       // $cache_file  = $dir."/".$file_name;
 
         unset($str1,$str2,$str3);
 

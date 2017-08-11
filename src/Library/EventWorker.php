@@ -36,7 +36,7 @@ class EventWorker extends BaseWorker
 			2 => array("pipe", "w")
 		);
 		$cmd = "php " . HOME . "/services/parse_worker --start=".$start_pos." --end=".$end_pos;
-		echo "开启dispatch进程, ", $cmd,"\r\n";
+		echo "开启parse进程, ", $cmd,"\r\n";
 		$this->dispatch_processes[] = proc_open($cmd, $descriptorspec, $pipes);
 		$this->dispatch_pipes[]     = $pipes[1];
 		//不阻塞
@@ -82,8 +82,10 @@ class EventWorker extends BaseWorker
 
 			foreach ($read as $sock) {
 				$raw = stream_get_contents($sock);
-				echo "dispatch进程返回值===", "\r\n";
+				echo "parse进程返回值===", "\r\n";
 				$events = json_decode($raw, true);
+				self::$event_times += count($events);
+				echo "总事件次数：", self::$event_times, "\r\n";
 				var_dump($events);
 				fclose($sock);
 				$id = array_search($sock, $this->dispatch_pipes);
