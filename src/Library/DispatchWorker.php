@@ -138,10 +138,24 @@ class DispatchWorker extends BaseWorker
 		return 0;
 	}
 
-//	public function getEventTimes()
-//    {
-//        // TODO: Implement getEventTimes() method.
-//        return $this->event_times;
-//    }
+	public function process($start_pos, $end_pos)
+	{
+
+		if (!$end_pos) {
+			$this->response("");
+			return;
+		}
+		$process_name = "wing php >> dispatch process by proc_open";
+		//设置进程标题 mac 会有warning 直接忽略
+		set_process_title($process_name);
+
+		$pdo = new PDO();
+		$bin = new \Wing\Library\BinLog($pdo);
+
+		$worker     = $this->getWorker("parse_process");
+		$cache_path = $bin->getSessions($worker, $start_pos, $end_pos);
+
+		$this->response($cache_path);
+	}
 
 }

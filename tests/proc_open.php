@@ -28,7 +28,7 @@ for ($i = 0; $i < 10; $i++) {
 	fclose($pipes[2]); //标准错误直接关闭 不需要
 
 }
-$stdout_str = $stderr_str = $stdin_str ="";
+//$stdout_str = $stderr_str = $stdin_str ="";
 $timeout = 100;
 
 

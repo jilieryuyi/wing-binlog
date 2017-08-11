@@ -1,0 +1,48 @@
+#!/usr/bin/env php
+<?php
+//declare(ticks = 1);
+require __DIR__.'/vendor/autoload.php';
+
+define("HOME", __DIR__);
+
+date_default_timezone_set("PRC");
+
+
+$debug = false;
+foreach ($argv as $item) {
+    if (strpos($item, "debug") !== false) {
+		$debug = true;
+    }
+}
+
+$str_argv = '';
+for ($i = 1; $i < $argc; $i++) {
+    $str_argv .= ' '.$argv[$i];
+}
+
+$file_name = str_replace(__DIR__, "", __FILE__);
+$file_name = trim($file_name, "/");
+$file_name = trim($file_name, "\\");
+
+$command_line = 'php '.$file_name.' '.$str_argv;
+define("WING_COMMAND_LINE", $command_line);
+//echo $command_line,"\r\n";
+
+if ($debug) {
+	define("WING_DEBUG", true);
+} else {
+	define("WING_DEBUG", false);
+}
+
+$start_pos = 0;
+$end_pos   = 0;
+foreach ($argv as $item) {
+	if (strpos($item,"--start") === 0)
+		list(,$start_pos) = explode("=",$item);
+	if (strpos($item,"--end") === 0)
+		list(,$end_pos) = explode("=",$item);
+}
+
+
+$dispatch = new \Wing\Library\DispatchWorker(1,1);
+$dispatch->process($start_pos, $end_pos);
