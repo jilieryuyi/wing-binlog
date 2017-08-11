@@ -110,6 +110,9 @@ class EventWorker extends BaseWorker
 
 	private function startDisplatchProcess()
 	{
+		if (count($this->all_pos) <= 0) {
+			return;
+		}
 		list($start_pos, $end_pos) = array_shift($this->all_pos);
 		$descriptorspec = array(
 			0 => array("pipe", "r"),
@@ -180,6 +183,9 @@ class EventWorker extends BaseWorker
     	if (count($this->dispatch_pipes) < $this->workers) {
     		$count = $this->workers - count($this->dispatch_pipes);
     		//启动 $count 个 dispatch 进程
+			if ($count > count($this->all_pos)) {
+				$count = count($this->all_pos);
+			}
 			for ($i = 0; $i < $count; $i++) {
 				$this->startDisplatchProcess();
 			}
