@@ -148,7 +148,7 @@ class EventWorker extends BaseWorker
 
 		$pdo             = new PDO();
 		$bin             = new BinLog($pdo);
-		$limit           = 5000;
+		$limit           = 10000;
         $last_binlog     = null;
         $current_binlog  = null;
         $last_start_pos  =
@@ -239,9 +239,21 @@ class EventWorker extends BaseWorker
 					$bin->setLastPosition($last_start_pos, $last_end_pos);
                     if (count($all_pos) > 0) {
                         $s = $all_pos[0][0];
-                        $t = array_pop($all_pos);
-                        $e = $t[1];
-                        $this->all_pos[] = [$s, $e];
+//                        $t = array_pop($all_pos);
+//                        $e = $t[1];
+//                        $this->all_pos[] = [$s, $e];
+
+                        $cc  = 0;
+                        $len = count($all_pos);
+                        foreach ($all_pos as $po) {
+                            $cc++;
+                            if ($cc >= 100) {
+                                $this->all_pos[] = [$s, $po[1]];
+                                $s  = $po[1];
+                                $cc = 0;
+                            }
+                        }
+                        $this->all_pos[] = [$s, $all_pos[$len-1][1]];
                     }
 
                         //如果没有查找到一个事务 $limit x 2 直到超过 100000 行
