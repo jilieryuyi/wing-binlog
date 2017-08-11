@@ -1,6 +1,5 @@
 <?php namespace Wing\Library;
 use Wing\Cache\File;
-use Wing\FileSystem\WDir;
 
 /**
  * Created by PhpStorm.
@@ -47,12 +46,12 @@ class BinLog
         }
 
         if (!$this->isOpen() && WING_DEBUG) {
-            echo "请开启mysql binlog日志\r\n";
+            //echo "请开启mysql binlog日志\r\n";
             exit;
         }
 
         if ($this->getFormat() != "row" && WING_DEBUG) {
-            echo "仅支持row格式\r\n";
+            //echo "仅支持row格式\r\n";
             exit;
         }
 
@@ -67,16 +66,18 @@ class BinLog
     public function getLogs()
     {
         $sql  = 'show binary logs';
-		if (WING_DEBUG)
-        echo $sql, "\r\n";
+		if (WING_DEBUG) {
+            //echo $sql, "\r\n";
+        }
         return $this->db_handler->query($sql);
     }
 
     public function getFormat()
     {
         $sql  = 'select @@binlog_format';
-		if (WING_DEBUG)
-            echo $sql, "\r\n";
+		if (WING_DEBUG) {
+            //echo $sql, "\r\n";
+        }
 
         $data = $this->db_handler->row($sql);
         return strtolower($data["@@binlog_format"]);
@@ -97,8 +98,9 @@ class BinLog
     public function getCurrentLogInfo()
     {
         $sql  = 'show master status';
-		if (WING_DEBUG)
-            echo $sql, "\r\n";
+		if (WING_DEBUG) {
+            //echo $sql, "\r\n";
+        }
 
         $data = $this->db_handler->row($sql);
         return $data;
@@ -113,8 +115,9 @@ class BinLog
     {
         $logs  = $this->getLogs();
         $sql   = 'select @@log_bin_basename';
-		if (WING_DEBUG)
-            echo $sql, "\r\n";
+		if (WING_DEBUG) {
+		    //echo $sql, "\r\n";
+        }
 
         $data  = $this->db_handler->row($sql);
         $path  = pathinfo($data["@@log_bin_basename"],PATHINFO_DIRNAME);
@@ -147,8 +150,9 @@ class BinLog
         }
 
         $sql  = 'select @@log_bin_basename';
-		if (WING_DEBUG)
-            echo $sql, "\r\n";
+		if (WING_DEBUG) {
+            //echo $sql, "\r\n";
+        }
 
         $data = $this->db_handler->row($sql);
 
@@ -179,8 +183,9 @@ class BinLog
     public function isOpen()
     {
         $sql  = 'select @@sql_log_bin';
-		if (WING_DEBUG)
-            echo $sql, "\r\n";
+		if (WING_DEBUG) {
+            //echo $sql, "\r\n";
+        }
 
         $data = $this->db_handler->row($sql);
         return isset($data["@@sql_log_bin"]) && $data["@@sql_log_bin"] == 1;
@@ -191,11 +196,13 @@ class BinLog
      * 设置存储最后操作的binlog名称--游标，请勿删除mysql.last
      *
      * @param string $binlog
+     * @return bool
      */
     public function setLastBinLog($binlog)
     {
-		if (WING_DEBUG)
-            echo "保存最后的读取的binlog文件：",$binlog,"\r\n";
+		if (WING_DEBUG) {
+            //echo "保存最后的读取的binlog文件：",$binlog,"\r\n";
+        }
         return $this->cache_handler->set("mysql.last", $binlog);
     }
 
@@ -206,8 +213,9 @@ class BinLog
      */
     public function getLastBinLog()
     {
-		if (WING_DEBUG)
-            echo "获取最后读取的binlog\r\n";
+		if (WING_DEBUG) {
+            //echo "获取最后读取的binlog\r\n";
+        }
         return $this->cache_handler->get("mysql.last");
     }
 
@@ -220,8 +228,9 @@ class BinLog
      */
     public function setLastPosition($start_pos,$end_pos)
     {
-		if (WING_DEBUG)
-            echo "保存最后读取为位置：", $start_pos,":",$end_pos,"\r\n";
+		if (WING_DEBUG) {
+            //echo "保存最后读取为位置：", $start_pos,":",$end_pos,"\r\n";
+        }
         return $this->cache_handler->set("mysql.pos", [$start_pos,$end_pos]);
     }
 
@@ -232,8 +241,9 @@ class BinLog
      */
     public function getLastPosition()
     {
-		if (WING_DEBUG)
-            echo "获取最后读取的位置\r\n";
+		if (WING_DEBUG) {
+            //echo "获取最后读取的位置\r\n";
+        }
         return $this->cache_handler->get("mysql.pos");
     }
 
@@ -251,8 +261,9 @@ class BinLog
         $datas = $this->db_handler->query($sql);
 
         if ($datas) {
-			if (WING_DEBUG)
-                echo $sql,"\r\n";
+			if (WING_DEBUG) {
+                //echo $sql,"\r\n";
+            }
         }
 
         return $datas;
@@ -268,26 +279,27 @@ class BinLog
         //当前使用的binlog文件路径
         $current_binlog_file = $this->getCurrentLogFile();
         if (!$current_binlog_file) {
-            $error = "get current binlog path error => ".$current_binlog_file;
+            //$error = "get current binlog path error => ".$current_binlog_file;
 			//if (WING_DEBUG)
-			echo $error,"\r\n";
+			//echo $error,"\r\n";
            // Context::instance()->logger->error($error);
+            return null;
         }
 
-        $str1 = md5(rand(0,999999));
-        $str2 = md5(rand(0,999999));
-        $str3 = md5(rand(0,999999));
-        $dir = HOME."/cache/binfile";
-            (new WDir($dir))->mkdir();
+//        $str1 = md5(rand(0,999999));
+//        $str2 = md5(rand(0,999999));
+//        $str3 = md5(rand(0,999999));
+//        $dir = HOME."/cache/binfile";
+//            (new WDir($dir))->mkdir();
 
-            $file_name = time().
-                substr($str1,rand(0,strlen($str1)-16),8).
-                substr($str2,rand(0,strlen($str2)-16),8).
-                substr($str3,rand(0,strlen($str3)-16),8);
+//            $file_name = time().
+//                substr($str1,rand(0,strlen($str1)-16),8).
+//                substr($str2,rand(0,strlen($str2)-16),8).
+//                substr($str3,rand(0,strlen($str3)-16),8);
 
        // $cache_file  = $dir."/".$file_name;
 
-        unset($str1,$str2,$str3);
+        //unset($str1,$str2,$str3);
 
         //mysqlbinlog -uroot -proot -h127.0.0.1 -P3306 --read-from-remote-server mysql-bin.000001 --base64-output=decode-rows -v > 1
         /*$command    = $this->mysqlbinlog .
@@ -301,53 +313,20 @@ class BinLog
             " --stop-position=" . $end_pos .
             "  \"" . $current_binlog_file . "\" > ".$cache_file;
        */
-       // echo preg_replace("/\-p[\s\S]{1,}?\s/","-p****** ",$command,1),"\r\n";
+       // //echo preg_replace("/\-p[\s\S]{1,}?\s/","-p****** ",$command,1),"\r\n";
         $command    =
             $this->mysqlbinlog .
             " --base64-output=DECODE-ROWS -v".
             " --start-position=" . $start_pos .
             " --stop-position=" . $end_pos . "  \"" . $current_binlog_file . "\"";//.$cache_file ;
 
-		//if (WING_DEBUG)
-        //echo $command,"\r\n\r\n";
+		if (WING_DEBUG) {
+            //echo $command,"\r\n\r\n";
+        }
 
         unset($current_binlog_file);
 
         exec($command, $out);
-
-//        $handle = popen($command,"r");
-//        if (!$handle) {
-//            pclose($handle);
-//        }
-//
-//        if (!file_exists($cache_file)) {
-//            system($command);
-//        }
-//        if (!file_exists($cache_file)) {
-//            system($command);
-//        }
-//        if (!file_exists($cache_file)) {
-//            system($command);
-//        }
-//        if (!file_exists($cache_file)) {
-//            system($command);
-//        }
-//        if (!file_exists($cache_file)) {
-//            system($command);
-//        }
-
-       // echo "生成cachefile=",$cache_file,"\r\n\r\n";
-//        if (file_exists($cache_file)) {
-//            rename($cache_file, $dir."/".$file_name);
-//        }
-//
-//        if (file_exists($cache_file)) {
-//            rename($cache_file, $dir."/".$file_name);
-//        }
-//
-//        if (file_exists($cache_file)) {
-//            rename($cache_file, $dir."/".$file_name);
-//        }
 
         unset($command);
         return implode("\n", $out);
