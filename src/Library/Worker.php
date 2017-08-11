@@ -49,6 +49,8 @@ class Worker
     			if (get_current_processid() == file_get_contents(self::$pid)) {
 					$log = date("Y-m-d H:i:s")."=>". $this->getProcessDisplay()."父进程异常退出\r\n";
 				}
+
+				$log .= json_encode(error_get_last() , JSON_UNESCAPED_UNICODE);
 			}
 			if (WING_DEBUG) {
     			echo $log;
