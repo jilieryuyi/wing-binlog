@@ -154,7 +154,7 @@ class EventWorker extends BaseWorker
 			} else {;
 				foreach ($read as $sock) {
 					$cache_file = fread($sock, 10240);//, "\r\n";
-					echo $cache_file,"\r\n";
+					echo "dispatch进程返回值===",$cache_file,"\r\n";
 					if (file_exists($cache_file)) {
 						//进行解析进程
 						$this->setCacheFile($cache_file);
@@ -267,12 +267,12 @@ class EventWorker extends BaseWorker
                     foreach ($data as $row) {
                         if ($row["Event_type"] == "Xid") {
                             $worker = $this->getWorker("dispatch_process");
-							if (WING_DEBUG)
-                            echo "写入pos位置：", $start_pos . "-" . $row["End_log_pos"], "\r\n";
-                            $res = $this->writePos($worker, $start_pos, $row["End_log_pos"]);
-                            if (!$res && WING_DEBUG) {
-                                echo "失败\r\n";
-                            }
+							//if (WING_DEBUG)
+                           // echo "写入pos位置：", $start_pos . "-" . $row["End_log_pos"], "\r\n";
+                           $this->writePos($worker, $start_pos, $row["End_log_pos"]);
+//                            if (!$res && WING_DEBUG) {
+//                                echo "失败\r\n";
+//                            }
 //                            if ($run_count % $is_run == 0) {
 //                                //设置最后读取的位置
 //                                $bin->setLastPosition($start_pos, $row["End_log_pos"]);
