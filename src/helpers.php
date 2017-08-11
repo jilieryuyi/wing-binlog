@@ -208,3 +208,37 @@ if (!function_exists("timelen_format")) {
         }
     }
 }
+
+if (!function_exists("scan")) {
+    function scan($dir, $callback)
+    {
+        ob_start();
+        $path[] = $dir . "/*";
+        while (count($path) != 0) {
+            $v = array_shift($path);
+            foreach (glob($v) as $item) {
+                if (is_file($item)) {
+                    $t   = explode("/", $item);
+                    $t   = array_pop($t);
+                    $sub = substr($t, 0, 4);
+
+                    if ($sub == "lock") {
+                        unset($t,$sub);
+                        continue;
+                    }
+                    unset($t,$sub);
+
+                    $callback($item);
+
+                    unlink($item);
+                }
+            }
+        }
+        $debug = ob_get_contents();
+        ob_end_clean();
+
+        if ($debug) {
+            echo $debug;
+        }
+    }
+}
