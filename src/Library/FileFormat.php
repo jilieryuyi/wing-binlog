@@ -125,12 +125,13 @@ class FileFormat
 
         $file_size = strlen($this->file);//filesize($this->file);
         $read_size = 0;
-        $lines     = explode("\n", $this->file);
+        $all_lines     = explode("\n", $this->file);
 
         $all_res   = [];
+        $lines     = [];
 
        // while (!feof($fh))
-        foreach ($lines as $line)
+        foreach ($all_lines as $line)
         {
 
            // $line  = fgets($fh);
@@ -151,7 +152,7 @@ class FileFormat
             ) {
 
                 if ($lines) {
-                    var_dump($lines);
+                    //var_dump($lines);
                     $res = $this->linesParse($lines);
                     foreach ($res as $item) {
                         $all_res[] = $item;
