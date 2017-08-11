@@ -247,7 +247,7 @@ class EventWorker extends BaseWorker
                         $len = count($all_pos);
                         foreach ($all_pos as $po) {
                             $cc++;
-                            if ($cc >= 100) {
+                            if ($cc >= 1000) {
                                 $this->all_pos[] = [$s, $po[1]];
                                 $s  = $po[1];
                                 $cc = 0;
