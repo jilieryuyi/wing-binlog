@@ -123,7 +123,7 @@ class FileFormat
 //            return null;
 //        }
 
-        $file_size = filesize($this->file);
+        $file_size = strlen($this->file);//filesize($this->file);
         $read_size = 0;
         $lines     = explode("\n", $this->file);
 
