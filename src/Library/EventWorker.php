@@ -138,7 +138,8 @@ class EventWorker extends BaseWorker
 
 	//	do {
 		echo "等待dispatch进程返回结果\r\n";
-		while (count($this->dispatch_pipes) >= 4) {
+		while (count($this->dispatch_pipes) > 0)
+		{
 			$read     = $this->dispatch_pipes;//array($pipes[1],$pipes[2]);
 			$write    = null;
 			$except   = null;
