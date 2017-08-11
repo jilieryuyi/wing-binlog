@@ -53,10 +53,12 @@ class EventWorker extends BaseWorker
 		return true;
 	}
 
-	private function setCacheFile($cache_file)
+	private function setCacheFile()
 	{
-		echo "新的待解析文件：", $cache_file, "\r\n";
-		$this->all_cache_file[] = $cache_file;
+
+		if (count($this->all_cache_file) <= 0) {
+			return;
+		}
 
 		if (count($this->dispatch_pipes) < $this->workers) {
 			$count = $this->workers - count($this->dispatch_pipes);
@@ -177,7 +179,7 @@ class EventWorker extends BaseWorker
 					echo "dispatch进程返回值===",$cache_file,"\r\n";
 					if (file_exists($cache_file)) {
 						//进行解析进程
-						$this->setCacheFile($cache_file);
+						$this->all_cache_file[] = $cache_file;
 					}
 					fclose($sock);
 					$id = array_search($sock, $this->dispatch_pipes);
@@ -255,6 +257,12 @@ class EventWorker extends BaseWorker
 					if (count($this->all_pos) >= $this->workers) {
 						echo count($this->all_pos) ,"待处理任务\r\n";
 						$this->writePos();
+						continue;
+					}
+
+					if (count($this->all_cache_file) >= $this->workers) {
+						echo count($this->all_cache_file) ,"待处理文件\r\n";
+						$this->setCacheFile();
 						continue;
 					}
 
