@@ -161,4 +161,60 @@ class ParseWorker extends BaseWorker
 //        // TODO: Implement getEventTimes() method.
 //        return $this->event_times;
 //    }
+
+
+	public function process($cache_file)
+	{
+		if (!file_exists($cache_file)) {
+			return;
+		}
+		$process_name = "wing php >> parse process proc_open ";
+		self::$process_title = $process_name;
+
+		//设置进程标题 mac 会有warning 直接忽略
+		set_process_title($process_name);
+
+		$pdo = new PDO();
+
+
+				//pcntl_signal_dispatch();
+			//	$this->scandir(function($cache_file) use($pdo, $notify)
+				//{
+					do {
+
+//						if (!$cache_file || !file_exists($cache_file)) {
+//							break;
+//						}
+
+						$file = new FileFormat($cache_file, $pdo);
+
+						$file->parse(function ($database_name, $table_name, $event) {
+							$params = [
+								"database_name" => $database_name,
+								"table_name"    => $table_name,
+								"event_data"    => $event,
+							];
+
+							$this->response($params);
+//							if (WING_DEBUG)
+//								var_dump($params);
+//
+//							foreach ($notify as $no_item) {
+//								$no_item->onchange($database_name, $table_name, $event);
+//							}
+
+							// $this->event_times++;
+							self::$event_times++;
+							$debug = get_current_processid()."处理事件次数：".self::$event_times."，文件次数：".$this->file_times."\r\n";
+							file_put_contents(HOME."/logs/parse_worker_".get_current_processid().".log", $debug);
+							if (WING_DEBUG)
+								echo $debug;
+						});
+
+						unset($file);
+					} while (0);
+				//}//);
+	}
+
+
 }

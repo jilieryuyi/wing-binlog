@@ -13,7 +13,11 @@ class EventWorker extends BaseWorker
 	private $all_pos = [];
 	private $dispatch_pipes = [];
 	private $dispatch_processes = [];
+
 	private $parse_pipes = [];
+	private $parse_processes = [];
+
+	private $all_cache_file = [];
 
 	public function __construct($workers)
 	{
@@ -23,6 +27,83 @@ class EventWorker extends BaseWorker
         }
 	}
 
+
+	private function startParseProcess()
+	{
+		$cache_file = array_shift($this->all_cache_file);
+		$descriptorspec = array(
+			0 => array("pipe", "r"),
+			1 => array("pipe", "w"),
+			2 => array("pipe", "w")
+		);
+		$cmd = "php " . HOME . "/parse_worker --file=".$cache_file;
+		$this->parse_processes[] = proc_open($cmd, $descriptorspec, $pipes);
+		$this->parse_pipes[]     = $pipes[1];
+		//$all_pipes[] = $pipes[2];
+		stream_set_blocking($pipes[1], 0);
+		//stream_set_blocking($pipes[2], 0);  //不阻塞
+		//fwrite($pipes[0], "");
+		fclose($pipes[0]);
+		fclose($pipes[2]); //标准错误直接关闭 不需要
+		return true;
+	}
+
+	private function setCacheFile($cache_file)
+	{
+		$this->all_cache_file[] = $cache_file;
+
+		if (count($this->dispatch_pipes) < $this->workers) {
+			$count = $this->workers - count($this->dispatch_pipes);
+			//启动 $count 个 dispatch 进程
+			for ($i = 0; $i < $count; $i++) {
+				$this->startParseProcess();
+			}
+		}
+
+		$this->waitParseProcess();
+
+	}
+
+	private function waitParseProcess()
+	{
+
+		//	do {
+		while (count($this->parse_pipes) >= 4) {
+			$read     = $this->parse_pipes;//array($pipes[1],$pipes[2]);
+			$write    = null;
+			$except   = null;
+			$timeleft = 60;//$endtime - time();
+
+			$ret      = stream_select(
+				$read,
+				$write,// = null,
+				$except,// = null,
+				$timeleft
+			);
+
+			if ($ret === false) {
+				continue;
+			} else if ($ret === 0) {
+				$timeleft = 0;
+				continue;
+			} else {
+				//var_dump($ret);
+				foreach ($read as $sock) {
+					//if ($sock === $pipes[1]) {
+					$events = fread($sock, 10240);//, "\r\n";
+					var_dump($events);
+
+					$id = array_search($sock, $this->parse_pipes);
+					unset($this->parse_pipes[$id]);
+					proc_close($this->parse_processes[$id]);
+					unset($this->parse_processes[$id]);
+
+					fclose($sock);
+				}
+			}
+		}
+		return true;
+	}
 
 	private function startDisplatchProcess()
 	{
@@ -49,11 +130,13 @@ class EventWorker extends BaseWorker
 	{
 
 	//	do {
-			$read = $this->dispatch_pipes;//array($pipes[1],$pipes[2]);
-			$write = null;
-			$except = null;
+		while (count($this->dispatch_pipes) >= 4) {
+			$read     = $this->dispatch_pipes;//array($pipes[1],$pipes[2]);
+			$write    = null;
+			$except   = null;
 			$timeleft = 60;//$endtime - time();
-			$ret = stream_select(
+
+			$ret      = stream_select(
 				$read,
 				$write,// = null,
 				$except,// = null,
@@ -61,18 +144,19 @@ class EventWorker extends BaseWorker
 			);
 
 			if ($ret === false) {
-				return false;
+				continue;
 			} else if ($ret === 0) {
 				$timeleft = 0;
-				return false;
+				continue;
 			} else {
 				//var_dump($ret);
 				foreach ($read as $sock) {
 					//if ($sock === $pipes[1]) {
-					$cache_file =  fread($sock, 10240);//, "\r\n";
+					$cache_file = fread($sock, 10240);//, "\r\n";
 
 					if (file_exists($cache_file)) {
 						//进行解析进程
+						$this->setCacheFile($cache_file);
 					}
 
 					$id = array_search($sock, $this->dispatch_pipes);
@@ -85,6 +169,7 @@ class EventWorker extends BaseWorker
 					fclose($sock);
 				}
 			}
+		}
 		//}while(count($all_pipes) > 0 && $timeleft > 0 );
 
 //	fclose($pipes[1]);
