@@ -227,6 +227,7 @@ class FileFormat
 
             //得到表字段
             $columns = $this->getColumns($database_name, $table_name);
+            var_dump($columns);
             if (!$columns) {
                 break;
             }
