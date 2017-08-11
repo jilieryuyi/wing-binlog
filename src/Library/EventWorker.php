@@ -18,6 +18,7 @@ class EventWorker extends BaseWorker
 	private $parse_processes = [];
 
 	private $all_cache_file = [];
+	private $write_run_time = 0;
 
 	public function __construct($workers)
 	{
@@ -190,11 +191,13 @@ class EventWorker extends BaseWorker
 	}
 
 
-	private function writePos($worker, $start_pos, $end_pos)
+	private function writePos()
     {
-    	echo "发生事件".$start_pos,"==", $end_pos, "\r\n";
-    	$this->all_pos[] = [$start_pos, $end_pos];
-
+    	echo "发生事件\r\n";
+		$this->write_run_time = time();
+    	if (count($this->all_pos) <= 0) {
+    		return;
+		}
     	if (count($this->dispatch_pipes) < $this->workers) {
     		$count = $this->workers - count($this->dispatch_pipes);
     		//启动 $count 个 dispatch 进程
@@ -285,10 +288,12 @@ class EventWorker extends BaseWorker
 
                     foreach ($data as $row) {
                         if ($row["Event_type"] == "Xid") {
-                            $worker = $this->getWorker("dispatch_process");
-							//if (WING_DEBUG)
+                           // $worker = $this->getWorker("dispatch_process");
+
+							$this->all_pos[] = [$start_pos, $row["End_log_pos"]];
+                            //if (WING_DEBUG)
                            // echo "写入pos位置：", $start_pos . "-" . $row["End_log_pos"], "\r\n";
-                           $this->writePos($worker, $start_pos, $row["End_log_pos"]);
+
 //                            if (!$res && WING_DEBUG) {
 //                                echo "失败\r\n";
 //                            }
@@ -304,7 +309,13 @@ class EventWorker extends BaseWorker
                         }
                     }
 
-                        $bin->setLastPosition($last_start_pos, $last_end_pos);
+                    if (count($this->all_pos) >= 4 || (time()- $this->write_run_time) > 1) {
+						echo count($this->all_pos) ,"待处理任务\r\n";
+                    	$this->writePos();
+					}
+
+					$bin->setLastPosition($last_start_pos, $last_end_pos);
+
                         //如果没有查找到一个事务 $limit x 2 直到超过 100000 行
 						if (!$has_session) {
 							$limit = 2 * $limit;

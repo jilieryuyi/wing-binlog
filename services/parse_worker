@@ -41,5 +41,4 @@ foreach ($argv as $item) {
 }
 
 
-$dispatch = new \Wing\Library\ParseWorker(1,1);
-$dispatch->process($cache_file);
+\Wing\Library\ParseWorker::process($cache_file);
