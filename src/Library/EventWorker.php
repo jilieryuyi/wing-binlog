@@ -163,15 +163,18 @@ class EventWorker extends BaseWorker
 
 				pcntl_signal_dispatch();
                 do {
-					if (count($this->all_pos) > $this->workers) {
+                    $all_pos_count = count($this->all_pos);
+					if ($all_pos_count > $this->workers) {
 						echo count($this->all_pos) ,"--1待处理任务\r\n";
 						$this->forkParseWorker();
 						break;
 					}
 
-					if (count($this->all_pos) >= $this->workers || (time()- $this->write_run_time) >= 1) {
-						echo count($this->all_pos) ,"--2待处理任务\r\n";
-						$this->forkParseWorker();
+					if ($all_pos_count >= $this->workers || (time()- $this->write_run_time) >= 1) {
+						if ($all_pos_count > 0) {
+                            echo $all_pos_count, "--2待处理任务\r\n";
+                            $this->forkParseWorker();
+                        }
 					}
 
                     $run_count++;
