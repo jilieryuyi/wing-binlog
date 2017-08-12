@@ -11,17 +11,36 @@ use Wing\Library\ISubscribe;
 class WebSocket implements ISubscribe
 {
     private $workers = 1;
-    public function __construct($workers)
+    public function __construct($host, $port, $deamon, $workers)
     {
         $this->workers = $workers;
         for ($i = 0; $i < $this->workers; $i++) {
             $cache = HOME."/cache/websocket/".$i;
             (new WDir($cache))->mkdir();
         }
+        $this->startWebsocketService($host, $port, $deamon, $workers);
+    }
+
+    private function startWebsocketService($host, $port, $deamon, $workers)
+    {
+//        $config = load_config("app");
+//        $host = isset($config["websocket"]["host"])?$config["websocket"]["host"]:"0.0.0.0";
+//        $port = isset($config["websocket"]["port"])?$config["websocket"]["port"]:9998;
+
+        $command = "php ".HOME."/services/websocket start --host=".$host." --port=".$port." --workers=".$workers;
+        if ($deamon) {
+            $command .= " -d";
+        }
+        echo $command,"\r\n";
+        $handle  = popen("/bin/sh -c \"".$command."\" >>".HOME."/logs/websocket.log&","r");
+
+        if ($handle) {
+            pclose($handle);
+        }
     }
 
 
-    public function onchange($database_name, $table_name, $event)
+    public function onchange($event)
     {
 
         for ($i = 0; $i < $this->workers; $i++) {
@@ -37,11 +56,7 @@ class WebSocket implements ISubscribe
                 substr($str2, rand(0, strlen($str2) - 16), 8) .
                 substr($str3, rand(0, strlen($str3) - 16), 8);
 
-            file_put_contents($cache_file, json_encode([
-                "database" => $database_name,
-                "table" => $table_name,
-                "event" => $event
-            ]));
+            file_put_contents($cache_file, json_encode($event));
         }
         //    file_put_contents($cache_file, json_encode([$database_name, $table_name, $event]));
     }

@@ -11,18 +11,36 @@ use Wing\Library\ISubscribe;
 class Tcp implements ISubscribe
 {
     private $workers = 1;
-    public function __construct($workers)
+    public function __construct($host, $port, $deamon, $workers)
     {
         $this->workers = $workers;
         for ($i = 0; $i < $this->workers; $i++) {
             $cache = HOME . "/cache/tcp/".$i;
             (new WDir($cache))->mkdir();
         }
+        $this->startTcpService($host, $port, $deamon, $workers);
     }
 
+    private function startTcpService($host, $port,$deamon, $workers)
+    {
+        //$config = load_config("app");
+       // $host = isset($config["tcp"]["host"])?$config["tcp"]["host"]:"0.0.0.0";
+        //$port = isset($config["tcp"]["port"])?$config["tcp"]["port"]:9997;
 
+        $command = "php ".HOME."/services/tcp start --host=".$host." --port=".$port." --workers=".$workers;
+        if ($deamon) {
+            $command .= " -d";
+        }
+        echo $command,"\r\n";
 
-    public function onchange($database_name, $table_name, $event)
+        $handle  = popen("/bin/sh -c \"".$command."\" >>".HOME."/logs/tcp.log&","r");
+
+        if ($handle) {
+            pclose($handle);
+        }
+    }
+
+    public function onchange($event)
     {
         for ($i = 0; $i < $this->workers; $i++) {
 
@@ -40,11 +58,7 @@ class Tcp implements ISubscribe
                 substr($str2, rand(0, strlen($str2) - 16), 8) .
                 substr($str3, rand(0, strlen($str3) - 16), 8);
 
-            file_put_contents($cache_file, json_encode([
-                "database" => $database_name,
-                "table" => $table_name,
-                "event" => $event
-            ]));
+            file_put_contents($cache_file, json_encode($event));
         }
     }
 }

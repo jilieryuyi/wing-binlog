@@ -15,12 +15,50 @@ class EventWorker extends BaseWorker
 	private $write_run_time     = 0;
 	private $pdo;
 
-	public function __construct($workers)
+	private $notify = [];
+
+	public function __construct($daemon, $workers)
 	{
         $this->pdo     = new PDO();
 		$this->workers = $workers;//$workers;
 		for ($i = 1; $i <= $this->workers; $i++) {
 		    $this->task[$i] = 0;
+        }
+
+        $subscribe = load_config("app");
+		if ($subscribe
+            && isset($subscribe["subscribe"])
+            && is_array($subscribe["subscribe"])
+            && count($subscribe["subscribe"]) > 0
+        ) {
+		    foreach ($subscribe["subscribe"] as $class => $params) {
+                $p = array_values($params);
+                switch (count($p)) {
+                    case 1:
+                        $this->notify[] = new $class($p[0], $daemon, $workers);
+                        break;
+                    case 2:
+                        $this->notify[] = new $class($p[0], $p[1], $daemon, $workers);
+                        break;
+                    case 3:
+                        $this->notify[] = new $class($p[0], $p[1], $p[2], $daemon, $workers);
+                        break;
+                    case 4:
+                        $this->notify[] = new $class($p[0], $p[1], $p[2], $p[3], $daemon, $workers);
+                        break;
+                    case 5:
+                        $this->notify[] = new $class($p[0], $p[1], $p[2], $p[3], $p[4],$daemon, $workers);
+                        break;
+                    case 6:
+                        $this->notify[] = new $class($p[0], $p[1], $p[2], $p[3], $p[4], $p[5], $daemon, $workers);
+                        break;
+                    case 7:
+                        $this->notify[] = new $class($p[0], $p[1], $p[2], $p[3], $p[4], $p[5], $p[6], $daemon, $workers);
+                        break;
+                    default:
+                        $this->notify[] = new $class($daemon, $workers);
+                }
+            }
         }
 	}
 
@@ -86,6 +124,11 @@ class EventWorker extends BaseWorker
 				$events = json_decode($raw, true);
 				self::$event_times += count($events);
                 //var_dump($events);
+                foreach ($events as $event) {
+                    foreach ($this->notify as $notify) {
+                        $notify->onchange($event);
+                    }
+                }
 				echo "总事件次数：", self::$event_times, "\r\n";
 
 				fclose($sock);

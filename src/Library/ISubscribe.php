@@ -7,5 +7,5 @@
  */
 interface ISubscribe
 {
-    public function onchange($database_name, $table_name, $event);
+    public function onchange($event);
 }

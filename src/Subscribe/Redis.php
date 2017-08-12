@@ -13,27 +13,21 @@ class Redis implements ISubscribe
 {
     private $redis;
     private $queue;
-	public function __construct()
+	public function __construct($host, $port, $password, $queue)
 	{
-        $config = load_config("app");
+        //$config = load_config("app");
         $this->redis = new \Wing\Library\Redis(
-            $config["redis"]["host"],
-            $config["redis"]["port"],
-            $config["redis"]["password"]
+            $host,//$config["redis"]["host"],
+            $port,//$config["redis"]["port"],
+            $password//$config["redis"]["password"]
         );
-        $this->queue = $config["redis"]["queue"];
+        $this->queue = $queue;//$config["redis"]["queue"];
 	}
 
 
 
-	public function onchange($database_name, $table_name, $event)
+	public function onchange($event)
 	{
-        $this->redis->rpush($this->queue, json_encode(
-            [
-                "database" => $database_name,
-                "table" => $table_name,
-                "event" => $event
-            ]
-        ));
+        $this->redis->rpush($this->queue, json_encode($event));
 	}
 }

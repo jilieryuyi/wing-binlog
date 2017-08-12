@@ -267,7 +267,7 @@ class Worker
         );
         echo $str;
 
-		$this->event_process_id = (new EventWorker($this->workers))->start($this->daemon);
+		$this->event_process_id = (new EventWorker($this->daemon, $this->workers))->start($this->daemon);
         $this->processes[] = $this->event_process_id;
 
 
@@ -298,7 +298,7 @@ class Worker
                         unset($this->processes[$id]);
 
                         if ($pid == $this->event_process_id) {
-                            $p = new EventWorker($this->workers);
+                            $p = new EventWorker($this->daemon, $this->workers);
                             $this->event_process_id = $p->start($this->daemon);
                             unset($p);
                             $this->processes[] = $this->event_process_id;
