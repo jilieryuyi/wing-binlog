@@ -70,6 +70,7 @@ $ws_worker->onWorkerStart = function($ws_worker){
                         continue;
                     }
                     foreach ($ws_worker->connections as $c) {
+                        $c->maxSendBufferSize = 104857600;
                         $c->send($content);
                     }
                     unlink($item);

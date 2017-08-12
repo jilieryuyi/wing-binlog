@@ -58,6 +58,7 @@ $ws_worker->onWorkerStart = function($ws_worker)
                             continue;
                         }
                         foreach ($ws_worker->connections as $c) {
+                            $c->maxSendBufferSize = 104857600;
                             echo "发送tcp消息：", $content,"\r\n";
                             $res = $c->send($content."\r\n\r\n\r\n");
                             if ($res) {
