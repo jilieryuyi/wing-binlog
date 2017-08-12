@@ -29,28 +29,12 @@ class ServerStart extends ServerBase
         $deamon      = $input->getOption("d");
         $debug       = $input->getOption("debug");
         $workers     = $input->getOption("n");
-//        $with_ws     = $input->getOption("with-websocket");
-//        $with_tcp    = $input->getOption("with-tcp");
-//        $with_redis  = $input->getOption("with-redis");
 
-//        if ($with_tcp) {
-//        	$this->startTcpService($deamon, $workers);
-//		}
-//
-//		if ($with_ws) {
-//			$this->startWebsocketService($deamon, $workers);
-//		}
-
-        $worker = new \Wing\Library\Worker(
-            [
-                "daemon"         => !!$deamon,
-                "debug"          => !!$debug,
-                "workers"        => $workers
-//                "with_websocket" => $with_ws,
-//                "with_tcp"       => $with_tcp,
-//                "with_redis"     => $with_redis
-            ]
-        );
+        $worker = new \Wing\Library\Worker([
+                "daemon"  => !!$deamon,
+                "debug"   => !!$debug,
+                "workers" => $workers
+            ]);
         $worker->start();
     }
 }

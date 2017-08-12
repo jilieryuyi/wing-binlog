@@ -16,11 +16,13 @@ class EventWorker extends BaseWorker
 	private $pdo;
 
 	private $notify = [];
+	private $daemon;
 
 	public function __construct($daemon, $workers)
 	{
         $this->pdo     = new PDO();
 		$this->workers = $workers;//$workers;
+        $this->daemon  = $daemon;
 		for ($i = 1; $i <= $this->workers; $i++) {
 		    $this->task[$i] = 0;
         }
@@ -141,8 +143,9 @@ class EventWorker extends BaseWorker
 		$this->waitParseProcess();
     }
 
-	public function start($daemon = false)
+	public function start()
 	{
+        $daemon = $this->daemon;
 		$process_id = pcntl_fork();
 
 		if ($process_id < 0) {

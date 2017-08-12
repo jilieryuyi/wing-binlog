@@ -12,7 +12,7 @@ abstract class BaseWorker
     const USLEEP       = 10000;
     public static $event_times = 0;
     public static $process_title = '';
-    abstract public function start($daemon = false);
+    abstract public function start();
     /**
      * @return string
      */

@@ -14,6 +14,11 @@ foreach ($argv as $item) {
     if (strpos($item, "debug") !== false) {
 		$debug = true;
     }
+
+    if (strpos($item, "restart") !== false) {
+        $winfo  = \Wing\Library\Worker::getWorkerProcessInfo();
+        $debug  = $winfo["debug"];
+    }
 }
 
 $str_argv = '';
@@ -42,25 +47,12 @@ try {
     $application->setCatchExceptions(true);
 
     $commands = [
-//        \Seals\Console\Command\UnitTest::class,
-//        \Seals\Console\Command\ServerStop::class,
-//        \Seals\Console\Command\ServerStatus::class,
         \Wing\Command\ServerStart::class,
         \Wing\Command\ServerStop::class,
         \Wing\Command\ServerVersion::class,
-        \Wing\Command\ServerStatus::class
-//        \Seals\Console\Command\ServerVersion::class,
-//        \Seals\Console\Command\ServerRestart::class,
-//        \Seals\Console\Command\Help::class,
-//        \Seals\Console\Command\Config::class,
-//        \Seals\Console\Command\MasterStart::class,
-//        \Seals\Console\Command\MasterStop::class,
-//        \Seals\Console\Command\MasterStatus::class,
-//        \Seals\Console\Command\MasterRestart::class,
-//        \Seals\Console\Command\User::class,
-//        \Seals\Console\Command\Role::class,
-//        \Seals\Console\Command\Lang::class
-
+        \Wing\Command\ServerStatus::class,
+        \Wing\Command\Help::class,
+        \Wing\Command\ServerRestart::class
     ];
     foreach ($commands as $command) {
         $application->add(new $command);
