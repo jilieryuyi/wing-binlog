@@ -8,5 +8,5 @@
 include_once __DIR__."/../vendor/autoload.php";
 define("HOME", dirname(__DIR__));
 
-$websocket = new \Wing\Library\WebSocketWorker();
-$websocket->start(false);
+//$websocket = new \Wing\Library\WebSocketWorker();
+//$websocket->start(false);

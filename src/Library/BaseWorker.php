@@ -55,11 +55,11 @@ abstract class BaseWorker
         return $target_worker;
     }
 
-    public function response($data) {
-    	if (is_array($data)) {
-    		$data = json_encode($data);
-		}
-		fwrite(STDIN, $data);
-	}
+//    public function response($data) {
+//    	if (is_array($data)) {
+//    		$data = json_encode($data);
+//		}
+//		fwrite(STDIN, $data);
+//	}
     //abstract public function getEventTimes();
 }
