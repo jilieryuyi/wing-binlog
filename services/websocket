@@ -36,6 +36,7 @@ $ws_worker->count = $workers;
 // Emitted when new connection come
 $ws_worker->onConnect = function($connection)
 {
+    $connection->maxSendBufferSize = 104857600;
     echo "New connection\n";
 };
 
@@ -70,7 +71,6 @@ $ws_worker->onWorkerStart = function($ws_worker){
                         continue;
                     }
                     foreach ($ws_worker->connections as $c) {
-                        $c->maxSendBufferSize = 104857600;
                         $c->send($content);
                     }
                     unlink($item);
