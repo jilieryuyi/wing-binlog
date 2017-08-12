@@ -58,7 +58,7 @@ $ws_worker->onClose = function($connection)
     echo "Connection closed\n";
 };
 $ws_worker->onWorkerStart = function($ws_worker){
-    \Workerman\Lib\Timer::add(1, function() use($ws_worker){
+    \Workerman\Lib\Timer::add(0.001, function() use($ws_worker){
         ob_start();
         $path[] = HOME . "/cache/websocket/".$ws_worker->id."/*";
         while (count($path) != 0) {
