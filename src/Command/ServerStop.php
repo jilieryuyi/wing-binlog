@@ -17,8 +17,8 @@ class ServerStop extends ServerBase
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-    	exec("php ".HOME."/tcp stop");
-		exec("php ".HOME."/websocket stop");
+    	exec("php ".HOME."/services/tcp stop");
+		exec("php ".HOME."/services/websocket stop");
         Worker::stopAll();
     }
 }
