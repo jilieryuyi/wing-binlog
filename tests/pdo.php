@@ -18,8 +18,8 @@ $count = 0;
 while ($count<100000)
 {//$count<10000
     $count +=2;
-    var_dump($pdo->query($sql1));
-    var_dump($pdo->query($sql2));
+    ($pdo->query($sql1));
+    ($pdo->query($sql2));
     echo "事件次数：",$count,"\r\n";
     //usleep(1000);
 }
