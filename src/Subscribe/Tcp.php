@@ -11,14 +11,18 @@ use Wing\Library\ISubscribe;
 class Tcp implements ISubscribe
 {
     private $workers = 1;
-    public function __construct($host, $port, $deamon, $workers)
+    public function __construct($config)
     {
+        $host = $config["host"];
+        $port = $config["port"];
+        $daemon = $config["daemon"];
+        $workers = $config["workers"];
         $this->workers = $workers;
         for ($i = 0; $i < $this->workers; $i++) {
             $cache = HOME . "/cache/tcp/".$i;
             (new WDir($cache))->mkdir();
         }
-        $this->startTcpService($host, $port, $deamon, $workers);
+        $this->startTcpService($host, $port, $daemon, $workers);
     }
 
     private function startTcpService($host, $port,$deamon, $workers)

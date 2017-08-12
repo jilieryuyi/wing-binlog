@@ -11,14 +11,19 @@ use Wing\Library\ISubscribe;
 class WebSocket implements ISubscribe
 {
     private $workers = 1;
-    public function __construct($host, $port, $deamon, $workers)
+    public function __construct($config)
     {
+        $host = $config["host"];
+        $port = $config["port"];
+        $daemon = $config["daemon"];
+        $workers = $config["workers"];
+
         $this->workers = $workers;
         for ($i = 0; $i < $this->workers; $i++) {
             $cache = HOME."/cache/websocket/".$i;
             (new WDir($cache))->mkdir();
         }
-        $this->startWebsocketService($host, $port, $deamon, $workers);
+        $this->startWebsocketService($host, $port, $daemon, $workers);
     }
 
     private function startWebsocketService($host, $port, $deamon, $workers)

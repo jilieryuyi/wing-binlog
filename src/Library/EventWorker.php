@@ -32,32 +32,9 @@ class EventWorker extends BaseWorker
             && count($subscribe["subscribe"]) > 0
         ) {
 		    foreach ($subscribe["subscribe"] as $class => $params) {
-                $p = array_values($params);
-                switch (count($p)) {
-                    case 1:
-                        $this->notify[] = new $class($p[0], $daemon, $workers);
-                        break;
-                    case 2:
-                        $this->notify[] = new $class($p[0], $p[1], $daemon, $workers);
-                        break;
-                    case 3:
-                        $this->notify[] = new $class($p[0], $p[1], $p[2], $daemon, $workers);
-                        break;
-                    case 4:
-                        $this->notify[] = new $class($p[0], $p[1], $p[2], $p[3], $daemon, $workers);
-                        break;
-                    case 5:
-                        $this->notify[] = new $class($p[0], $p[1], $p[2], $p[3], $p[4],$daemon, $workers);
-                        break;
-                    case 6:
-                        $this->notify[] = new $class($p[0], $p[1], $p[2], $p[3], $p[4], $p[5], $daemon, $workers);
-                        break;
-                    case 7:
-                        $this->notify[] = new $class($p[0], $p[1], $p[2], $p[3], $p[4], $p[5], $p[6], $daemon, $workers);
-                        break;
-                    default:
-                        $this->notify[] = new $class($daemon, $workers);
-                }
+                $params["daemon"]  = $daemon;
+                $params["workers"] = $workers;
+                $this->notify[] = new $class($params);
             }
         }
 	}
