@@ -9,7 +9,7 @@ include __DIR__."/../vendor/autoload.php";
 define("HOME", dirname(__DIR__));
 define("WING_DEBUG",  true);
 
-$pdo = new \Wing\Library\PDO();
+$pdo  = new \Wing\Library\PDO();
 $sql1 = 'update new_yonglibao_c.bl_city set provinces_id=(provinces_id+1) where id=5753598';
 $sql2 = 'update new_yonglibao_c.bl_city set provinces_id=(provinces_id-1) where id=5753598';
 

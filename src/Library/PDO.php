@@ -52,6 +52,7 @@ class PDO implements IDb
 		}
 
 		$config = $config["mysql"];
+		var_dump($config);
         $this->parameters = array();
         $this->dbname     = $config["db_name"];
         $this->host       = $config["host"];
