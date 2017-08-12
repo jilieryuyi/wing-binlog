@@ -13,9 +13,9 @@ class WebSocket implements ISubscribe
     private $workers = 1;
     public function __construct($config)
     {
-        $host = $config["host"];
-        $port = $config["port"];
-        $daemon = $config["daemon"];
+        $host    = $config["host"];
+        $port    = $config["port"];
+        $daemon  = $config["daemon"];
         $workers = $config["workers"];
 
         $this->workers = $workers;
@@ -28,17 +28,11 @@ class WebSocket implements ISubscribe
 
     private function startWebsocketService($host, $port, $deamon, $workers)
     {
-//        $config = load_config("app");
-//        $host = isset($config["websocket"]["host"])?$config["websocket"]["host"]:"0.0.0.0";
-//        $port = isset($config["websocket"]["port"])?$config["websocket"]["port"]:9998;
-
         $command = "php ".HOME."/services/websocket start --host=".$host." --port=".$port." --workers=".$workers;
         if ($deamon) {
             $command .= " -d";
         }
-        echo $command,"\r\n";
         $handle  = popen("/bin/sh -c \"".$command."\" >>".HOME."/logs/websocket.log&","r");
-
         if ($handle) {
             pclose($handle);
         }
@@ -63,6 +57,5 @@ class WebSocket implements ISubscribe
 
             file_put_contents($cache_file, json_encode($event));
         }
-        //    file_put_contents($cache_file, json_encode([$database_name, $table_name, $event]));
     }
 }

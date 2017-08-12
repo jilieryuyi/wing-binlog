@@ -15,18 +15,17 @@ class Redis implements ISubscribe
     private $queue;
 	public function __construct($config)
 	{
-        $host     = $config["host"];//     => "127.0.0.1",
-        $port     = $config["port"];//     => 6397,
-        $password = $config["password"];// => null,                          //无密码时必须为null
-        $queue    = $config["queue"];//    => "----wing-mysql-events-queue----" //默认的redis队列名称，队列使用rpush从尾部进入队列
+        $host     = $config["host"];
+        $port     = $config["port"];
+        $password = $config["password"];
+        $queue    = $config["queue"];
 
-        //$config = load_config("app");
         $this->redis = new \Wing\Library\Redis(
-            $host,//$config["redis"]["host"],
-            $port,//$config["redis"]["port"],
-            $password//$config["redis"]["password"]
+            $host,
+            $port,
+            $password
         );
-        $this->queue = $queue;//$config["redis"]["queue"];
+        $this->queue = $queue;
 	}
 
 
