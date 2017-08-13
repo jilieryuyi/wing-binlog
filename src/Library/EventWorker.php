@@ -102,10 +102,12 @@ class EventWorker extends BaseWorker
 				echo "parse进程返回值===", "\r\n";
 				$events = json_decode($raw, true);
 				self::$event_times += count($events);
-                //var_dump($events);
+                var_dump($events);
                 foreach ($events as $event) {
-                    foreach ($this->notify as $notify) {
-                        $notify->onchange($event);
+                    if (is_array($this->notify) && count($this->notify) > 0) {
+                        foreach ($this->notify as $notify) {
+                            $notify->onchange($event);
+                        }
                     }
                 }
 				echo "总事件次数：", self::$event_times, "\r\n";
@@ -244,8 +246,9 @@ class EventWorker extends BaseWorker
                            // $worker = $this->getWorker("dispatch_process");
 
                             $all_pos[] = [$start_pos, $row["End_log_pos"]];
-                            //if (WING_DEBUG)
-                           // echo "写入pos位置：", $start_pos . "-" . $row["End_log_pos"], "\r\n";
+                            if (WING_DEBUG) {
+                                echo "写入pos位置：", $start_pos . "-" . $row["End_log_pos"], "\r\n";
+                            }
 
 //                            if (!$res && WING_DEBUG) {
 //                                echo "失败\r\n";

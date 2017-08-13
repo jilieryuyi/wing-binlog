@@ -12,6 +12,7 @@ define("HOME", dirname(__DIR__));
 
 
 function fork_child($socket){
+    return;
     $pid = pcntl_fork();
     if ($pid > 0) return;
 
@@ -36,7 +37,7 @@ function start_service()
 {
 
     $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-    $con = socket_connect($socket, '127.0.0.1', 9997);
+    $con = socket_connect($socket, '127.0.0.1', 9996);
 
     if (!$con) {
         socket_close($socket);
@@ -51,6 +52,7 @@ function start_service()
     $msg_all = "";
     $split = "\r\n\r\n\r\n";
     while ($msg = socket_read($socket, 10240)) {
+        //echo $msg,"\r\n\r\n";
         $msg_all .= $msg;
         $temp = explode($split, $msg_all);
         if (count($temp) >= 2) {

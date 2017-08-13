@@ -17,7 +17,7 @@ var msg_split string  = "\r\n\r\n\r\n";
 func main() {
 
 	//建立socket，监听端口
-	listen, err := net.Listen("tcp", "localhost:9996")
+	listen, err := net.Listen("tcp", "0.0.0.0:9996")
 	DealError(err)
 	defer listen.Close()
 
@@ -55,7 +55,9 @@ func RemoveClient(conn net.Conn){
  * @param string msg
  */
 func Broadcast(msg string) {
+	msg += "\r\n\r\n\r\n"
 	for _, v := range clients {
+		fmt.Println("广播----", v, msg)
 		go v.Write([]byte(msg))
 	}
 }
@@ -95,12 +97,20 @@ func OnMessage(conn net.Conn, msg string) {
 	//粘包处理
 	temp := strings.Split(msg_buffer, msg_split)
 	temp_len := len(temp)
+
+	fmt.Println("切割之后===》",temp)
+	fmt.Println("长度===》",temp_len)
+
 	if (temp_len >= 2) {
 		msg_buffer = temp[temp_len - 1];
+		fmt.Println("msg_buffer===》",msg_buffer)
 		for _, v := range temp {
 			if strings.EqualFold(v, "") {
+				fmt.Println("v为空==》", v)
 				continue
 			}
+
+			fmt.Println("广播==》", v)
 			Broadcast(v);
 		}
 		//foreach ($temp as $v) {
