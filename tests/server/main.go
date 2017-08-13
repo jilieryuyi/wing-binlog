@@ -23,11 +23,9 @@ func main() {
 	listen, err := net.Listen("tcp", "0.0.0.0:9996")
 	DealError(err)
 	defer listen.Close()
-
 	Log("Waiting for clients")
 	for {
 		conn, err := listen.Accept()
-
 		if err != nil {
 			continue
 		}
@@ -122,7 +120,7 @@ func OnMessage(conn net.Conn, msg string) {
 			}
 
 			//fmt.Println("广播==》", v)
-			go Broadcast(v);
+			Broadcast(v);
 		}
 		//foreach ($temp as $v) {
 		//if (!$v) {

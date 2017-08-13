@@ -10,19 +10,20 @@ use Wing\Library\ISubscribe;
  */
 class Tcp implements ISubscribe
 {
-    private $workers = 1;
+    private $host;
+    private $port;
+    private $client;
+    private $send_times    = 0;
+    private $failure_times = 0;
     public function __construct($config)
     {
-        $host = $config["host"];
-        $port = $config["port"];
-        $daemon = $config["daemon"];
+        $this->host    = $config["host"];
+        $this->port    = $config["port"];
+        $this->client  = null;
+
+        $daemon  = $config["daemon"];
         $workers = $config["workers"];
-        $this->workers = $workers;
-        for ($i = 0; $i < $this->workers; $i++) {
-            $cache = HOME . "/cache/tcp/".$i;
-            (new WDir($cache))->mkdir();
-        }
-        $this->startTcpService($host, $port, $daemon, $workers);
+        $this->startTcpService($this->host, $this->port, $daemon, $workers);
     }
 
     private function startTcpService($host, $port,$deamon, $workers)
@@ -37,25 +38,46 @@ class Tcp implements ISubscribe
         }
     }
 
+    private function send($msg)
+    {
+        $this->send_times++;
+        echo "tcp client总发送次数=》", $this->send_times, "\r\n";
+        try {
+
+            if (!$this->client) {
+                $this->tryCreateClient();
+            }
+            if (!fwrite($this->client, $msg . "\r\n\r\n\r\n")) {
+                $this->client = null;
+                $this->failure_times++;
+                //$this->tryCreateClient();
+                fwrite($this->client, $msg . "\r\n\r\n\r\n");
+                $this->send_times++;
+                echo "tcp client总发送次数=》", $this->send_times, "\r\n";
+            }
+            echo "tcp client总发送失败次数=》", $this->failure_times, "\r\n";
+        }catch (\Exception $e) {
+            var_dump($e->getMessage());
+            $this->client = null;
+        }
+    }
+
+    private function tryCreateClient() {
+        try {
+            $this->client = stream_socket_client("tcp://" . $this->host . ":" . $this->port, $errno, $errstr, 30);
+            if (!$this->client) {
+                echo "$errstr ($errno)<br />\n";
+                $this->client = null;
+            }
+        } catch (\Exception $e) {
+            var_dump($e->getMessage());
+            $this->client = null;
+        }
+    }
+
+
     public function onchange($event)
     {
-        for ($i = 0; $i < $this->workers; $i++) {
-
-            $cache = HOME . "/cache/tcp/".$i;
-            $odir = new WDir($cache);
-            $odir->mkdir();
-            unset($odir);
-            $str1 = md5(rand(0, 999999));
-            $str2 = md5(rand(0, 999999));
-            $str3 = md5(rand(0, 999999));
-
-
-            $cache_file = $cache . "/__" . time() .
-                substr($str1, rand(0, strlen($str1) - 16), 8) .
-                substr($str2, rand(0, strlen($str2) - 16), 8) .
-                substr($str3, rand(0, strlen($str3) - 16), 8);
-
-            file_put_contents($cache_file, json_encode($event));
-        }
+        $this->send(json_encode($event));
     }
 }

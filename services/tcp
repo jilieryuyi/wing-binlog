@@ -23,7 +23,7 @@ foreach ($argv as $item) {
         list(,$workers) = explode("=",$item);
 }
 
-$workers = intval($workers);
+$workers = 1;//intval($workers);
 if ($workers <= 0)
     $workers = 1;
 
@@ -46,50 +46,135 @@ $ws_worker->onWorkerStart = function($ws_worker)
     // 只在id编号为0的进程上设置定时器，其它1、2、3号进程不设置定时器
    // if($worker->id === 0)
     {
-        \Workerman\Lib\Timer::add(0.001, function() use($ws_worker){
-            ob_start();
-            $path[] = HOME . "/cache/tcp/".$ws_worker->id."/*";
-            while (count($path) != 0) {
-                $v = array_shift($path);
-                foreach (glob($v) as $item) {
-                    if (is_file($item)) {
-                        //$send_count++;
-                        $content = file_get_contents($item);
-                        if (!$content) {
-                            continue;
-                        }
-                        foreach ($ws_worker->connections as $c) {
-                            echo "发送tcp消息：", $content,"\r\n";
-                            $res = $c->send($content."\r\n\r\n\r\n");
-                            if ($res) {
-                                echo "成功\r\n";
-                            } else {
-                                echo "失败\r\n";
-                            }
-                           // $send_count2++;
-                        }
-
-                        //echo $send_count.":".$send_count2,"\r\n\r\n";
-                        //file_put_contents(HOME."/logs/tcp", $send_count.":".$send_count2);
-
-                        unlink($item);
-                    }
-                }
-            }
-            $debug = ob_get_contents();
-            ob_end_clean();
-
-            if ($debug) {
-                echo $debug;
-            }
-        });
+//        \Workerman\Lib\Timer::add(0.001, function() use($ws_worker){
+//            ob_start();
+//            $path[] = HOME . "/cache/tcp/".$ws_worker->id."/*";
+//            while (count($path) != 0) {
+//                $v = array_shift($path);
+//                foreach (glob($v) as $item) {
+//                    if (is_file($item)) {
+//                        //$send_count++;
+//                        $content = file_get_contents($item);
+//                        if (!$content) {
+//                            continue;
+//                        }
+//                        foreach ($ws_worker->connections as $c) {
+//                            echo "发送tcp消息：", $content,"\r\n";
+//                            $res = $c->send($content."\r\n\r\n\r\n");
+//                            if ($res) {
+//                                echo "成功\r\n";
+//                            } else {
+//                                echo "失败\r\n";
+//                            }
+//                           // $send_count2++;
+//                        }
+//
+//                        //echo $send_count.":".$send_count2,"\r\n\r\n";
+//                        //file_put_contents(HOME."/logs/tcp", $send_count.":".$send_count2);
+//
+//                        unlink($item);
+//                    }
+//                }
+//            }
+//            $debug = ob_get_contents();
+//            ob_end_clean();
+//
+//            if ($debug) {
+//                echo $debug;
+//            }
+//        });
     }
 };
 
+//$msg_all = "";
+
 // Emitted when data received
-$ws_worker->onMessage = function($connection, $data)
+$ws_worker->onMessage = function($connection, $data) use($ws_worker)
 {
-   // global $ws_worker,$send_count,$send_count2;
+
+   // global $ws_worker;
+    static $msg_all;
+    static $count = 0;
+    $split = "\r\n\r\n\r\n";
+    //while ($msg = socket_read($socket, 10240))
+    {
+        //echo $msg,"\r\n\r\n";
+        $msg_all .= $data;
+        $temp = explode($split, $msg_all);
+        if (count($temp) >= 2) {
+            $msg_all = array_pop($temp);
+            foreach ($temp as $v) {
+                $arr = json_decode($v , true);
+                if (!$v || !is_array($arr) || count($arr) <= 0) {
+                    continue;
+                }
+                $count++;
+                echo $v, "\r\n";
+                echo "收到消息次数：", $count, "\r\n\r\n";
+
+                foreach ($ws_worker->connections as $c) {
+                    if ($c == $connection) {
+                        echo "当前链接不发送\r\n";
+                        continue;
+                    }
+                  //  echo "发送tcp消息：", $content,"\r\n";
+                    $res = $c->send($v."\r\n\r\n\r\n");
+                    if ($res) {
+                        echo "成功\r\n";
+                    } else {
+                        echo "失败\r\n";
+                    }
+                    // $send_count2++;
+                }
+
+
+
+            }
+        }
+        unset($temp);
+    }
+
+
+   // \Workerman\Lib\Timer::add(0.001, function() use($ws_worker){
+//        ob_start();
+//        $path[] = HOME . "/cache/tcp/".$ws_worker->id."/*";
+//        while (count($path) != 0) {
+//            $v = array_shift($path);
+//            foreach (glob($v) as $item) {
+//                if (is_file($item)) {
+//                    //$send_count++;
+//                    $content = file_get_contents($item);
+//                    if (!$content) {
+//                        continue;
+//                    }
+//                    foreach ($ws_worker->connections as $c) {
+//                        echo "发送tcp消息：", $content,"\r\n";
+//                        $res = $c->send($content."\r\n\r\n\r\n");
+//                        if ($res) {
+//                            echo "成功\r\n";
+//                        } else {
+//                            echo "失败\r\n";
+//                        }
+//                        // $send_count2++;
+//                    }
+//
+//                    //echo $send_count.":".$send_count2,"\r\n\r\n";
+//                    //file_put_contents(HOME."/logs/tcp", $send_count.":".$send_count2);
+//
+//                    unlink($item);
+//                }
+//            }
+//        }
+//        $debug = ob_get_contents();
+//        ob_end_clean();
+//
+//        if ($debug) {
+//            echo $debug;
+//        }
+   // });
+
+
+    // global $ws_worker,$send_count,$send_count2;
     //$current_process_id = get_current_processid();
 
     // Send hello $data

@@ -94,6 +94,7 @@ class EventWorker extends BaseWorker
 					proc_close($this->dispatch_processes[$key]);
 					unset($this->dispatch_processes[$key]);
 				}
+				file_put_contents(HOME."/logs/error.log", date("Y-m-d H:i:s")."=>等待进程处理结果出错\r\n", FILE_APPEND);
 				return;
 			}
 
@@ -102,15 +103,21 @@ class EventWorker extends BaseWorker
 				echo "parse进程返回值===", "\r\n";
 				$events = json_decode($raw, true);
 				self::$event_times += count($events);
+
                 var_dump($events);
-                foreach ($events as $event) {
-                    if (is_array($this->notify) && count($this->notify) > 0) {
-                        foreach ($this->notify as $notify) {
-                            $notify->onchange($event);
+                echo "总事件次数：", self::$event_times, "\r\n";
+
+                try {
+                    foreach ($events as $event) {
+                        if (is_array($this->notify) && count($this->notify) > 0) {
+                            foreach ($this->notify as $notify) {
+                                $notify->onchange($event);
+                            }
                         }
                     }
+                }catch(\Exception $e){
+                    var_dump($e->getMessage());
                 }
-				echo "总事件次数：", self::$event_times, "\r\n";
 
 				fclose($sock);
 				$id = array_search($sock, $this->dispatch_pipes);

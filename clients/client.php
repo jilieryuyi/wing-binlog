@@ -12,7 +12,6 @@ define("HOME", dirname(__DIR__));
 
 
 function fork_child($socket){
-    return;
     $pid = pcntl_fork();
     if ($pid > 0) return;
 
@@ -37,7 +36,7 @@ function start_service()
 {
 
     $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-    $con = socket_connect($socket, '127.0.0.1', 9996);
+    $con = socket_connect($socket, '127.0.0.1', 9997);
 
     if (!$con) {
         socket_close($socket);
