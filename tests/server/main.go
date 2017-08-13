@@ -61,30 +61,53 @@ func RemoveClient(conn net.Conn){
  * @param string msg
  */
 func Broadcast() {
-	for {
-		//fmt.Println("广播...")
-		select {
-		case msg := <-MSG_B_QUEUE:
-		//do nothing
-		//task
-
-			msg += "\r\n\r\n\r\n"
-			send_times++;
-			fmt.Println("广播次数===>", send_times)
-			for _, v := range clients {
-				//fmt.Println("广播----", v, msg)
-				size, err := v.Write([]byte(msg))
-				if (size <= 0 || err != nil) {
-					failure_times++
+	for i := 0; i < 8; i ++ {
+		go func() {
+			for {
+				select {
+				case msg := <-MSG_B_QUEUE:
+					msg += "\r\n\r\n\r\n"
+					send_times++;
+					fmt.Println("广播次数===>", send_times)
+					for _, v := range clients {
+						//fmt.Println("广播----", v, msg)
+						size, err := v.Write([]byte(msg))
+						if (size <= 0 || err != nil) {
+							failure_times++
+						}
+					}
+					fmt.Println("失败次数===>", failure_times)
+				default:
+				//	//warnning!
+				fmt.Println("TASK_CHANNEL is full!")
 				}
 			}
-			fmt.Println("失败次数===>", failure_times)
-			//OnMessage(nil, "");
-		default:
-		//warnning!
-			//fmt.Println("TASK_CHANNEL is full!")
-		}
+		} ()
 	}
+	//for {
+	//	//fmt.Println("广播...")
+	//	select {
+	//	case msg := <-MSG_B_QUEUE:
+	//	//do nothing
+	//	//task
+	//
+	//		msg += "\r\n\r\n\r\n"
+	//		send_times++;
+	//		fmt.Println("广播次数===>", send_times)
+	//		for _, v := range clients {
+	//			//fmt.Println("广播----", v, msg)
+	//			size, err := v.Write([]byte(msg))
+	//			if (size <= 0 || err != nil) {
+	//				failure_times++
+	//			}
+	//		}
+	//		fmt.Println("失败次数===>", failure_times)
+	//		//OnMessage(nil, "");
+	//	default:
+	//	//warnning!
+	//		//fmt.Println("TASK_CHANNEL is full!")
+	//	}
+	//}
 
 }
 
