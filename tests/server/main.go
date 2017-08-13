@@ -120,6 +120,7 @@ func OnMessage(conn net.Conn, msg string) {
 			}
 
 			//fmt.Println("广播==》", v)
+			//加上并发限制 如果同时广播数量达到一定数量 等待其返回 再发起新的广播
 			Broadcast(v);
 		}
 		//foreach ($temp as $v) {
