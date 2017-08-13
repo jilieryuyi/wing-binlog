@@ -29,15 +29,12 @@ class WsClient
 
     public function send($data, $type = 'text', $masked = true)
     {
-        if($this->_connected === false)
-        {
+        if($this->_connected === false) {
             $this->connect();
-            //trigger_error("Not connected", E_USER_WARNING);
-           // return false;
         }
 
         if( !is_string($data)) {
-            trigger_error("Not a string data was given.", E_USER_WARNING);
+            echo "Not a string data was given.";
             return false;
         }
         if (strlen($data) == 0)
@@ -133,7 +130,7 @@ class WsClient
         sleep(10);
         $this->_connected = false;
         fclose($this->_Socket);
-        $this->connect($this->_host, $this->_port, $this->_path, $this->_origin);
+        $this->connect();
     }
 
     private function _generateRandomString($length = 10, $addSpaces = true, $addNumbers = true)
@@ -201,7 +198,7 @@ class WsClient
             // most significant bit MUST be 0 (close connection if frame too big)
             if($frameHead[2] > 127)
             {
-                $this->close(1004);
+               // $this->close(1004);
                 return false;
             }
         }
@@ -336,22 +333,3 @@ class WsClient
         return $decodedData;
     }
 }
-//
-//
-//使用示例：
-//
-//// 使用 WebSocket 通知客户端
-//		$client = new \Common\Library\WebSocketClient();
-//		$client->connect($_SERVER['HTTP_HOST'], 943, '/');
-//
-//		$payload = json_encode(array(
-//            'code' => 'xxx',
-//            'id' => '1'
-//        ));
-//		$rs = $client->sendData($payload);
-//
-//		if( $rs !== true ){
-//            echo "sendData error...\n";
-//        }else{
-//            echo "ok\n";
-//        }

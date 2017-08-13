@@ -86,6 +86,20 @@ $ws_worker->onWorkerStart = function($ws_worker)
     }
 };
 
+
+$ws_worker->onError = function ()
+{
+    echo "发生错误".json_encode(func_get_args(), JSON_UNESCAPED_UNICODE), "\r\n";
+};
+$ws_worker->onBufferFull = function()
+{
+    echo "发送缓冲区满".json_encode(func_get_args(), JSON_UNESCAPED_UNICODE), "\r\n";
+};
+$ws_worker->onBufferDrain = function()
+{
+    echo "发送缓冲可以继续".json_encode(func_get_args(), JSON_UNESCAPED_UNICODE), "\r\n";
+};
+
 //$msg_all = "";
 
 // Emitted when data received
@@ -106,6 +120,7 @@ $ws_worker->onMessage = function($connection, $data) use($ws_worker)
             foreach ($temp as $v) {
                 $arr = json_decode($v , true);
                 if (!$v || !is_array($arr) || count($arr) <= 0) {
+                    echo $v,"格式不正确\r\n";
                     continue;
                 }
                 $count++;
