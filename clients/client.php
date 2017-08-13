@@ -7,8 +7,7 @@
  */
 include_once __DIR__."/../vendor/autoload.php";
 define("HOME", dirname(__DIR__));
-
-
+define("WING_DEBUG", true);
 
 
 function fork_child($socket){
