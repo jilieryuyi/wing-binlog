@@ -247,7 +247,7 @@ class EventWorker extends BaseWorker
 
                             $all_pos[] = [$start_pos, $row["End_log_pos"]];
                             if (WING_DEBUG) {
-                                echo "写入pos位置：", $start_pos . "-" . $row["End_log_pos"], "\r\n";
+                                //echo "写入pos位置：", $start_pos . "-" . $row["End_log_pos"], "\r\n";
                             }
 
 //                            if (!$res && WING_DEBUG) {

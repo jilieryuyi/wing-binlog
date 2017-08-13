@@ -13,11 +13,38 @@ class Go implements ISubscribe
     private $host;
     private $port;
     private $client;
+    private $send_times = 0;
+    private $failure_times = 0;
     public function __construct($config)
     {
         $this->host    = $config["host"];
         $this->port    = $config["port"];
         $this->client  = null;
+    }
+
+
+    private function send($msg)
+    {
+        $this->send_times++;
+        echo "go总发送次数=》", $this->send_times, "\r\n";
+        try {
+
+            if (!$this->client) {
+                $this->tryCreateClient();
+            }
+            if (!fwrite($this->client, $msg . "\r\n\r\n\r\n")) {
+                $this->client = null;
+                $this->failure_times++;
+                //$this->tryCreateClient();
+                fwrite($this->client, $msg . "\r\n\r\n\r\n");
+                $this->send_times++;
+                echo "go总发送次数=》", $this->send_times, "\r\n";
+            }
+            echo "go总发送失败次数=》", $this->failure_times, "\r\n";
+        }catch (\Exception $e) {
+            var_dump($e->getMessage());
+            $this->client = null;
+        }
     }
 
     private function tryCreateClient() {
@@ -41,18 +68,6 @@ class Go implements ISubscribe
 
     public function onchange($event)
     {
-        if (!$this->client) {
-            $this->tryCreateClient();
-        }
-        try {
-            if (false === fwrite($this->client, json_encode($event) . "\r\n\r\n\r\n")) {
-                $this->client = null;
-                $this->tryCreateClient();
-                fwrite($this->client, json_encode($event) . "\r\n\r\n\r\n");
-            }
-        }catch (\Exception $e) {
-            var_dump($e->getMessage());
-            $this->client = null;
-        }
+        $this->send(json_encode($event));
     }
 }
