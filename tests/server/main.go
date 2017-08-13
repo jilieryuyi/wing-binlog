@@ -17,6 +17,8 @@ var send_times int = 0
 var msg_times int = 0
 var failure_times int = 0
 
+var MSG_B_QUEUE = make(chan string)//, 64)
+
 func main() {
 
 	//建立socket，监听端口
@@ -24,6 +26,9 @@ func main() {
 	DealError(err)
 	defer listen.Close()
 	Log("Waiting for clients")
+
+	go Broadcast()
+
 	for {
 		conn, err := listen.Accept()
 		if err != nil {
@@ -55,18 +60,32 @@ func RemoveClient(conn net.Conn){
  *
  * @param string msg
  */
-func Broadcast(msg string) {
-	msg += "\r\n\r\n\r\n"
-	send_times++;
-	fmt.Println("广播次数===>", send_times)
-	for _, v := range clients {
-		//fmt.Println("广播----", v, msg)
-		size, err := v.Write([]byte(msg))
-		if (size <=0 || err != nil) {
-			failure_times++
+func Broadcast() {
+	for {
+		//fmt.Println("广播...")
+		select {
+		case msg := <-MSG_B_QUEUE:
+		//do nothing
+		//task
+
+			msg += "\r\n\r\n\r\n"
+			send_times++;
+			fmt.Println("广播次数===>", send_times)
+			for _, v := range clients {
+				//fmt.Println("广播----", v, msg)
+				size, err := v.Write([]byte(msg))
+				if (size <= 0 || err != nil) {
+					failure_times++
+				}
+			}
+			fmt.Println("失败次数===>", failure_times)
+			//OnMessage(nil, "");
+		default:
+		//warnning!
+			//fmt.Println("TASK_CHANNEL is full!")
 		}
 	}
-	fmt.Println("失败次数===>", failure_times)
+
 }
 
 
@@ -102,6 +121,15 @@ func OnMessage(conn net.Conn, msg string) {
 	fmt.Println("收到消息的次数==>", msg_times)
 	//html := 		"HTTP/1.1 200 OK\r\nContent-Length: 5\r\nContent-Type: text/html\r\n\r\nhello"
 	msg_buffer += msg
+
+	var queue_len int = 0
+
+	queue_len = len(MSG_B_QUEUE)
+	fmt.Println("队列长度",queue_len)
+	//if (queue_len >= 64) {
+	//	return
+	//}
+
 	//Broadcast(msg);
 	//粘包处理
 	temp := strings.Split(msg_buffer, msg_split)
@@ -109,6 +137,8 @@ func OnMessage(conn net.Conn, msg string) {
 
 	//fmt.Println("切割之后===》",temp)
 	//fmt.Println("长度===》",temp_len)
+
+
 
 	if (temp_len >= 2) {
 		msg_buffer = temp[temp_len - 1];
@@ -121,7 +151,14 @@ func OnMessage(conn net.Conn, msg string) {
 
 			//fmt.Println("广播==》", v)
 			//加上并发限制 如果同时广播数量达到一定数量 等待其返回 再发起新的广播
-			Broadcast(v);
+			//Broadcast(v);
+			MSG_B_QUEUE <- v
+			queue_len = len(MSG_B_QUEUE)
+			fmt.Println("队列长度",queue_len)
+
+			//if (queue_len >= 64) {
+			//	return
+			//}
 		}
 		//foreach ($temp as $v) {
 		//if (!$v) {
