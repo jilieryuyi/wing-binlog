@@ -16,17 +16,25 @@ type BODY struct {
 	msg string
 }
 
+//所有的连接进来的客户端
 var clients map[int]net.Conn = make(map[int]net.Conn)
+//所有的连接进来的客户端数量
 var clients_count int = 0
+//收到的消息缓冲区 用于解决粘包
 var msg_buffer string = ""
+//粘包分隔符
 var msg_split string  = "\r\n\r\n\r\n";
-var send_times int = 0
-var msg_times int = 0
+//发送次数
+var send_times int    = 0
+//收到消息次数
+var msg_times int     = 0
+//发送失败次数
 var failure_times int = 0
 
-const MAX_B_QUEUE = 10240
-var MSG_SEND_QUEUE = make(chan BODY, 10240)
-var MSG_RECEIVE_QUEUE = make(chan BODY, 10240)
+//最大的频道长度 可用于并发控制
+const MAX_QUEUE       = 10240
+var MSG_SEND_QUEUE    = make(chan BODY, MAX_QUEUE)
+var MSG_RECEIVE_QUEUE = make(chan BODY, MAX_QUEUE)
 
 func main() {
 
@@ -38,9 +46,10 @@ func main() {
 		close(MSG_SEND_QUEUE)
 		close(MSG_RECEIVE_QUEUE)
 	}()
-	Log("Waiting for clients")
+	Log("等待新的连接...")
 
-	//runtime.GOMAXPROCS(32)  //限制同时运行的goroutines数量
+	// runtime.GOMAXPROCS(32)
+	// 限制同时运行的goroutines数量
 	go MainThread()
 
 	for {
@@ -52,12 +61,13 @@ func main() {
 	}
 }
 
-
+//添加客户端到集合
 func AddClient(conn net.Conn) {
 	clients[clients_count] = conn
 	clients_count++
 }
 
+//将客户端从集合移除 由于移除操作不会重建索引clients_count就是当前最后的索引
 func RemoveClient(conn net.Conn){
 	// 遍历map
 	for k, v := range clients {
@@ -65,7 +75,6 @@ func RemoveClient(conn net.Conn){
 			delete(clients, k)
 		}
 	}
-	clients_count--
 }
 
 //var wg sync.WaitGroup  //定义一个同步等待的组
@@ -94,7 +103,7 @@ func Broadcast(_msg BODY) {
 			}
 		//}()
 	}
-	fmt.Println("失败次数===>", failure_times)
+	Log("失败次数：", failure_times)
 }
 
 /**
@@ -107,31 +116,11 @@ func MainThread() {
 		go func() {
 			for {
 				select {
-				case msg := <-MSG_SEND_QUEUE:
-					go func() {
-						//wg.Add(1)//为同步等待组增加一个成员
-						Broadcast(msg)
-					} ()
-					//max_len := len(MSG_SEND_QUEUE)
-					//if max_len > 10 {
-					//	max_len = 10
-					//}
-					//for i := 0 ; i < max_len; i++ {
-					//	msg := <-MSG_SEND_QUEUE
-					//	//if err == nil {
-					//		go func() {
-					//			wg.Add(1)//为同步等待组增加一个成员
-					//			Broadcast(msg)
-					//		}()
-					//	//}
-					//}
-					//wg.Wait() //阻塞等待所有组内成员都执行完毕退栈
-				//case res := <-MSG_RECEIVE_QUEUE:
-				//	OnMessage(res.conn, res.msg)
-				//default:
-				//	//warnning!
-				//fmt.Println("TASK_CHANNEL is full!")
-
+					case msg := <-MSG_SEND_QUEUE:
+						go func() {
+							//wg.Add(1)//为同步等待组增加一个成员
+							Broadcast(msg)
+						} ()
 				}
 			}
 		} ()
@@ -139,133 +128,58 @@ func MainThread() {
 		go func() {
 			for {
 				select {
-				//case msg := <-MSG_SEND_QUEUE:
-				//	Broadcast(msg)
-				case res := <-MSG_RECEIVE_QUEUE:
-					OnMessage(res.conn, res.msg)
-				//default:
-				//	//warnning!
-				//fmt.Println("TASK_CHANNEL is full!")
-
+					case res := <-MSG_RECEIVE_QUEUE:
+						OnMessage(res.conn, res.msg)
 				}
 			}
 		} ()
 	}
-	//for {
-	//	//fmt.Println("广播...")
-	//	select {
-	//	case msg := <-MSG_SEND_QUEUE:
-	//	//do nothing
-	//	//task
-	//
-	//		msg += "\r\n\r\n\r\n"
-	//		send_times++;
-	//		fmt.Println("广播次数===>", send_times)
-	//		for _, v := range clients {
-	//			//fmt.Println("广播----", v, msg)
-	//			size, err := v.Write([]byte(msg))
-	//			if (size <= 0 || err != nil) {
-	//				failure_times++
-	//			}
-	//		}
-	//		fmt.Println("失败次数===>", failure_times)
-	//		//OnMessage(nil, "");
-	//	default:
-	//	//warnning!
-	//		//fmt.Println("TASK_CHANNEL is full!")
-	//	}
-	//}
-
 }
 
 
 //处理连接
 func OnConnect(conn net.Conn) {
-	Log(conn.RemoteAddr().String(), " tcp connect success")
+	Log(conn.RemoteAddr().String(), "连接成功")
 	AddClient(conn)
 	buffer := make([]byte, 20480)
 
 	for {
 
-		n, err := conn.Read(buffer)
+		size, err := conn.Read(buffer)
 
 		if err != nil {
-			Log(conn.RemoteAddr().String(), " connection error: ", err)
+			Log(conn.RemoteAddr().String(), "连接发生错误: ", err)
 			onClose(conn);
 			conn.Close();
-
 			return
 		}
 
-
-		//Log(conn.RemoteAddr().String(), "receive data string:\n", string(buffer[:n]))
-		//go OnMessage(conn, string(buffer[:n]))
-		//if len(MSG_RECEIVE_QUEUE) < MAX_B_QUEUE {
 		msg_times++
-		fmt.Println("收到消息的次数==>", msg_times)
-			MSG_RECEIVE_QUEUE <- BODY{conn, string(buffer[:n])}
-		//}
+		Log("收到消息的次数：", msg_times)
+		MSG_RECEIVE_QUEUE <- BODY{conn, string(buffer[:size])}
 	}
 
 }
-//conn net.Conn,
+
+//收到消息回调函数
 func OnMessage(conn net.Conn, msg string) {
 
 	//html := 		"HTTP/1.1 200 OK\r\nContent-Length: 5\r\nContent-Type: text/html\r\n\r\nhello"
 	msg_buffer += msg
 
-	var queue_len int = 0
-
-	queue_len = len(MSG_SEND_QUEUE)
-	fmt.Println("队列长度",queue_len)
-	//if (queue_len >= 64) {
-	//	return
-	//}
-
-	//Broadcast(msg);
 	//粘包处理
-	temp := strings.Split(msg_buffer, msg_split)
+	temp     := strings.Split(msg_buffer, msg_split)
 	temp_len := len(temp)
-
-	//fmt.Println("切割之后===》",temp)
-	//fmt.Println("长度===》",temp_len)
-
-
 
 	if (temp_len >= 2) {
 		msg_buffer = temp[temp_len - 1];
-		//fmt.Println("msg_buffer===》",msg_buffer)
 		for _, v := range temp {
 			if strings.EqualFold(v, "") {
-				//fmt.Println("v为空==》", v)
 				continue
 			}
-
-			//fmt.Println("广播==》", v)
-			//加上并发限制 如果同时广播数量达到一定数量 等待其返回 再发起新的广播
-			//Broadcast(v);
 			MSG_SEND_QUEUE <- BODY{conn, v}
-			queue_len = len(MSG_SEND_QUEUE)
-			fmt.Println("队列长度",queue_len)
-
-			//if (queue_len >= 64) {
-			//	return
-			//}
 		}
-		//foreach ($temp as $v) {
-		//if (!$v) {
-		//continue;
-		//}
-		//$count++;
-		//echo $v, "\r\n";
-		//echo "收到消息次数：", $count, "\r\n\r\n";
-		//}
-		//}
-		//unset($temp);
-
 	}
-
-	fmt.Println(msg_buffer)
 }
 
 func onClose(conn net.Conn) {
