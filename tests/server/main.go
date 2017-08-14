@@ -77,6 +77,7 @@ func Broadcast(_msg BODY) {
 			continue
 		}
 		//fmt.Println("广播----", v, msg)
+		//v.SetWriteDeadline()
 		size, err := v.Write([]byte(msg))
 		if (size <= 0 || err != nil) {
 			failure_times++
