@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+type BODY struct {
+	conn net.Conn
+	msg string
+}
 
 var clients map[int]net.Conn = make(map[int]net.Conn)
 var clients_count int = 0
@@ -17,17 +21,23 @@ var send_times int = 0
 var msg_times int = 0
 var failure_times int = 0
 
-var MSG_B_QUEUE = make(chan string)//, 64)
+const MAX_B_QUEUE = 10240
+var MSG_SEND_QUEUE = make(chan BODY, 10240)
+var MSG_RECEIVE_QUEUE = make(chan BODY, 10240)
 
 func main() {
 
 	//建立socket，监听端口
 	listen, err := net.Listen("tcp", "0.0.0.0:9996")
 	DealError(err)
-	defer listen.Close()
+	defer func () {
+		listen.Close();
+		close(MSG_SEND_QUEUE)
+		close(MSG_RECEIVE_QUEUE)
+	}()
 	Log("Waiting for clients")
 
-	go Broadcast()
+	go MainThread()
 
 	for {
 		conn, err := listen.Accept()
@@ -55,31 +65,43 @@ func RemoveClient(conn net.Conn){
 }
 
 
+func Broadcast(_msg BODY) {
+	msg := _msg.msg
+	msg += "\r\n\r\n\r\n"
+	send_times++;
+	fmt.Println("广播次数===>", send_times)
+	for _, v := range clients {
+		//非常关键的一步 如果这里也给接发来的人广播 接收端不消费
+		//发送会被阻塞
+		if v == _msg.conn {
+			continue
+		}
+		//fmt.Println("广播----", v, msg)
+		size, err := v.Write([]byte(msg))
+		if (size <= 0 || err != nil) {
+			failure_times++
+		}
+	}
+	fmt.Println("失败次数===>", failure_times)
+}
+
 /**
  * 广播
  *
  * @param string msg
  */
-func Broadcast() {
-	for i := 0; i < 8; i ++ {
+func MainThread() {
+	for i := 0; i < 4; i ++ {
 		go func() {
 			for {
 				select {
-				case msg := <-MSG_B_QUEUE:
-					msg += "\r\n\r\n\r\n"
-					send_times++;
-					fmt.Println("广播次数===>", send_times)
-					for _, v := range clients {
-						//fmt.Println("广播----", v, msg)
-						size, err := v.Write([]byte(msg))
-						if (size <= 0 || err != nil) {
-							failure_times++
-						}
-					}
-					fmt.Println("失败次数===>", failure_times)
+				case msg := <-MSG_SEND_QUEUE:
+					Broadcast(msg)
+				case res := <-MSG_RECEIVE_QUEUE:
+					OnMessage(res.conn, res.msg)
 				default:
 				//	//warnning!
-				fmt.Println("TASK_CHANNEL is full!")
+				//fmt.Println("TASK_CHANNEL is full!")
 				}
 			}
 		} ()
@@ -87,7 +109,7 @@ func Broadcast() {
 	//for {
 	//	//fmt.Println("广播...")
 	//	select {
-	//	case msg := <-MSG_B_QUEUE:
+	//	case msg := <-MSG_SEND_QUEUE:
 	//	//do nothing
 	//	//task
 	//
@@ -124,8 +146,6 @@ func OnConnect(conn net.Conn) {
 
 		if err != nil {
 			Log(conn.RemoteAddr().String(), " connection error: ", err)
-
-
 			onClose(conn);
 			conn.Close();
 
@@ -134,11 +154,14 @@ func OnConnect(conn net.Conn) {
 
 
 		//Log(conn.RemoteAddr().String(), "receive data string:\n", string(buffer[:n]))
-		go OnMessage(conn, string(buffer[:n]))
+		//go OnMessage(conn, string(buffer[:n]))
+		//if len(MSG_RECEIVE_QUEUE) < MAX_B_QUEUE {
+			MSG_RECEIVE_QUEUE <- BODY{conn, string(buffer[:n])}
+		//}
 	}
 
 }
-
+//conn net.Conn,
 func OnMessage(conn net.Conn, msg string) {
 	msg_times++
 	fmt.Println("收到消息的次数==>", msg_times)
@@ -147,7 +170,7 @@ func OnMessage(conn net.Conn, msg string) {
 
 	var queue_len int = 0
 
-	queue_len = len(MSG_B_QUEUE)
+	queue_len = len(MSG_SEND_QUEUE)
 	fmt.Println("队列长度",queue_len)
 	//if (queue_len >= 64) {
 	//	return
@@ -175,8 +198,8 @@ func OnMessage(conn net.Conn, msg string) {
 			//fmt.Println("广播==》", v)
 			//加上并发限制 如果同时广播数量达到一定数量 等待其返回 再发起新的广播
 			//Broadcast(v);
-			MSG_B_QUEUE <- v
-			queue_len = len(MSG_B_QUEUE)
+			MSG_SEND_QUEUE <- BODY{conn, v}
+			queue_len = len(MSG_SEND_QUEUE)
 			fmt.Println("队列长度",queue_len)
 
 			//if (queue_len >= 64) {
