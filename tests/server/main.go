@@ -9,6 +9,7 @@ import (
 	"time"
 	//"sync"
 	//"runtime"
+	"encoding/json"
 )
 
 type BODY struct {
@@ -31,6 +32,7 @@ var msg_times int     = 0
 //发送失败次数
 var failure_times int = 0
 
+const DEBUG bool = true
 //最大的频道长度 可用于并发控制
 const MAX_QUEUE       = 10240
 var MSG_SEND_QUEUE    = make(chan BODY, MAX_QUEUE)
@@ -81,11 +83,20 @@ func RemoveClient(conn net.Conn){
 //maxProcs := runtime.NumCPU()   //获取cpu个数
 //runtime.GOMAXPROCS(maxProcs)  //限制同时运行的goroutines数量
 
+//var data_all map[int]interface{} = make(map[int]interface{})
+//var all_index int = 0
 func Broadcast(_msg BODY) {
 	msg := _msg.msg
+
+	var data map[string]interface{}
+	json.Unmarshal([]byte(msg), &data)
+	//Log(msg, data)
+	//data_all[all_index] = data["event_index"]
+	//all_index++
+	Log("索引：", data["event_index"])
 	msg += "\r\n\r\n\r\n"
 	send_times++;
-	fmt.Println("广播次数===>", send_times)
+	Log("广播次数：", send_times)
 	for _, v := range clients {
 		//非常关键的一步 如果这里也给接发来的人广播 接收端不消费
 		//发送会被阻塞
@@ -112,7 +123,8 @@ func Broadcast(_msg BODY) {
  * @param string msg
  */
 func MainThread() {
-	for i := 0; i < 4; i ++ {
+	//for i := 0; i < 4; i ++
+	{
 		go func() {
 			for {
 				select {
@@ -187,7 +199,9 @@ func onClose(conn net.Conn) {
 }
 
 func Log(v ...interface{}) {
-	log.Println(v...)
+	if (DEBUG) {
+		log.Println(v...)
+	}
 }
 
 func DealError(err error) {
