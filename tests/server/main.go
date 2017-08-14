@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 )
 
 type BODY struct {
@@ -78,6 +79,7 @@ func Broadcast(_msg BODY) {
 		}
 		//fmt.Println("广播----", v, msg)
 		//v.SetWriteDeadline()
+		v.SetWriteDeadline(time.Now().Add(time.Millisecond*100))
 		size, err := v.Write([]byte(msg))
 		if (size <= 0 || err != nil) {
 			failure_times++
