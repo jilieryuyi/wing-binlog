@@ -97,11 +97,27 @@ func MainThread() {
 				select {
 				case msg := <-MSG_SEND_QUEUE:
 					Broadcast(msg)
-				case res := <-MSG_RECEIVE_QUEUE:
-					OnMessage(res.conn, res.msg)
-				default:
+				//case res := <-MSG_RECEIVE_QUEUE:
+				//	OnMessage(res.conn, res.msg)
+				//default:
 				//	//warnning!
 				//fmt.Println("TASK_CHANNEL is full!")
+
+				}
+			}
+		} ()
+
+		go func() {
+			for {
+				select {
+				//case msg := <-MSG_SEND_QUEUE:
+				//	Broadcast(msg)
+				case res := <-MSG_RECEIVE_QUEUE:
+					OnMessage(res.conn, res.msg)
+				//default:
+				//	//warnning!
+				//fmt.Println("TASK_CHANNEL is full!")
+
 				}
 			}
 		} ()
@@ -156,6 +172,8 @@ func OnConnect(conn net.Conn) {
 		//Log(conn.RemoteAddr().String(), "receive data string:\n", string(buffer[:n]))
 		//go OnMessage(conn, string(buffer[:n]))
 		//if len(MSG_RECEIVE_QUEUE) < MAX_B_QUEUE {
+		msg_times++
+		fmt.Println("收到消息的次数==>", msg_times)
 			MSG_RECEIVE_QUEUE <- BODY{conn, string(buffer[:n])}
 		//}
 	}
@@ -163,8 +181,7 @@ func OnConnect(conn net.Conn) {
 }
 //conn net.Conn,
 func OnMessage(conn net.Conn, msg string) {
-	msg_times++
-	fmt.Println("收到消息的次数==>", msg_times)
+
 	//html := 		"HTTP/1.1 200 OK\r\nContent-Length: 5\r\nContent-Type: text/html\r\n\r\nhello"
 	msg_buffer += msg
 

@@ -36,9 +36,9 @@ class Go implements ISubscribe
                 $this->client = null;
                 $this->failure_times++;
                 //$this->tryCreateClient();
-                fwrite($this->client, $msg . "\r\n\r\n\r\n");
-                $this->send_times++;
-                echo "tcp client总发送次数=》", $this->send_times, "\r\n";
+//                fwrite($this->client, $msg . "\r\n\r\n\r\n");
+//                $this->send_times++;
+               // echo "tcp client总发送次数=》", $this->send_times, "\r\n";
             }
             echo "tcp client总发送失败次数=》", $this->failure_times, "\r\n";
         }catch (\Exception $e) {
