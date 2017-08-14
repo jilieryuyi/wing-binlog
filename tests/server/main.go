@@ -206,7 +206,7 @@ func Log(v ...interface{}) {
 
 func DealError(err error) {
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Fatal error: %s", err.Error())
+		fmt.Fprintf(os.Stderr, "发生严重错误: %s", err.Error())
 		os.Exit(1)
 	}
 }
