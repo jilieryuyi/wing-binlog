@@ -50,7 +50,7 @@ class Tcp implements ISubscribe
             if (!fwrite($this->client, $msg . "\r\n\r\n\r\n")) {
                 $this->client = null;
                 $this->failure_times++;
-                //$this->tryCreateClient();
+                $this->tryCreateClient();
                 fwrite($this->client, $msg . "\r\n\r\n\r\n");
                 $this->send_times++;
                 echo "tcp client总发送次数=》", $this->send_times, "\r\n";
