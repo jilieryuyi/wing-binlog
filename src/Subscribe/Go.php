@@ -35,10 +35,11 @@ class Go implements ISubscribe
             if (!fwrite($this->client, $msg . "\r\n\r\n\r\n")) {
                 $this->client = null;
                 $this->failure_times++;
-                //$this->tryCreateClient();
-//                fwrite($this->client, $msg . "\r\n\r\n\r\n");
-//                $this->send_times++;
-               // echo "tcp client总发送次数=》", $this->send_times, "\r\n";
+
+                $this->tryCreateClient();
+                fwrite($this->client, $msg . "\r\n\r\n\r\n");
+                $this->send_times++;
+                echo "tcp client总发送次数=》", $this->send_times, "\r\n";
             }
             echo "tcp client总发送失败次数=》", $this->failure_times, "\r\n";
         }catch (\Exception $e) {
@@ -51,7 +52,7 @@ class Go implements ISubscribe
         try {
             $this->client = stream_socket_client("tcp://" . $this->host . ":" . $this->port, $errno, $errstr, 30);
             if (!$this->client) {
-                echo "$errstr ($errno)<br />\n";
+               // echo "$errstr ($errno)<br />\n";
                 $this->client = null;
             }
         } catch (\Exception $e) {

@@ -10,6 +10,7 @@ import (
 	//"sync"
 	//"runtime"
 	"encoding/json"
+	"bytes"
 )
 
 type BODY struct {
@@ -22,7 +23,7 @@ var clients map[int]net.Conn = make(map[int]net.Conn)
 //所有的连接进来的客户端数量
 var clients_count int = 0
 //收到的消息缓冲区 用于解决粘包
-var msg_buffer string = ""
+var msg_buffer bytes.Buffer// = ""
 //粘包分隔符
 var msg_split string  = "\r\n\r\n\r\n";
 //发送次数
@@ -177,14 +178,16 @@ func OnConnect(conn net.Conn) {
 func OnMessage(conn net.Conn, msg string) {
 
 	//html := 		"HTTP/1.1 200 OK\r\nContent-Length: 5\r\nContent-Type: text/html\r\n\r\nhello"
-	msg_buffer += msg
+	msg_buffer.WriteString(msg)// += msg
 
 	//粘包处理
-	temp     := strings.Split(msg_buffer, msg_split)
+	temp     := strings.Split(msg_buffer.String(), msg_split)
 	temp_len := len(temp)
 
 	if (temp_len >= 2) {
-		msg_buffer = temp[temp_len - 1];
+		msg_buffer.Reset()
+		msg_buffer.WriteString(temp[temp_len - 1])
+
 		for _, v := range temp {
 			if strings.EqualFold(v, "") {
 				continue
