@@ -161,7 +161,7 @@ func OnConnect(conn net.Conn) {
 
 		if err != nil {
 			Log(conn.RemoteAddr().String(), "连接发生错误: ", err)
-			onClose(conn);
+			OnClose(conn);
 			conn.Close();
 			return
 		}
@@ -194,7 +194,7 @@ func OnMessage(conn net.Conn, msg string) {
 	}
 }
 
-func onClose(conn net.Conn) {
+func OnClose(conn net.Conn) {
 	RemoveClient(conn)
 }
 
