@@ -7,6 +7,8 @@ import (
 	"os"
 	"strings"
 	"time"
+	//"sync"
+	//"runtime"
 )
 
 type BODY struct {
@@ -38,6 +40,7 @@ func main() {
 	}()
 	Log("Waiting for clients")
 
+	//runtime.GOMAXPROCS(32)  //限制同时运行的goroutines数量
 	go MainThread()
 
 	for {
@@ -65,6 +68,9 @@ func RemoveClient(conn net.Conn){
 	clients_count--
 }
 
+//var wg sync.WaitGroup  //定义一个同步等待的组
+//maxProcs := runtime.NumCPU()   //获取cpu个数
+//runtime.GOMAXPROCS(maxProcs)  //限制同时运行的goroutines数量
 
 func Broadcast(_msg BODY) {
 	msg := _msg.msg
@@ -79,11 +85,14 @@ func Broadcast(_msg BODY) {
 		}
 		//fmt.Println("广播----", v, msg)
 		//v.SetWriteDeadline()
-		v.SetWriteDeadline(time.Now().Add(time.Millisecond*100))
-		size, err := v.Write([]byte(msg))
-		if (size <= 0 || err != nil) {
-			failure_times++
-		}
+		//go func () {
+			//wg.Add(1)//为同步等待组增加一个成员
+			v.SetWriteDeadline(time.Now().Add(time.Millisecond * 100))
+			size, err := v.Write([]byte(msg))
+			if (size <= 0 || err != nil) {
+				failure_times++
+			}
+		//}()
 	}
 	fmt.Println("失败次数===>", failure_times)
 }
@@ -99,7 +108,24 @@ func MainThread() {
 			for {
 				select {
 				case msg := <-MSG_SEND_QUEUE:
-					Broadcast(msg)
+					go func() {
+						//wg.Add(1)//为同步等待组增加一个成员
+						Broadcast(msg)
+					} ()
+					//max_len := len(MSG_SEND_QUEUE)
+					//if max_len > 10 {
+					//	max_len = 10
+					//}
+					//for i := 0 ; i < max_len; i++ {
+					//	msg := <-MSG_SEND_QUEUE
+					//	//if err == nil {
+					//		go func() {
+					//			wg.Add(1)//为同步等待组增加一个成员
+					//			Broadcast(msg)
+					//		}()
+					//	//}
+					//}
+					//wg.Wait() //阻塞等待所有组内成员都执行完毕退栈
 				//case res := <-MSG_RECEIVE_QUEUE:
 				//	OnMessage(res.conn, res.msg)
 				//default:

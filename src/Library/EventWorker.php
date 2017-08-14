@@ -17,8 +17,10 @@ class EventWorker extends BaseWorker
 
 	private $notify = [];
 	private $daemon;
+    private $event_index        = 0;
 
-	public function __construct($daemon, $workers)
+
+    public function __construct($daemon, $workers)
 	{
         $this->pdo     = new PDO();
 		$this->workers = $workers;//$workers;
@@ -52,7 +54,7 @@ class EventWorker extends BaseWorker
 			1 => array("pipe", "w"),
 			2 => array("pipe", "w")
 		);
-		$cmd = "php " . HOME . "/services/parse_worker --start=".$start_pos." --end=".$end_pos;
+		$cmd = "php " . HOME . "/services/parse_worker --start=".$start_pos." --end=".$end_pos." --event_index=".$this->event_index;
 		echo "开启parse进程, ", $cmd,"\r\n";
 		$this->dispatch_processes[] = proc_open($cmd, $descriptorspec, $pipes);
 		$this->dispatch_pipes[]     = $pipes[1];
@@ -103,6 +105,7 @@ class EventWorker extends BaseWorker
 				echo "parse进程返回值===", "\r\n";
 				$events = json_decode($raw, true);
 				self::$event_times += count($events);
+				$this->event_index += count($events);
 
                 var_dump($events);
                 echo "总事件次数：", self::$event_times, "\r\n";

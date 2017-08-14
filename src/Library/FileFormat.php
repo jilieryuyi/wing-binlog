@@ -35,17 +35,19 @@ class FileFormat
     private $db_handler;
     private $caches = [];
     private $start_time = 0;
+    private $event_index = 0;
 
     /**
      * @构造函数
      * @param string $file 文件路径
      * @param IDb $db_handler
      */
-    public function __construct($file, IDb $db_handler)
+    public function __construct($file, IDb $db_handler, $event_index = 0)
     {
         $this->file       = $file;
         $this->db_handler = $db_handler;
         $this->start_time = time();
+        $this->event_index = $event_index;
     }
 
     /**
@@ -248,7 +250,13 @@ class FileFormat
                     substr($str2, rand(0, strlen($str2) - 16), 16) . "_" .
                     substr($str3, rand(0, strlen($str3) - 16), 16);
                 //执行事件回调函数
-				$result[] = ["database"=>$database_name, "table"=>$table_name, "event"=>$event];
+				$result[] = [
+				    "database" => $database_name,
+                    "table" => $table_name,
+                    "event" => $event,
+                    "event_index" => $this->event_index
+                    ];
+				$this->event_index++;
             }
         } while (0);
         return $result;

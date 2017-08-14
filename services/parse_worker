@@ -36,13 +36,16 @@ if ($debug) {
 
 $start_pos = 0;
 $end_pos   = 0;
+$event_index = 0;
 foreach ($argv as $item) {
 	if (strpos($item,"--start") === 0)
 		list(,$start_pos) = explode("=",$item);
 	if (strpos($item,"--end") === 0)
 		list(,$end_pos) = explode("=",$item);
+    if (strpos($item,"--event_index") === 0)
+        list(,$event_index) = explode("=",$item);
 }
 
 
-$datas = \Wing\Library\ParseWorker::process($start_pos, $end_pos);
+$datas = \Wing\Library\ParseWorker::process($start_pos, $end_pos, $event_index);
 echo json_encode($datas);

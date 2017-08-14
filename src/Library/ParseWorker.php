@@ -7,7 +7,7 @@
  */
 class ParseWorker
 {
-	public static function process($start_pos, $end_pos)
+	public static function process($start_pos, $end_pos, $event_index = 0)
 	{
 		if (!$end_pos) {
 			return null;
@@ -16,7 +16,7 @@ class ParseWorker
 		$pdo = new PDO();
 		$bin = new \Wing\Library\BinLog($pdo);
 		$raw_data = $bin->getSessions($start_pos, $end_pos);
-        $file     = new FileFormat($raw_data, $pdo);
+        $file     = new FileFormat($raw_data, $pdo, $event_index);
         return $file->parse();
 	}
 
