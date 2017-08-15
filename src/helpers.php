@@ -284,7 +284,7 @@ if (!function_exists("is_env")) {
 	{
 		switch ($env) {
 		 	case "windows":
-		 		return strtoupper(substr(PHP_OS, 0, 3))==='WIN';
+				return strtoupper(substr(PHP_OS, 0, 3))==='WIN' || "CYGWIN" == PHP_OS;
 		}
 		return false;
 	}

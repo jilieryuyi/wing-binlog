@@ -27,10 +27,15 @@ class Tcp implements ISubscribe
 
     private function startTcpService($host, $port,$deamon, $workers)
     {
-        $command = "php ".HOME."/services/tcp start --host=".$host." --port=".$port." --workers=".$workers;
+    	if (is_env(WINDOWS)) {
+			$command = HOME."/services/tcp.exe start ".$port;
+		}else {
+			$command = "php " . HOME . "/services/tcp start --host=" . $host . " --port=" . $port . " --workers=" . $workers;
+		}
         if ($deamon) {
             $command .= " -d";
         }
+        wing_debug($command);
         $handle  = popen("/bin/sh -c \"".$command."\" >>".HOME."/logs/tcp.log&","r");
         if ($handle) {
             pclose($handle);

@@ -42,7 +42,7 @@ var MSG_RECEIVE_QUEUE = make(chan BODY, MAX_QUEUE)
 func main() {
 
 	//建立socket，监听端口
-	listen, err := net.Listen("tcp", "0.0.0.0:9996")
+	listen, err := net.Listen("tcp", "0.0.0.0:"+os.Args[1])
 	DealError(err)
 	defer func () {
 		listen.Close();
