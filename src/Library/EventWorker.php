@@ -55,7 +55,7 @@ class EventWorker extends BaseWorker
 			2 => array("pipe", "w")
 		);
 		$cmd = "php " . HOME . "/services/parse_worker --start=".$start_pos." --end=".$end_pos." --event_index=".$this->event_index;
-		echo "开启parse进程, ", $cmd,"\r\n";
+		log("开启parse进程, ", $cmd);
 		$this->dispatch_processes[] = proc_open($cmd, $descriptorspec, $pipes);
 		$this->dispatch_pipes[]     = $pipes[1];
 		//不阻塞
@@ -72,7 +72,7 @@ class EventWorker extends BaseWorker
 			return;
 		}
 
-		echo "等待parse进程返回结果\r\n";
+		log("等待parse进程返回结果");
 
 		while (1) {
 			$all_count= count($this->dispatch_pipes);
@@ -89,7 +89,7 @@ class EventWorker extends BaseWorker
 			);
 
 			if ($ret === false || $ret === 0) {
-				echo "等待出错\r\n";
+				log("等待出错");
 				foreach ($this->dispatch_pipes as $key => $value) {
 					fclose($value);
 					unset($this->dispatch_pipes[$key]);
@@ -102,13 +102,13 @@ class EventWorker extends BaseWorker
 
 			foreach ($read as $sock) {
 				$raw = stream_get_contents($sock);
-				echo "parse进程返回值===", "\r\n";
+				log("parse进程返回值");
 				$events = json_decode($raw, true);
 				self::$event_times += count($events);
 				$this->event_index += count($events);
 
                 var_dump($events);
-                echo "总事件次数：", self::$event_times, "\r\n";
+                log("总事件次数：", self::$event_times);
 
                 try {
                     foreach ($events as $event) {
@@ -139,7 +139,7 @@ class EventWorker extends BaseWorker
 
 	private function forkParseWorker()
     {
-    	echo "发生事件\r\n";
+    	log("发生事件");
 		$this->write_run_time = time();
     	if (count($this->all_pos) <= 0) {
     		return;
@@ -161,7 +161,7 @@ class EventWorker extends BaseWorker
 		$process_id = pcntl_fork();
 
 		if ($process_id < 0) {
-			echo "fork a process fail\r\n";
+			log("创建子进程失败");
 			exit;
 		}
 
@@ -200,14 +200,14 @@ class EventWorker extends BaseWorker
                 do {
                     $all_pos_count = count($this->all_pos);
 					if ($all_pos_count > $this->workers) {
-						echo count($this->all_pos) ,"--1待处理任务\r\n";
+						log(count($this->all_pos) ,"--1待处理任务");
 						$this->forkParseWorker();
 						break;
 					}
 
 					if ($all_pos_count >= $this->workers || (time()- $this->write_run_time) >= 1) {
 						if ($all_pos_count > 0) {
-                            echo $all_pos_count, "--2待处理任务\r\n";
+                            log($all_pos_count, "--2待处理任务");
                             $this->forkParseWorker();
                         }
 					}
@@ -299,13 +299,13 @@ class EventWorker extends BaseWorker
 						if (!$has_session) {
 							$limit = 2 * $limit;
 							if (WING_DEBUG)
-							echo "没有找到事务，更新limit=", $limit, "\r\n";
+							log("没有找到事务，更新limit=", $limit);
 							if ($limit >= 80000) {
 								//如果超过8万 仍然没有找到事务的结束点 放弃采集 直接更新游标
 								$row = array_pop($data);
 								if (WING_DEBUG) {
-									echo "查询超过8万，没有找到事务，直接更新游标";
-									echo $start_pos, "=>", $row["End_log_pos"], "\r\n";
+									log("查询超过8万，没有找到事务，直接更新游标");
+									log($start_pos, "=>", $row["End_log_pos"]);
 								}
 
 								$bin->setLastPosition($start_pos, $row["End_log_pos"]);
@@ -333,7 +333,7 @@ class EventWorker extends BaseWorker
 			ob_end_clean();
 
 			if ($output && WING_DEBUG) {
-				echo $output,"\r\n";
+				log($output);
 			}
 			unset($output);
 			usleep(self::USLEEP);

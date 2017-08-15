@@ -47,7 +47,7 @@ class PDO implements IDb
 		$config = load_config("app");
 		if (!is_array($config)) {
 			if (WING_DEBUG)
-			echo "数据库配置错误";
+			log("数据库配置错误");
 			exit;
 		}
 
@@ -117,7 +117,7 @@ class PDO implements IDb
             sleep(1);
             $this->connect();
 			if (WING_DEBUG)
-			echo "mysql连接异常\r\n";
+				("mysql连接异常");
 			//exit;
         }
     }

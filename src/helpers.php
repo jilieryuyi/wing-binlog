@@ -238,7 +238,7 @@ if (!function_exists("scan")) {
         ob_end_clean();
 
         if ($debug) {
-            echo $debug;
+            log($debug);
         }
     }
 }
@@ -246,9 +246,14 @@ if (!function_exists("scan")) {
 if (!function_exists("log")) {
     function log($log)
     {
+    	if (!WING_DEBUG) {
+    		return;
+		}
         echo date("Y-m-d H:i:s")." ";
         foreach (func_get_args() as $item) {
+        	if (is_scalar($item))
             echo $item." ";
+        	else var_dump($item);
         }
         echo "\r\n";
     }
