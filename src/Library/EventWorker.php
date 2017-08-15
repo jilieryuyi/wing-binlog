@@ -23,7 +23,7 @@ class EventWorker extends BaseWorker
     public function __construct($daemon, $workers)
 	{
         $this->pdo     = new PDO();
-		$this->workers = $workers;//$workers;
+		$this->workers = $workers;
         $this->daemon  = $daemon;
 		for ($i = 1; $i <= $this->workers; $i++) {
 		    $this->task[$i] = 0;
@@ -239,9 +239,6 @@ class EventWorker extends BaseWorker
 
                     //得到所有的binlog事件
                     $data = $bin->getEvents($current_binlog, $last_end_pos, $limit);
-                    if (is_array($data) && count($data) > 0) {
-                    	//var_dump($data);
-					}
 
                     if (!$data) {
                         break;
@@ -253,20 +250,12 @@ class EventWorker extends BaseWorker
                     $all_pos = [];
                     foreach ($data as $row) {
                         if ($row["Event_type"] == "Xid") {
-                           // $worker = $this->getWorker("dispatch_process");
 
                             $all_pos[] = [$start_pos, $row["End_log_pos"]];
                             if (WING_DEBUG) {
                                 //echo "写入pos位置：", $start_pos . "-" . $row["End_log_pos"], "\r\n";
                             }
 
-//                            if (!$res && WING_DEBUG) {
-//                                echo "失败\r\n";
-//                            }
-//                            if ($run_count % $is_run == 0) {
-//                                //设置最后读取的位置
-//                                $bin->setLastPosition($start_pos, $row["End_log_pos"]);
-//                            }
                             $last_start_pos = $start_pos;
                             $last_end_pos   = $row["End_log_pos"];
 
@@ -277,11 +266,7 @@ class EventWorker extends BaseWorker
 
 					$bin->setLastPosition($last_start_pos, $last_end_pos);
                     if (count($all_pos) > 0) {
-                        $s = $all_pos[0][0];
-//                        $t = array_pop($all_pos);
-//                        $e = $t[1];
-//                        $this->all_pos[] = [$s, $e];
-
+                        $s   = $all_pos[0][0];
                         $cc  = 0;
                         $len = count($all_pos);
                         foreach ($all_pos as $po) {
@@ -295,32 +280,32 @@ class EventWorker extends BaseWorker
                         $this->all_pos[] = [$s, $all_pos[$len-1][1]];
                     }
 
-                        //如果没有查找到一个事务 $limit x 2 直到超过 100000 行
-						if (!$has_session) {
-							$limit = 2 * $limit;
-							if (WING_DEBUG)
-							log("没有找到事务，更新limit=", $limit);
-							if ($limit >= 80000) {
-								//如果超过8万 仍然没有找到事务的结束点 放弃采集 直接更新游标
-								$row = array_pop($data);
-								if (WING_DEBUG) {
-									log("查询超过8万，没有找到事务，直接更新游标");
-									log($start_pos, "=>", $row["End_log_pos"]);
-								}
-
-								$bin->setLastPosition($start_pos, $row["End_log_pos"]);
-
-								$last_start_pos = $start_pos;
-                                $last_end_pos   = $row["End_log_pos"];
-								$limit          = 10000;
+					//如果没有查找到一个事务 $limit x 2 直到超过 100000 行
+					if (!$has_session) {
+						$limit = 2 * $limit;
+						if (WING_DEBUG)
+						log("没有找到事务，更新limit=", $limit);
+						if ($limit >= 80000) {
+							//如果超过8万 仍然没有找到事务的结束点 放弃采集 直接更新游标
+							$row = array_pop($data);
+							if (WING_DEBUG) {
+								log("查询超过8万，没有找到事务，直接更新游标");
+								log($start_pos, "=>", $row["End_log_pos"]);
 							}
-						} else {
-							$limit = 10000;
+
+							$bin->setLastPosition($start_pos, $row["End_log_pos"]);
+
+							$last_start_pos = $start_pos;
+							$last_end_pos   = $row["End_log_pos"];
+							$limit          = 10000;
 						}
-                        if ($run_count%$is_run == 0) {
-						    $run_count = 0;
-                        }
-					} while (0);
+					} else {
+						$limit = 10000;
+					}
+					if ($run_count%$is_run == 0) {
+						$run_count = 0;
+					}
+				} while (0);
 
 			} catch (\Exception $e) {
 				if (WING_DEBUG)

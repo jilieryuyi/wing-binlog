@@ -13,8 +13,8 @@ class ParseWorker
 			return null;
 		}
 
-		$pdo = new PDO();
-		$bin = new \Wing\Library\BinLog($pdo);
+		$pdo      = new PDO();
+		$bin      = new \Wing\Library\BinLog($pdo);
 		$raw_data = $bin->getSessions($start_pos, $end_pos);
         $file     = new FileFormat($raw_data, $pdo, $event_index);
         return $file->parse();
