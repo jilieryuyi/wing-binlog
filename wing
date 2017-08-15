@@ -33,6 +33,9 @@ if (!defined("SIG_IGN")) {
 	define("SIG_IGN", 0);
 }
 
+define("WINDOWS", "windows");
+define("LINUX", "linux");
+
 date_default_timezone_set("PRC");
 
 use Symfony\Component\Console\Application;

@@ -278,3 +278,14 @@ if (!function_exists("wing_log")) {
 		file_put_contents(HOME."/logs/".$level.".log", $log, FILE_APPEND);
 	}
 }
+
+if (!function_exists("is_env")) {
+	function is_env($env)
+	{
+		switch ($env) {
+		 	case "windows":
+		 		return strtoupper(substr(PHP_OS, 0, 3))==='WIN';
+		}
+		return false;
+	}
+}
