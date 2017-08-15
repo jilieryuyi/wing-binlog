@@ -9,4 +9,7 @@ include __DIR__."/../vendor/autoload.php";
 define("HOME", dirname(__DIR__));
 define("WING_DEBUG",  true);
 
-var_dump(is_env("windows"));
+
+	$command = HOME."/services/tcp.exe start ".$port;
+
+popen("/bin/sh -c \"".$command."\" >>".HOME."/logs/tcp.log&","r");

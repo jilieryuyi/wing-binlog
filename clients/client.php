@@ -13,6 +13,7 @@ define("WING_DEBUG", true);
 
 
 function fork_child($socket){
+    if (is_env("windows")) return;
     $pid = pcntl_fork();
     if ($pid > 0) return;
 

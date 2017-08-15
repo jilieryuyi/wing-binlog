@@ -159,18 +159,16 @@ class BinLog
         if (!isset($data["@@log_bin_basename"]))
             return null;
 
-        $path = pathinfo($data["@@log_bin_basename"],PATHINFO_DIRNAME);
+        $file = str_replace("\\","/", $data["@@log_bin_basename"]);
+        $temp = explode("/", $file);
+        array_pop($temp);
+        $path = implode("/", $temp);//pathinfo(,PATHINFO_DIRNAME);
         $info = $this->getCurrentLogInfo();
 
         if (!isset($info["File"]))
             return null;
 
-        $path = $path . DIRECTORY_SEPARATOR . $info["File"];
-//        if (file_exists($path))
-//            $this->cache->set($key, $path, 3);
-//        else
-//            $this->cache->del($key);
-
+        $path = $path ."/". $info["File"];
         $this->current_binlog_file = $path;
         return $path;
     }
