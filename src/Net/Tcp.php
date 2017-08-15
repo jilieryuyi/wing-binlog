@@ -329,7 +329,7 @@ class Tcp
      */
     protected function error($buffer, $error)
     {
-        log("发生错误了");
+        wing_log("发生错误了");
         var_dump($buffer, $error);
         event_buffer_disable($buffer, EV_READ | EV_WRITE);
         event_buffer_free($buffer);
@@ -351,7 +351,7 @@ class Tcp
         while ($read = event_buffer_read($buffer, 10240)) {
             $this->onReceive($this->clients[$i], $buffer, $read);
         }
-        log("tcp读取错误，客户端断开连接");
+        wing_log("tcp读取错误，客户端断开连接");
         $this->onClose($this->clients[$i], $buffer);
     }
 
@@ -364,8 +364,8 @@ class Tcp
             $s = 0;
             if (time() > $this->start_time)
                 $s = $this->accept_times / (time() - $this->start_time);
-            log("请求次数/失败次数/发送失败/每秒处理 ==> " . $this->accept_times . "/" . $this->error_times . "/" . $this->send_fail_times . "/" . $s );
-            log("当前连接数", count($this->clients), "-buffers数量", count($this->buffers));
+            wing_log("请求次数/失败次数/发送失败/每秒处理 ==> " . $this->accept_times . "/" . $this->error_times . "/" . $this->send_fail_times . "/" . $s );
+            wing_log("当前连接数", count($this->clients), "-buffers数量", count($this->buffers));
         }
     }
 

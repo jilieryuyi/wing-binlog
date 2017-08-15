@@ -47,7 +47,7 @@ class PDO implements IDb
 		$config = load_config("app");
 		if (!is_array($config)) {
 			if (WING_DEBUG)
-			log("数据库配置错误");
+			wing_log("数据库配置错误");
 			exit;
 		}
 

@@ -52,7 +52,7 @@ class Worker
 				$log .= json_encode(error_get_last() , JSON_UNESCAPED_UNICODE);
 			}
 			if (WING_DEBUG) {
-    			log($log);
+    			wing_log($log);
 			}
             file_put_contents(HOME."/logs/error.log", $log, FILE_APPEND);
 
@@ -61,7 +61,7 @@ class Worker
             	$log = date("Y-m-d H:i:s")."=>父进程异常退出，尝试kill所有子进程".
 					$this->getProcessDisplay()."\r\n";
 				if (WING_DEBUG) {
-					log($log);
+					wing_log($log);
 				}
                 $log .= json_encode(error_get_last() , JSON_UNESCAPED_UNICODE);
 
@@ -139,7 +139,7 @@ class Worker
                         if ($pid > 0) {
 
                             if ($pid == $this->event_process_id) {
-                                log($pid,"事件收集进程退出");
+                                wing_log($pid,"事件收集进程退出");
                             }
 
                             $id = array_search($pid, $this->processes);
@@ -159,15 +159,15 @@ class Worker
                         }
 
                         if ((time() - $start) >= 5) {
-                            log("退出进程超时");
+                            wing_log("退出进程超时");
                             break;
                         }
 
 
                     }
-                    log("父进程退出");
+                    wing_log("父进程退出");
                 }
-                log(get_current_processid(),"收到退出信号退出");
+                wing_log(get_current_processid(),"收到退出信号退出");
                 exit(0);
                 break;
             //restart
@@ -320,7 +320,7 @@ class Worker
                 $status = 0;
                 $pid    = pcntl_wait($status, WNOHANG);
                 if ($pid > 0) {
-                    log($pid,"进程退出");
+                    wing_log($pid,"进程退出");
                     $this->exit_times++;
                     do {
                         $id = array_search($pid, $this->processes);
@@ -341,7 +341,7 @@ class Worker
                 ob_end_clean();
 
                 if (WING_DEBUG && $content) {
-                	log($content);
+                	wing_log($content);
 				}
 
             } catch (\Exception $e) {
@@ -351,7 +351,7 @@ class Worker
             sleep(1);
         }
 
-        log("master服务异常退出");
+        wing_log("master服务异常退出");
     }
 
 }

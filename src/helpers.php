@@ -238,13 +238,13 @@ if (!function_exists("scan")) {
         ob_end_clean();
 
         if ($debug) {
-            log($debug);
+            wing_log($debug);
         }
     }
 }
 
-if (!function_exists("log")) {
-    function log($log)
+if (!function_exists("wing_log")) {
+    function wing_log($log)
     {
     	if (!WING_DEBUG) {
     		return;

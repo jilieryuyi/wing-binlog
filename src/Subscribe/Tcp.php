@@ -40,7 +40,7 @@ class Tcp implements ISubscribe
     private function send($msg)
     {
         $this->send_times++;
-        log("tcp client总发送次数=》", $this->send_times);
+        wing_log("tcp client总发送次数=》", $this->send_times);
         try {
 
             if (!$this->client) {
@@ -52,9 +52,9 @@ class Tcp implements ISubscribe
                 $this->tryCreateClient();
                 fwrite($this->client, $msg . "\r\n\r\n\r\n");
                 $this->send_times++;
-                log("tcp client总发送次数=》", $this->send_times);
+                wing_log("tcp client总发送次数=》", $this->send_times);
             }
-            log("tcp client总发送失败次数=》", $this->failure_times);
+            wing_log("tcp client总发送失败次数=》", $this->failure_times);
         }catch (\Exception $e) {
             var_dump($e->getMessage());
             $this->client = null;
@@ -65,7 +65,7 @@ class Tcp implements ISubscribe
         try {
             $this->client = stream_socket_client("tcp://" . $this->host . ":" . $this->port, $errno, $errstr, 30);
             if (!$this->client) {
-                log("stream_socket_client错误：$errstr ($errno)");
+                wing_log("stream_socket_client错误：$errstr ($errno)");
                 $this->client = null;
             }
         } catch (\Exception $e) {
