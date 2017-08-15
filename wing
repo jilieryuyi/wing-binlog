@@ -4,14 +4,34 @@
 require __DIR__.'/vendor/autoload.php';
 
 $dir = __DIR__;
-if (strpos($dir, "/cygdrive/") !== false) {
-	$dir = str_replace("/cygdrive/", "", $dir);
-	$pan = substr($dir, 0, 1);
-	$dir = substr($dir, 1);
-	$dir = strtoupper($pan) . ":" . $dir;
-}
+//if (strpos($dir, "/cygdrive/") !== false) {
+//	$dir = str_replace("/cygdrive/", "", $dir);
+//	$pan = substr($dir, 0, 1);
+//	$dir = substr($dir, 1);
+//	$dir = strtoupper($pan) . ":" . $dir;
+//}
 
 define("HOME", $dir);
+if (!is_dir($dir."/logs")) {
+    mkdir($dir."/logs");
+}
+
+if (!defined("SIGINT")) {
+    define("SIGINT", 0);
+}
+if (!defined("SIGUSR1")) {
+	define("SIGUSR1", 0);
+}
+
+if (!defined("SIGUSR2")) {
+	define("SIGUSR2", 0);
+}
+if (!defined("SIGPIPE")) {
+	define("SIGPIPE", 0);
+}
+if (!defined("SIG_IGN")) {
+	define("SIG_IGN", 0);
+}
 
 date_default_timezone_set("PRC");
 

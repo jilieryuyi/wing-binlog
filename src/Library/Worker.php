@@ -35,19 +35,19 @@ class Worker
     {
         $this->start_time = date("Y-m-d H:i:s");
     	//默认的pid路径，即根目录 wing.pid
-		self::$pid = dirname(dirname(__DIR__))."/wing.pid";
+		self::$pid = HOME."/wing.pid";
     	foreach ($params as $key => $value) {
     		$this->$key = $value;
 		}
 
 		set_error_handler([$this, "onError"]);
     	register_shutdown_function(function(){
-			$log   = date("Y-m-d H:i:s")."=>". $this->getProcessDisplay()."正常退出\r\n";
+			$log   = date("Y-m-d H:i:s")."=>". $this->getProcessDisplay()."正常退出";
     		$winfo = self::getWorkerProcessInfo();
 			if (!$this->normal_stop) {
-    			$log = date("Y-m-d H:i:s")."=>". $this->getProcessDisplay()."异常退出\r\n";
+    			$log =  $this->getProcessDisplay()."异常退出";
     			if (get_current_processid() == $winfo["process_id"]) {
-					$log = date("Y-m-d H:i:s")."=>". $this->getProcessDisplay()."父进程异常退出\r\n";
+					$log = $this->getProcessDisplay()."父进程异常退出";
 				}
 				$log .= json_encode(error_get_last() , JSON_UNESCAPED_UNICODE);
 			}
@@ -58,7 +58,7 @@ class Worker
 
             //如果父进程异常退出 kill掉所有子进程
             if (get_current_processid() == $winfo["process_id"] && !$this->normal_stop) {
-            	$log = date("Y-m-d H:i:s")."=>父进程异常退出，尝试kill所有子进程".
+            	$log = "父进程异常退出，尝试kill所有子进程".
 					$this->getProcessDisplay();
 				if (WING_DEBUG) {
 					wing_debug($log);
@@ -76,7 +76,7 @@ class Worker
 
     public static function getWorkerProcessInfo()
     {
-        self::$pid = dirname(dirname(__DIR__))."/wing.pid";
+        self::$pid = HOME."/wing.pid";
         $data = file_get_contents(self::$pid);
         list($pid, $daemon, $debug, $workers) = json_decode($data, true);
         return [
