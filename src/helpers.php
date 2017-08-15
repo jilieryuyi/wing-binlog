@@ -13,6 +13,9 @@ if (!function_exists("set_process_title")) {
 	 */
 	function set_process_title($title)
 	{
+		if (is_env(WINDOWS)) {
+			return null;
+		}
 		if (function_exists("setproctitle"))
 			return setproctitle($title);
 		if (function_exists("cli_set_process_title"))
@@ -288,4 +291,14 @@ if (!function_exists("is_env")) {
 		}
 		return false;
 	}
+}
+
+if (!function_exists("posix_kill")) {
+	function posix_kill($a=null, $b = null, $c = null){}
+}
+if (!function_exists("pcntl_signal_dispatch")) {
+	function pcntl_signal_dispatch($a=null, $b = null, $c = null){}
+}
+if (!function_exists("pcntl_wait")) {
+	function pcntl_wait($a=null, $b = null, $c = null){ return 0;}
 }

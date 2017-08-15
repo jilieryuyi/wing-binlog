@@ -158,21 +158,24 @@ class EventWorker extends BaseWorker
 	public function start()
 	{
         $daemon = $this->daemon;
-		$process_id = pcntl_fork();
 
-		if ($process_id < 0) {
-			wing_debug("创建子进程失败");
-			exit;
+        if (!is_env(WINDOWS)) {
+			$process_id = pcntl_fork();
+
+			if ($process_id < 0) {
+				wing_debug("创建子进程失败");
+				exit;
+			}
+
+			if ($process_id > 0) {
+				return $process_id;
+			}
+
+
+			if ($daemon) {
+				reset_std();
+			}
 		}
-
-		if ($process_id > 0) {
-			return $process_id;
-		}
-
-
-		if ($daemon) {
-		    reset_std();
-        }
 
 		$process_name = "wing php >> events collector process";
 		self::$process_title = $process_name;
