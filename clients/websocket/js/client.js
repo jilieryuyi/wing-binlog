@@ -24,11 +24,11 @@ var im={
             '</div>');
         this.msg_count++;
         $(".msg-win").scrollTop(999999);
-        return this.socket.send(_msg);
+        return this.socket.send(_msg+"\r\n\r\n\r\n");
     },
     login:function(username,password){
         var _msg='{"service":"login","username":"'+username+'","password":"'+password+'"}';
-        return this.socket.send(_msg);
+        return this.socket.send(_msg+"\r\n\r\n\r\n");
     },
     onDisConnect:function(){
         this.log("onDisConnect");
@@ -105,11 +105,11 @@ function start_service(){
     ws.onopen = function() {
         im.online = 1;
         var _msg='tick';
-        ws.send(_msg);
+        ws.send(_msg+"\r\n\r\n\r\n");
         im.onConnect();
         interval = window.setInterval(function(){
             try {
-                ws.send(_msg);
+                ws.send(_msg+"\r\n\r\n\r\n");
             } catch(e){
                 im.online = false;
             }

@@ -35,42 +35,110 @@ class FileFormat
     private $db_handler;
     private $caches = [];
     private $start_time = 0;
+    private $event_index = 0;
 
     /**
      * @构造函数
      * @param string $file 文件路径
      * @param IDb $db_handler
      */
-    public function __construct($file, IDb $db_handler)
+    public function __construct($file, IDb $db_handler, $event_index = 0)
     {
         $this->file       = $file;
         $this->db_handler = $db_handler;
         $this->start_time = time();
+        $this->event_index = $event_index;
     }
 
     /**
      * 按行解析文件
      *
      * @param \Closure $callback 如 function($db,$table,$event){}
-     * @return bool
+     * @return array
      */
-    public function parse($callback)
+//    public function parse()
+//    {
+//        $fh = fopen($this->file, 'r');
+//
+//        if (!$fh || !is_resource($fh)) {
+//            return null;
+//        }
+//
+//        $file_size = filesize($this->file);
+//        $read_size = 0;
+//        $lines     = [];
+//
+//        $all_res   = [];
+//
+//        while (!feof($fh)) {
+//
+//            $line  = fgets($fh);
+//
+//            $read_size += sizeof($line);
+//
+//            $_line = ltrim($line,"#");
+//            $_line = trim($_line);
+//
+//            $e = strtolower(substr($_line,0,6));
+//            unset($_line);
+//
+//            //遇到分隔符 重置
+//            if (preg_match("/#[\s]{1,}at[\s]{1,}[0-9]{1,}/",$line) ||
+//                $e == "insert" ||
+//                $e == "update" ||
+//                $e == "delete"
+//            ) {
+//
+//                if ($lines) {
+//					$res = $this->linesParse($lines);
+//					foreach ($res as $item) {
+//						$all_res[] = $item;
+//					}
+//                }
+//                unset($lines);
+//                $lines = [];
+//            }
+//
+//            $lines[] = $line;
+//            unset($line);
+//
+//            if ($read_size >= $file_size)
+//                break;
+//        }
+//
+//        if ($lines) {
+//            $res = $this->linesParse($lines);
+//			foreach ($res as $item) {
+//				$all_res[] = $item;
+//			}
+//        }
+//
+//        fclose($fh);
+//        return $all_res;
+//    }
+
+    public function parse()
     {
-        $fh = fopen($this->file, 'r');
+//        $fh = fopen($this->file, 'r');
+//
+//        if (!$fh || !is_resource($fh)) {
+//            return null;
+//        }
 
-        if (!$fh || !is_resource($fh)) {
-            return false;
-        }
-
-        $file_size = filesize($this->file);
+        $file_size = strlen($this->file);//filesize($this->file);
         $read_size = 0;
+        $all_lines     = explode("\n", $this->file);
+
+        $all_res   = [];
         $lines     = [];
 
-        while (!feof($fh)) {
+       // while (!feof($fh))
+        foreach ($all_lines as $line)
+        {
 
-            $line  = fgets($fh);
+           // $line  = fgets($fh);
 
-            $read_size += sizeof($line);
+           // $read_size += sizeof($line);
 
             $_line = ltrim($line,"#");
             $_line = trim($_line);
@@ -86,7 +154,10 @@ class FileFormat
             ) {
 
                 if ($lines) {
-                    $this->linesParse($lines,$callback);
+                    $res = $this->linesParse($lines);
+                    foreach ($res as $item) {
+                        $all_res[] = $item;
+                    }
                 }
                 unset($lines);
                 $lines = [];
@@ -100,13 +171,15 @@ class FileFormat
         }
 
         if ($lines) {
-            $this->linesParse($lines,$callback);
+            $res = $this->linesParse($lines);
+            foreach ($res as $item) {
+                $all_res[] = $item;
+            }
         }
 
-        fclose($fh);
-        return true;
+        //fclose($fh);
+        return $all_res;
     }
-
     /**
      * @获取事件发生的时间
      *
@@ -126,10 +199,10 @@ class FileFormat
      * 行解析
      *
      * @param array $lines 行
-     * @param \Closure $callback
      */
-    protected function linesParse($lines,$callback)
+    protected function linesParse($lines)
     {
+    	$result = [];
         do {
             //处理流程
             $item = implode("", $lines);
@@ -177,10 +250,16 @@ class FileFormat
                     substr($str2, rand(0, strlen($str2) - 16), 16) . "_" .
                     substr($str3, rand(0, strlen($str3) - 16), 16);
                 //执行事件回调函数
-                $callback($database_name, $table_name, $event);
-                echo "事件次数", $this->events_times, "\r\n\r\n";
+				$result[] = [
+				    "database" => $database_name,
+                    "table" => $table_name,
+                    "event" => $event,
+                    "event_index" => $this->event_index
+                    ];
+				$this->event_index++;
             }
         } while (0);
+        return $result;
     }
 
     /**
@@ -280,6 +359,7 @@ class FileFormat
                 } else {
                     $set_data[$columns[$index]] = $target_line;
                 }
+
                 $index++;
             }
 

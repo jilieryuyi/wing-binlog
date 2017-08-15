@@ -11,22 +11,27 @@ return  [
         "password" => "123456",
         "port"     => 3306
     ],
-    //可选redis配置 当使用--with-redis 启用redis队列通知时必须要配置
-    "redis" => [
-        "host"     => "127.0.0.1",
-        "port"     => 6397,
-        "password" => null,                          //无密码时必须为null
-        "queue"    => "----wing-mysql-events-queue----" //默认的redis队列名称，队列使用rpush从尾部进入队列
-    ],
-    //可选websocket配置 当使用--with-websocket 启用websocket服务通知时必须要配置
-    "websocket" => [
-        "host"  => "0.0.0.0",
-        "port"  => 9998,
-    ],
-    //可选tcp配置 当使用--with-tcp 启用tcp服务通知时必须要配置
-    "tcp" => [
-        "host" => "0.0.0.0",
-        "port" => 9997
+    //以下配置均属于可选订阅 可以任意增加 只需要遵循接口ISubscribe实现即可
+    //\Wing\Subscribe\Redis::class 是实现 后面的数组是构造函数参数
+    "subscribe" => [
+        //可选redis队列订阅
+        \Wing\Subscribe\Redis::class => [
+            "host"     => "127.0.0.1",
+            "port"     => 6397,
+            "password" => null,                          //无密码时必须为null
+            "queue"    => "----wing-mysql-events-queue----" //默认的redis队列名称，队列使用rpush从尾部进入队列
+        ],
+
+        //可选websocket订阅
+        \Wing\Subscribe\WebSocket::class => [
+            "host"  => "0.0.0.0",
+            "port"  => 9998,
+        ],
+
+        //可选tcp订阅
+        \Wing\Subscribe\Tcp::class => [
+            "host" => "0.0.0.0",
+            "port" => 9997
+        ],
     ]
 ];
-

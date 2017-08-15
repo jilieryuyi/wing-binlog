@@ -242,3 +242,14 @@ if (!function_exists("scan")) {
         }
     }
 }
+
+if (!function_exists("log")) {
+    function log($log)
+    {
+        echo date("Y-m-d H:i:s")." ";
+        foreach (func_get_args() as $item) {
+            echo $item." ";
+        }
+        echo "\r\n";
+    }
+}
