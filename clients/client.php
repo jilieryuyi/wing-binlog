@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?php
 /**
  * Created by PhpStorm.
@@ -8,6 +9,7 @@
 include_once __DIR__."/../vendor/autoload.php";
 define("HOME", dirname(__DIR__));
 define("WING_DEBUG", true);
+
 
 
 function fork_child($socket){
@@ -21,7 +23,7 @@ function fork_child($socket){
                 var_dump(func_get_args());
                 exit;
             });
-            //socket_write($socket, "tick\r\n\r\n\r\n");
+            socket_write($socket, "tick");
             usleep(500000);
         }catch(\Exception $e){
             var_dump($e->getMessage());
@@ -35,7 +37,7 @@ function start_service()
 {
 
     $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-    $con = socket_connect($socket, '127.0.0.1', 9996);
+    $con = socket_connect($socket, '127.0.0.1', 9997);
 
     if (!$con) {
         socket_close($socket);
@@ -50,7 +52,6 @@ function start_service()
     $msg_all = "";
     $split = "\r\n\r\n\r\n";
     while ($msg = socket_read($socket, 10240)) {
-        //echo $msg,"\r\n\r\n";
         $msg_all .= $msg;
         $temp = explode($split, $msg_all);
         if (count($temp) >= 2) {
