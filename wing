@@ -17,20 +17,20 @@ if (!is_dir($dir."/logs")) {
 }
 
 if (!defined("SIGINT")) {
-    define("SIGINT", 0);
+    define("SIGINT", 1);
 }
 if (!defined("SIGUSR1")) {
-	define("SIGUSR1", 0);
+	define("SIGUSR1", 2);
 }
 
 if (!defined("SIGUSR2")) {
-	define("SIGUSR2", 0);
+	define("SIGUSR2", 3);
 }
 if (!defined("SIGPIPE")) {
-	define("SIGPIPE", 0);
+	define("SIGPIPE", 4);
 }
 if (!defined("SIG_IGN")) {
-	define("SIG_IGN", 0);
+	define("SIG_IGN", 5);
 }
 
 define("WINDOWS", "windows");
