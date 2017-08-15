@@ -57,7 +57,7 @@ class Redis
 			$this->connect();
 		}
 		if (!$this->is_connect) {
-		    wing_log("redis连接错误");
+		    wing_debug("redis连接错误");
         }
 		try {
 			if (!$this->instance || !$this->is_connect) {

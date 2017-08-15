@@ -46,12 +46,12 @@ class BinLog
         }
 
         if (!$this->isOpen() && WING_DEBUG) {
-            wing_log("请开启mysql binlog日志");
+            wing_debug("请开启mysql binlog日志");
             exit;
         }
 
         if ($this->getFormat() != "row" && WING_DEBUG) {
-			wing_log("仅支持row格式");
+			wing_debug("仅支持row格式");
             exit;
         }
 

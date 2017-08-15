@@ -238,13 +238,13 @@ if (!function_exists("scan")) {
         ob_end_clean();
 
         if ($debug) {
-            wing_log($debug);
+            wing_debug($debug);
         }
     }
 }
 
-if (!function_exists("wing_log")) {
-    function wing_log($log)
+if (!function_exists("wing_debug")) {
+    function wing_debug($log)
     {
     	if (!WING_DEBUG) {
     		return;
@@ -257,4 +257,24 @@ if (!function_exists("wing_log")) {
         }
         echo "\r\n";
     }
+}
+
+if (!function_exists("pcntl_signal")) {
+	function pcntl_signal($a=null,$b=null,$c=null,$d=null){}
+}
+
+if (!function_exists("wing_log")) {
+	function wing_log($level = "log", $msg)
+	{
+		$log = date("Y-m-d H:i:s")." ";
+		$argvs = func_get_args();
+		array_shift($argvs);
+		foreach ($argvs as $item) {
+			if (is_scalar($item))
+				$log .= $item."  ";
+			else $log.= json_encode($item, JSON_UNESCAPED_UNICODE)."  ";
+		}
+		$log .= "\r\n";
+		file_put_contents(HOME."/logs/".$level.".log", $log, FILE_APPEND);
+	}
 }

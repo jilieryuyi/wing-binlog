@@ -34,7 +34,7 @@ class WsClient
         }
 
         if( !is_string($data)) {
-            wing_log("发送的数据必须是字符串类型的数据");
+            wing_debug("发送的数据必须是字符串类型的数据");
             return false;
         }
         if (strlen($data) == 0)
@@ -79,7 +79,7 @@ class WsClient
         //socket_write($this->_Socket, $header);
         $res = @fwrite($this->_Socket, $header);
         if( $res === false ){
-            wing_log("发送websocket链接头错误");
+            wing_debug("发送websocket链接头错误");
         }
 
         $response = @fread($this->_Socket, 1500);

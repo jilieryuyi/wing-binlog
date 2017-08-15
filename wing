@@ -3,7 +3,15 @@
 //declare(ticks = 1);
 require __DIR__.'/vendor/autoload.php';
 
-define("HOME", __DIR__);
+$dir = __DIR__;
+if (strpos($dir, "/cygdrive/") !== false) {
+	$dir = str_replace("/cygdrive/", "", $dir);
+	$pan = substr($dir, 0, 1);
+	$dir = substr($dir, 1);
+	$dir = strtoupper($pan) . ":" . $dir;
+}
+
+define("HOME", $dir);
 
 date_default_timezone_set("PRC");
 
