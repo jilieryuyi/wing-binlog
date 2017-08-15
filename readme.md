@@ -8,6 +8,7 @@
 3. 支持tcp事件通知    
 4. 简化安装流程      
 5. 优化性能问题，使binlog处理速度能达到binlog的写入速度，避免延迟
+6. 支持windows
    
 ### 安装
 1. 开启mysql binlog，并且指定格式为row        
