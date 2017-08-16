@@ -107,13 +107,13 @@ function start_service(){
         var _msg='tick';
         ws.send(_msg+"\r\n\r\n\r\n");
         im.onConnect();
-        interval = window.setInterval(function(){
-            try {
-                ws.send(_msg+"\r\n\r\n\r\n");
-            } catch(e){
-                im.online = false;
-            }
-        },500);
+        // interval = window.setInterval(function(){
+        //     try {
+        //         ws.send(_msg+"\r\n\r\n\r\n");
+        //     } catch(e){
+        //         im.online = false;
+        //     }
+        // },500);
 
     };
 

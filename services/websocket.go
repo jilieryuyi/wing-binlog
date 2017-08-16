@@ -10,6 +10,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"os"
+	"time"
 	//"text/template"
 )
 
@@ -54,7 +55,7 @@ func OnConnect(conn *websocket.Conn) {
 			conn.Close();
 			break
 		}
-		fmt.Printf("receive message is :%s\n", message)
+		Log("收到消息：", fmt.Sprintf("%s", message))
 		receive_msg <- BODY{conn, fmt.Sprintf("%s", message)}
 	}
 }
@@ -76,6 +77,7 @@ func OnMessage(conn *websocket.Conn , msg string) {
 			if strings.EqualFold(v, "") {
 				continue
 			}
+			Log("写入广播：", v)
 			broadcast <- BODY{conn, v}
 		}
 	}
@@ -87,6 +89,7 @@ func Broadcast(_msg BODY) {
 	json.Unmarshal([]byte(msg), &data)
 	Log("索引：", data["event_index"])
 	msg += "\r\n\r\n\r\n"
+	//Log("广播消息：", msg)
 	send_times++;
 	Log("广播次数：", send_times)
 	for _, v := range clients {
@@ -95,6 +98,7 @@ func Broadcast(_msg BODY) {
 		if v == _msg.conn {
 			continue
 		}
+		v.SetWriteDeadline(time.Now().Add(time.Millisecond * 100))
 		v.WriteMessage(1, []byte(msg))
 	}
 }
@@ -105,17 +109,30 @@ func Log(v ...interface{}) {
 }
 
 func manager() {
-
+	go func() {
+		for {
+			select {
+			//case body := <-broadcast:
+			//	Log("开始处理广播：", body)
+			//	go func() {
+			//		Broadcast(body)
+			//	} ()
+			case res := <-receive_msg:
+				OnMessage(res.conn, res.msg)
+			}
+		}
+	} ()
 
 	go func() {
 		for {
 			select {
 			case body := <-broadcast:
-				go func() {
+				Log("开始处理广播：", body)
+				//go func() {
 					Broadcast(body)
-				} ()
-			case res := <-receive_msg:
-				OnMessage(res.conn, res.msg)
+				//} ()
+			//case res := <-receive_msg:
+			//	OnMessage(res.conn, res.msg)
 			}
 		}
 	} ()
@@ -144,6 +161,7 @@ func main() {
 		}
 		clients[clients_count] = conn
 		clients_count++
+		Log("新的连接："+ conn.RemoteAddr().String())
 		go OnConnect(conn)
 	})
 
