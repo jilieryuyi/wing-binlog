@@ -6,7 +6,7 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
-	"text/template"
+	//"text/template"
 )
 
 const (
@@ -72,17 +72,17 @@ func manager() {
 
 func main() {
 
-	var homeTemplate = template.Must(template.ParseFiles("home.html"))
+	//var homeTemplate = template.Must(template.ParseFiles("home.html"))
 
 	m := martini.Classic()
 
-	m.Get("/", func(res http.ResponseWriter, req *http.Request) {
+	//m.Get("/", func(res http.ResponseWriter, req *http.Request) {
+	//
+	//	res.Header().Set("Content-Type", "text/html; charset=utf-8")
+	//	homeTemplate.Execute(res, req.Host)
+	//})
 
-		res.Header().Set("Content-Type", "text/html; charset=utf-8")
-		homeTemplate.Execute(res, req.Host)
-	})
-
-	m.Get("/ws", func(res http.ResponseWriter, req *http.Request) { // res and req are injected by Martini
+	m.Get("/", func(res http.ResponseWriter, req *http.Request) { // res and req are injected by Martini
 		conn, err := websocket.Upgrade(res, req, nil, readBufferSize, writeBufferSize)
 		if err != nil {
 			log.Println(err)
