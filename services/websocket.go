@@ -6,85 +6,127 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+	"strings"
+	"bytes"
+	"encoding/json"
+	"os"
 	//"text/template"
 )
 
 const (
-	readBufferSize  = 1024
-	writeBufferSize = 1024
+	readBufferSize  = 10240
+	writeBufferSize = 10240
 )
 
-type Client struct {
-	conn     *websocket.Conn
-	messages chan []byte
+type BODY struct {
+	conn *websocket.Conn
+	msg string
 }
 
-var clients map[*Client]bool // 存储所有的链接
-var broadcast chan []byte    // 广播聊天的chan
-var addClients chan *Client  // 新链接进来的chan
 
-func (c *Client) readPump() {
+
+//所有的连接进来的客户端
+var clients map[int]*websocket.Conn = make(map[int]*websocket.Conn)
+//所有的连接进来的客户端数量
+var clients_count int = 0
+
+var broadcast chan BODY =  make(chan BODY)   // 广播聊天的chan
+var receive_msg  chan BODY =  make(chan BODY)
+var msg_buffer bytes.Buffer
+var msg_split string  = "\r\n\r\n\r\n";
+const DEBUG bool = true
+var send_times int    = 0
+
+func OnConnect(conn *websocket.Conn) {
 	for {
-		_, message, err := c.conn.ReadMessage()
+		_, message, err := conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
 				log.Printf("error: %v", err)
 			}
+
+			for key, client := range clients {
+				if (conn == client) {
+					delete(clients, key)
+				}
+			}
+
+			conn.Close();
 			break
 		}
 		fmt.Printf("receive message is :%s\n", message)
-		broadcast <- message
+		receive_msg <- BODY{conn, fmt.Sprintf("%s", message)}
 	}
 }
 
-func (c *Client) writePump() {
-	for {
-		select {
-		case message := <-c.messages:
-			fmt.Printf("send message is :%s\n", message)
-			c.conn.WriteMessage(1, message)
+func OnMessage(conn *websocket.Conn , msg string) {
+
+	//html := 		"HTTP/1.1 200 OK\r\nContent-Length: 5\r\nContent-Type: text/html\r\n\r\nhello"
+	msg_buffer.WriteString(msg)// += msg
+
+	//粘包处理
+	temp     := strings.Split(msg_buffer.String(), msg_split)
+	temp_len := len(temp)
+
+	if (temp_len >= 2) {
+		msg_buffer.Reset()
+		msg_buffer.WriteString(temp[temp_len - 1])
+
+		for _, v := range temp {
+			if strings.EqualFold(v, "") {
+				continue
+			}
+			broadcast <- BODY{conn, v}
 		}
+	}
+}
+
+func Broadcast(_msg BODY) {
+	msg := _msg.msg
+	var data map[string]interface{}
+	json.Unmarshal([]byte(msg), &data)
+	Log("索引：", data["event_index"])
+	msg += "\r\n\r\n\r\n"
+	send_times++;
+	Log("广播次数：", send_times)
+	for _, v := range clients {
+		//非常关键的一步 如果这里也给接发来的人广播 接收端不消费
+		//发送会被阻塞
+		if v == _msg.conn {
+			continue
+		}
+		v.WriteMessage(1, []byte(msg))
+	}
+}
+func Log(v ...interface{}) {
+	if (DEBUG) {
+		log.Println(v...)
 	}
 }
 
 func manager() {
 
-	clients    = make(map[*Client]bool)
-	broadcast  = make(chan []byte, 10)
-	addClients = make(chan *Client)
 
-	for {
-		select {
-		case message := <-broadcast:
-			for client := range clients {
-				select {
-				case client.messages <- message:
-				default:
-					close(client.messages)
-					delete(clients, client)
-				}
+	go func() {
+		for {
+			select {
+			case body := <-broadcast:
+				go func() {
+					Broadcast(body)
+				} ()
+			case res := <-receive_msg:
+				OnMessage(res.conn, res.msg)
 			}
-		case itemClient := <-addClients:
-			clients[itemClient] = true
 		}
-	}
+	} ()
 }
 
 func main() {
 
-	//var homeTemplate = template.Must(template.ParseFiles("home.html"))
-
 	m := martini.Classic()
-
-	//m.Get("/", func(res http.ResponseWriter, req *http.Request) {
-	//
-	//	res.Header().Set("Content-Type", "text/html; charset=utf-8")
-	//	homeTemplate.Execute(res, req.Host)
-	//})
+	go manager()
 
 	m.Get("/", func(res http.ResponseWriter, req *http.Request) { // res and req are injected by Martini
-		//conn, err := websocket.Upgrade(res, req, nil, readBufferSize, writeBufferSize)
-		//websocket.Upgrader{}
 
 		u := websocket.Upgrader{ReadBufferSize: readBufferSize, WriteBufferSize: writeBufferSize}
 		u.Error = func(w http.ResponseWriter, r *http.Request, status int, reason error) {
@@ -100,15 +142,10 @@ func main() {
 			log.Println(err)
 			return
 		}
-		client := &Client{conn: conn, messages: make(chan []byte, 5)}
-		addClients <- client
-		go client.writePump()
-		client.readPump()
+		clients[clients_count] = conn
+		clients_count++
+		go OnConnect(conn)
 	})
 
-	go manager()
-
-	m.RunOnAddr(":3010")
-	//m.Run()
-
+	m.RunOnAddr(":"+os.Args[1])
 }
