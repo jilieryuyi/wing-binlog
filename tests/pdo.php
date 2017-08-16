@@ -18,7 +18,7 @@ $sql2 = 'update xsl.x_messages set phone=(phone-1) where 1';
 $sql1 = 'update xl.content_type set sort=(sort+1) where 1';
 $sql2 = 'update xl.content_type set sort=(sort-1) where 1';
 $count = 0;
-while ($count<100)
+while ($count<100000)
 {//$count<10000
     $count +=2;
     $pdo->query($sql1);

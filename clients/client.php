@@ -23,7 +23,7 @@ function fork_child($socket){
                 var_dump(func_get_args());
                 exit;
             });
-            socket_write($socket, "tick");
+            socket_write($socket, "tick-php\r\n\r\n\r\n");
             usleep(500000);
         }catch(\Exception $e){
             var_dump($e->getMessage());
