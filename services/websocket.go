@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 	"bytes"
-	"encoding/json"
+	//"encoding/json"
 	"os"
 	"time"
 	//"text/template"
@@ -37,6 +37,7 @@ var msg_buffer bytes.Buffer
 var msg_split string  = "\r\n\r\n\r\n";
 const DEBUG bool = true
 var send_times int    = 0
+var send_error_times int = 0
 
 func OnConnect(conn *websocket.Conn) {
 	for {
@@ -77,7 +78,7 @@ func OnMessage(conn *websocket.Conn , msg string) {
 			if strings.EqualFold(v, "") {
 				continue
 			}
-			Log("写入广播：", v)
+			//Log("写入广播：", v)
 			broadcast <- BODY{conn, v}
 		}
 	}
@@ -85,9 +86,9 @@ func OnMessage(conn *websocket.Conn , msg string) {
 
 func Broadcast(_msg BODY) {
 	msg := _msg.msg
-	var data map[string]interface{}
-	json.Unmarshal([]byte(msg), &data)
-	Log("索引：", data["event_index"])
+	//var data map[string]interface{}
+	//json.Unmarshal([]byte(msg), &data)
+	//Log("索引：", data["event_index"])
 	msg += "\r\n\r\n\r\n"
 	//Log("广播消息：", msg)
 	send_times++;
@@ -96,10 +97,15 @@ func Broadcast(_msg BODY) {
 		//非常关键的一步 如果这里也给接发来的人广播 接收端不消费
 		//发送会被阻塞
 		if v == _msg.conn {
+			Log("广播不发送给自己...")
 			continue
 		}
 		v.SetWriteDeadline(time.Now().Add(time.Millisecond * 100))
-		v.WriteMessage(1, []byte(msg))
+		err := v.WriteMessage(1, []byte(msg))
+		if err != nil {
+			send_error_times++
+			Log("发送失败次数：", send_error_times)
+		}
 	}
 }
 func Log(v ...interface{}) {
@@ -127,7 +133,7 @@ func manager() {
 		for {
 			select {
 			case body := <-broadcast:
-				Log("开始处理广播：", body)
+				//Log("开始处理广播：", body)
 				//go func() {
 					Broadcast(body)
 				//} ()
