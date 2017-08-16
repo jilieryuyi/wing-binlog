@@ -113,7 +113,7 @@ function start_service(){
             } catch(e){
                 im.online = false;
             }
-        },10);
+        },1000);
 
     };
 
