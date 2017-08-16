@@ -101,11 +101,12 @@ func Broadcast(_msg BODY) {
 			Log("广播不发送给自己...")
 			continue
 		}
-		v.SetWriteDeadline(time.Now().Add(time.Millisecond * 100))
+		v.SetWriteDeadline(time.Now().Add(time.Second * 3))
 		err := v.WriteMessage(1, []byte(msg))
 		if err != nil {
 			send_error_times++
 			Log("发送失败次数：", send_error_times)
+			Log(err)
 		}
 	}
 }
