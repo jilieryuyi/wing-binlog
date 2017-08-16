@@ -262,9 +262,7 @@ if (!function_exists("wing_debug")) {
     }
 }
 
-if (!function_exists("pcntl_signal")) {
-	function pcntl_signal($a=null,$b=null,$c=null,$d=null){}
-}
+
 
 if (!function_exists("wing_log")) {
 	function wing_log($level = "log", $msg)
@@ -293,12 +291,3 @@ if (!function_exists("is_env")) {
 	}
 }
 
-if (!function_exists("posix_kill")) {
-	function posix_kill($a=null, $b = null, $c = null){}
-}
-if (!function_exists("pcntl_signal_dispatch")) {
-	function pcntl_signal_dispatch($a=null, $b = null, $c = null){}
-}
-if (!function_exists("pcntl_wait")) {
-	function pcntl_wait($a=null, $b = null, $c = null){ return 0;}
-}

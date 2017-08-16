@@ -7,6 +7,7 @@
  */
 include_once __DIR__."/../vendor/autoload.php";
 define("HOME", dirname(__DIR__));
+define("WING_DEBUG", true);
 
 $msg = "GET / HTTP/1.1
 Host: 127.0.0.1:9998

@@ -2,44 +2,29 @@
 <?php
 //declare(ticks = 1);
 require __DIR__.'/vendor/autoload.php';
+require __DIR__.'/src/windows.php';
 
-$dir = __DIR__;
-//if (strpos($dir, "/cygdrive/") !== false) {
-//	$dir = str_replace("/cygdrive/", "", $dir);
-//	$pan = substr($dir, 0, 1);
-//	$dir = substr($dir, 1);
-//	$dir = strtoupper($pan) . ":" . $dir;
-//}
+//根目录
+define("HOME", __DIR__);
 
-define("HOME", $dir);
-if (!is_dir($dir."/logs")) {
-    mkdir($dir."/logs");
+//初始化日志目录
+if (!is_dir(__DIR__."/logs")) {
+    mkdir(__DIR__."/logs");
 }
 
-if (!defined("SIGINT")) {
-    define("SIGINT", 1);
-}
-if (!defined("SIGUSR1")) {
-	define("SIGUSR1", 2);
-}
-
-if (!defined("SIGUSR2")) {
-	define("SIGUSR2", 3);
-}
-if (!defined("SIGPIPE")) {
-	define("SIGPIPE", 4);
-}
-if (!defined("SIG_IGN")) {
-	define("SIG_IGN", 5);
-}
-
+//初始化一些系统常量
 define("WINDOWS", "windows");
 define("LINUX", "linux");
 
-date_default_timezone_set("PRC");
+//定义时间区
+if(!date_default_timezone_get() || !ini_get("date.timezone")) {
+    date_default_timezone_set("PRC");
+}
 
 use Symfony\Component\Console\Application;
 
+
+//初始化开发模式
 $debug = false;
 foreach ($argv as $item) {
     if (strpos($item, "debug") !== false) {
@@ -52,6 +37,14 @@ foreach ($argv as $item) {
     }
 }
 
+if ($debug) {
+    define("WING_DEBUG", true);
+} else {
+    define("WING_DEBUG", false);
+}
+
+
+//初始化命令行参数
 $str_argv = '';
 for ($i = 1; $i < $argc; $i++) {
     $str_argv .= ' '.$argv[$i];
@@ -63,14 +56,6 @@ $file_name = trim($file_name, "\\");
 
 $command_line = 'php '.$file_name.' '.$str_argv;
 define("WING_COMMAND_LINE", $command_line);
-//echo $command_line,"\r\n";
-
-if ($debug) {
-	define("WING_DEBUG", true);
-} else {
-	define("WING_DEBUG", false);
-}
-
 
 try {
 
