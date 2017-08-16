@@ -56,8 +56,9 @@ func OnConnect(conn *websocket.Conn) {
 			conn.Close();
 			break
 		}
-		Log("收到消息：", fmt.Sprintf("%s", message))
-		receive_msg <- BODY{conn, fmt.Sprintf("%s", message)}
+		msg := fmt.Sprintf("%s", message)
+		Log("收到消息：", msg)
+		receive_msg <- BODY{conn, msg}
 	}
 }
 
@@ -135,7 +136,7 @@ func manager() {
 			case body := <-broadcast:
 				//Log("开始处理广播：", body)
 				//go func() {
-					Broadcast(body)
+					 Broadcast(body)
 				//} ()
 			//case res := <-receive_msg:
 			//	OnMessage(res.conn, res.msg)
