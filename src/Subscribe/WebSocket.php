@@ -13,6 +13,8 @@ class WebSocket implements ISubscribe
     private $client = null;
     private $host;
     private $port;
+    private $send_times = 0;
+    private $send_failure_times = 0 ;
     public function __construct($config)
     {
         $host    = $config["host"];
@@ -46,11 +48,15 @@ class WebSocket implements ISubscribe
     {
         $msg .= "\r\n\r\n\r\n";
         try {
+        	$this->send_times++;
             if (!$this->client->send($msg)) {
+            	$this->send_failure_times++;
                 $this->client = null;
                 $this->tryConnect();
+                $this->send_times++;
                 $this->client->send($msg);
             }
+            wing_debug("websocket发送次数：", $this->send_times,"  失败次数：", $this->send_failure_times);
         } catch(\Exception $e){
             var_dump($e->getMessage());
         }
