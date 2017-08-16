@@ -67,10 +67,10 @@ class WebSocket implements ISubscribe
 		if (is_env(WINDOWS)) {
 			$command = HOME."/services/websocket.exe ".$port;
 			wing_debug($command);
-//			$handle  = popen($command." >>".HOME."/logs/websocket.log&","r");
-//			if ($handle) {
-//				pclose($handle);
-//			}
+			$handle  = popen($command." >>".HOME."/logs/websocket.log&","r");
+			if ($handle) {
+				pclose($handle);
+			}
 			return;
 		}
         $command = "php ".HOME."/services/websocket start --host=".$host." --port=".$port." --workers=".$workers;
