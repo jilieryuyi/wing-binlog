@@ -49,8 +49,8 @@ func (c *Client) writePump() {
 
 func manager() {
 
-	clients = make(map[*Client]bool)
-	broadcast = make(chan []byte, 10)
+	clients    = make(map[*Client]bool)
+	broadcast  = make(chan []byte, 10)
 	addClients = make(chan *Client)
 
 	for {
@@ -83,7 +83,19 @@ func main() {
 	//})
 
 	m.Get("/", func(res http.ResponseWriter, req *http.Request) { // res and req are injected by Martini
-		conn, err := websocket.Upgrade(res, req, nil, readBufferSize, writeBufferSize)
+		//conn, err := websocket.Upgrade(res, req, nil, readBufferSize, writeBufferSize)
+		//websocket.Upgrader{}
+
+		u := websocket.Upgrader{ReadBufferSize: readBufferSize, WriteBufferSize: writeBufferSize}
+		u.Error = func(w http.ResponseWriter, r *http.Request, status int, reason error) {
+			// don't return errors to maintain backwards compatibility
+		}
+		u.CheckOrigin = func(r *http.Request) bool {
+			// allow all connections by default
+			return true
+		}
+		conn, err := u.Upgrade(res, req, nil)
+
 		if err != nil {
 			log.Println(err)
 			return

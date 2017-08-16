@@ -1,4 +1,4 @@
-package services
+package main
 
 import (
 	"fmt"
@@ -134,18 +134,20 @@ func MainThread() {
 							//wg.Add(1)//为同步等待组增加一个成员
 							Broadcast(msg)
 						} ()
-				}
-			}
-		} ()
-
-		go func() {
-			for {
-				select {
 					case res := <-MSG_RECEIVE_QUEUE:
 						OnMessage(res.conn, res.msg)
 				}
 			}
 		} ()
+
+		//go func() {
+		//	for {
+		//		select {
+		//			case res := <-MSG_RECEIVE_QUEUE:
+		//				OnMessage(res.conn, res.msg)
+		//		}
+		//	}
+		//} ()
 	}
 }
 
