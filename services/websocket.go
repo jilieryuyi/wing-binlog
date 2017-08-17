@@ -12,6 +12,7 @@ import (
 	"os"
 	//"time"
 	//"text/template"
+	"time"
 )
 
 const (
@@ -24,15 +25,20 @@ type BODY struct {
 	msg bytes.Buffer
 }
 
+type SEND_BODY struct {
+	conn *websocket.Conn
+	msg string
+}
+
 
 
 //所有的连接进来的客户端
 var clients map[int]*websocket.Conn = make(map[int]*websocket.Conn)
 //所有的连接进来的客户端数量
 var clients_count int = 0
-
+const MAX_SEND_QUEUE int = 102400
 //var broadcast chan BODY =  make(chan BODY)   // 广播聊天的chan
-//var receive_msg  chan BODY =  make(chan BODY)
+var send_msg_chan  chan SEND_BODY =  make(chan SEND_BODY, MAX_SEND_QUEUE)
 //var msg_buffer map[string]string = make(map[string]string)
 var msg_split string     = "\r\n\r\n\r\n";
 const DEBUG bool         = true
@@ -67,11 +73,11 @@ func OnConnect(conn *websocket.Conn) {
 		Log("收到消息：", msg)
 		body.msg.Write(message)
 		//receive_msg <- BODY{conn, msg}
-		OnMessage(body, msg)
+		OnMessage(&body)
 	}
 }
 
-func OnMessage(conn BODY , msg string) {
+func OnMessage(conn *BODY) {
 
 	//html := 		"HTTP/1.1 200 OK\r\nContent-Length: 5\r\nContent-Type: text/html\r\n\r\nhello"
 	//addr := conn.RemoteAddr().String()
@@ -95,23 +101,64 @@ func OnMessage(conn BODY , msg string) {
 			send_times++;
 			Log("广播次数：", send_times)
 
-			for _, client := range clients {
-				if (conn.conn.RemoteAddr().String() == client.RemoteAddr().String()) {
-					Log("不给自己发广播...")
-					continue
+			//go func()
+			//{
+				for _, client := range clients {
+					if (conn.conn.RemoteAddr().String() == client.RemoteAddr().String()) {
+						Log("不给自己发广播...")
+						continue
+					}
+					//client.SetWriteDeadline(time.Now().Add(time.Second * 3))
+					//err := client.WriteMessage(1, []byte(v))
+					//if err != nil {
+					//	send_error_times++
+					//	Log("发送失败次数：", send_error_times)
+					//	Log(err)
+					//}
+					if (len(send_msg_chan) >= MAX_SEND_QUEUE) {
+						Log("发送缓冲区满")
+					} else {
+						send_msg_chan <- SEND_BODY{client, v}
+					}
 				}
-				//client.SetWriteDeadline(time.Now().Add(time.Second * 3))
-				err := client.WriteMessage(1, []byte(v))
-				if err != nil {
-					send_error_times++
-					Log("发送失败次数：", send_error_times)
-					Log(err)
-				}
-			}
+			//} ()
 
 		}
 	}
 }
+
+func MainThread() {
+	//for i := 0; i < 4; i ++
+	{
+		go func() {
+			for {
+				select {
+				case body := <-send_msg_chan:
+					//body.conn.SetWriteDeadline(time.Now().Add(time.Second * 3))
+					Log("发送：", body.msg)
+					err := body.conn.WriteMessage(1, []byte(body.msg))
+					if err != nil {
+						send_error_times++
+						Log("发送失败次数：", send_error_times)
+						Log(err)
+					}
+				case <-time.After(time.Second*3):
+					Log("发送超时...")
+				}
+			}
+		}()
+
+		//go func() {
+		//	for {
+		//		select {
+		//			case res := <-MSG_RECEIVE_QUEUE:
+		//				OnMessage(res.conn, res.msg)
+		//		}
+		//	}
+		//} ()
+	}
+}
+
 
 func Log(v ...interface{}) {
 	if (DEBUG) {
@@ -120,7 +167,7 @@ func Log(v ...interface{}) {
 }
 
 func main() {
-
+	go MainThread()
 	m := martini.Classic()
 
 	m.Get("/", func(res http.ResponseWriter, req *http.Request) { // res and req are injected by Martini
