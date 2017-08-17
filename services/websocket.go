@@ -19,20 +19,15 @@ const (
 	writeBufferSize = 10240
 )
 
-
-
-type WEBSOCKET_CLIENT struct {
-	conn *websocket.Conn
-	online bool
-}
-
 type BODY struct {
-	conn WEBSOCKET_CLIENT
+	conn *websocket.Conn
 	msg string
 }
 
+
+
 //所有的连接进来的客户端
-var clients chan WEBSOCKET_CLIENT = make(chan WEBSOCKET_CLIENT)//map[int]*websocket.Conn = make(map[int]*websocket.Conn)
+var clients map[int]*websocket.Conn = make(map[int]*websocket.Conn)
 //所有的连接进来的客户端数量
 var clients_count int = 0
 
@@ -44,22 +39,21 @@ const DEBUG bool = true
 var send_times int    = 0
 var send_error_times int = 0
 
-func OnConnect(conn WEBSOCKET_CLIENT) {
+func OnConnect(conn *websocket.Conn) {
 	for {
-		_, message, err := conn.conn.ReadMessage()
+		_, message, err := conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
 				log.Printf("error: %v", err)
 			}
 
-			//怎么出 chan
 			for key, client := range clients {
 				if (conn == client) {
 					delete(clients, key)
 				}
 			}
 
-			conn.conn.Close();
+			conn.Close();
 			break
 		}
 		msg := fmt.Sprintf("%s", message)
@@ -100,17 +94,14 @@ func Broadcast(_msg BODY) {
 	//Log("广播消息：", msg)
 	send_times++;
 	Log("广播次数：", send_times)
-	for v := range clients {
-		if (!v.online) {
-			//<- clients
-		}
+	for _, v := range clients {
 		//非常关键的一步 如果这里也给接发来的人广播 接收端不消费
 		//发送会被阻塞
 		if v == _msg.conn {
 			Log("广播不发送给自己...")
 			continue
 		}
-		v.SetWriteDeadline(time.Now().Add(time.Second * 3))
+		v.SetWriteDeadline(time.Now().Add(time.Millisecond * 100))
 		err := v.WriteMessage(1, []byte(msg))
 		if err != nil {
 			send_error_times++
@@ -176,11 +167,10 @@ func main() {
 			log.Println(err)
 			return
 		}
-		wconn := WEBSOCKET_CLIENT{conn, true}
-		clients <-
+		clients[clients_count] = conn
 		clients_count++
 		Log("新的连接："+ conn.RemoteAddr().String())
-		go OnConnect(wconn)
+		go OnConnect(conn)
 	})
 
 	m.RunOnAddr(":"+os.Args[1])
