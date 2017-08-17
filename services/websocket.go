@@ -40,6 +40,9 @@ var send_times int    = 0
 var send_error_times int = 0
 
 func OnConnect(conn *websocket.Conn) {
+
+	clients[clients_count] = conn
+	clients_count++
 	for {
 		_, message, err := conn.ReadMessage()
 		if err != nil {
@@ -167,8 +170,7 @@ func main() {
 			log.Println(err)
 			return
 		}
-		clients[clients_count] = conn
-		clients_count++
+
 		Log("新的连接："+ conn.RemoteAddr().String())
 		go OnConnect(conn)
 	})
