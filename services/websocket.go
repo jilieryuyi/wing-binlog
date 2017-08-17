@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	//"bytes"
+	"bytes"
 	//"encoding/json"
 	"os"
 	//"time"
@@ -19,10 +19,10 @@ const (
 	writeBufferSize = 10240
 )
 
-//type BODY struct {
-//	conn *websocket.Conn
-//	msg string
-//}
+type BODY struct {
+	conn *websocket.Conn
+	msg bytes.Buffer
+}
 
 
 
@@ -33,7 +33,7 @@ var clients_count int = 0
 
 //var broadcast chan BODY =  make(chan BODY)   // 广播聊天的chan
 //var receive_msg  chan BODY =  make(chan BODY)
-var msg_buffer map[string]string = make(map[string]string)
+//var msg_buffer map[string]string = make(map[string]string)
 var msg_split string     = "\r\n\r\n\r\n";
 const DEBUG bool         = true
 var send_times int       = 0
@@ -43,6 +43,9 @@ func OnConnect(conn *websocket.Conn) {
 
 	clients[clients_count] = conn
 	clients_count++
+	var buffer bytes.Buffer
+	body := BODY{conn, buffer}
+
 	for {
 		_, message, err := conn.ReadMessage()
 		if err != nil {
@@ -53,7 +56,7 @@ func OnConnect(conn *websocket.Conn) {
 			for key, client := range clients {
 				if (conn.RemoteAddr().String() == client.RemoteAddr().String()) {
 					delete(clients, key)
-					delete(msg_buffer, conn.RemoteAddr().String())
+					//delete(msg_buffer, conn.RemoteAddr().String())
 				}
 			}
 
@@ -62,25 +65,26 @@ func OnConnect(conn *websocket.Conn) {
 		}
 		msg := fmt.Sprintf("%s", message)
 		Log("收到消息：", msg)
+		body.msg.Write(message)
 		//receive_msg <- BODY{conn, msg}
-		OnMessage(conn, msg)
+		OnMessage(body, msg)
 	}
 }
 
-func OnMessage(conn *websocket.Conn , msg string) {
+func OnMessage(conn BODY , msg string) {
 
 	//html := 		"HTTP/1.1 200 OK\r\nContent-Length: 5\r\nContent-Type: text/html\r\n\r\nhello"
-	addr := conn.RemoteAddr().String()
-	msg_buffer[addr] += msg
+	//addr := conn.RemoteAddr().String()
+	//msg_buffer[addr] += msg
 
-	_buffer := msg_buffer[addr]//.String();
+	//_buffer := msg_buffer[addr]//.String();
 	//粘包处理
-	temp     := strings.Split(_buffer, msg_split)
+	temp     := strings.Split(conn.msg.String(), msg_split)
 	temp_len := len(temp)
 
 	if (temp_len >= 2) {
-		//msg_buffer[addr].Reset()
-		msg_buffer[addr] =temp[temp_len - 1]
+		conn.msg.Reset()
+		conn.msg.WriteString(temp[temp_len - 1])
 
 		for _, v := range temp {
 			if strings.EqualFold(v, "") {
@@ -92,7 +96,7 @@ func OnMessage(conn *websocket.Conn , msg string) {
 			Log("广播次数：", send_times)
 
 			for _, client := range clients {
-				if (conn.RemoteAddr().String() == client.RemoteAddr().String()) {
+				if (conn.conn.RemoteAddr().String() == client.RemoteAddr().String()) {
 					Log("不给自己发广播...")
 					continue
 				}
