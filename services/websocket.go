@@ -62,7 +62,7 @@ func OnConnect(conn *websocket.Conn) {
 		msg := fmt.Sprintf("%s", message)
 		Log("收到消息：", msg)
 		//receive_msg <- BODY{conn, msg}
-		go OnMessage(conn, msg)
+		OnMessage(conn, msg)
 	}
 }
 
