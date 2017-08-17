@@ -70,16 +70,17 @@ func OnConnect(conn *websocket.Conn) {
 func OnMessage(conn *websocket.Conn , msg string) {
 
 	//html := 		"HTTP/1.1 200 OK\r\nContent-Length: 5\r\nContent-Type: text/html\r\n\r\nhello"
-	msg_buffer[conn.RemoteAddr().String()].WriteString(msg)// += msg
+	addr := conn.RemoteAddr().String()
+	msg_buffer[addr].WriteString(msg)// += msg
 
-	_buffer := msg_buffer[conn.RemoteAddr().String()].String();
+	_buffer := msg_buffer[addr].String();
 	//粘包处理
 	temp     := strings.Split(_buffer, msg_split)
 	temp_len := len(temp)
 
 	if (temp_len >= 2) {
-		msg_buffer[conn.RemoteAddr().String()].Reset()
-		msg_buffer[conn.RemoteAddr().String()].WriteString(temp[temp_len - 1])
+		msg_buffer[addr].Reset()
+		msg_buffer[addr].WriteString(temp[temp_len - 1])
 
 		for _, v := range temp {
 			if strings.EqualFold(v, "") {
