@@ -84,13 +84,13 @@ var im={
 
 $(document).ready(function(){
     $(".send-bth").click(function(){
-        im.sendMessage(1,$(".send-msg").html());
+        im.sendMessage(1, $(".send-msg").html());
         $(".send-msg").html("");
     });
 });
 
 
-var interval = null;
+var interval  = null;
 var msg_count = 0;
 function start_service(){
     //114.55.56.167
@@ -107,24 +107,26 @@ function start_service(){
         var _msg='tick';
         ws.send(_msg+"\r\n\r\n\r\n");
         im.onConnect();
-        interval = window.setInterval(function(){
-            try {
-                ws.send(_msg+"\r\n\r\n\r\n");
-            } catch(e){
-                im.online = false;
-            }
-        },1000);
-
     };
 
-    var message_temp = [];
+    interval = window.setInterval(function(){
+        if (im.online) {
+            ws.send("tick\r\n\r\n\r\n");
+        }
+    },1000);
+
     ws.onmessage = function(e) {
         msg_count++;
         console.log("第"+msg_count+"条消息=>",e.data);
         im.onMessage(e.data);
     };
-    ws.onclose=function(){
+    ws.onclose=function() {
         im.onDisConnect();
+    }
+
+    ws.onerror = function(e) {
+        im.onDisConnect();
+        console.log(e);
     }
 }
 

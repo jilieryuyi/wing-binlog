@@ -5,32 +5,9 @@
  * Date: 17/8/16
  * Time: 21:47
  */
-interface C
-{
-    public function a();
-}
+$rex = "/\\[.*\\]/";
 
-class A implements C
-{
-    public function a(){
+$str = '"  [哭啼]“ ';
 
-    }
-}
-
-class Test
-{
-    private $inc;
-    public function setC(C $inc)
-    {
-        $this->inc = $inc;
-    }
-    public function t()
-    {
-        $this->inc->a();
-    }
-}
-
-$a = new A;
-$t = new Test;
-$t->setC($a);
-$t->t();
+preg_match($rex, $str, $match);
+var_dump($match);
