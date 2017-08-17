@@ -61,7 +61,8 @@ func OnConnect(conn *websocket.Conn) {
 		}
 		msg := fmt.Sprintf("%s", message)
 		Log("收到消息：", msg)
-		receive_msg <- BODY{conn, msg}
+		//receive_msg <- BODY{conn, msg}
+		OnMessage(conn, msg)
 	}
 }
 
@@ -128,19 +129,19 @@ func Log(v ...interface{}) {
 }
 
 func manager() {
-	go func() {
-		for {
-			select {
-			//case body := <-broadcast:
-			//	Log("开始处理广播：", body)
-			//	go func() {
-			//		Broadcast(body)
-			//	} ()
-			case res := <-receive_msg:
-				OnMessage(res.conn, res.msg)
-			}
-		}
-	} ()
+	//go func() {
+	//	for {
+	//		select {
+	//		//case body := <-broadcast:
+	//		//	Log("开始处理广播：", body)
+	//		//	go func() {
+	//		//		Broadcast(body)
+	//		//	} ()
+	//		case res := <-receive_msg:
+	//			OnMessage(res.conn, res.msg)
+	//		}
+	//	}
+	//} ()
 
 	go func() {
 		for {
