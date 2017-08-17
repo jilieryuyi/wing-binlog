@@ -109,7 +109,7 @@ func OnMessage(conn *BODY) {
 
 func MainThread() {
 	//for i := 0; i < 4; i ++
-	to := time.NewTimer(time.Second*3)
+	//to := time.NewTimer(time.Second*3)
 	{
 		go func() {
 			for {
@@ -123,8 +123,8 @@ func MainThread() {
 						Log("发送失败次数：", send_error_times)
 						Log(err)
 					}
-				case <-to.C://time.After(time.Second*3):
-					Log("发送超时...")
+				//case <-to.C://time.After(time.Second*3):
+				//	Log("发送超时...")
 				}
 			}
 		}()

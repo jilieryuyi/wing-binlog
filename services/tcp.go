@@ -127,7 +127,7 @@ func Broadcast(msg SEND_BODY) {
  */
 func MainThread() {
 	//for i := 0; i < 4; i ++
-	to := time.NewTimer(time.Second*3)
+	//to := time.NewTimer(time.Second*3)
 
 	{
 		go func() {
@@ -140,8 +140,8 @@ func MainThread() {
 						//} ()
 					//case res := <-MSG_RECEIVE_QUEUE:
 					//	OnMessage(res.conn, res.msg)
-				case <-to.C://time.After(time.Second*3):
-					Log("发送超时...")
+				//case <-to.C://time.After(time.Second*3):
+				//	Log("发送超时...")
 				}
 			}
 		} ()
