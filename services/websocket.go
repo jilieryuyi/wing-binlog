@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	"bytes"
+	//"bytes"
 	//"encoding/json"
 	"os"
 	//"time"
@@ -33,7 +33,7 @@ var clients_count int = 0
 
 //var broadcast chan BODY =  make(chan BODY)   // 广播聊天的chan
 //var receive_msg  chan BODY =  make(chan BODY)
-var msg_buffer map[string]bytes.Buffer = make(map[string]bytes.Buffer)
+var msg_buffer map[string]string = make(map[string]string)
 var msg_split string     = "\r\n\r\n\r\n";
 const DEBUG bool         = true
 var send_times int       = 0
@@ -71,16 +71,16 @@ func OnMessage(conn *websocket.Conn , msg string) {
 
 	//html := 		"HTTP/1.1 200 OK\r\nContent-Length: 5\r\nContent-Type: text/html\r\n\r\nhello"
 	addr := conn.RemoteAddr().String()
-	msg_buffer[addr].WriteString(msg)// += msg
+	msg_buffer[addr] += msg
 
-	_buffer := msg_buffer[addr].String();
+	_buffer := msg_buffer[addr]//.String();
 	//粘包处理
 	temp     := strings.Split(_buffer, msg_split)
 	temp_len := len(temp)
 
 	if (temp_len >= 2) {
-		msg_buffer[addr].Reset()
-		msg_buffer[addr].WriteString(temp[temp_len - 1])
+		//msg_buffer[addr].Reset()
+		msg_buffer[addr] =temp[temp_len - 1]
 
 		for _, v := range temp {
 			if strings.EqualFold(v, "") {
