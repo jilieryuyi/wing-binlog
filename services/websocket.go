@@ -112,7 +112,7 @@ func Broadcast(_msg BODY) {
 		//	Log("广播不发送给自己...")
 		//	continue
 		//}
-		_msg.conn.SetWriteDeadline(time.Now().Add(time.Millisecond * 100))
+		_msg.conn.SetWriteDeadline(time.Now().Add(time.Second * 3))
 		err := _msg.conn.WriteMessage(1, []byte(msg))
 		if err != nil {
 			send_error_times++
