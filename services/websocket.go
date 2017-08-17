@@ -8,10 +8,7 @@ import (
 	"net/http"
 	"strings"
 	"bytes"
-	//"encoding/json"
 	"os"
-	//"time"
-	//"text/template"
 	"time"
 )
 
@@ -29,8 +26,6 @@ type SEND_BODY struct {
 	conn *websocket.Conn
 	msg string
 }
-
-
 
 //所有的连接进来的客户端
 var clients map[int]*websocket.Conn = make(map[int]*websocket.Conn)
@@ -72,7 +67,6 @@ func OnConnect(conn *websocket.Conn) {
 		msg := fmt.Sprintf("%s", message)
 		Log("收到消息：", msg)
 		body.msg.Write(message)
-		//receive_msg <- BODY{conn, msg}
 		OnMessage(&body)
 	}
 }
@@ -80,10 +74,6 @@ func OnConnect(conn *websocket.Conn) {
 func OnMessage(conn *BODY) {
 
 	//html := 		"HTTP/1.1 200 OK\r\nContent-Length: 5\r\nContent-Type: text/html\r\n\r\nhello"
-	//addr := conn.RemoteAddr().String()
-	//msg_buffer[addr] += msg
-
-	//_buffer := msg_buffer[addr]//.String();
 	//粘包处理
 	temp     := strings.Split(conn.msg.String(), msg_split)
 	temp_len := len(temp)
@@ -101,27 +91,17 @@ func OnMessage(conn *BODY) {
 			send_times++;
 			Log("广播次数：", send_times)
 
-			//go func()
-			//{
-				for _, client := range clients {
-					if (conn.conn.RemoteAddr().String() == client.RemoteAddr().String()) {
-						Log("不给自己发广播...")
-						continue
-					}
-					//client.SetWriteDeadline(time.Now().Add(time.Second * 3))
-					//err := client.WriteMessage(1, []byte(v))
-					//if err != nil {
-					//	send_error_times++
-					//	Log("发送失败次数：", send_error_times)
-					//	Log(err)
-					//}
-					if (len(send_msg_chan) >= MAX_SEND_QUEUE) {
-						Log("发送缓冲区满")
-					} else {
-						send_msg_chan <- SEND_BODY{client, v}
-					}
+			for _, client := range clients {
+				if (conn.conn.RemoteAddr().String() == client.RemoteAddr().String()) {
+					Log("不给自己发广播...")
+					continue
 				}
-			//} ()
+				if (len(send_msg_chan) >= MAX_SEND_QUEUE) {
+					Log("发送缓冲区满")
+				} else {
+					send_msg_chan <- SEND_BODY{client, v}
+				}
+			}
 
 		}
 	}
@@ -148,15 +128,6 @@ func MainThread() {
 				}
 			}
 		}()
-
-		//go func() {
-		//	for {
-		//		select {
-		//			case res := <-MSG_RECEIVE_QUEUE:
-		//				OnMessage(res.conn, res.msg)
-		//		}
-		//	}
-		//} ()
 	}
 }
 
