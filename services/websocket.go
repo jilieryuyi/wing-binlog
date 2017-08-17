@@ -83,7 +83,15 @@ func OnMessage(conn *websocket.Conn , msg string) {
 				continue
 			}
 			//Log("写入广播：", v)
-			broadcast <- BODY{conn, v}
+			//broadcast <- BODY{conn, v}
+
+			for _, client := range clients {
+				if (conn == client) {
+					continue
+				}
+				broadcast <- BODY{client, v}
+			}
+
 		}
 	}
 }
@@ -97,21 +105,21 @@ func Broadcast(_msg BODY) {
 	//Log("广播消息：", msg)
 	send_times++;
 	Log("广播次数：", send_times)
-	for _, v := range clients {
+	//for _, v := range clients {
 		//非常关键的一步 如果这里也给接发来的人广播 接收端不消费
 		//发送会被阻塞
-		if v == _msg.conn {
-			Log("广播不发送给自己...")
-			continue
-		}
-		v.SetWriteDeadline(time.Now().Add(time.Millisecond * 100))
-		err := v.WriteMessage(1, []byte(msg))
+		//if v == _msg.conn {
+		//	Log("广播不发送给自己...")
+		//	continue
+		//}
+		_msg.conn.SetWriteDeadline(time.Now().Add(time.Millisecond * 100))
+		err := _msg.conn.WriteMessage(1, []byte(msg))
 		if err != nil {
 			send_error_times++
 			Log("发送失败次数：", send_error_times)
 			Log(err)
 		}
-	}
+	//}
 }
 func Log(v ...interface{}) {
 	if (DEBUG) {
@@ -140,7 +148,7 @@ func manager() {
 			case body := <-broadcast:
 				//Log("开始处理广播：", body)
 				//go func() {
-					 Broadcast(body)
+					 go Broadcast(body)
 				//} ()
 			//case res := <-receive_msg:
 			//	OnMessage(res.conn, res.msg)
