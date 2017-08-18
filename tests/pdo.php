@@ -24,5 +24,4 @@ while ($count<100000)
     $pdo->query($sql1);
     $pdo->query($sql2);
     echo "事件次数：",$count,"\r\n";
-    usleep(1000);
 }
