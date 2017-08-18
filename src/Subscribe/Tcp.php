@@ -32,9 +32,9 @@ class Tcp implements ISubscribe
         if (is_env(WINDOWS)) {
             $command = HOME . "/services/tcp.exe " . $port;
         }
-		else if (is_env(LINUX)) {
-			$command = HOME . "/services/tcp.linux " . $port;
-		}
+//		else if (is_env(LINUX)) {
+//			$command = HOME . "/services/tcp.linux " . $port;
+//		}
         wing_debug($command);
         $handle  = popen($command." >>".HOME."/logs/tcp.log&","r");
         if ($handle) {
