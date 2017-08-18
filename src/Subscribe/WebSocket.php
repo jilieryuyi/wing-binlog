@@ -69,6 +69,9 @@ class WebSocket implements ISubscribe
     private function startWebsocketService($host, $port, $deamon, $workers)
     {
         $command = HOME."/services/websocket ".$port;
+        if (WING_DEBUG) {
+            $command .= " --debug";
+        }
         wing_debug($command);
         $handle  = popen($command." >>".HOME."/logs/websocket.log&","r");
         if ($handle) {
