@@ -51,7 +51,7 @@ class Tcp implements ISubscribe
 //			}
 //    	}
 
-        wing_debug($command);
+        //wing_debug($command);
     }
 
     private function send($msg)
