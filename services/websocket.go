@@ -190,62 +190,67 @@ func GetParentPath(dirctory string) string {
 }
 
 func main() {
-
-	if (os.Args[1] == "stop") {
-		dat, _ := ioutil.ReadFile(GetCurrentPath() + "/websocket.pid")
-		fmt.Print(string(dat))
-		pid, _ := strconv.Atoi(string(dat))
-		syscall.Kill(pid, syscall.SIGINT)
+	if len(os.Args) < 2 {
+		fmt.Println("请使用如下模式启动")
+		fmt.Println("1、指定端口为9998：websocket 9998")
+		fmt.Println("2、指定端口为9998并且启用debug模式：websocket 9998 --debug")
 	} else {
-
-		Log(GetParentPath(GetCurrentPath()))
-		Log(os.Getpid())
-
-		//写入pid
-		handle, _ := os.OpenFile(GetCurrentPath() + "/websocket.pid", os.O_WRONLY | os.O_CREATE | os.O_SYNC, 0755)
-		io.WriteString(handle, fmt.Sprintf("%d", os.Getpid()))
-
-		debug := false
-		if len(os.Args) == 3 {
-			if os.Args[2] == "debug" || os.Args[2] == "--debug" {
-				debug = true
-			}
-		}
-		Log(debug)
-		if !debug {
-			ResetStd()
+		if (os.Args[1] == "stop") {
+			dat, _ := ioutil.ReadFile(GetCurrentPath() + "/websocket.pid")
+			fmt.Print(string(dat))
+			pid, _ := strconv.Atoi(string(dat))
+			syscall.Kill(pid, syscall.SIGINT)
 		} else {
-			Log("debug模式")
+
+			Log(GetParentPath(GetCurrentPath()))
+			Log(os.Getpid())
+
+			//写入pid
+			handle, _ := os.OpenFile(GetCurrentPath() + "/websocket.pid", os.O_WRONLY | os.O_CREATE | os.O_SYNC, 0755)
+			io.WriteString(handle, fmt.Sprintf("%d", os.Getpid()))
+
+			debug := false
+			if len(os.Args) == 3 {
+				if os.Args[2] == "debug" || os.Args[2] == "--debug" {
+					debug = true
+				}
+			}
+			Log(debug)
+			if !debug {
+				ResetStd()
+			} else {
+				Log("debug模式")
+			}
+
+			go MainThread()
+			go SignalHandle()
+
+			m := martini.Classic()
+
+			m.Get("/", func(res http.ResponseWriter, req *http.Request) {
+				// res and req are injected by Martini
+
+				u := websocket.Upgrader{ReadBufferSize: readBufferSize, WriteBufferSize: writeBufferSize}
+				u.Error = func(w http.ResponseWriter, r *http.Request, status int, reason error) {
+					Log(w, r, status, reason)
+					// don't return errors to maintain backwards compatibility
+				}
+				u.CheckOrigin = func(r *http.Request) bool {
+					// allow all connections by default
+					return true
+				}
+				conn, err := u.Upgrade(res, req, nil)
+
+				if err != nil {
+					log.Println(err)
+					return
+				}
+
+				Log("新的连接：" + conn.RemoteAddr().String())
+				go OnConnect(conn)
+			})
+
+			m.RunOnAddr(":" + os.Args[1])
 		}
-
-		go MainThread()
-		go SignalHandle()
-
-		m := martini.Classic()
-
-		m.Get("/", func(res http.ResponseWriter, req *http.Request) {
-			// res and req are injected by Martini
-
-			u := websocket.Upgrader{ReadBufferSize: readBufferSize, WriteBufferSize: writeBufferSize}
-			u.Error = func(w http.ResponseWriter, r *http.Request, status int, reason error) {
-				Log(w, r, status, reason)
-				// don't return errors to maintain backwards compatibility
-			}
-			u.CheckOrigin = func(r *http.Request) bool {
-				// allow all connections by default
-				return true
-			}
-			conn, err := u.Upgrade(res, req, nil)
-
-			if err != nil {
-				log.Println(err)
-				return
-			}
-
-			Log("新的连接：" + conn.RemoteAddr().String())
-			go OnConnect(conn)
-		})
-
-		m.RunOnAddr(":" + os.Args[1])
 	}
 }
