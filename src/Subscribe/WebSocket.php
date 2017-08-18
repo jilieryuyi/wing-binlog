@@ -64,7 +64,7 @@ class WebSocket implements ISubscribe
 
     private function startWebsocketService($host, $port, $deamon, $workers)
     {
-        return;
+        //return;
 		//if (is_env(WINDOWS)) {
 			$command = "go run ".HOME."/services/websocket.go ".$port;
 			wing_debug($command);

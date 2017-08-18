@@ -27,7 +27,7 @@ class Tcp implements ISubscribe
 
     private function startTcpService($host, $port,$deamon, $workers)
     {
-        return;
+       // return;
     	//if (is_env(WINDOWS)) {
 			$command = "go run ".HOME."/services/tcp.go ".$port;
 			$handle  = popen($command." >>".HOME."/logs/tcp.log&","r");
