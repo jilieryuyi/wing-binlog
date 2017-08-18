@@ -9,8 +9,15 @@ import (
 	"strings"
 	"bytes"
 	"os"
+	"os/signal"
+	"syscall"
 	//"time"
 	//"runtime"
+//	"os/exec"
+	"path/filepath"
+	"io"
+	"io/ioutil"
+	"strconv"
 )
 
 const (
@@ -141,31 +148,92 @@ func Log(v ...interface{}) {
 	}
 }
 
+func SignalHandle() {
+	c := make(chan os.Signal)
+	signal.Notify(c, syscall.SIGINT)
+
+	//当调用了该方法后，下面的for循环内<-c接收到一个信号就退出了。
+	signal.Stop(c)
+
+	for {
+		s := <-c
+		Log("进程收到退出信号",s)
+		os.Exit(0)
+	}
+}
+
+func ResetStd() {
+	dir := GetParentPath(GetCurrentPath())
+	handle, _ := os.OpenFile(dir+"/logs/websocket.log", os.O_WRONLY|os.O_CREATE|os.O_SYNC|os.O_APPEND, 0755)
+	os.Stdout = handle
+	os.Stderr = handle
+}
+
+func GetCurrentPath() string {
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		log.Fatal(err)
+	}
+	return strings.Replace(dir, "\\", "/", -1)
+}
+
+func substr(s string, pos, length int) string {
+	runes := []rune(s)
+	l := pos + length
+	if l > len(runes) {
+		l = len(runes)
+	}
+	return string(runes[pos:l])
+}
+func GetParentPath(dirctory string) string {
+	return substr(dirctory, 0, strings.LastIndex(dirctory, "/"))
+}
+
 func main() {
-	go MainThread()
-	m := martini.Classic()
 
-	m.Get("/", func(res http.ResponseWriter, req *http.Request) { // res and req are injected by Martini
+	if (os.Args[1] == "stop") {
+		dat, _ := ioutil.ReadFile(GetCurrentPath() + "/websocket.pid")
+		fmt.Print(string(dat))
+		pid, _ := strconv.Atoi(string(dat))
+		syscall.Kill(pid, syscall.SIGINT)
+	} else {
 
-		u := websocket.Upgrader{ReadBufferSize: readBufferSize, WriteBufferSize: writeBufferSize}
-		u.Error = func(w http.ResponseWriter, r *http.Request, status int, reason error) {
-			Log(w, r, status, reason)
-			// don't return errors to maintain backwards compatibility
-		}
-		u.CheckOrigin = func(r *http.Request) bool {
-			// allow all connections by default
-			return true
-		}
-		conn, err := u.Upgrade(res, req, nil)
+		Log(GetParentPath(GetCurrentPath()))
+		Log(os.Getpid())
 
-		if err != nil {
-			log.Println(err)
-			return
-		}
+		//写入pid
+		handle, _ := os.OpenFile(GetCurrentPath() + "/websocket.pid", os.O_WRONLY | os.O_CREATE | os.O_SYNC, 0755)
+		io.WriteString(handle, fmt.Sprintf("%d", os.Getpid()))
 
-		Log("新的连接："+ conn.RemoteAddr().String())
-		go OnConnect(conn)
-	})
+		ResetStd()
+		go MainThread()
+		go SignalHandle()
 
-	m.RunOnAddr(":"+os.Args[1])
+		m := martini.Classic()
+
+		m.Get("/", func(res http.ResponseWriter, req *http.Request) {
+			// res and req are injected by Martini
+
+			u := websocket.Upgrader{ReadBufferSize: readBufferSize, WriteBufferSize: writeBufferSize}
+			u.Error = func(w http.ResponseWriter, r *http.Request, status int, reason error) {
+				Log(w, r, status, reason)
+				// don't return errors to maintain backwards compatibility
+			}
+			u.CheckOrigin = func(r *http.Request) bool {
+				// allow all connections by default
+				return true
+			}
+			conn, err := u.Upgrade(res, req, nil)
+
+			if err != nil {
+				log.Println(err)
+				return
+			}
+
+			Log("新的连接：" + conn.RemoteAddr().String())
+			go OnConnect(conn)
+		})
+
+		m.RunOnAddr(":" + os.Args[1])
+	}
 }

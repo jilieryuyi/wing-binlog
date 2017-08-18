@@ -29,6 +29,15 @@ class WebSocket implements ISubscribe
         $this->startWebsocketService($host, $port, $daemon, $workers);
         sleep(1);
         $this->tryConnect();
+
+        register_shutdown_function(function(){
+//            if (is_env(WINDOWS)) {
+//                return;
+//            }
+//            $pid = file_get_contents(HOME."/services/websocket.pid");
+//            posix_kill($pid, SIGINT);
+            pclose(popen(HOME."/services/websocket stop", "r"));
+        });
     }
 
 
