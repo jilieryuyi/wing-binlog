@@ -205,7 +205,19 @@ func main() {
 		handle, _ := os.OpenFile(GetCurrentPath() + "/websocket.pid", os.O_WRONLY | os.O_CREATE | os.O_SYNC, 0755)
 		io.WriteString(handle, fmt.Sprintf("%d", os.Getpid()))
 
-		ResetStd()
+		debug := false
+		if len(os.Args) == 3 {
+			if os.Args[2] == "debug" || os.Args[2] == "--debug" {
+				debug = true
+			}
+		}
+		Log(debug)
+		if !debug {
+			ResetStd()
+		} else {
+			Log("debug模式")
+		}
+
 		go MainThread()
 		go SignalHandle()
 
