@@ -22,7 +22,7 @@ wing-binlog可轻松实现不改变一句业务代码实现整库数据变化实
 5. clients下面有两个测试的客户端，一个websocket和一个php实现的tcp      
 6. 执行php wing stop 停止所有服务  
 7. 执行php wing status 查看服务状态   
-8. 可选wing-binlog提供tcp和websocket服务，需要安装go，已安装的忽略， 
+8. wing-binlog提供tcp和websocket服务，可选使用go或者workerman，workerman仅支持linux，go支持所有的平台。使用go服务需要安装go，已安装的忽略， 
 进入services目录：cd services，编译tcp服务：go build -o tcp tcp.go，编译websocket服务：go build -o websocket websocket.go
      
 ### 使用场景
