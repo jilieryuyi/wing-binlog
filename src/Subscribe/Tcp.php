@@ -29,9 +29,9 @@ class Tcp implements ISubscribe
     {
        // return;
     	$command = HOME."/services/tcp ".$port;
-        if (is_env(WINDOWS)) {
-            $command = HOME . "/services/tcp.exe " . $port;
-        }
+//        if (is_env(WINDOWS)) {
+//            $command = HOME . "/services/tcp.exe " . $port;
+//        }
 //		else if (is_env(LINUX)) {
 //			$command = HOME . "/services/tcp.linux " . $port;
 //		}

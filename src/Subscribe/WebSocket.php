@@ -67,9 +67,9 @@ class WebSocket implements ISubscribe
         //return;
 		//
         $command = HOME."/services/websocket ".$port;
-        if (is_env(WINDOWS)) {
-            $command = HOME."/services/websocket.exe ".$port;
-        }
+//        if (is_env(WINDOWS)) {
+//            $command = HOME."/services/websocket.exe ".$port;
+//        }
 
 //		else if (is_env(LINUX)) {
 //			$command = HOME."/services/websocket.linux ".$port;
