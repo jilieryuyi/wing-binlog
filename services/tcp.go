@@ -8,7 +8,7 @@ import (
 	"strings"
 	//"time"
 	//"sync"
-	//"runtime"
+	"runtime"
 	//"encoding/json"
 	"bytes"
 	//"src/github.com/gorilla/websocket"
@@ -126,10 +126,9 @@ func Broadcast(msg SEND_BODY) {
  * @param string msg
  */
 func MainThread() {
-	//for i := 0; i < 4; i ++
 	//to := time.NewTimer(time.Second*3)
-
-	{
+	cpu := runtime.NumCPU()
+	for i := 0; i < cpu; i ++ {
 		go func() {
 			for {
 				select {

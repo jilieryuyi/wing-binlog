@@ -10,6 +10,7 @@ import (
 	"bytes"
 	"os"
 	//"time"
+	//"runtime"
 )
 
 const (
@@ -110,6 +111,8 @@ func OnMessage(conn *BODY) {
 func MainThread() {
 	//for i := 0; i < 4; i ++
 	//to := time.NewTimer(time.Second*3)
+	//cpu := runtime.NumCPU()
+	//for i := 0; i < cpu; i ++
 	{
 		go func() {
 			for {
