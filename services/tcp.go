@@ -12,6 +12,12 @@ import (
 	//"encoding/json"
 	"bytes"
 	//"src/github.com/gorilla/websocket"
+	"strconv"
+	"syscall"
+	"io"
+	"io/ioutil"
+	"os/signal"
+	"path/filepath"
 )
 
 type BODY struct {
@@ -45,29 +51,104 @@ const DEBUG bool = true
 const MAX_QUEUE       = 102400
 var MSG_SEND_QUEUE chan SEND_BODY   = make(chan SEND_BODY, MAX_QUEUE)
 //var MSG_RECEIVE_QUEUE = make(chan BODY, MAX_QUEUE)
+func SignalHandle() {
+	c := make(chan os.Signal)
+	signal.Notify(c, syscall.SIGINT)
 
-func main() {
-
-	//建立socket，监听端口
-	listen, err := net.Listen("tcp", "0.0.0.0:"+os.Args[1])
-	DealError(err)
-	defer func () {
-		listen.Close();
-		close(MSG_SEND_QUEUE)
-		//close(MSG_RECEIVE_QUEUE)
-	}()
-	Log("等待新的连接...")
-
-	// runtime.GOMAXPROCS(32)
-	// 限制同时运行的goroutines数量
-	go MainThread()
+	//当调用了该方法后，下面的for循环内<-c接收到一个信号就退出了。
+	signal.Stop(c)
 
 	for {
-		conn, err := listen.Accept()
-		if err != nil {
-			continue
+		s := <-c
+		Log("进程收到退出信号",s)
+		os.Exit(0)
+	}
+}
+
+func ResetStd() {
+	dir := GetParentPath(GetCurrentPath())
+	handle, _ := os.OpenFile(dir+"/logs/tcp.log", os.O_WRONLY|os.O_CREATE|os.O_SYNC|os.O_APPEND, 0755)
+	os.Stdout = handle
+	os.Stderr = handle
+}
+
+func GetCurrentPath() string {
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		log.Fatal(err)
+	}
+	return strings.Replace(dir, "\\", "/", -1)
+}
+
+func substr(s string, pos, length int) string {
+	runes := []rune(s)
+	l := pos + length
+	if l > len(runes) {
+		l = len(runes)
+	}
+	return string(runes[pos:l])
+}
+func GetParentPath(dirctory string) string {
+	return substr(dirctory, 0, strings.LastIndex(dirctory, "/"))
+}
+
+func main() {
+	if len(os.Args) < 2 {
+		fmt.Println("请使用如下模式启动")
+		fmt.Println("1、指定端口为9998：tcp 9997")
+		fmt.Println("2、指定端口为9998并且启用debug模式：tcp 9997 --debug")
+	} else {
+		if (os.Args[1] == "stop") {
+			dat, _ := ioutil.ReadFile(GetCurrentPath() + "/tcp.pid")
+			fmt.Print(string(dat))
+			pid, _ := strconv.Atoi(string(dat))
+			syscall.Kill(pid, syscall.SIGINT)
+		} else {
+
+			Log(GetParentPath(GetCurrentPath()))
+			Log(os.Getpid())
+
+			//写入pid
+			handle, _ := os.OpenFile(GetCurrentPath() + "/tcp.pid", os.O_WRONLY | os.O_CREATE | os.O_SYNC, 0755)
+			io.WriteString(handle, fmt.Sprintf("%d", os.Getpid()))
+
+			debug := false
+			if len(os.Args) == 3 {
+				if os.Args[2] == "debug" || os.Args[2] == "--debug" {
+					debug = true
+				}
+			}
+			Log(debug)
+			if !debug {
+				ResetStd()
+			} else {
+				Log("debug模式")
+			}
+
+			go MainThread()
+			go SignalHandle()
+			//建立socket，监听端口
+			listen, err := net.Listen("tcp", "0.0.0.0:" + os.Args[1])
+			DealError(err)
+			defer func() {
+				listen.Close();
+				close(MSG_SEND_QUEUE)
+				//close(MSG_RECEIVE_QUEUE)
+			}()
+			Log("等待新的连接...")
+
+			// runtime.GOMAXPROCS(32)
+			// 限制同时运行的goroutines数量
+			go MainThread()
+
+			for {
+				conn, err := listen.Accept()
+				if err != nil {
+					continue
+				}
+				go OnConnect(conn)
+			}
 		}
-		go OnConnect(conn)
 	}
 }
 

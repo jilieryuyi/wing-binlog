@@ -23,6 +23,10 @@ class Tcp implements ISubscribe
         $daemon  = $config["daemon"];
         $workers = $config["workers"];
         $this->startTcpService($this->host, $this->port, $daemon, $workers);
+        register_shutdown_function(function(){
+            pclose(popen(HOME."/services/tcp stop", "r"));
+        });
+
     }
 
     private function startTcpService($host, $port,$deamon, $workers)
