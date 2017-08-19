@@ -31,6 +31,7 @@ class WebSocket implements ISubscribe
         $this->tryConnect();
 
         register_shutdown_function(function(){
+            wing_debug("退出websocket服务");
             pclose(popen(HOME."/services/websocket stop", "r"));
         });
     }

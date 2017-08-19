@@ -102,6 +102,7 @@ func main() {
 			dat, _ := ioutil.ReadFile(GetCurrentPath() + "/tcp.pid")
 			fmt.Print(string(dat))
 			pid, _ := strconv.Atoi(string(dat))
+			Log("给进程发送终止信号：", pid)
 			syscall.Kill(pid, syscall.SIGINT)
 		} else {
 
