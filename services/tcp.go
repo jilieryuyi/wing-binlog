@@ -10,7 +10,6 @@ import (
 	"bytes"
 	"strconv"
 	"syscall"
-	"io"
 	"io/ioutil"
 	"os/signal"
 	"path/filepath"
@@ -100,7 +99,8 @@ func main() {
 		fmt.Print(string(dat))
 		pid, _ := strconv.Atoi(string(dat))
 		Log("给进程发送终止信号：", pid)
-		syscall.Kill(pid, syscall.SIGINT)
+		err := syscall.Kill(pid, syscall.SIGINT)
+		Log(err)
 		return
 	}
 
@@ -108,8 +108,12 @@ func main() {
 	Log(os.Getpid())
 
 	//写入pid
-	handle, _ := os.OpenFile(GetCurrentPath() + "/tcp.pid", os.O_WRONLY | os.O_CREATE | os.O_SYNC, 0755)
-	io.WriteString(handle, fmt.Sprintf("%d", os.Getpid()))
+	//handle, _ := os.OpenFile(GetCurrentPath() + "/tcp.pid", os.O_WRONLY | os.O_CREATE | os.O_SYNC, 0755)
+	//io.WriteString(handle, fmt.Sprintf("%d", os.Getpid()))
+
+	var data_str = []byte(fmt.Sprintf("%d", os.Getpid()));
+	ioutil.WriteFile(GetCurrentPath() + "/tcp.pid", data_str, 0777)  //写入文件(字节数组)
+
 
 	debug := false
 	if len(os.Args) == 3 {
