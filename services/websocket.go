@@ -38,11 +38,9 @@ type SEND_BODY struct {
 //所有的连接进来的客户端
 var clients map[int]*websocket.Conn = make(map[int]*websocket.Conn)
 //所有的连接进来的客户端数量
-var clients_count int = 0
+var clients_count int    = 0
 const MAX_SEND_QUEUE int = 102400
-//var broadcast chan BODY =  make(chan BODY)   // 广播聊天的chan
 var send_msg_chan  chan SEND_BODY =  make(chan SEND_BODY, MAX_SEND_QUEUE)
-//var msg_buffer map[string]string = make(map[string]string)
 var msg_split string     = "\r\n\r\n\r\n";
 const DEBUG bool         = true
 var send_times int       = 0
@@ -116,29 +114,23 @@ func OnMessage(conn *BODY) {
 }
 
 func MainThread() {
-	//for i := 0; i < 4; i ++
-	//to := time.NewTimer(time.Second*3)
-	//cpu := runtime.NumCPU()
-	//for i := 0; i < cpu; i ++
-	{
-		go func() {
-			for {
-				select {
-				case body := <-send_msg_chan:
-					//body.conn.SetWriteDeadline(time.Now().Add(time.Second * 3))
-					Log("发送：", body.msg)
-					err := body.conn.WriteMessage(1, []byte(body.msg))
-					if err != nil {
-						send_error_times++
-						Log("发送失败次数：", send_error_times)
-						Log(err)
-					}
-				//case <-to.C://time.After(time.Second*3):
-				//	Log("发送超时...")
+	go func() {
+		for {
+			select {
+			case body := <-send_msg_chan:
+				//body.conn.SetWriteDeadline(time.Now().Add(time.Second * 3))
+				Log("发送：", body.msg)
+				err := body.conn.WriteMessage(1, []byte(body.msg))
+				if err != nil {
+					send_error_times++
+					Log("发送失败次数：", send_error_times)
+					Log(err)
 				}
+			//case <-to.C://time.After(time.Second*3):
+			//	Log("发送超时...")
 			}
-		}()
-	}
+		}
+	}()
 }
 
 
@@ -194,65 +186,66 @@ func main() {
 		fmt.Println("请使用如下模式启动")
 		fmt.Println("1、指定端口为9998：websocket 9998")
 		fmt.Println("2、指定端口为9998并且启用debug模式：websocket 9998 --debug")
-	} else {
-		if (os.Args[1] == "stop") {
-			dat, _ := ioutil.ReadFile(GetCurrentPath() + "/websocket.pid")
-			fmt.Print(string(dat))
-			pid, _ := strconv.Atoi(string(dat))
-			Log("给进程发送终止信号：", pid)
+		return
+	}
 
-			syscall.Kill(pid, syscall.SIGINT)
-		} else {
+	if (os.Args[1] == "stop") {
+		dat, _ := ioutil.ReadFile(GetCurrentPath() + "/websocket.pid")
+		fmt.Print(string(dat))
+		pid, _ := strconv.Atoi(string(dat))
+		Log("给进程发送终止信号：", pid)
 
-			Log(GetParentPath(GetCurrentPath()))
-			Log(os.Getpid())
+		syscall.Kill(pid, syscall.SIGINT)
+		return
+	}
 
-			//写入pid
-			handle, _ := os.OpenFile(GetCurrentPath() + "/websocket.pid", os.O_WRONLY | os.O_CREATE | os.O_SYNC, 0755)
-			io.WriteString(handle, fmt.Sprintf("%d", os.Getpid()))
+	Log(GetParentPath(GetCurrentPath()))
+	Log(os.Getpid())
 
-			debug := false
-			if len(os.Args) == 3 {
-				if os.Args[2] == "debug" || os.Args[2] == "--debug" {
-					debug = true
-				}
-			}
-			Log(debug)
-			if !debug {
-				ResetStd()
-			} else {
-				Log("debug模式")
-			}
+	//写入pid
+	handle, _ := os.OpenFile(GetCurrentPath() + "/websocket.pid", os.O_WRONLY | os.O_CREATE | os.O_SYNC, 0755)
+	io.WriteString(handle, fmt.Sprintf("%d", os.Getpid()))
 
-			go MainThread()
-			go SignalHandle()
-
-			m := martini.Classic()
-
-			m.Get("/", func(res http.ResponseWriter, req *http.Request) {
-				// res and req are injected by Martini
-
-				u := websocket.Upgrader{ReadBufferSize: readBufferSize, WriteBufferSize: writeBufferSize}
-				u.Error = func(w http.ResponseWriter, r *http.Request, status int, reason error) {
-					Log(w, r, status, reason)
-					// don't return errors to maintain backwards compatibility
-				}
-				u.CheckOrigin = func(r *http.Request) bool {
-					// allow all connections by default
-					return true
-				}
-				conn, err := u.Upgrade(res, req, nil)
-
-				if err != nil {
-					log.Println(err)
-					return
-				}
-
-				Log("新的连接：" + conn.RemoteAddr().String())
-				go OnConnect(conn)
-			})
-
-			m.RunOnAddr(":" + os.Args[1])
+	debug := false
+	if len(os.Args) == 3 {
+		if os.Args[2] == "debug" || os.Args[2] == "--debug" {
+			debug = true
 		}
 	}
+	Log(debug)
+	if !debug {
+		ResetStd()
+	} else {
+		Log("debug模式")
+	}
+
+	go MainThread()
+	go SignalHandle()
+
+	m := martini.Classic()
+
+	m.Get("/", func(res http.ResponseWriter, req *http.Request) {
+		// res and req are injected by Martini
+
+		u := websocket.Upgrader{ReadBufferSize: readBufferSize, WriteBufferSize: writeBufferSize}
+		u.Error = func(w http.ResponseWriter, r *http.Request, status int, reason error) {
+			Log(w, r, status, reason)
+			// don't return errors to maintain backwards compatibility
+		}
+		u.CheckOrigin = func(r *http.Request) bool {
+			// allow all connections by default
+			return true
+		}
+		conn, err := u.Upgrade(res, req, nil)
+
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		Log("新的连接：" + conn.RemoteAddr().String())
+		go OnConnect(conn)
+	})
+
+	m.RunOnAddr(":" + os.Args[1])
 }

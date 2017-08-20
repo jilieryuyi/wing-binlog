@@ -6,12 +6,8 @@ import (
 	"log"
 	"os"
 	"strings"
-	//"time"
-	//"sync"
 	"runtime"
-	//"encoding/json"
 	"bytes"
-	//"src/github.com/gorilla/websocket"
 	"strconv"
 	"syscall"
 	"io"
@@ -22,7 +18,6 @@ import (
 
 type BODY struct {
 	conn net.Conn
-	//msg string
 	msg bytes.Buffer
 }
 
@@ -97,59 +92,60 @@ func main() {
 		fmt.Println("请使用如下模式启动")
 		fmt.Println("1、指定端口为9998：tcp 9997")
 		fmt.Println("2、指定端口为9998并且启用debug模式：tcp 9997 --debug")
-	} else {
-		if (os.Args[1] == "stop") {
-			dat, _ := ioutil.ReadFile(GetCurrentPath() + "/tcp.pid")
-			fmt.Print(string(dat))
-			pid, _ := strconv.Atoi(string(dat))
-			Log("给进程发送终止信号：", pid)
-			syscall.Kill(pid, syscall.SIGINT)
-		} else {
+		return
+	}
 
-			Log(GetParentPath(GetCurrentPath()))
-			Log(os.Getpid())
+	if (os.Args[1] == "stop") {
+		dat, _ := ioutil.ReadFile(GetCurrentPath() + "/tcp.pid")
+		fmt.Print(string(dat))
+		pid, _ := strconv.Atoi(string(dat))
+		Log("给进程发送终止信号：", pid)
+		syscall.Kill(pid, syscall.SIGINT)
+		return
+	}
 
-			//写入pid
-			handle, _ := os.OpenFile(GetCurrentPath() + "/tcp.pid", os.O_WRONLY | os.O_CREATE | os.O_SYNC, 0755)
-			io.WriteString(handle, fmt.Sprintf("%d", os.Getpid()))
+	Log(GetParentPath(GetCurrentPath()))
+	Log(os.Getpid())
 
-			debug := false
-			if len(os.Args) == 3 {
-				if os.Args[2] == "debug" || os.Args[2] == "--debug" {
-					debug = true
-				}
-			}
-			Log(debug)
-			if !debug {
-				ResetStd()
-			} else {
-				Log("debug模式")
-			}
+	//写入pid
+	handle, _ := os.OpenFile(GetCurrentPath() + "/tcp.pid", os.O_WRONLY | os.O_CREATE | os.O_SYNC, 0755)
+	io.WriteString(handle, fmt.Sprintf("%d", os.Getpid()))
 
-			go MainThread()
-			go SignalHandle()
-			//建立socket，监听端口
-			listen, err := net.Listen("tcp", "0.0.0.0:" + os.Args[1])
-			DealError(err)
-			defer func() {
-				listen.Close();
-				close(MSG_SEND_QUEUE)
-				//close(MSG_RECEIVE_QUEUE)
-			}()
-			Log("等待新的连接...")
-
-			// runtime.GOMAXPROCS(32)
-			// 限制同时运行的goroutines数量
-			go MainThread()
-
-			for {
-				conn, err := listen.Accept()
-				if err != nil {
-					continue
-				}
-				go OnConnect(conn)
-			}
+	debug := false
+	if len(os.Args) == 3 {
+		if os.Args[2] == "debug" || os.Args[2] == "--debug" {
+			debug = true
 		}
+	}
+	Log(debug)
+	if !debug {
+		ResetStd()
+	} else {
+		Log("debug模式")
+	}
+
+	go MainThread()
+	go SignalHandle()
+	//建立socket，监听端口
+	listen, err := net.Listen("tcp", "0.0.0.0:" + os.Args[1])
+	DealError(err)
+	defer func() {
+		listen.Close();
+		close(MSG_SEND_QUEUE)
+		//close(MSG_RECEIVE_QUEUE)
+	}()
+	Log("等待新的连接...")
+
+	// runtime.GOMAXPROCS(32)
+	// 限制同时运行的goroutines数量
+	go MainThread()
+
+	for {
+		conn, err := listen.Accept()
+		if err != nil {
+			continue
+		}
+		go OnConnect(conn)
 	}
 }
 
@@ -169,37 +165,12 @@ func RemoveClient(conn net.Conn){
 	}
 }
 
-//var wg sync.WaitGroup  //定义一个同步等待的组
-//maxProcs := runtime.NumCPU()   //获取cpu个数
-//runtime.GOMAXPROCS(maxProcs)  //限制同时运行的goroutines数量
-
-//var data_all map[int]interface{} = make(map[int]interface{})
-//var all_index int = 0
 func Broadcast(msg SEND_BODY) {
-	//msg := msg.msg
-
-	//var data map[string]interface{}
-	//json.Unmarshal([]byte(msg), &data)
-	//Log(msg, data)
-	//data_all[all_index] = data["event_index"]
-	//all_index++
-	//Log("索引：", data["event_index"])
-	//msg += "\r\n\r\n\r\n"
-	//send_times++;
-	//Log("广播次数：", send_times)
-		//非常关键的一步 如果这里也给接发来的人广播 接收端不消费
-		//发送会被阻塞
-		//fmt.Println("广播----", v, msg)
-		//v.SetWriteDeadline()
-		//go func () {
-			//wg.Add(1)//为同步等待组增加一个成员
-			//v.SetWriteDeadline(time.Now().Add(time.Millisecond * 100))
-			size, err := msg.conn.Write([]byte(msg.msg+"\r\n\r\n\r\n"))
-			if (size <= 0 || err != nil) {
-				failure_times++
-			}
-		//}()
-			Log("失败次数：", failure_times)
+	size, err := msg.conn.Write([]byte(msg.msg+"\r\n\r\n\r\n"))
+	if (size <= 0 || err != nil) {
+		failure_times++
+	}
+	Log("失败次数：", failure_times)
 }
 
 /**
@@ -215,26 +186,12 @@ func MainThread() {
 			for {
 				select {
 					case body := <-MSG_SEND_QUEUE:
-						//go func() {
-							//wg.Add(1)//为同步等待组增加一个成员
 							Broadcast(body)
-						//} ()
-					//case res := <-MSG_RECEIVE_QUEUE:
-					//	OnMessage(res.conn, res.msg)
 				//case <-to.C://time.After(time.Second*3):
 				//	Log("发送超时...")
 				}
 			}
 		} ()
-
-		//go func() {
-		//	for {
-		//		select {
-		//			case res := <-MSG_RECEIVE_QUEUE:
-		//				OnMessage(res.conn, res.msg)
-		//		}
-		//	}
-		//} ()
 	}
 }
 
