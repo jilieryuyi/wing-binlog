@@ -32,7 +32,7 @@ class WebSocket implements ISubscribe
 
         register_shutdown_function(function(){
             wing_debug("退出websocket服务");
-            pclose(popen(HOME."/services/websocket stop", "r"));
+            exec(HOME."/services/websocket stop");
         });
     }
 

@@ -47,7 +47,7 @@ var MSG_SEND_QUEUE chan SEND_BODY   = make(chan SEND_BODY, MAX_QUEUE)
 //var MSG_RECEIVE_QUEUE = make(chan BODY, MAX_QUEUE)
 func SignalHandle() {
 	c := make(chan os.Signal)
-	signal.Notify(c, syscall.SIGINT)
+	signal.Notify(c, syscall.SIGTERM)
 
 	//当调用了该方法后，下面的for循环内<-c接收到一个信号就退出了。
 	signal.Stop(c)
@@ -99,7 +99,7 @@ func main() {
 		fmt.Print(string(dat))
 		pid, _ := strconv.Atoi(string(dat))
 		Log("给进程发送终止信号：", pid)
-		err := syscall.Kill(pid, syscall.SIGINT)
+		err := syscall.Kill(pid, syscall.SIGTERM)
 		Log(err)
 		return
 	}

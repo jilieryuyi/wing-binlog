@@ -25,7 +25,7 @@ class Tcp implements ISubscribe
         $this->startTcpService($this->host, $this->port, $daemon, $workers);
         register_shutdown_function(function(){
             wing_debug("退出tcp服务");
-            pclose(popen(HOME."/services/tcp stop", "r"));
+            exec(HOME."/services/tcp stop");
         });
 
     }
