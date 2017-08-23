@@ -40,7 +40,7 @@ var msg_times int     = 0
 //发送失败次数
 var failure_times int = 0
 
-const DEBUG bool = true
+var DEBUG bool = true
 //最大的频道长度 可用于并发控制
 const MAX_QUEUE       = 102400
 var MSG_SEND_QUEUE chan SEND_BODY   = make(chan SEND_BODY, MAX_QUEUE)
@@ -115,14 +115,13 @@ func main() {
 	ioutil.WriteFile(GetCurrentPath() + "/tcp.pid", data_str, 0777)  //写入文件(字节数组)
 
 
-	debug := false
 	if len(os.Args) == 3 {
 		if os.Args[2] == "debug" || os.Args[2] == "--debug" {
-			debug = true
+			DEBUG = true
 		}
 	}
-	Log(debug)
-	if !debug {
+	Log(DEBUG)
+	if !DEBUG {
 		ResetStd()
 	} else {
 		Log("debug模式")

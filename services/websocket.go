@@ -42,7 +42,7 @@ var clients_count int    = 0
 const MAX_SEND_QUEUE int = 102400
 var send_msg_chan  chan SEND_BODY =  make(chan SEND_BODY, MAX_SEND_QUEUE)
 var msg_split string     = "\r\n\r\n\r\n";
-const DEBUG bool         = true
+var DEBUG bool         = true
 var send_times int       = 0
 var send_error_times int = 0
 
@@ -211,14 +211,13 @@ func main() {
 	var data_str = []byte(fmt.Sprintf("%d", os.Getpid()));
 	ioutil.WriteFile(GetCurrentPath() + "/websocket.pid", data_str, 0777)  //写入文件(字节数组)
 
-	debug := false
 	if len(os.Args) == 3 {
 		if os.Args[2] == "debug" || os.Args[2] == "--debug" {
-			debug = true
+			DEBUG = true
 		}
 	}
-	Log(debug)
-	if !debug {
+	Log(DEBUG)
+	if !DEBUG {
 		ResetStd()
 	} else {
 		Log("debug模式")
