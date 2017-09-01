@@ -162,7 +162,7 @@ func AddClient(conn net.Conn) {
 func RemoveClient(conn net.Conn){
 	// 遍历map
 	for k, v := range clients {
-		if v == conn {
+		if v.RemoteAddr().String() == conn.RemoteAddr().String() {
 			delete(clients, k)
 		}
 	}
