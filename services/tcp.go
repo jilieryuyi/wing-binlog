@@ -141,7 +141,7 @@ func main() {
 
 	// runtime.GOMAXPROCS(32)
 	// 限制同时运行的goroutines数量
-	go MainThread()
+	//go MainThread()
 
 	for {
 		conn, err := listen.Accept()
