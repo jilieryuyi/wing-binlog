@@ -6,43 +6,6 @@
  * Time: 22:54
  */
 define("DEBUG", true);
-class ConstFieldType {
-
-    const DECIMAL = 0;
-    const TINY = 1;
-    const SHORT = 2;
-    const LONG = 3;
-    const FLOAT = 4;
-    const DOUBLE = 5;
-    const NULL = 6;
-    const TIMESTAMP = 7;
-    const LONGLONG = 8;
-    const INT24 = 9;
-    const DATE = 10;
-    const TIME = 11;
-    const DATETIME = 12;
-    const YEAR = 13;
-    const NEWDATE = 14;
-    const VARCHAR = 15;
-    const BIT = 16;
-    const TIMESTAMP2 = 17;
-    const DATETIME2 = 18;
-    const TIME2 = 19;
-    const NEWDECIMAL = 246;
-    const ENUM = 247;
-    const SET = 248;
-    const TINY_BLOB = 249;
-    const MEDIUM_BLOB = 250;
-    const LONG_BLOB = 251;
-    const BLOB = 252;
-    const VAR_STRING = 253;
-    const STRING = 254;
-    const GEOMETRY = 255;
-
-    const CHAR = self::TINY;
-    const INTERVAL = self::ENUM;
-
-}
 class BinLogColumns {
 
     private static $field;
@@ -118,6 +81,43 @@ class BinLogColumns {
             self::$field['set_values'] = explode(',', $enums);
         }
     }
+
+}
+class ConstFieldType {
+
+    const DECIMAL = 0;
+    const TINY = 1;
+    const SHORT = 2;
+    const LONG = 3;
+    const FLOAT = 4;
+    const DOUBLE = 5;
+    const NULL = 6;
+    const TIMESTAMP = 7;
+    const LONGLONG = 8;
+    const INT24 = 9;
+    const DATE = 10;
+    const TIME = 11;
+    const DATETIME = 12;
+    const YEAR = 13;
+    const NEWDATE = 14;
+    const VARCHAR = 15;
+    const BIT = 16;
+    const TIMESTAMP2 = 17;
+    const DATETIME2 = 18;
+    const TIME2 = 19;
+    const NEWDECIMAL = 246;
+    const ENUM = 247;
+    const SET = 248;
+    const TINY_BLOB = 249;
+    const MEDIUM_BLOB = 250;
+    const LONG_BLOB = 251;
+    const BLOB = 252;
+    const VAR_STRING = 253;
+    const STRING = 254;
+    const GEOMETRY = 255;
+
+    const CHAR = self::TINY;
+    const INTERVAL = self::ENUM;
 
 }
 class ConstEventType {
@@ -1778,8 +1778,6 @@ class Client
         //消息体长度3bytes 小端序
         $unpack_data = unpack("L",$header[0].$header[1].$header[2].chr(0))[1];
         $result = $this->_readBytes($unpack_data);
-        var_dump($result);
-        echo "\r\n";
         return $result;
     }
     public function excute($sql) {
@@ -1811,7 +1809,6 @@ class Client
 
         $result = $this->_readPacket();
         PackAuth::success($result);
-        var_dump($result);
     }
 
     public function getBinlogStream() {
@@ -1855,7 +1852,6 @@ class Client
         //认证
         $result = self::_readPacket();
         PackAuth::success($result);
-        var_dump($result);
     }
 
     public function analysisBinLog($flag = false) {
