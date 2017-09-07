@@ -6,6 +6,9 @@
  * Time: 21:32
  */
 $i = 0;
+register_shutdown_function(function(){
+   echo "processexit";
+});
 while(true)
 {
     $val_in=fread(STDIN,4096);
@@ -14,4 +17,5 @@ while(true)
     echo $i;
     $i++;
     //usleep(10000);
+    exit;
 }

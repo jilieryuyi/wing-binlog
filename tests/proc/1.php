@@ -26,6 +26,10 @@ function try_read($r){
     foreach ($read as $sock) {
         $raw = stream_get_contents($sock);
         echo $raw,"\r\n";
+        if (strpos($raw,"processexit") !== false) {
+            echo "\r\nchild process exit2";
+            exit;
+        }
     }
 
 }
