@@ -231,9 +231,10 @@ class Slave
         \Wing\Bin\PackAuth::success($result);
     }
 
-    public function analysisBinLog($flag = false) {
+    public function analysisBinLog() {
 
         $pack   = $this->_readPacket();
+        wing_log("wing_debug", $pack);
 
         // 校验数据包格式
         \Wing\Bin\PackAuth::success($pack);
@@ -244,7 +245,7 @@ class Slave
         $result = $binlog->init($pack, $this->checksum);
 
         // debug
-        echo round(memory_get_usage()/1024/1024, 2).'MB',"\r\n";
+       // echo round(memory_get_usage()/1024/1024, 2).'MB',"\r\n";
 
         //持久化当前读到的file pos
 
