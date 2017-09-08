@@ -490,6 +490,7 @@ class RowEvent extends BinLogEvent
         $null_bitmap = self::$PACK->read($l);
 
         $nullBitmapIndex = 0;
+        var_dump(self::$TABLE_MAP);
         foreach (self::$TABLE_MAP[self::$SCHEMA_NAME][self::$TABLE_NAME]['fields'] as $i => $value) {
             $column = $value;
             $name = $value['name'];
@@ -743,7 +744,8 @@ class RowEvent extends BinLogEvent
 
             $value['beform'] = self::_read_column_data($result['bitmap1'], $len);
             $value['after'] = self::_read_column_data($result['bitmap2'], $len);
-            $rows[] = $value['after'];
+            $rows[] = ["old"=>$value['beform'],"new"=>$value['after']];
+
         }
         return $rows;
     }
