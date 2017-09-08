@@ -37,9 +37,10 @@ function try_read($r){
 if (is_resource($process))
 {
     stream_set_blocking($pipes[1], 0);
+	stream_set_blocking($pipes[0], 0);
     $i = 0;
     while(1) {
-        fwrite($pipes[0], "hello_".$i);
+        fwrite($pipes[0], "hello_".$i."\r\n");
         $i++;
 //        while($res = stream_get_contents($pipes[1]))
 //        echo $res,"\r\n";
