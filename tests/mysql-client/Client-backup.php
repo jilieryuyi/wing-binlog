@@ -6,9 +6,179 @@
  * Time: 22:54
  */
 define("DEBUG", true);
+class BinLogColumns {
+
+    private static $field;
+
+    public static function parse($column_type, $column_schema, $packet) {
+
+        self::$field = [];
+
+        self::$field['type'] = $column_type;
+        self::$field['name'] = $column_schema["COLUMN_NAME"];
+        self::$field['collation_name'] = $column_schema["COLLATION_NAME"];
+        self::$field['character_set_name'] = $column_schema["CHARACTER_SET_NAME"];
+        self::$field['comment'] = $column_schema["COLUMN_COMMENT"];
+        self::$field['unsigned'] = stripos($column_schema["COLUMN_TYPE"], 'unsigned') === false ? false : true;
+        self::$field['type_is_bool'] = false;
+        self::$field['is_primary'] = $column_schema["COLUMN_KEY"] == "PRI";
+
+        if (self::$field['type'] == ConstFieldType::VARCHAR) {
+            self::$field['max_length'] = unpack('s', $packet->read(2))[1];
+        }elseif (self::$field['type'] == ConstFieldType::DOUBLE){
+            self::$field['size'] = $packet->readUint8();
+        }elseif (self::$field['type'] == ConstFieldType::FLOAT){
+            self::$field['size'] = $packet->readUint8();
+        }elseif (self::$field['type'] == ConstFieldType::TIMESTAMP2){
+            self::$field['fsp'] = $packet->readUint8();
+        }elseif (self::$field['type'] == ConstFieldType::DATETIME2){
+            self::$field['fsp']= $packet->readUint8();
+        }elseif (self::$field['type'] == ConstFieldType::TIME2) {
+            self::$field['fsp'] = $packet->readUint8();
+        }elseif (self::$field['type'] == ConstFieldType::TINY && $column_schema["COLUMN_TYPE"] == "tinyint(1)") {
+            self::$field['type_is_bool'] = True;
+        }elseif (self::$field['type'] == ConstFieldType::VAR_STRING || self::$field['type'] == ConstFieldType::STRING){
+            self::_read_string_metadata($packet, $column_schema);
+        }elseif( self::$field['type'] == ConstFieldType::BLOB){
+            self::$field['length_size'] = $packet->readUint8();
+        }elseif (self::$field['type'] == ConstFieldType::GEOMETRY){
+            self::$field['length_size'] = $packet->readUint8();
+        }elseif( self::$field['type'] == ConstFieldType::NEWDECIMAL){
+            self::$field['precision'] = $packet->readUint8();
+            self::$field['decimals'] = $packet->readUint8();
+        }elseif (self::$field['type'] == ConstFieldType::BIT) {
+            $bits = $packet->readUint8();
+            $bytes = $packet->readUint8();
+            self::$field['bits'] = ($bytes * 8) + $bits;
+            self::$field['bytes'] = int((self::$field['bits'] + 7) / 8);
+        }
+        return self::$field;
+    }
+
+    private static function _read_string_metadata($packet, $column_schema){
+
+        $metadata = ($packet->readUint8() << 8) + $packet->readUint8();
+        $real_type = $metadata >> 8;
+        if($real_type == ConstFieldType::SET || $real_type == ConstFieldType::ENUM) {
+            self::$field['type'] = $real_type;
+            self::$field['size'] = $metadata & 0x00ff;
+            self::_read_enum_metadata($column_schema);
+        } else {
+            self::$field['max_length'] = ((($metadata >> 4) & 0x300) ^ 0x300) + ($metadata & 0x00ff);
+        }
+    }
+    private static function _read_enum_metadata($column_schema) {
+        $enums = $column_schema["COLUMN_TYPE"];
+        if (self::$field['type'] == ConstFieldType::ENUM) {
+            $enums = str_replace('enum(', '', $enums);
+            $enums = str_replace(')', '', $enums);
+            $enums = str_replace('\'', '', $enums);
+            self::$field['enum_values'] = explode(',', $enums);
+        } else {
+            $enums = str_replace('set(', '', $enums);
+            $enums = str_replace(')', '', $enums);
+            $enums = str_replace('\'', '', $enums);
+            self::$field['set_values'] = explode(',', $enums);
+        }
+    }
+
+}
+class ConstFieldType {
+
+    const DECIMAL = 0;
+    const TINY = 1;
+    const SHORT = 2;
+    const LONG = 3;
+    const FLOAT = 4;
+    const DOUBLE = 5;
+    const NULL = 6;
+    const TIMESTAMP = 7;
+    const LONGLONG = 8;
+    const INT24 = 9;
+    const DATE = 10;
+    const TIME = 11;
+    const DATETIME = 12;
+    const YEAR = 13;
+    const NEWDATE = 14;
+    const VARCHAR = 15;
+    const BIT = 16;
+    const TIMESTAMP2 = 17;
+    const DATETIME2 = 18;
+    const TIME2 = 19;
+    const NEWDECIMAL = 246;
+    const ENUM = 247;
+    const SET = 248;
+    const TINY_BLOB = 249;
+    const MEDIUM_BLOB = 250;
+    const LONG_BLOB = 251;
+    const BLOB = 252;
+    const VAR_STRING = 253;
+    const STRING = 254;
+    const GEOMETRY = 255;
+
+    const CHAR = self::TINY;
+    const INTERVAL = self::ENUM;
+
+}
+class ConstEventType {
+
+    const UNKNOWN_EVENT    = 0,
+        START_EVENT_V3         = 1,
+        QUERY_EVENT= 2,
+        STOP_EVENT= 3,
+        ROTATE_EVENT= 4,
+        INTVAR_EVENT= 5,
+        LOAD_EVENT= 6,
+        SLAVE_EVENT= 7,
+        CREATE_FILE_EVENT= 8,
+        APPEND_BLOCK_EVENT= 9,
+        EXEC_LOAD_EVENT= 10,
+        DELETE_FILE_EVENT= 11,
+        NEW_LOAD_EVENT= 12,
+        RAND_EVENT= 13,
+        USER_VAR_EVENT= 14,
+        FORMAT_DESCRIPTION_EVENT= 15;
+
+    //Transaction ID for 2PC, written whenever a COMMIT is expected.
+    const XID_EVENT= 16,
+        BEGIN_LOAD_QUERY_EVENT= 17,
+        EXECUTE_LOAD_QUERY_EVENT= 18;
+
+    const GTID_LOG_EVENT= 33;
+    const ANONYMOUS_GTID_LOG_EVENT= 34;
+    const PREVIOUS_GTIDS_LOG_EVENT= 35;
+
+    const INCIDENT_EVENT       = 26;
+    const HEARTBEAT_LOG_EVENT  = 27;
+    const IGNORABLE_LOG_EVENT  = 28;
+    const ROWS_QUERY_LOG_EVENT = 29;
+
+    // Row-Based Binary Logging
+    // TABLE_MAP_EVENT,WRITE_ROWS_EVENT
+    // UPDATE_ROWS_EVENT,DELETE_ROWS_EVENT
+    const TABLE_MAP_EVENT          = 19;
+
+    // MySQL 5.1.5 to 5.1.17,
+    const PRE_GA_WRITE_ROWS_EVENT  = 20;
+    const PRE_GA_UPDATE_ROWS_EVENT = 21;
+    const PRE_GA_DELETE_ROWS_EVENT = 22;
+
+    // MySQL 5.1.15 to 5.6.x
+    const WRITE_ROWS_EVENT_V1  = 23;
+    const UPDATE_ROWS_EVENT_V1 = 24;
+    const DELETE_ROWS_EVENT_V1 = 25;
+
+    // MySQL 5.6.x
+    const WRITE_ROWS_EVENT_V2  = 30;
+    const UPDATE_ROWS_EVENT_V2 = 31;
+    const DELETE_ROWS_EVENT_V2 = 32;
 
 
+    public static $EVENT = [
 
+    ];
+
+}
 class Log {
 
 
@@ -597,8 +767,336 @@ class RowEvent extends BinLogEvent
         return $rows;
     }
 }
+class BinLogPack {
 
 
+    public static $EVENT_INFO;
+    public static $EVENT_TYPE;
+
+    private static $_PACK_KEY = 0;
+    private static $_PACK;
+
+    private static $_instance = null;
+
+    // 持久化记录 file pos  不能在next event 为dml操作记录
+    // 获取不到table map
+    private static $_FILE_NAME;
+    private static $_POS;
+
+
+    public static function getInstance() {
+        if(!self::$_instance) {
+            self::$_instance = new self();
+        }
+        return self::$_instance;
+    }
+
+
+    public function init($pack, $checkSum = true) {
+
+        echo "init\r\n";
+        if(!self::$_instance) {
+            self::$_instance = new self();
+        }
+
+        //
+        self::$_PACK       = $pack;
+        self::$_PACK_KEY   = 0;
+        self::$EVENT_INFO  = [];
+        $this->advance(1);
+        self::$EVENT_INFO['time'] = $timestamp  = unpack('L', $this->read(4))[1];
+        self::$EVENT_INFO['type'] = self::$EVENT_TYPE = unpack('C', $this->read(1))[1];
+        self::$EVENT_INFO['id']   = $server_id  = unpack('L', $this->read(4))[1];
+        self::$EVENT_INFO['size'] = $event_size = unpack('L', $this->read(4))[1];
+
+        //position of the next event
+        self::$EVENT_INFO['pos']  = $log_pos    = unpack('L', $this->read(4))[1];//
+        self::$EVENT_INFO['flag'] = $flags      = unpack('S', $this->read(2))[1];
+        $event_size_without_header = $checkSum === true ? ($event_size -23) : $event_size - 19;
+        $data = [];
+
+        // 映射fileds相关信息
+        if (self::$EVENT_TYPE == ConstEventType::TABLE_MAP_EVENT) {
+            echo "tablemap\r\n";
+            RowEvent::tableMap(self::getInstance(), self::$EVENT_TYPE);
+        } elseif(in_array(self::$EVENT_TYPE,[ConstEventType::UPDATE_ROWS_EVENT_V2,ConstEventType::UPDATE_ROWS_EVENT_V1])) {
+            $data =  RowEvent::updateRow(self::getInstance(), self::$EVENT_TYPE, $event_size_without_header);
+            self::$_POS = self::$EVENT_INFO['pos'];
+        }elseif(in_array(self::$EVENT_TYPE,[ConstEventType::WRITE_ROWS_EVENT_V1, ConstEventType::WRITE_ROWS_EVENT_V2])) {
+            $data = RowEvent::addRow(self::getInstance(), self::$EVENT_TYPE, $event_size_without_header);
+            self::$_POS = self::$EVENT_INFO['pos'];
+        }elseif(in_array(self::$EVENT_TYPE,[ConstEventType::DELETE_ROWS_EVENT_V1, ConstEventType::DELETE_ROWS_EVENT_V2])) {
+            $data = RowEvent::delRow(self::getInstance(), self::$EVENT_TYPE, $event_size_without_header);
+            self::$_POS = self::$EVENT_INFO['pos'];
+        }elseif(self::$EVENT_TYPE == 16) {
+            //var_dump(bin2hex($pack),$this->readUint64());
+            //return RowEvent::delRow(self::getInstance(), self::$EVENT_TYPE);
+        }elseif(self::$EVENT_TYPE == ConstEventType::ROTATE_EVENT) {
+            $log_pos = $this->readUint64();
+            self::$_FILE_NAME = $this->read($event_size_without_header-8);
+        }elseif(self::$EVENT_TYPE == ConstEventType::GTID_LOG_EVENT) {
+            //gtid event
+
+        }elseif(self::$EVENT_TYPE == 15) {
+            //$pack = self::getInstance();
+            //$pack->read(4);
+        } elseif(self::$EVENT_TYPE == ConstEventType::QUERY_EVENT) {
+
+        } elseif(self::$EVENT_TYPE == ConstEventType::HEARTBEAT_LOG_EVENT) {
+            //心跳检测机制
+            $binlog_name = $this->read($event_size_without_header);
+            echo 'heart beat '.$binlog_name."\n";
+        }
+
+        if(DEBUG) {
+            $msg  = self::$_FILE_NAME;
+            $msg .= '-- next pos -> '.$log_pos;
+            $msg .= ' --  typeEvent -> '.self::$EVENT_TYPE;
+            Log::out($msg);
+        }
+        return $data;
+    }
+
+    public function read($length) {
+        $length = (int)$length;
+        $n='';
+        for($i = self::$_PACK_KEY; $i < self::$_PACK_KEY + $length; $i++) {
+            $n .= self::$_PACK[$i];
+        }
+
+        self::$_PACK_KEY += $length;
+
+        return $n;
+
+    }
+
+    /**
+     * @brief 前进步长
+     * @param $length
+     */
+    public  function advance($length) {
+        $this->read($length);
+    }
+
+    /**
+     * @brief read a 'Length Coded Binary' number from the data buffer.
+     ** Length coded numbers can be anywhere from 1 to 9 bytes depending
+     ** on the value of the first byte.
+     ** From PyMYSQL source code
+     * @return int|string
+     */
+
+    public function readCodedBinary(){
+        $c = ord($this->read(1));
+        if($c == ConstMy::NULL_COLUMN) {
+            return '';
+        }
+        if($c < ConstMy::UNSIGNED_CHAR_COLUMN) {
+            return $c;
+        } elseif($c == ConstMy::UNSIGNED_SHORT_COLUMN) {
+            return $this->unpackUint16($this->read(ConstMy::UNSIGNED_SHORT_LENGTH));
+
+        }elseif($c == ConstMy::UNSIGNED_INT24_COLUMN) {
+            return $this->unpackInt24($this->read(ConstMy::UNSIGNED_INT24_LENGTH));
+        }
+        elseif($c == ConstMy::UNSIGNED_INT64_COLUMN) {
+            return $this->unpackInt64($this->read(ConstMy::UNSIGNED_INT64_LENGTH));
+        }
+    }
+
+    public function unpackUint16($data) {
+        return unpack("S",$data[0] . $data[1])[1];
+    }
+
+    public function unpackInt24($data) {
+        $a = (int)(ord($data[0]) & 0xFF);
+        $a += (int)((ord($data[1]) & 0xFF) << 8);
+        $a += (int)((ord($data[2]) & 0xFF) << 16);
+        return $a;
+    }
+
+    //ok
+    public function unpackInt64($data) {
+        $a = (int)(ord($data[0]) & 0xFF);
+        $a += (int)((ord($data[1]) & 0xFF) << 8);
+        $a += (int)((ord($data[2]) & 0xFF) << 16);
+        $a += (int)((ord($data[3]) & 0xFF) << 24);
+        $a += (int)((ord($data[4]) & 0xFF) << 32);
+        $a += (int)((ord($data[5]) & 0xFF) << 40);
+        $a += (int)((ord($data[6]) & 0xFF) << 48);
+        $a += (int)((ord($data[7]) & 0xFF) << 56);
+        return $a;
+    }
+
+    public function read_int24()
+    {
+        $data = unpack("CCC", $this->read(3));
+
+        $res = $data[1] | ($data[2] << 8) | ($data[3] << 16);
+        if ($res >= 0x800000)
+            $res -= 0x1000000;
+        return $res;
+    }
+
+    public function read_int24_be()
+    {
+        $data = unpack('C3', $this->read(3));
+        $res = ($data[1] << 16) | ($data[2] << 8) | $data[3];
+        if ($res >= 0x800000)
+            $res -= 0x1000000;
+        return $res;
+    }
+
+    //
+    public function readUint8()
+    {
+        return unpack('C', $this->read(1))[1];
+    }
+
+    //
+    public function readUint16()
+    {
+        return unpack('S', $this->read(2))[1];
+    }
+
+    public function readUint24()
+    {
+        $data = unpack("C3", $this->read(3));
+        return $data[1] + ($data[2] << 8) + ($data[3] << 16);
+    }
+
+    //
+    public function readUint32()
+    {
+        return unpack('I', $this->read(4))[1];
+    }
+
+    public function readUint40()
+    {
+        $data = unpack("CI", $this->read(5));
+        return $data[1] + ($data[2] << 8);
+    }
+
+    public function read_int40_be()
+    {
+        $data1= unpack("N", $this->read(4))[1];
+        $data2 = unpack("C", $this->read(1))[1];
+        return $data2 + ($data1 << 8);
+    }
+
+    //
+    public function readUint48()
+    {
+        $data = unpack("vvv", $this->read(6));
+        return $data[1] + ($data[2] << 16) + ($data[3] << 32);
+    }
+
+    //
+    public function readUint56()
+    {
+        $data = unpack("CSI", $this->read(7));
+        return $data[1] + ($data[2] << 8) + ($data[3] << 24);
+    }
+
+    /*
+     * 不支持unsigned long long，溢出
+     */
+    public function readUint64() {
+        $d = $this->read(8);
+        $data = unpack('V*', $d);
+        $bigInt = bcadd($data[1], bcmul($data[2], bcpow(2, 32)));
+        return $bigInt;
+
+//        $unpackArr = unpack('I2', $d);
+        //$data = unpack("C*", $d);
+        //$r = $data[1] + ($data[2] << 8) + ($data[3] << 16) + ($data[4] << 24);//+
+        //$r2= ($data[5]) + ($data[6] << 8) + ($data[7] << 16) + ($data[8] << 24);
+
+//        return $unpackArr[1] + ($unpackArr[2] << 32);
+    }
+
+    public function readInt64()
+    {
+        return $this->readUint64();
+    }
+
+    public function read_uint_by_size($size)
+    {
+
+        if($size == 1)
+            return $this->readUint8();
+        elseif($size == 2)
+            return $this->readUint16();
+        elseif($size == 3)
+            return $this->readUint24();
+        elseif($size == 4)
+            return $this->readUint32();
+        elseif($size == 5)
+            return $this->readUint40();
+        elseif($size == 6)
+            return $this->readUint48();
+        elseif($size == 7)
+            return $this->readUint56();
+        elseif($size == 8)
+            return $this->readUint64();
+    }
+    public function read_length_coded_pascal_string($size)
+    {
+        $length = $this->read_uint_by_size($size);
+        return $this->read($length);
+    }
+
+    public function read_int_be_by_size($size) {
+        //Read a big endian integer values based on byte number
+        if ($size == 1)
+            return unpack('c', $this->read($size))[1];
+        elseif( $size == 2)
+            return unpack('n', $this->read($size))[1];
+        elseif( $size == 3)
+            return $this->read_int24_be();
+        elseif( $size == 4)
+            return unpack('N', $this->read($size))[1];
+        elseif( $size == 5)
+            return $this->read_int40_be();
+        //TODO
+        elseif( $size == 8)
+            return unpack('N', $this->read($size))[1];
+    }
+
+    /**
+     * @return bool
+     */
+    public function isComplete($size) {
+        // 20解析server_id ...
+        if(self::$_PACK_KEY + 1 - 20 < $size) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @biref  初始化设置 file，pos，解决持久化file为空问题
+     * @param $file
+     * @param $pos
+     */
+    public static function setFilePos($file, $pos) {
+        self::$_FILE_NAME = $file;
+        self::$_POS       = $pos;
+    }
+
+    /**
+     * @brief 获取binlog file，pos持久化
+     * @return array
+     */
+    public static function getFilePos() {
+        return array(self::$_FILE_NAME, self::$_POS);
+    }
+
+}
+class ConstCommand {
+    const COM_BINLOG_DUMP    = 0x12;
+    const COM_REGISTER_SLAVE = 0x15;
+}
 
 class DBConstNamespace {
     // 数据库编码相关
