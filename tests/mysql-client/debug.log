@@ -432,3 +432,30 @@ out|2017-09-08 00:02:04|mysql-bin.000061-- next pos -> 354542320 --  typeEvent -
 out|2017-09-08 00:02:09|mysql-bin.000061-- next pos -> 354542320 --  typeEvent -> 27
 out|2017-09-08 00:02:14|mysql-bin.000061-- next pos -> 354542320 --  typeEvent -> 27
 out|2017-09-08 00:02:19|mysql-bin.000061-- next pos -> 354542320 --  typeEvent -> 27
+out|2017-09-08 00:04:32|mysql-bin.000061-- next pos ->  --  typeEvent -> 0
+out|2017-09-08 00:04:32|mysql-bin.000061-- next pos -> 354542320 --  typeEvent -> 4
+out|2017-09-08 00:04:32|mysql-bin.000061-- next pos -> 0 --  typeEvent -> 15
+out|2017-09-08 00:04:37|mysql-bin.000061-- next pos -> 354542320 --  typeEvent -> 27
+out|2017-09-08 00:04:42|mysql-bin.000061-- next pos -> 354542320 --  typeEvent -> 27
+out|2017-09-08 00:04:47|mysql-bin.000061-- next pos -> 354542320 --  typeEvent -> 27
+out|2017-09-08 00:04:52|mysql-bin.000061-- next pos -> 354542320 --  typeEvent -> 27
+out|2017-09-08 00:04:56|mysql-bin.000061-- next pos ->  --  typeEvent -> 0
+out|2017-09-08 00:04:56|mysql-bin.000061-- next pos -> 354542320 --  typeEvent -> 4
+out|2017-09-08 00:04:56|mysql-bin.000061-- next pos -> 0 --  typeEvent -> 15
+out|2017-09-08 00:05:01|mysql-bin.000061-- next pos -> 354542320 --  typeEvent -> 27
+out|2017-09-08 00:05:06|mysql-bin.000061-- next pos -> 354542320 --  typeEvent -> 27
+out|2017-09-08 00:05:11|mysql-bin.000061-- next pos -> 354542320 --  typeEvent -> 27
+out|2017-09-08 00:05:14|mysql-bin.000061-- next pos -> 354542385 --  typeEvent -> 34
+out|2017-09-08 00:05:14|mysql-bin.000061-- next pos -> 354542456 --  typeEvent -> 2
+out|2017-09-08 00:05:14|mysql-bin.000061-- next pos -> 354542516 --  typeEvent -> 19
+out|2017-09-08 00:05:14|mysql-bin.000061-- next pos -> 354542617 --  typeEvent -> 31
+out|2017-09-08 00:05:14|mysql-bin.000061-- next pos -> 354542648 --  typeEvent -> 16
+out|2017-09-08 00:05:19|mysql-bin.000061-- next pos -> 354542648 --  typeEvent -> 27
+out|2017-09-08 00:05:24|mysql-bin.000061-- next pos -> 354542648 --  typeEvent -> 27
+out|2017-09-08 00:05:29|mysql-bin.000061-- next pos -> 354542648 --  typeEvent -> 27
+out|2017-09-08 00:05:34|mysql-bin.000061-- next pos -> 354542648 --  typeEvent -> 27
+out|2017-09-08 00:05:39|mysql-bin.000061-- next pos -> 354542648 --  typeEvent -> 27
+out|2017-09-08 00:05:44|mysql-bin.000061-- next pos -> 354542648 --  typeEvent -> 27
+out|2017-09-08 00:05:49|mysql-bin.000061-- next pos -> 354542648 --  typeEvent -> 27
+out|2017-09-08 00:05:54|mysql-bin.000061-- next pos -> 354542648 --  typeEvent -> 27
+out|2017-09-08 00:05:59|mysql-bin.000061-- next pos -> 354542648 --  typeEvent -> 27
