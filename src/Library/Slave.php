@@ -144,6 +144,7 @@ class Slave
         if($header === false) return false;
         //消息体长度3bytes 小端序
         $unpack_data = unpack("L",$header[0].$header[1].$header[2].chr(0))[1];
+        echo "消息长度：", $unpack_data,"\r\n";
         $result = $this->_readBytes($unpack_data);
         return $result;
     }
@@ -242,7 +243,7 @@ class Slave
         //todo eof pack 0xfe
 
         $binlog = \Wing\Bin\BinLogPack::getInstance();
-        $result = $binlog->init($pack, $this->checksum);
+        $result = $binlog->init($pack, !!$this->checksum);
 
         // debug
        // echo round(memory_get_usage()/1024/1024, 2).'MB',"\r\n";
