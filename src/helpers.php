@@ -265,7 +265,7 @@ if (!function_exists("wing_debug")) {
 
 
 if (!function_exists("wing_log")) {
-	function wing_log($level = "log", $msg)
+	function wing_log($level = "log", $msg = "")
 	{
 		$log = date("Y-m-d H:i:s")." ";
 		$argvs = func_get_args();

@@ -1,4 +1,6 @@
 <?php namespace Wing\Library;
+use Wing\Bin\RowEvent;
+
 /**
  * Created by PhpStorm.
  * User: yuyi
@@ -35,7 +37,7 @@ class Slave
         $this->password = $config["mysql"]["password"];
         $this->user = $config["mysql"]["user"];
         $this->db = $config["mysql"]["db_name"];
-        $this->pdo = new PDO();
+        $this->pdo = RowEvent::$pdo = new PDO();
 
         \Wing\Bin\ConstCapability::init();
 

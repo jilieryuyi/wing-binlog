@@ -86,11 +86,11 @@ class BinLogPack {
             echo 'heart beat '.$binlog_name."\n";
         }
 
-        if(DEBUG) {
+        if(WING_DEBUG) {
             $msg  = self::$_FILE_NAME;
             $msg .= '-- next pos -> '.$log_pos;
             $msg .= ' --  typeEvent -> '.self::$EVENT_TYPE;
-            Log::out($msg);
+            wing_log("slave_debug", $msg);
         }
         return $data;
     }

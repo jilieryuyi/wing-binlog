@@ -1,5 +1,6 @@
 <?php namespace Wing\Bin;
 /**
+ * https://dev.mysql.com/doc/internals/en/connection-phase-packets.html#packet-Protocol::Handshake
  * Created by PhpStorm.
  * User: yuyi
  * Date: 17/9/8
