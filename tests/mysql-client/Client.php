@@ -1663,7 +1663,7 @@ class PackAuth {
     }
 }
 
-class Client
+class Slave
 {
     public static $host = '127.0.0.1';
     public static $port = 3306;
@@ -1688,7 +1688,7 @@ class Client
 //         socket_set_option(self::$_SOCKET,SOL_SOCKET,SO_SNDTIMEO,['sec' => 2, 'usec' => 5000]);
 //         socket_set_option(self::$_SOCKET,SOL_SOCKET,SO_RCVTIMEO,['sec' => 2, 'usec' => 5000]);
 
-        $flag = ConstCapability::$CAPABILITIES ;//| S::$MULTI_STATEMENTS;
+        $flag = ConstCapability::$CAPABILITIES;//BinHelper::capabilities(self::$db) ;//| S::$MULTI_STATEMENTS;
         if (self::$db) {
             $flag |= ConstCapability::$CONNECT_WITH_DB;
         }
@@ -1881,5 +1881,5 @@ class Client
 
 }
 
-$client = new Client();
+$client = new Slave();
 while (1)$client->analysisBinLog();
