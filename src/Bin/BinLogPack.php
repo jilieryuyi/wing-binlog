@@ -37,6 +37,8 @@ class BinLogPack {
             self::$_instance = new self();
         }
 
+        if (strlen($pack) < 19) return null;
+        var_dump($pack);
         //
         self::$_PACK       = $pack;
         self::$_PACK_KEY   = 0;

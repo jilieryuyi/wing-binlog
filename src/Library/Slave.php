@@ -16,6 +16,9 @@ class Slave
     private $db;// = 'xsl';
 
     private $socket;
+    /**
+     * @var bool
+     */
     private $checksum        = false;
     private $slave_server_id = 99999;
     private $file;
@@ -24,20 +27,14 @@ class Slave
 
     public function __construct()
     {
-        $config = load_config("app");
-        /**
-        "mysql" => [
-            "db_name"  => "wordpress",
-            "host"     => "127.0.0.1",
-            "user"     => "root",
-            "password" => "123456",
-         */
-        $this->host = $config["mysql"]["host"];
-        $this->port = $config["mysql"]["port"];
+        $config         = load_config("app");
+        $this->host     = $config["mysql"]["host"];
+        $this->port     = $config["mysql"]["port"];
         $this->password = $config["mysql"]["password"];
-        $this->user = $config["mysql"]["user"];
-        $this->db = $config["mysql"]["db_name"];
-        $this->pdo = RowEvent::$pdo = new PDO();
+        $this->user     = $config["mysql"]["user"];
+        $this->db       = $config["mysql"]["db_name"];
+        $this->pdo      = RowEvent::$pdo = new PDO();
+        $this->checksum = !!$this->getCheckSum();
 
         \Wing\Bin\ConstCapability::init();
 
@@ -47,18 +44,16 @@ class Slave
 
         socket_set_block($this->socket);
         socket_set_option($this->socket, SOL_SOCKET, SO_KEEPALIVE, 1);
-//         socket_set_option(self::$_SOCKET,SOL_SOCKET,SO_SNDTIMEO,['sec' => 2, 'usec' => 5000]);
-//         socket_set_option(self::$_SOCKET,SOL_SOCKET,SO_RCVTIMEO,['sec' => 2, 'usec' => 5000]);
+        //socket_set_option($this->socket, SOL_SOCKET,SO_SNDTIMEO, ['sec' => 2, 'usec' => 5000]);
+        //socket_set_option($this->socket, SOL_SOCKET,SO_RCVTIMEO, ['sec' => 2, 'usec' => 5000]);
 
-        $flag = \Wing\Bin\ConstCapability::$CAPABILITIES;//BinHelper::capabilities(self::$db) ;//| S::$MULTI_STATEMENTS;
+        $flag = \Wing\Bin\ConstCapability::$CAPABILITIES;
         if ($this->db) {
             $flag |= \Wing\Bin\ConstCapability::$CONNECT_WITH_DB;
         }
 
-        //self::$_FLAG |= S::$MULTI_RESULTS;
 
-        // 连接到mysql
-        // create socket
+        //连接到mysql
         if(!socket_connect($this->socket, $this->host, $this->port)) {
             throw new \Exception(
                 sprintf(
@@ -70,16 +65,16 @@ class Slave
         }
 
         // 获取server信息
-        $pack   = self::_readPacket();
+        $pack   = $this->_readPacket();
         \Wing\Bin\ServerInfo::run($pack);
         // 加密salt
-        $salt = \Wing\Bin\ServerInfo::getSalt();
+        $salt   = \Wing\Bin\ServerInfo::getSalt();
 
         // 认证
         // pack拼接
         $data = \Wing\Bin\PackAuth::initPack($flag, $this->user, $this->password, $salt,  $this->db);
 
-        $this->_write($data);
+        $this->sendData($data);
         //
         $result = $this->_readPacket();
 
@@ -91,9 +86,8 @@ class Slave
     }
 
 
-    private function _write($data) {
-        if(socket_write($this->socket, $data, strlen($data))=== false )
-        {
+    private function sendData($data) {
+        if(socket_write($this->socket, $data, strlen($data))=== false ) {
             throw new \Exception( sprintf( "Unable to write to socket: %s", socket_strerror( socket_last_error())));
         }
         return true;
@@ -151,14 +145,15 @@ class Slave
     public function excute($sql) {
         $chunk_size = strlen($sql) + 1;
         $prelude = pack('LC',$chunk_size, 0x03);
-        $this->_write($prelude . $sql);
+        $this->sendData($prelude . $sql);
     }
 
     /**
      * @breif 注册成slave
      * @return void
      */
-    private function _writeRegisterSlaveCommand() {
+    private function registerAsSlave()
+    {
         $header   = pack('l', 18);
 
         // COM_BINLOG_DUMP
@@ -173,13 +168,13 @@ class Slave
         $data .= pack('L', 0);
         $data .= pack('L', 1);
 
-        $this->_write($data);
+        $this->sendData($data);
 
         $result = $this->_readPacket();
         \Wing\Bin\PackAuth::success($result);
     }
 
-    protected function isCheckSum()
+    protected function getCheckSum()
     {
         $res = $this->pdo->row("SHOW GLOBAL VARIABLES LIKE 'BINLOG_CHECKSUM'");
         return $res['Value'];
@@ -189,10 +184,10 @@ class Slave
         $result = $this->pdo->row($sql);
         return $result;
     }
-    public function getBinlogStream() {
+    public function getBinlogStream()
+    {
 
         // checksum
-        $this->checksum = $this->isCheckSum();
         if($this->checksum){
             $this->excute("set @master_binlog_checksum= @@global.binlog_checksum");
         }
@@ -202,11 +197,11 @@ class Slave
             $this->excute("set @master_heartbeat_period=".($heart*1000000000));
         }
 
-        $this->_writeRegisterSlaveCommand();
+        $this->registerAsSlave();
 
         // 开始读取的二进制日志位置
         if(!$this->file) {
-            $logInfo = $this->getPos();
+            $logInfo    = $this->getPos();
             $this->file = $logInfo['File'];
             if(!$this->pos) {
                 $this->pos = $logInfo['Position'];
@@ -225,10 +220,10 @@ class Slave
         $data .= pack('L', $this->slave_server_id);
         $data .= $this->file;
 
-        self::_write($data);
+        $this->sendData($data);
 
         //认证
-        $result = self::_readPacket();
+        $result = $this->_readPacket();
         \Wing\Bin\PackAuth::success($result);
     }
 
