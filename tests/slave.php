@@ -20,4 +20,4 @@ if(!date_default_timezone_get() || !ini_get("date.timezone")) {
 define("WING_DEBUG", true);
 
 $slave = new \Wing\Library\Slave();
-while(1)$slave->analysisBinLog();
+while(1)$slave->getEvent();

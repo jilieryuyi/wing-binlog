@@ -22,6 +22,14 @@ class BinLogPack {
     private static $_POS;
 
 
+    public function getLastBinLogFile()
+    {
+        return self::$_FILE_NAME;
+    }
+    public function getLastPos()
+    {
+        return self::$_POS;
+    }
     public static function getInstance() {
         if(!self::$_instance) {
             self::$_instance = new self();
@@ -38,7 +46,6 @@ class BinLogPack {
         }
 
         if (strlen($pack) < 19) return null;
-        var_dump($pack);
         //
         self::$_PACK       = $pack;
         self::$_PACK_KEY   = 0;

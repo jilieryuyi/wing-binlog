@@ -1,5 +1,6 @@
 <?php namespace Wing\Library;
 use Wing\Bin\RowEvent;
+use Wing\FileSystem\WDir;
 
 /**
  * Created by PhpStorm.
@@ -21,9 +22,10 @@ class Slave
      */
     private $checksum        = false;
     private $slave_server_id = 99999;
-    private $file;
-    private $pos;
     private $pdo;
+
+    private $last_binlog_file;
+    private $last_pos;
 
     public function __construct()
     {
@@ -35,6 +37,23 @@ class Slave
         $this->db       = $config["mysql"]["db_name"];
         $this->pdo      = RowEvent::$pdo = new PDO();
         $this->checksum = !!$this->getCheckSum();
+
+        $this->last_binlog_file = null;
+        $file = HOME."/cache/slave/last_binlog_file";
+        $dir  = new WDir(HOME."/cache/slave");
+        $dir->mkdir();
+        unset($dir);
+        if (!file_exists($file))
+        touch($file);
+        $this->last_binlog_file = file_get_contents($file);
+
+
+
+        $this->last_pos = 0;
+        $file = HOME."/cache/slave/last_pos_file";
+        if (!file_exists($file))
+        touch($file);
+        $this->last_pos = file_get_contents($file);
 
         \Wing\Bin\ConstCapability::init();
 
@@ -128,7 +147,6 @@ class Slave
             return $body;
         } catch (\Exception $e) {
             var_dump($e->getMessage());
-            //throw new \Exception(var_export($e, true));
         }
         return null;
     }
@@ -142,15 +160,15 @@ class Slave
         $result = $this->_readBytes($unpack_data);
         return $result;
     }
-    public function excute($sql) {
+
+    protected function excute($sql) {
         $chunk_size = strlen($sql) + 1;
-        $prelude = pack('LC',$chunk_size, 0x03);
+        $prelude    = pack('LC',$chunk_size, 0x03);
         $this->sendData($prelude . $sql);
     }
 
     /**
-     * @breif 注册成slave
-     * @return void
+     * 注册成slave
      */
     private function registerAsSlave()
     {
@@ -193,32 +211,44 @@ class Slave
         }
         //heart_period
         $heart = 5;
-        if($heart) {
+        if ($heart) {
             $this->excute("set @master_heartbeat_period=".($heart*1000000000));
         }
 
         $this->registerAsSlave();
 
         // 开始读取的二进制日志位置
-        if(!$this->file) {
-            $logInfo    = $this->getPos();
-            $this->file = $logInfo['File'];
-            if(!$this->pos) {
-                $this->pos = $logInfo['Position'];
+        if(!$this->last_binlog_file) {
+            $sql  = 'show binary logs';
+            $res  = $this->pdo->query($sql);
+
+            //$logInfo = $this->getPos();
+            //如果没有配置 则从第一个有效的binlog开始
+            $this->last_binlog_file = null;//$logInfo['File'];//$res[0]["Log_name"];
+            foreach ($res as $item) {
+                if ($item["File_size"] > 0) {
+                    $this->last_binlog_file = $item["Log_name"];
+                    break;
+                }
+            }
+            if(!$this->last_pos) {
+                //起始位置必须大于等于4
+                $this->last_pos = 4;//$logInfo['Position'];
             }
         }
+        var_dump($this->last_binlog_file, $this->last_pos);
 
         // 初始化
-        \Wing\Bin\BinLogPack::setFilePos($this->file, $this->pos);
+        \Wing\Bin\BinLogPack::setFilePos($this->last_binlog_file, $this->last_pos);
 
-        $header   = pack('l', 11 + strlen($this->file));
+        $header = pack('l', 11 + strlen($this->last_binlog_file));
 
         // COM_BINLOG_DUMP
         $data  = $header . chr(\Wing\Bin\ConstCommand::COM_BINLOG_DUMP);
-        $data .= pack('L', $this->pos);
+        $data .= pack('L', $this->last_pos);
         $data .= pack('s', 0);
         $data .= pack('L', $this->slave_server_id);
-        $data .= $this->file;
+        $data .= $this->last_binlog_file;
 
         $this->sendData($data);
 
@@ -227,26 +257,24 @@ class Slave
         \Wing\Bin\PackAuth::success($result);
     }
 
-    public function analysisBinLog() {
+    public function getEvent() {
 
         $pack   = $this->_readPacket();
-        wing_log("wing_debug", $pack);
 
         // 校验数据包格式
         \Wing\Bin\PackAuth::success($pack);
 
-        //todo eof pack 0xfe
-
         $binlog = \Wing\Bin\BinLogPack::getInstance();
-        $result = $binlog->init($pack, !!$this->checksum);
+        $result = $binlog->init($pack, $this->checksum);
 
-        // debug
-       // echo round(memory_get_usage()/1024/1024, 2).'MB',"\r\n";
+        if ($result) {
+            var_dump($result);
+        }
 
-        //持久化当前读到的file pos
+        file_put_contents(HOME."/cache/slave/last_binlog_file", $binlog->getLastBinLogFile());
+        file_put_contents(HOME."/cache/slave/last_pos_file", $binlog->getLastPos());
 
-        if($result) var_dump($result);
-
+        return $result;
     }
 
 }

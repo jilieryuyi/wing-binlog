@@ -13,6 +13,10 @@ $pdo = new \Wing\Library\PDO();
 $sql = "SHOW MASTER STATUS";
 $res = $pdo->row($sql);
 var_dump($res);
+
+$sql  = 'show binary logs';
+$res = $pdo->query($sql);
+var_dump($res);
 //$sql1 = 'update new_yonglibao_c.bl_city set provinces_id=(provinces_id+1) where id=5753598';
 //$sql2 = 'update new_yonglibao_c.bl_city set provinces_id=(provinces_id-1) where id=5753598';
 //
