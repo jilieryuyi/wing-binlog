@@ -40,7 +40,6 @@ class BinLogPack {
 
     public function init($pack, $checkSum = true) {
 
-        echo "init\r\n";
         if(!self::$_instance) {
             self::$_instance = new self();
         }
@@ -64,7 +63,6 @@ class BinLogPack {
 
         // 映射fileds相关信息
         if (self::$EVENT_TYPE == ConstEventType::TABLE_MAP_EVENT) {
-            echo "tablemap\r\n";
             RowEvent::tableMap(self::getInstance(), self::$EVENT_TYPE);
         } elseif(in_array(self::$EVENT_TYPE,[ConstEventType::UPDATE_ROWS_EVENT_V2,ConstEventType::UPDATE_ROWS_EVENT_V1])) {
             $data =  RowEvent::updateRow(self::getInstance(), self::$EVENT_TYPE, $event_size_without_header);

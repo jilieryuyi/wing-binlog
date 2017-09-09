@@ -18,6 +18,15 @@ if(!date_default_timezone_get() || !ini_get("date.timezone")) {
 }
 
 define("WING_DEBUG", true);
-
+$start = time();
+$times = 0;
 $slave = new \Wing\Library\Slave();
-while(1)$slave->getEvent();
+
+while(1){
+    $result = $slave->getEvent();
+    if ($result) {
+        //var_dump($result);
+        $times+=count($result["event"]["data"]);
+        echo $times/(time()-$start)."/次事件每秒\r\n";
+    }
+}

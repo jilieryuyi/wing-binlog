@@ -156,7 +156,6 @@ class Slave
         if($header === false) return false;
         //消息体长度3bytes 小端序
         $unpack_data = unpack("L",$header[0].$header[1].$header[2].chr(0))[1];
-        echo "消息长度：", $unpack_data,"\r\n";
         $result = $this->_readBytes($unpack_data);
         return $result;
     }
@@ -266,10 +265,6 @@ class Slave
 
         $binlog = \Wing\Bin\BinLogPack::getInstance();
         $result = $binlog->init($pack, $this->checksum);
-
-        if ($result) {
-            var_dump($result);
-        }
 
         file_put_contents(HOME."/cache/slave/last_binlog_file", $binlog->getLastBinLogFile());
         file_put_contents(HOME."/cache/slave/last_pos_file", $binlog->getLastPos());
