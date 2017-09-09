@@ -25,8 +25,10 @@ $slave = new \Wing\Library\Slave();
 while(1){
     $result = $slave->getEvent();
     if ($result) {
-        //var_dump($result);
+        var_dump($result);
         $times+=count($result["event"]["data"]);
-        echo $times/(time()-$start)."/次事件每秒\r\n";
+        $s = time()-$start;
+        if ($s>0)
+        echo $times,"次，",$times/($s)."/次事件每秒，耗时",$s,"秒\r\n";
     }
 }

@@ -106,6 +106,7 @@ class BinLogPack {
         $length = (int)$length;
         $n='';
         for($i = self::$_PACK_KEY; $i < self::$_PACK_KEY + $length; $i++) {
+            if (!isset(self::$_PACK[$i])) return $n;
             $n .= self::$_PACK[$i];
         }
 

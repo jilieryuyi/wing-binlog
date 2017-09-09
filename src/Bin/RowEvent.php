@@ -273,7 +273,6 @@ class RowEvent extends BinLogEvent
                     $values[$name] = unpack("I", self::$PACK->read(4))[1];
                 } else {
                     $values[$name] = unpack("i", self::$PACK->read(4))[1];
-
                 }
             } elseif ($column['type'] == ConstFieldType::INT24) {
                 if ($unsigned)

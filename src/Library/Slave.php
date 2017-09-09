@@ -218,21 +218,21 @@ class Slave
 
         // 开始读取的二进制日志位置
         if(!$this->last_binlog_file) {
-            $sql  = 'show binary logs';
-            $res  = $this->pdo->query($sql);
+//            $sql  = 'show binary logs';
+//            $res  = $this->pdo->query($sql);
 
-            //$logInfo = $this->getPos();
+            $logInfo = $this->getPos();
             //如果没有配置 则从第一个有效的binlog开始
-            $this->last_binlog_file = null;//$logInfo['File'];//$res[0]["Log_name"];
-            foreach ($res as $item) {
-                if ($item["File_size"] > 0) {
-                    $this->last_binlog_file = $item["Log_name"];
-                    break;
-                }
-            }
+            $this->last_binlog_file = $logInfo['File'];//$res[0]["Log_name"];
+//            foreach ($res as $item) {
+//                if ($item["File_size"] > 0) {
+//                    $this->last_binlog_file = $item["Log_name"];
+//                    break;
+//                }
+//            }
             if(!$this->last_pos) {
                 //起始位置必须大于等于4
-                $this->last_pos = 4;//$logInfo['Position'];
+                $this->last_pos = $logInfo['Position'];
             }
         }
         var_dump($this->last_binlog_file, $this->last_pos);
@@ -266,8 +266,15 @@ class Slave
         $binlog = \Wing\Bin\BinLogPack::getInstance();
         $result = $binlog->init($pack, $this->checksum);
 
-        file_put_contents(HOME."/cache/slave/last_binlog_file", $binlog->getLastBinLogFile());
-        file_put_contents(HOME."/cache/slave/last_pos_file", $binlog->getLastPos());
+        $file = HOME."/cache/slave/last_binlog_file";
+        $bin_file = $binlog->getLastBinLogFile();
+        if (0 >= file_put_contents($file, $bin_file))
+            file_put_contents($file, $bin_file);
+
+        $file = HOME."/cache/slave/last_pos_file";
+        $pos = $binlog->getLastPos();
+        if (0 >= file_put_contents($file, $pos))
+            file_put_contents($file, $pos);
 
         return $result;
     }
