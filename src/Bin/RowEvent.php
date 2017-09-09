@@ -246,6 +246,7 @@ class RowEvent extends BinLogEvent
         $nullBitmapIndex = 0;
         foreach (self::$TABLE_MAP[self::$SCHEMA_NAME][self::$TABLE_NAME]['fields'] as $i => $value) {
             $column = $value;
+            var_dump($column);
             $name = $value['name'];
             $unsigned = $value['unsigned'];
 
@@ -291,7 +292,7 @@ class RowEvent extends BinLogEvent
                 else
                     $values[$name] = self::_read_string(1, $column);
             } elseif ($column['type'] == ConstFieldType::NEWDECIMAL) {
-                //$values[$name] = self.__read_new_decimal(column)
+                $values[$name] = unpack("d", self::$PACK->read(8))[1];//self::__read_new_decimal($column);
             } elseif ($column['type'] == ConstFieldType::BLOB) {
                 //ok
                 $values[$name] = self::_read_string($column['length_size'], $column);
