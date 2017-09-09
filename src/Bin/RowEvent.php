@@ -1,4 +1,6 @@
 <?php namespace Wing\Bin;
+use Wing\Library\PDO;
+
 /**
  * Created by PhpStorm.
  * User: yuyi
@@ -7,6 +9,9 @@
  */
 class RowEvent extends BinLogEvent
 {
+    /**
+     * @var PDO
+     */
     public static $pdo;
     public static function rowInit(BinLogPack $pack, $event_type, $size)
     {
@@ -101,8 +106,6 @@ class RowEvent extends BinLogEvent
         }
 
         return $data;
-
-
     }
 
     public static function addRow(BinLogPack $pack, $event_type, $size)
@@ -120,7 +123,16 @@ class RowEvent extends BinLogEvent
         $result['bitmap'] = self::$PACK->read($len);
 
         //nul-bitmap, length (bits set in 'columns-present-bitmap1'+7)/8
-        $value['add'] = self::_getAddRows($result, $len);
+
+        $value = [
+            "database" => self::$SCHEMA_NAME,
+            "table"    => self::$TABLE_NAME,
+            "event"    =>  [
+                "event_type" => "write_rows",
+                "time"       => date("Y-m-d H:i:s", BinLogPack::$EVENT_INFO['time']),
+                "data"       => self::_getAddRows($result, $len)
+            ]
+        ];
         return $value;
     }
 
@@ -140,8 +152,17 @@ class RowEvent extends BinLogEvent
 
 
         //nul-bitmap, length (bits set in 'columns-present-bitmap1'+7)/8
-        $value['del'] = self::_getDelRows($result, $len);
+        //$value['del'] = self::_getDelRows($result, $len);
 
+        $value = [
+            "database" => self::$SCHEMA_NAME,
+            "table"    => self::$TABLE_NAME,
+            "event"    =>  [
+                "event_type" => "delete_rows",
+                "time"       => date("Y-m-d H:i:s", BinLogPack::$EVENT_INFO['time']),
+                "data"       => self::_getDelRows($result, $len)
+            ]
+        ];
         return $value;
     }
 
@@ -151,11 +172,7 @@ class RowEvent extends BinLogEvent
         self::rowInit($pack, $event_type, $size);
 
         $result = [];
-        // ？？？？
-        //$result['extra_data'] = getData($data, );
-//        $result['columns_length'] = unpack("C", self::$PACK->read(1))[1];
-        //$result['schema_name']   = getData($data, 29, 28+$result['schema_length'][1]);
-        $len = (int)((self::$COLUMNS_NUM + 7) / 8);
+        $len    = (int)((self::$COLUMNS_NUM + 7) / 8);
 
 
         $result['bitmap1'] = self::$PACK->read($len);
@@ -164,7 +181,19 @@ class RowEvent extends BinLogEvent
 
 
         //nul-bitmap, length (bits set in 'columns-present-bitmap1'+7)/8
-        $value['update'] = self::_getUpdateRows($result, $len);
+//        $value['table'] = "";
+//        $value['update'] = self::_getUpdateRows($result, $len);
+
+
+        $value = [
+            "database" => self::$SCHEMA_NAME,
+            "table"    => self::$TABLE_NAME,
+            "event"    =>  [
+                "event_type" => "update_rows",
+                "time"       => date("Y-m-d H:i:s", BinLogPack::$EVENT_INFO['time']),
+                "data"       => self::_getUpdateRows($result, $len)
+                ]
+        ];
 
         return $value;
     }
@@ -201,7 +230,7 @@ class RowEvent extends BinLogEvent
         return $string;
     }
 
-    private static function _read_column_data($cols_bitmap, $len)
+    private static function columnFormat($cols_bitmap, $len)
     {
         $values = [];
 
@@ -215,7 +244,6 @@ class RowEvent extends BinLogEvent
         $null_bitmap = self::$PACK->read($l);
 
         $nullBitmapIndex = 0;
-        var_dump(self::$TABLE_MAP);
         foreach (self::$TABLE_MAP[self::$SCHEMA_NAME][self::$TABLE_NAME]['fields'] as $i => $value) {
             $column = $value;
             $name = $value['name'];
@@ -342,7 +370,7 @@ class RowEvent extends BinLogEvent
             */
             $nullBitmapIndex += 1;
         }
-        $values['table_name'] = self::$TABLE_NAME;
+        //$values['table_name'] = self::$TABLE_NAME;
         return $values;
     }
 
@@ -466,11 +494,10 @@ class RowEvent extends BinLogEvent
     private static function _getUpdateRows($result, $len) {
         $rows = [];
         while(!self::$PACK->isComplete(self::$PACK_SIZE)) {
-
-            $value['beform'] = self::_read_column_data($result['bitmap1'], $len);
-            $value['after'] = self::_read_column_data($result['bitmap2'], $len);
-            $rows[] = ["old"=>$value['beform'],"new"=>$value['after']];
-
+            $rows[] = [
+                "old_data" => self::columnFormat($result['bitmap1'], $len),
+                "new_data" => self::columnFormat($result['bitmap2'], $len)
+            ];
         }
         return $rows;
     }
@@ -478,7 +505,7 @@ class RowEvent extends BinLogEvent
     private static function _getDelRows($result, $len) {
         $rows = [];
         while(!self::$PACK->isComplete(self::$PACK_SIZE)) {
-            $rows[] = self::_read_column_data($result['bitmap'], $len);
+            $rows[] = self::columnFormat($result['bitmap'], $len);
         }
         return $rows;
     }
@@ -487,7 +514,7 @@ class RowEvent extends BinLogEvent
         $rows = [];
 
         while(!self::$PACK->isComplete(self::$PACK_SIZE)) {
-            $rows[] = self::_read_column_data($result['bitmap'], $len);
+            $rows[] = self::columnFormat($result['bitmap'], $len);
         }
         return $rows;
     }
