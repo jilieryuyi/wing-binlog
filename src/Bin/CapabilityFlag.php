@@ -54,7 +54,8 @@ class CapabilityFlag
  
 	const CLIENT_RESERVED2  		= 32768;
  	//DEPRECATED: Old flag for 4.1 authentication. More...
- 
+
+	const CLIENT_SECURE_CONNECTION	= (1 << 15);
 	const CLIENT_MULTI_STATEMENTS 	= (1 << 16);
  	//Enable/disable multi-stmt support. More...
  
@@ -92,6 +93,7 @@ class CapabilityFlag
 //        self::$LONG_PASSWORD = 1;
 //        self::$FOUND_ROWS = 1 << 1;
 //        self::$LONG_FLAG = 1 << 2;
+//        self::$LONG_FLAG = 1 << 2;
 //        self::$CONNECT_WITH_DB = 1 << 3;
 //        self::$NO_SCHEMA = 1 << 4;
 //        self::$COMPRESS = 1 << 5;
@@ -106,8 +108,8 @@ class CapabilityFlag
 //        self::$SECURE_CONNECTION = 1 << 15;
 //        self::$MULTI_STATEMENTS = 1 << 16;
 //        self::$MULTI_RESULTS = 1 << 17;
-//        self::$CAPABILITIES = (self::$LONG_PASSWORD | self::$LONG_FLAG | self::$TRANSACTIONS |
-//            self::$PROTOCOL_41 | self::$SECURE_CONNECTION);
+		const CAPABILITIES = (self::CLIENT_LONG_PASSWORD | self::CLIENT_LONG_FLAG | self::CLIENT_TRANSACTIONS |
+            self::CLIENT_PROTOCOL_41 | self::CLIENT_SECURE_CONNECTION);
 //    }
 }
 

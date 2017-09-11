@@ -186,7 +186,7 @@ const utf8_czech_ci            = ["id" => 202, "character_set" =>"utf8"     ];
 const utf8_danish_ci           = ["id" => 203, "character_set" =>"utf8"     ];
 const utf8_esperanto_ci        = ["id" => 209, "character_set" =>"utf8"     ];
 const utf8_estonian_ci         = ["id" => 198, "character_set" =>"utf8"     ];
-const utf8_general_ci          = ["id" =>  33, "character_set" =>"utf8"     ];
+const utf8_general_ci          = 33;//["id" =>  33, "character_set" =>"utf8"     ];
 const utf8_general_mysql500_ci = ["id" => 223, "character_set" =>"utf8"     ];
 const utf8_hungarian_ci        = ["id" => 210, "character_set" =>"utf8"     ];
 const utf8_icelandic_ci        = ["id" => 193, "character_set" =>"utf8"     ];

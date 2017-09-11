@@ -17,7 +17,7 @@ class ServerInfo
 
     public function __construct($pack) 
 	{
-
+		var_dump($pack);
         $i = 0;
 		$length = strlen($pack);
        	$this->protocol_version = ord($pack[$i]);
@@ -25,11 +25,11 @@ class ServerInfo
 
         //version
         $start = $i;
-        for($i = $start; $i < $length; $i++) {
-            if($pack[$i] === chr(0)) {
+        for ($i = $start; $i < $length; $i++) {
+            if ($pack[$i] === chr(0)) {
                 $i++;
                 break;
-            } else{
+            } else {
                $this->server_version .= $pack[$i];
             }
         }
@@ -40,8 +40,8 @@ class ServerInfo
 
         //auth_plugin_data_part_1
         //[len=8] first 8 bytes of the auth-plugin data
-        for($j = $i;$j<$i+8;$j++) {
-           $this->salt .= $pack[$j];
+        for ($j = $i; $j < $i + 8; $j++) {
+           	$this->salt .= $pack[$j];
         }
         $i = $i + 8;
 
@@ -50,6 +50,7 @@ class ServerInfo
 
         //capability_flag_1 (2) -- lower 2 bytes of the Protocol::CapabilityFlags (optional)
         $i = $i + 2;
+
 
         //character_set (1) -- default server character-set, only the lower 8-bits Protocol::CharacterSet (optional)
        	$this->character_set = $pack[$i];

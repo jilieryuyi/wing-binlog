@@ -43,27 +43,26 @@ class ClientNet
 
 	public function auth($user, $password, $db)
 	{
-		$flag = CapabilityFlag::$CAPABILITIES;
+		$flag = CapabilityFlag::CAPABILITIES;
 		if ($db) {
-			$flag |= CapabilityFlag::$CONNECT_WITH_DB;
+			$flag |= CapabilityFlag::CLIENT_CONNECT_WITH_DB;
 		}
 		// 获取server信息 加密salt
 		$pack   	 = $this->readPacket();
 		$server_info = new ServerInfo($pack);
+		var_dump($server_info);
 		$salt   	 = $server_info->getSalt();
 
 		// 认证
 		// pack拼接
-		$data = PackAuth::initPack($flag, $user, $password, $salt,  $db);
+		$data = PacketAuth::getAuthPack($flag, $user, $password, $salt,  $db);
 
 		$this->send($data);
 		//
 		$result = $this->readPacket();
 
 		// 认证是否成功
-		PackAuth::success($result);
-
-		//$this->getBinlogStream($slave_server_id, $last_binlog_file, $last_pos);
+		PacketAuth::success($result);
 	}
 
 	public function send($data)
@@ -153,7 +152,7 @@ class ClientNet
 		$this->send($data);
 
 		$result = $this->readPacket();
-		PackAuth::success($result);
+		PacketAuth::success($result);
 	}
 
 	public function getCheckSum()
@@ -218,7 +217,7 @@ class ClientNet
 
 		//认证
 		$result = $this->readPacket();
-		PackAuth::success($result);
+		PacketAuth::success($result);
 	}
 
 	public function getEvent() {
@@ -226,7 +225,7 @@ class ClientNet
 		$pack   = $this->readPacket();
 
 		// 校验数据包格式
-		PackAuth::success($pack);
+		PacketAuth::success($pack);
 
 		$binlog = BinLogPack::getInstance();
 		$result = $binlog->init($pack, $this->checksum);
