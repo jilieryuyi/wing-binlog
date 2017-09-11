@@ -23,30 +23,30 @@ class BinLogColumns {
         self::$field['type_is_bool'] = false;
         self::$field['is_primary'] = $column_schema["COLUMN_KEY"] == "PRI";
 
-        if (self::$field['type'] == ConstFieldType::VARCHAR) {
+        if (self::$field['type'] == MysqlFieldType::VARCHAR) {
             self::$field['max_length'] = unpack('s', $packet->read(2))[1];
-        }elseif (self::$field['type'] == ConstFieldType::DOUBLE){
+        }elseif (self::$field['type'] == MysqlFieldType::DOUBLE){
             self::$field['size'] = $packet->readUint8();
-        }elseif (self::$field['type'] == ConstFieldType::FLOAT){
+        }elseif (self::$field['type'] == MysqlFieldType::FLOAT){
             self::$field['size'] = $packet->readUint8();
-        }elseif (self::$field['type'] == ConstFieldType::TIMESTAMP2){
+        }elseif (self::$field['type'] == MysqlFieldType::TIMESTAMP2){
             self::$field['fsp'] = $packet->readUint8();
-        }elseif (self::$field['type'] == ConstFieldType::DATETIME2){
+        }elseif (self::$field['type'] == MysqlFieldType::DATETIME2){
             self::$field['fsp']= $packet->readUint8();
-        }elseif (self::$field['type'] == ConstFieldType::TIME2) {
+        }elseif (self::$field['type'] == MysqlFieldType::TIME2) {
             self::$field['fsp'] = $packet->readUint8();
-        }elseif (self::$field['type'] == ConstFieldType::TINY && $column_schema["COLUMN_TYPE"] == "tinyint(1)") {
+        }elseif (self::$field['type'] == MysqlFieldType::TINY && $column_schema["COLUMN_TYPE"] == "tinyint(1)") {
             self::$field['type_is_bool'] = True;
-        }elseif (self::$field['type'] == ConstFieldType::VAR_STRING || self::$field['type'] == ConstFieldType::STRING){
+        }elseif (self::$field['type'] == MysqlFieldType::VAR_STRING || self::$field['type'] == MysqlFieldType::STRING){
             self::_read_string_metadata($packet, $column_schema);
-        }elseif( self::$field['type'] == ConstFieldType::BLOB){
+        }elseif( self::$field['type'] == MysqlFieldType::BLOB){
             self::$field['length_size'] = $packet->readUint8();
-        }elseif (self::$field['type'] == ConstFieldType::GEOMETRY){
+        }elseif (self::$field['type'] == MysqlFieldType::GEOMETRY){
             self::$field['length_size'] = $packet->readUint8();
-        }elseif( self::$field['type'] == ConstFieldType::NEWDECIMAL){
+        }elseif( self::$field['type'] == MysqlFieldType::NEWDECIMAL){
             self::$field['precision'] = $packet->readUint8();
             self::$field['decimals'] = $packet->readUint8();
-        }elseif (self::$field['type'] == ConstFieldType::BIT) {
+        }elseif (self::$field['type'] == MysqlFieldType::BIT) {
             $bits = $packet->readUint8();
             $bytes = $packet->readUint8();
             self::$field['bits'] = ($bytes * 8) + $bits;
@@ -59,7 +59,7 @@ class BinLogColumns {
 
         $metadata = ($packet->readUint8() << 8) + $packet->readUint8();
         $real_type = $metadata >> 8;
-        if($real_type == ConstFieldType::SET || $real_type == ConstFieldType::ENUM) {
+        if($real_type == MysqlFieldType::SET || $real_type == MysqlFieldType::ENUM) {
             self::$field['type'] = $real_type;
             self::$field['size'] = $metadata & 0x00ff;
             self::_read_enum_metadata($column_schema);
@@ -69,7 +69,7 @@ class BinLogColumns {
     }
     private static function _read_enum_metadata($column_schema) {
         $enums = $column_schema["COLUMN_TYPE"];
-        if (self::$field['type'] == ConstFieldType::ENUM) {
+        if (self::$field['type'] == MysqlFieldType::ENUM) {
             $enums = str_replace('enum(', '', $enums);
             $enums = str_replace(')', '', $enums);
             $enums = str_replace('\'', '', $enums);
