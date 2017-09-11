@@ -62,32 +62,32 @@ class BinLogPack {
         $data = [];
 
         // 映射fileds相关信息
-        if (self::$EVENT_TYPE == ConstEventType::TABLE_MAP_EVENT) {
+        if (self::$EVENT_TYPE == MysqlEventType::TABLE_MAP_EVENT) {
             RowEvent::tableMap(self::getInstance(), self::$EVENT_TYPE);
-        } elseif(in_array(self::$EVENT_TYPE,[ConstEventType::UPDATE_ROWS_EVENT_V2,ConstEventType::UPDATE_ROWS_EVENT_V1])) {
+        } elseif(in_array(self::$EVENT_TYPE,[MysqlEventType::UPDATE_ROWS_EVENT_V2,MysqlEventType::UPDATE_ROWS_EVENT_V1])) {
             $data =  RowEvent::updateRow(self::getInstance(), self::$EVENT_TYPE, $event_size_without_header);
             self::$_POS = self::$EVENT_INFO['pos'];
-        }elseif(in_array(self::$EVENT_TYPE,[ConstEventType::WRITE_ROWS_EVENT_V1, ConstEventType::WRITE_ROWS_EVENT_V2])) {
+        }elseif(in_array(self::$EVENT_TYPE,[MysqlEventType::WRITE_ROWS_EVENT_V1, MysqlEventType::WRITE_ROWS_EVENT_V2])) {
             $data = RowEvent::addRow(self::getInstance(), self::$EVENT_TYPE, $event_size_without_header);
             self::$_POS = self::$EVENT_INFO['pos'];
-        }elseif(in_array(self::$EVENT_TYPE,[ConstEventType::DELETE_ROWS_EVENT_V1, ConstEventType::DELETE_ROWS_EVENT_V2])) {
+        }elseif(in_array(self::$EVENT_TYPE,[MysqlEventType::DELETE_ROWS_EVENT_V1, MysqlEventType::DELETE_ROWS_EVENT_V2])) {
             $data = RowEvent::delRow(self::getInstance(), self::$EVENT_TYPE, $event_size_without_header);
             self::$_POS = self::$EVENT_INFO['pos'];
         }elseif(self::$EVENT_TYPE == 16) {
             //var_dump(bin2hex($pack),$this->readUint64());
             //return RowEvent::delRow(self::getInstance(), self::$EVENT_TYPE);
-        }elseif(self::$EVENT_TYPE == ConstEventType::ROTATE_EVENT) {
+        }elseif(self::$EVENT_TYPE == MysqlEventType::ROTATE_EVENT) {
             $log_pos = $this->readUint64();
             self::$_FILE_NAME = $this->read($event_size_without_header-8);
-        }elseif(self::$EVENT_TYPE == ConstEventType::GTID_LOG_EVENT) {
+        }elseif(self::$EVENT_TYPE == MysqlEventType::GTID_LOG_EVENT) {
             //gtid event
 
         }elseif(self::$EVENT_TYPE == 15) {
             //$pack = self::getInstance();
             //$pack->read(4);
-        } elseif(self::$EVENT_TYPE == ConstEventType::QUERY_EVENT) {
+        } elseif(self::$EVENT_TYPE == MysqlEventType::QUERY_EVENT) {
 
-        } elseif(self::$EVENT_TYPE == ConstEventType::HEARTBEAT_LOG_EVENT) {
+        } elseif(self::$EVENT_TYPE == MysqlEventType::HEARTBEAT_LOG_EVENT) {
             //心跳检测机制
             $binlog_name = $this->read($event_size_without_header);
             echo 'heart beat '.$binlog_name."\n";

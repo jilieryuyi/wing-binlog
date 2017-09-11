@@ -18,7 +18,7 @@ class RowEvent extends BinLogEvent
         parent::_init($pack, $event_type, $size);
         self::$TABLE_ID = self::readTableId();
 
-        if (in_array(self::$EVENT_TYPE, [ConstEventType::DELETE_ROWS_EVENT_V2, ConstEventType::WRITE_ROWS_EVENT_V2, ConstEventType::UPDATE_ROWS_EVENT_V2])) {
+        if (in_array(self::$EVENT_TYPE, [MysqlEventType::DELETE_ROWS_EVENT_V2, MysqlEventType::WRITE_ROWS_EVENT_V2, MysqlEventType::UPDATE_ROWS_EVENT_V2])) {
             self::$FLAGS = unpack('S', self::$PACK->read(2))[1];
 
             self::$EXTRA_DATA_LENGTH = unpack('S', self::$PACK->read(2))[1];
