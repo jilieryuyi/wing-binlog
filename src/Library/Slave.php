@@ -53,44 +53,25 @@ class Slave
 		}
         $this->last_pos = file_get_contents($file);
 
-        \Wing\Bin\ConstCapability::init();
-
-
-		$this->client = new \Wing\Bin\ClientSocket($this->host, $this->port);
-		$this->client->auth($this->user, $this->password, $this->db, $this->slave_server_id, $this->last_binlog_file, $this->last_pos);
+		$this->client = new \Wing\Bin\ClientNet($this->host, $this->port);
+		$this->client->auth($this->user, $this->password, $this->db);
+		$this->client->asSlave($this->slave_server_id, $this->last_binlog_file, $this->last_pos);
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
     public function getEvent() {
 
-        $pack   = $this->client->readPacket();
+        $result = $this->client->getEvent();
 
-        // 校验数据包格式
-        \Wing\Bin\PackAuth::success($pack);
+		$binlog = \Wing\Bin\BinLogPack::getInstance();
+		$file = HOME."/cache/slave/last_binlog_file";
+		$bin_file = $binlog->getLastBinLogFile();
+		if (0 >= file_put_contents($file, $bin_file))
+			file_put_contents($file, $bin_file);
 
-        $binlog = \Wing\Bin\BinLogPack::getInstance();
-        $result = $binlog->init($pack, $this->checksum);
-
-        $file = HOME."/cache/slave/last_binlog_file";
-        $bin_file = $binlog->getLastBinLogFile();
-        if (0 >= file_put_contents($file, $bin_file))
-            file_put_contents($file, $bin_file);
-
-        $file = HOME."/cache/slave/last_pos_file";
-        $pos = $binlog->getLastPos();
-        if (0 >= file_put_contents($file, $pos))
-            file_put_contents($file, $pos);
+		$file = HOME."/cache/slave/last_pos_file";
+		$pos = $binlog->getLastPos();
+		if (0 >= file_put_contents($file, $pos))
+			file_put_contents($file, $pos);
 
         return $result;
     }

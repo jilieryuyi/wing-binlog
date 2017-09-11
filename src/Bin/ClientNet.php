@@ -8,13 +8,14 @@ use Wing\Library\PDO;
  * Email: huangxiaoan@xunlei.com
  * @property PDO $pdo
  */
-class ClientSocket
+class ClientNet
 {
 	private $socket;
 	private $pdo;
 	private $checksum;
 	public function __construct($host, $port)
 	{
+		\Wing\Bin\ConstCapability::init();
 		if (($this->socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP)) == false) {
 			throw new \Exception(sprintf("Unable to create a socket: %s", socket_strerror(socket_last_error())));
 		}
@@ -41,29 +42,29 @@ class ClientSocket
 		$this->checksum = !!$res['Value'];
 	}
 
-	public function auth($user, $password, $db, $slave_server_id, $last_binlog_file, $last_pos)
+	public function auth($user, $password, $db)
 	{
-		$flag = \Wing\Bin\ConstCapability::$CAPABILITIES;
+		$flag = ConstCapability::$CAPABILITIES;
 		if ($db) {
-			$flag |= \Wing\Bin\ConstCapability::$CONNECT_WITH_DB;
+			$flag |= ConstCapability::$CONNECT_WITH_DB;
 		}
 		// 获取server信息 加密salt
 		$pack   	 = $this->readPacket();
-		$server_info = new \Wing\Bin\ServerInfo($pack);
+		$server_info = new ServerInfo($pack);
 		$salt   	 = $server_info->getSalt();
 
 		// 认证
 		// pack拼接
-		$data = \Wing\Bin\PackAuth::initPack($flag, $user, $password, $salt,  $db);
+		$data = PackAuth::initPack($flag, $user, $password, $salt,  $db);
 
 		$this->send($data);
 		//
 		$result = $this->readPacket();
 
 		// 认证是否成功
-		\Wing\Bin\PackAuth::success($result);
+		PackAuth::success($result);
 
-		$this->getBinlogStream($slave_server_id, $last_binlog_file, $last_pos);
+		//$this->getBinlogStream($slave_server_id, $last_binlog_file, $last_pos);
 	}
 
 	public function send($data)
@@ -132,13 +133,14 @@ class ClientSocket
 
 	/**
 	 * 注册成slave
+	 * @param int $slave_server_id
 	 */
-	private function registerAsSlave($slave_server_id)
+	private function _registerAsSlave($slave_server_id)
 	{
 		$header   = pack('l', 18);
 
 		// COM_BINLOG_DUMP
-		$data  = $header . chr(\Wing\Bin\ConstCommand::COM_REGISTER_SLAVE);
+		$data  = $header . chr(ConstCommand::COM_REGISTER_SLAVE);
 		$data .= pack('L', $slave_server_id);
 		$data .= chr(0);
 		$data .= chr(0);
@@ -155,7 +157,7 @@ class ClientSocket
 		PackAuth::success($result);
 	}
 
-	protected function getCheckSum()
+	public function getCheckSum()
 	{
 		return $this->checksum;
 	}
@@ -165,7 +167,7 @@ class ClientSocket
 		return $result;
 	}
 
-	private function getBinlogStream($slave_server_id, $last_binlog_file, $last_pos)
+	public function asSlave($slave_server_id, $last_binlog_file, $last_pos)
 	{
 
 		// checksum
@@ -178,7 +180,7 @@ class ClientSocket
 			$this->excute("set @master_heartbeat_period=".($heart*1000000000));
 		}
 
-		$this->registerAsSlave($slave_server_id);
+		$this->_registerAsSlave($slave_server_id);
 
 		// 开始读取的二进制日志位置
 		if(!$last_binlog_file) {
@@ -202,12 +204,12 @@ class ClientSocket
 
 
 		// 初始化
-		\Wing\Bin\BinLogPack::setFilePos($last_binlog_file, $last_pos);
+		BinLogPack::setFilePos($last_binlog_file, $last_pos);
 
 		$header = pack('l', 11 + strlen($last_binlog_file));
 
 		// COM_BINLOG_DUMP
-		$data  = $header . chr(\Wing\Bin\ConstCommand::COM_BINLOG_DUMP);
+		$data  = $header . chr(ConstCommand::COM_BINLOG_DUMP);
 		$data .= pack('L', $last_pos);
 		$data .= pack('s', 0);
 		$data .= pack('L', $slave_server_id);
@@ -217,6 +219,20 @@ class ClientSocket
 
 		//认证
 		$result = $this->readPacket();
-		\Wing\Bin\PackAuth::success($result);
+		PackAuth::success($result);
+	}
+
+	public function getEvent() {
+
+		$pack   = $this->readPacket();
+
+		// 校验数据包格式
+		PackAuth::success($pack);
+
+		$binlog = BinLogPack::getInstance();
+		$result = $binlog->init($pack, $this->checksum);
+
+
+		return $result;
 	}
 }
