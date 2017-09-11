@@ -43,22 +43,24 @@ class Slave
         $dir  = new WDir(HOME."/cache/slave");
         $dir->mkdir();
         unset($dir);
-        if (!file_exists($file))
-        touch($file);
+        if (!file_exists($file)) {
+        	touch($file);
+		}
         $this->last_binlog_file = file_get_contents($file);
 
 
 
         $this->last_pos = 0;
         $file = HOME."/cache/slave/last_pos_file";
-        if (!file_exists($file))
-        touch($file);
+        if (!file_exists($file)) {
+        	touch($file);
+		}
         $this->last_pos = file_get_contents($file);
 
         \Wing\Bin\ConstCapability::init();
 
         if (($this->socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP)) == false) {
-            throw new \Exception( sprintf( "Unable to create a socket: %s", socket_strerror( socket_last_error())));
+            throw new \Exception(sprintf("Unable to create a socket: %s", socket_strerror(socket_last_error())));
         }
 
         socket_set_block($this->socket);
@@ -71,7 +73,6 @@ class Slave
             $flag |= \Wing\Bin\ConstCapability::$CONNECT_WITH_DB;
         }
 
-
         //连接到mysql
         if(!socket_connect($this->socket, $this->host, $this->port)) {
             throw new \Exception(
@@ -83,11 +84,10 @@ class Slave
             );
         }
 
-        // 获取server信息
-        $pack   = $this->_readPacket();
-        \Wing\Bin\ServerInfo::run($pack);
-        // 加密salt
-        $salt   = \Wing\Bin\ServerInfo::getSalt();
+        // 获取server信息 加密salt
+        $pack   	 = $this->_readPacket();
+        $server_info = new \Wing\Bin\ServerInfo($pack);
+        $salt   	 = $server_info->getSalt();
 
         // 认证
         // pack拼接
