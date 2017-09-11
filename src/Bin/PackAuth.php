@@ -59,19 +59,20 @@ class PackAuth {
      * @param $pack
      * @return array
      */
-    public static function success($pack) {
+    public static function success($pack)
+	{
         $head = ord($pack[0]);
-        if(in_array($head, ConstAuth::$OK_PACK_HEAD)) {
+        if (in_array($head, PacketAuth::OK_PACK_HEAD)) {
             return ['status' => true, 'code' => 0, 'msg' => ''];
-        } else{
+        } else {
             $error_code = unpack("v", $pack[1] . $pack[2])[1];
             $error_msg  = '';
-            for($i = 9; $i < strlen($pack); $i ++) {
+
+            for ($i = 9; $i < strlen($pack); $i ++) {
                 $error_msg .= $pack[$i];
             }
             var_dump(['code' => $error_code, 'msg' => $error_msg]);
             exit;
         }
-
     }
 }
