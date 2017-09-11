@@ -175,12 +175,20 @@ var warnings = MySQLWarnings{}
 
         //0000000: 0001 0000 0017 0000 0000 0000 0a
         //stmt.id
-var_dump(unpack("L", $res[1].$res[2].$res[3].chr(0)));
+        $smtid = unpack("L", $res[1].$res[2].$res[3].chr(0))[1];
+var_dump($smtid);
 
 //cloumns count
         var_dump(unpack("n", $res[4].$res[5].$res[6].$res[7]));
 
 
+        $chunk_size = strlen($smtid) + 1;
+        $prelude    = pack('LC',$chunk_size, CommandType::COM_STMT_EXECUTE);
+        $this->send($prelude . $smtid);
+
+        $res = $this->readPacket();
+        var_dump("222==>",$res);
+        file_put_contents(HOME."/logs/sql_debug2.log", $res);
 //        if !stmt.mc.strict {
 //            return columnCount, nil
 //		}
@@ -251,18 +259,17 @@ var_dump(unpack("L", $res[1].$res[2].$res[3].chr(0)));
 	{
 		//消息头
 		$header = $this->_readBytes(4);
-		var_dump($header);
+		var_dump("readPacket=>1=>",$header);
 		if($header === false) return false;
 		//消息体长度3bytes 小端序
 		$unpack_data = unpack("L",$header[0].$header[1].$header[2].chr(0))[1];
-		echo "length:";
-		var_dump($unpack_data);
+		var_dump("readPacket=>2=>",$unpack_data);
 
-        var_dump(ord($header[0]) | ord($header[1])<<8 | ord($header[2])<<16);
+        var_dump("readPacket=>3=>",ord($header[0]) | ord($header[1])<<8 | ord($header[2])<<16);
 
 
 		$result = $this->_readBytes($unpack_data);
-		var_dump($result);
+		var_dump("readPacket=>4=>",$result);
 		return $result;
 	}
 
