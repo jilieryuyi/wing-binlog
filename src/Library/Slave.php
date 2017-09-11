@@ -10,16 +10,13 @@ use Wing\FileSystem\WDir;
  */
 class Slave
 {
-    private $host;// = '127.0.0.1';
-    private $port;// = 3306;
-    private $password;// = '123456';
-    private $user;// = 'root';
-    private $db;// = 'xsl';
-
+	private $host;
+    private $port;
+    private $password;
+    private $user;
+    private $db;
     private $client;
-
     private $slave_server_id = 99999;
-
     private $last_binlog_file;
     private $last_pos;
 

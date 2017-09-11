@@ -43,9 +43,9 @@ class ClientNet
 
 	public function auth($user, $password, $db)
 	{
-		$flag = ConstCapability::$CAPABILITIES;
+		$flag = CapabilityFlag::$CAPABILITIES;
 		if ($db) {
-			$flag |= ConstCapability::$CONNECT_WITH_DB;
+			$flag |= CapabilityFlag::$CONNECT_WITH_DB;
 		}
 		// 获取server信息 加密salt
 		$pack   	 = $this->readPacket();
