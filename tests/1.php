@@ -5,6 +5,6 @@
  * Date: 17/8/16
  * Time: 21:47
  */
-define("HOME", dirname(__DIR__));
-echo HOME."/services/websocket stop";
-exec(HOME."/services/tcp stop");
+$pass = "123456";
+$salt = "456789";
+var_dump(sha1($pass, true) ^ sha1($salt . sha1(sha1($pass, true), true),true));
