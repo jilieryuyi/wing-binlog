@@ -112,20 +112,157 @@ class ClientNet
 		}
 		return null;
 	}
-	protected function excute($sql) {
+	public function excute($sql) {
 		$chunk_size = strlen($sql) + 1;
-		$prelude    = pack('LC',$chunk_size, 0x03);
+		$prelude    = pack('LC',$chunk_size, CommandType::COM_QUERY);
 		$this->send($prelude . $sql);
+		$res = $this->readPacket();
+		file_put_contents(HOME."/logs/sql_debug.log", $res, FILE_APPEND);
 	}
+/*
+func (mc *mysqlConn) getWarnings() (err error) {
+rows, err := mc.Query("SHOW WARNINGS", nil)
+if err != nil {
+return
+}
+
+var warnings = MySQLWarnings{}
+	var values = make([]driver.Value, 3)
+
+	for {
+        err = rows.Next(values)
+		switch err {
+            case nil:
+                warning := MySQLWarning{}
+
+			if raw, ok := values[0].([]byte); ok {
+                warning.Level = string(raw)
+			} else {
+                warning.Level = fmt.Sprintf("%s", values[0])
+			}
+			if raw, ok := values[1].([]byte); ok {
+                warning.Code = string(raw)
+			} else {
+                warning.Code = fmt.Sprintf("%s", values[1])
+			}
+			if raw, ok := values[2].([]byte); ok {
+                warning.Message = string(raw)
+			} else {
+                warning.Message = fmt.Sprintf("%s", values[0])
+			}
+
+			warnings = append(warnings, warning)
+
+		case io.EOF:
+            return warnings
+
+		default:
+            rows.Close()
+			return
+		}
+	}
+}
+	*/
+    public function excute2($sql) {
+        $chunk_size = strlen($sql) + 1;
+        $prelude    = pack('LC',$chunk_size, CommandType::COM_STMT_PREPARE);
+        $this->send($prelude . $sql);
+        $res = $this->readPacket();
+
+        $this->_readBytes(4);
+
+        var_dump(PacketAuth::success($res));
+
+        //0000000: 0001 0000 0017 0000 0000 0000 0a
+        //stmt.id
+var_dump(unpack("L", $res[1].$res[2].$res[3].chr(0)));
+
+//cloumns count
+        var_dump(unpack("n", $res[4].$res[5].$res[6].$res[7]));
+
+
+//        if !stmt.mc.strict {
+//            return columnCount, nil
+//		}
+//
+//        // Check for warnings count > 0, only available in MySQL > 4.1
+//        if len(data) >= 12 && binary.LittleEndian.Uint16(data[10:12]) > 0 {
+//            return columnCount, stmt.mc.getWarnings()
+//		}
+
+//        columnCount := binary.LittleEndian.Uint16(data[5:7])
+//
+//		// Param count [16 bit uint]
+//		stmt.paramCount = int(binary.LittleEndian.Uint16(data[7:9]))
+//
+//		// Reserved [8 bit]
+//
+//		// Warning count [16 bit uint]
+//		if !stmt.mc.strict {
+//            return columnCount, nil
+		//}
+
+        file_put_contents(HOME."/logs/sql_debug.log", $res, FILE_APPEND);
+    }
+
+    public function excute3($sql) {
+        $chunk_size = strlen($sql) + 1;
+        $prelude    = pack('LC',$chunk_size, CommandType::COM_STMT_EXECUTE);
+        $this->send($prelude . $sql);
+        $res = $this->readPacket();
+
+        $this->_readBytes(4);
+
+        var_dump(PacketAuth::success($res));
+
+        //0000000: 0001 0000 0017 0000 0000 0000 0a
+        //stmt.id
+        var_dump(unpack("L", $res[1].$res[2].$res[3].chr(0)));
+
+//cloumns count
+        var_dump(unpack("n", $res[4].$res[5].$res[6].$res[7]));
+
+
+//        if !stmt.mc.strict {
+//            return columnCount, nil
+//		}
+//
+//        // Check for warnings count > 0, only available in MySQL > 4.1
+//        if len(data) >= 12 && binary.LittleEndian.Uint16(data[10:12]) > 0 {
+//            return columnCount, stmt.mc.getWarnings()
+//		}
+
+//        columnCount := binary.LittleEndian.Uint16(data[5:7])
+//
+//		// Param count [16 bit uint]
+//		stmt.paramCount = int(binary.LittleEndian.Uint16(data[7:9]))
+//
+//		// Reserved [8 bit]
+//
+//		// Warning count [16 bit uint]
+//		if !stmt.mc.strict {
+//            return columnCount, nil
+        //}
+
+        file_put_contents(HOME."/logs/sql_debug.log", $res, FILE_APPEND);
+    }
 
 	public function readPacket()
 	{
 		//消息头
 		$header = $this->_readBytes(4);
+		var_dump($header);
 		if($header === false) return false;
 		//消息体长度3bytes 小端序
 		$unpack_data = unpack("L",$header[0].$header[1].$header[2].chr(0))[1];
+		echo "length:";
+		var_dump($unpack_data);
+
+        var_dump(ord($header[0]) | ord($header[1])<<8 | ord($header[2])<<16);
+
+
 		$result = $this->_readBytes($unpack_data);
+		var_dump($result);
 		return $result;
 	}
 

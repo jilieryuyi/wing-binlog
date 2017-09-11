@@ -31,4 +31,5 @@ while(1){
         if ($s>0)
         echo $times,"次，",$times/($s)."/次事件每秒，耗时",$s,"秒\r\n";
     }
+    break;
 }
