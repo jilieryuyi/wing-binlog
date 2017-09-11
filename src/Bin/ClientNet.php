@@ -15,7 +15,6 @@ class ClientNet
 	private $checksum;
 	public function __construct($host, $port)
 	{
-		\Wing\Bin\ConstCapability::init();
 		if (($this->socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP)) == false) {
 			throw new \Exception(sprintf("Unable to create a socket: %s", socket_strerror(socket_last_error())));
 		}

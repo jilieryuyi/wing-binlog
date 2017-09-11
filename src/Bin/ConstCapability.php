@@ -48,3 +48,5 @@ class ConstCapability {
             self::$PROTOCOL_41 | self::$SECURE_CONNECTION);
     }
 }
+
+\Wing\Bin\ConstCapability::init();
