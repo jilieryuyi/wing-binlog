@@ -44,6 +44,7 @@ class BinLogPack {
             self::$_instance = new self();
         }
 
+        //package error
         if (strlen($pack) < 19) return null;
         //
         self::$_PACK       = $pack;
