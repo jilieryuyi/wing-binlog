@@ -242,11 +242,18 @@ private static function read_newdecimal($precision, $scale) {
 	# The sign is encoded in the high bit of the first byte/digit. The byte
 	# might be part of a larger integer, so apply the optional bit-flipper
 	# and push back the byte into the input stream.
-$value =  unpack('C', self::$PACK->read(1))[1];
+    $value =  unpack('C', self::$PACK->read(1))[1];
+    $value =  unpack('C', self::$PACK->read(1))[1];
+
+    $value =  unpack('C', self::$PACK->read(1))[1];
 list($str, $mask) = ($value & 0x80 != 0) ? ["", 0] : ["-", -1];
+
 	BinLogPack::$unget[] = ($value ^ 0x80);
 
 	$size = $compressed_bytes[$comp_integral];
+
+    var_dump($str,$size);
+    exit;
 
 if ($size > 0) {
 	$value = self::$PACK->read_int_be_by_size($size) ^ $mask;
@@ -259,6 +266,7 @@ for($i=1; $i<$uncomp_integral;$i++) { // . each do
 	$str .= $value;//<< value . to_s
 }
 
+if (!$str) $str = '0';
 	$str .= ".";
 	for($i=1; $i<$uncomp_fractional;$i++) {
 //(1. . uncomp_fractional) . each do
@@ -293,7 +301,7 @@ $str.=$value;// << value . to_s
         $nullBitmapIndex = 0;
         foreach (self::$TABLE_MAP[self::$SCHEMA_NAME][self::$TABLE_NAME]['fields'] as $i => $value) {
             $column = $value;
-          //  var_dump($column);
+            var_dump($column);
             $name = $value['name'];
             $unsigned = $value['unsigned'];
 
@@ -340,11 +348,13 @@ $str.=$value;// << value . to_s
                     $values[$name] = self::_read_string(1, $column);
             } elseif ($column['type'] == MysqlFieldType::NEWDECIMAL) {
 
-				$precision = unpack('C', self::$PACK->read(1))[1];
-          		$decimals  = unpack('C', self::$PACK->read(1))[1];
-//				precision = metadata[:precision]
+				//$precision = unpack('C', self::$PACK->read(1))[1];
+          		//$decimals  = unpack('C', self::$PACK->read(1))[1];
+
+//var_dump($precision,$decimals);exit;
+//precision = metadata[:precision]
 //        scale = metadata[:decimals]
-                $values[$name] = self::read_newdecimal($precision, $decimals);
+                $values[$name] = self::read_newdecimal(10, 2);
             } elseif ($column['type'] == MysqlFieldType::BLOB) {
                 //ok
                 $values[$name] = self::_read_string($column['length_size'], $column);
