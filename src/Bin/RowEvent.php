@@ -230,30 +230,32 @@ class RowEvent extends BinLogEvent
         return $string;
     }
 
-private static function read_newdecimal($precision, $scale) {
+private static function read_newdecimal($col) {
+    $precision = $col["precision"];$scale = $col["decimals"];
 	$digits_per_integer = 9;
 	$compressed_bytes = [0, 1, 1, 2, 2, 3, 3, 4, 4, 4];
 	$integral = ($precision - $scale);
-	$uncomp_integral = $integral / $digits_per_integer;
-	$uncomp_fractional = $scale / $digits_per_integer;
+	$uncomp_integral = intval($integral / $digits_per_integer);
+	$uncomp_fractional = intval($scale / $digits_per_integer);
 	$comp_integral = $integral - ($uncomp_integral * $digits_per_integer);
 	$comp_fractional = $scale - ($uncomp_fractional * $digits_per_integer);
 
 	# The sign is encoded in the high bit of the first byte/digit. The byte
 	# might be part of a larger integer, so apply the optional bit-flipper
 	# and push back the byte into the input stream.
-    $value =  unpack('C', self::$PACK->read(1))[1];
-    $value =  unpack('C', self::$PACK->read(1))[1];
 
-    $value =  unpack('C', self::$PACK->read(1))[1];
-list($str, $mask) = ($value & 0x80 != 0) ? ["", 0] : ["-", -1];
+    $value =   self::$PACK->readUint8();//unpack('C', self::$PACK->read(1))[1];
+    list($str, $mask) =
+        ($value & 0x80 != 0) ?
+            ["", 0] : ["-", -1];
+var_dump(pack("C",$value ^ 0x80));
 
-	BinLogPack::$unget[] = ($value ^ 0x80);
+	BinLogPack::$unget[] = pack("v",$value ^ 0x80);
 
 	$size = $compressed_bytes[$comp_integral];
 
     var_dump($str,$size);
-    exit;
+//    exit;
 
 if ($size > 0) {
 	$value = self::$PACK->read_int_be_by_size($size) ^ $mask;
@@ -282,6 +284,7 @@ $str.=$value;// << value . to_s
 }
 //
 //BigDecimal . new(str)
+    var_dump($str);//exit;
 	return $str;
 }
 
@@ -354,7 +357,7 @@ $str.=$value;// << value . to_s
 //var_dump($precision,$decimals);exit;
 //precision = metadata[:precision]
 //        scale = metadata[:decimals]
-                $values[$name] = self::read_newdecimal(10, 2);
+                $values[$name] = self::read_newdecimal($column);
             } elseif ($column['type'] == MysqlFieldType::BLOB) {
                 //ok
                 $values[$name] = self::_read_string($column['length_size'], $column);
