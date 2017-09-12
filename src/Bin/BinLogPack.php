@@ -110,7 +110,7 @@ class BinLogPack {
 
         if (count(self::$unget) > 0) {
         	foreach (self::$unget as $kk => $vv) {
-				self::$_PACK.=$vv;//array_unshift(self::$_PACK, $vv);
+				self::$_PACK=$vv.self::$_PACK;//array_unshift(self::$_PACK, $vv);
 				unset(self::$unget[$kk]);
 			}
 		}
