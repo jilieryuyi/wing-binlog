@@ -255,14 +255,14 @@ if ($size > 0) {
 
 
 for($i=1; $i<$uncomp_integral;$i++) { // . each do
-	$value = unpack('i', self::$PACK->read(4))[1]/*read_int32_be()*/ ^ $mask;
+	$value = self::$PACK->read_int32_be() ^ $mask;
 	$str .= $value;//<< value . to_s
 }
 
 	$str .= ".";
 	for($i=1; $i<$uncomp_fractional;$i++) {
 //(1. . uncomp_fractional) . each do
-		$value = unpack('i', self::$PACK->read(4))[1]/*read_int32_be()*/ ^ $mask;
+		$value = self::$PACK->read_int32_be() ^ $mask;
 $str.=$value;// << value . to_s
 }
 

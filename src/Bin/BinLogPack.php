@@ -112,6 +112,7 @@ class BinLogPack {
         	foreach (self::$unget as $kk => $vv) {
 				self::$_PACK=$vv.self::$_PACK;//array_unshift(self::$_PACK, $vv);
 				unset(self::$unget[$kk]);
+                self::$_PACK_KEY--;
 			}
 		}
 
@@ -198,6 +199,15 @@ class BinLogPack {
     {
         $data = unpack('C3', $this->read(3));
         $res = ($data[1] << 16) | ($data[2] << 8) | $data[3];
+        if ($res >= 0x800000)
+            $res -= 0x1000000;
+        return $res;
+    }
+
+    public function read_int32_be()
+    {
+        $data = unpack('C4', $this->read(4));
+        $res = ($data[1] << 24)|($data[2] << 16) | ($data[3] << 8) | $data[4];
         if ($res >= 0x800000)
             $res -= 0x1000000;
         return $res;
