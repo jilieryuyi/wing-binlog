@@ -103,9 +103,18 @@ class BinLogPack {
         return $data;
     }
 
+    public static $unget = [];
     public function read($length) {
         $length = (int)$length;
         $n='';
+
+        if (count(self::$unget) > 0) {
+        	foreach (self::$unget as $kk => $vv) {
+				self::$_PACK.=$vv;//array_unshift(self::$_PACK, $vv);
+				unset(self::$unget[$kk]);
+			}
+		}
+
         for($i = self::$_PACK_KEY; $i < self::$_PACK_KEY + $length; $i++) {
             if (!isset(self::$_PACK[$i])) return $n;
             $n .= self::$_PACK[$i];

@@ -46,15 +46,15 @@ class Slave
         	touch($pos_file);
 		}
 
-		$this->last_binlog_file = file_get_contents($bin_file);
-        $this->last_pos 		= file_get_contents($pos_file);
+		$this->last_binlog_file = null;//file_get_contents($bin_file);
+        $this->last_pos 		= 0;//file_get_contents($pos_file);
 		$this->client 			= new \Wing\Bin\ClientNet($this->host, $this->port);
 
 		//连接并认证mysql 然后后面注册为slave
 		$this->client->auth($this->user, $this->password, $this->db);
-		//$this->client->asSlave($this->slave_server_id, $this->last_binlog_file, $this->last_pos);
-        $this->client->excute2('SELECT * FROM `content_type` limit 9');
-        exit;
+		$this->client->asSlave($this->slave_server_id, $this->last_binlog_file, $this->last_pos);
+       // $this->client->excute2('SELECT * FROM `content_type` limit 9');
+        //exit;
     }
 
     /**

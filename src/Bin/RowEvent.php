@@ -242,37 +242,39 @@ private static function read_newdecimal($precision, $scale) {
 	# The sign is encoded in the high bit of the first byte/digit. The byte
 	# might be part of a larger integer, so apply the optional bit-flipper
 	# and push back the byte into the input stream.
-//$value =  unpack('C', self::$PACK->read(1))[1];
-//list($str, $mask) = ($value & 0x80 != 0) ? ["", 0] : ["-", -1];
-//reader . unget(value ^ 0x80)
+$value =  unpack('C', self::$PACK->read(1))[1];
+list($str, $mask) = ($value & 0x80 != 0) ? ["", 0] : ["-", -1];
+	BinLogPack::$unget[] = ($value ^ 0x80);
 
-//	$size = $compressed_bytes[$comp_integral];
-//
-//if ($size > 0)
-//	$value = read_int_be_by_size($size) ^ $mask;
-//str << value . to_s
-//end
-//
-//(1. . uncomp_integral) . each do
-//		value = read_int32_be ^ mask
-//str << value . to_s
-//end
-//
-//str << "."
-//
+	$size = $compressed_bytes[$comp_integral];
+
+if ($size > 0) {
+	$value = self::$PACK->read_int_be_by_size($size) ^ $mask;
+	$str .= $value;// << value . to_s
+}
+
+
+for($i=1; $i<$uncomp_integral;$i++) { // . each do
+	$value = unpack('i', self::$PACK->read(4))[1]/*read_int32_be()*/ ^ $mask;
+	$str .= $value;//<< value . to_s
+}
+
+	$str .= ".";
+	for($i=1; $i<$uncomp_fractional;$i++) {
 //(1. . uncomp_fractional) . each do
-//		value = read_int32_be ^ mask
-//str << value . to_s
-//end
-//
-//size = compressed_bytes[comp_fractional]
-//
-//if size > 0
-//value = read_int_be_by_size(size) ^ mask
-//str << value . to_s
-//end
+		$value = unpack('i', self::$PACK->read(4))[1]/*read_int32_be()*/ ^ $mask;
+$str.=$value;// << value . to_s
+}
+
+$size = $compressed_bytes[$comp_fractional];
+
+if ($size > 0) {
+	$value = self::$PACK->read_int_be_by_size($size) ^ $mask;
+$str.=$value;// << value . to_s
+}
 //
 //BigDecimal . new(str)
+	return $str;
 }
 
     private static function columnFormat($cols_bitmap, $len)
@@ -322,7 +324,7 @@ private static function read_newdecimal($precision, $scale) {
                 }
             } elseif ($column['type'] == MysqlFieldType::INT24) {
                 if ($unsigned)
-                    $values[$name] = self::$PACK->read_uint24();
+                    $values[$name] = self::$PACK->readUint24();
                 else
                     $values[$name] = self::$PACK->read_int24();
             } elseif ($column['type'] == MysqlFieldType::FLOAT)
