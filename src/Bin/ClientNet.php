@@ -187,6 +187,7 @@ var_dump($smtid);
         $this->send($prelude . $smtid);
 
         $res = $this->readPacket();
+        PacketAuth::success($res);
         var_dump("222==>",$res);
         file_put_contents(HOME."/logs/sql_debug2.log", $res);
 //        if !stmt.mc.strict {
