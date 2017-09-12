@@ -248,9 +248,9 @@ private static function read_newdecimal($col) {
     list($str, $mask) =
         ($value & 0x80 != 0) ?
             ["", 0] : ["-", -1];
-var_dump(pack("C",$value ^ 0x80));
+//var_dump(pack("C",$value ^ 0x80));
 
-	BinLogPack::$unget[] = pack("v",$value ^ 0x80);
+	BinLogPack::$unget[] = pack("<B",$value ^ 0x80);
 
 	$size = $compressed_bytes[$comp_integral];
 
