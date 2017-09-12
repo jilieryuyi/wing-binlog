@@ -186,19 +186,30 @@ var_dump($smtid);
         $prelude    = pack('LC',$chunk_size, CommandType::COM_STMT_EXECUTE);
         $this->send($prelude . $smtid);
 
+		//$aa = $this->_readBytes(4);
+		//file_put_contents(HOME."/logs/data.log", $aa);
+		//exit;
         $str = '';
-        while(1) {
-            $aa = $this->_readBytes(1);
-            echo ord($aa);
-            $str.=$aa;
-            file_put_contents(HOME."/logs/data.log", $str."\r\n\r\n\r\n");
+        while(1)
+		{
+			$len = ord($this->_readBytes(1));
+           var_dump($len);
+           $data = '';
+           for($i=0;$i<$len;$i++) {
+			   $data.= chr(unpack("C", $this->_readBytes(1))[1]);
+        //   	var_dump($d);
+		   }
+			var_dump($data);
+          // exit;
+          // exit;
+           // file_put_contents(HOME."/logs/data.log", $str."\r\n\r\n\r\n");
         }
         echo "\r\n";
 
-        $res = $this->readPacket();
-        PacketAuth::success($res);
-        var_dump("222==>",$res);
-        file_put_contents(HOME."/logs/sql_debug2.log", $res);
+//        $res = $this->readPacket();
+//        PacketAuth::success($res);
+//        var_dump("222==>",$res);
+//        file_put_contents(HOME."/logs/sql_debug2.log", $res);
 //        if !stmt.mc.strict {
 //            return columnCount, nil
 //		}

@@ -53,7 +53,7 @@ class Slave
 		//连接并认证mysql 然后后面注册为slave
 		$this->client->auth($this->user, $this->password, $this->db);
 		//$this->client->asSlave($this->slave_server_id, $this->last_binlog_file, $this->last_pos);
-        $this->client->excute2('SELECT * FROM `wp_posts` limit 9');
+        $this->client->excute2('SELECT * FROM `content_type` limit 9');
         exit;
     }
 
