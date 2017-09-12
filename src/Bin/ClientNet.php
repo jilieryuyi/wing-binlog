@@ -186,6 +186,15 @@ var_dump($smtid);
         $prelude    = pack('LC',$chunk_size, CommandType::COM_STMT_EXECUTE);
         $this->send($prelude . $smtid);
 
+        $str = '';
+        while(1) {
+            $aa = $this->_readBytes(1);
+            echo ord($aa);
+            $str.=$aa;
+            file_put_contents(HOME."/logs/data.log", $str."\r\n\r\n\r\n");
+        }
+        echo "\r\n";
+
         $res = $this->readPacket();
         PacketAuth::success($res);
         var_dump("222==>",$res);
