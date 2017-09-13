@@ -14,6 +14,35 @@ class Mysql
 		$prelude    = pack('LC',$chunk_size, CommandType::COM_QUERY);
 		Net::send($prelude . $sql);
 		$res = Net::readPacket();
+		//PacketAuth::success($res);
 		return $res;
 	}
+
+    public static function excute($sql) {
+        $chunk_size = strlen($sql) + 1;
+        $prelude    = pack('LC',$chunk_size, CommandType::COM_STMT_PREPARE);
+        Net::send($prelude . $sql);
+        $res = Net::readPacket();
+
+        $smtid = unpack("L", $res[1].$res[2].$res[3].chr(0))[1];
+        echo "smtid=",$smtid,"\r\n";
+
+        //cloumns count
+        echo "cloumns count=".unpack("n", $res[4].$res[5].$res[6].$res[7])[1],"\r\n";
+
+
+        $chunk_size = strlen($smtid) + 1;
+        $prelude    = pack('LC',$chunk_size, CommandType::COM_STMT_EXECUTE);
+        Net::send($prelude . $smtid);
+        $res = Net::readPacket();
+        var_dump($res);
+
+
+       // $chunk_size = strlen($sql) + 1;
+        $prelude = pack('LC',1, CommandType::COM_STMT_FETCH);
+        Net::send($prelude);
+        $res = Net::readPacket();
+        return $res;
+    }
+
 }

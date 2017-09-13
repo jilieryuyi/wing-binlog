@@ -5,8 +5,8 @@
  * Date: 17/9/9
  * Time: 07:02
  */
-include __DIR__."/../vendor/autoload.php";
-define("HOME", dirname(__DIR__));
+include __DIR__."/../../vendor/autoload.php";
+define("HOME", dirname(dirname(__DIR__)));
 
 //初始化一些系统常量
 define("WINDOWS", "windows");

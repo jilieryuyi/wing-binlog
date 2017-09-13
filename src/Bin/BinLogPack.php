@@ -59,7 +59,7 @@ var_dump($pack);
         //position of the next event
         self::$EVENT_INFO['pos']  = $log_pos    = unpack('L', $this->read(4))[1];//
         self::$EVENT_INFO['flag'] = $flags      = unpack('S', $this->read(2))[1];
-        $event_size_without_header =/* $checkSum === true ? ($event_size -23) :*/ $event_size - 19;
+        $event_size_without_header = $checkSum === true ? ($event_size -23) : $event_size - 19;
         $data = [];
 
 
