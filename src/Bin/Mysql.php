@@ -18,7 +18,7 @@ class Mysql
 		$res   = Net::readPacket();
 		$fbyte = ord($res[0]);
 
-		if ($fbyte>=Packet::RESULT_SET_HEAD[0] && $fbyte <= Packet::RESULT_SET_HEAD[1]) {
+		if ($fbyte >= Packet::RESULT_SET_HEAD[0] && $fbyte <= Packet::RESULT_SET_HEAD[1]) {
             $data = $res;
             //一直读取直到遇到结束报文
             while (ord($res[0]) != Packet::EOF_HEAD) {
