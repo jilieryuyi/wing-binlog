@@ -15,7 +15,7 @@ class Net
 		}
 		return true;
 	}
-	private static function _readBytes($data_len)
+	public static function _readBytes($data_len)
 	{
 
 		// server gone away
