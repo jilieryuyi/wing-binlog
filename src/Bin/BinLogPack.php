@@ -39,7 +39,7 @@ class BinLogPack {
 
 
     public function init($pack, $checkSum = true) {
-
+var_dump($pack);
         if(!self::$_instance) {
             self::$_instance = new self();
         }
@@ -59,42 +59,58 @@ class BinLogPack {
         //position of the next event
         self::$EVENT_INFO['pos']  = $log_pos    = unpack('L', $this->read(4))[1];//
         self::$EVENT_INFO['flag'] = $flags      = unpack('S', $this->read(2))[1];
-        $event_size_without_header = $checkSum === true ? ($event_size -23) : $event_size - 19;
+        $event_size_without_header =/* $checkSum === true ? ($event_size -23) :*/ $event_size - 19;
         $data = [];
 
-        // 映射fileds相关信息
-        if (self::$EVENT_TYPE == MysqlEventType::TABLE_MAP_EVENT) {
-            RowEvent::tableMap(self::getInstance(), self::$EVENT_TYPE);
-        } elseif(in_array(self::$EVENT_TYPE,[MysqlEventType::UPDATE_ROWS_EVENT_V2,MysqlEventType::UPDATE_ROWS_EVENT_V1])) {
-            $data =  RowEvent::updateRow(self::getInstance(), self::$EVENT_TYPE, $event_size_without_header);
-            self::$_POS = self::$EVENT_INFO['pos'];
-        }elseif(in_array(self::$EVENT_TYPE,[MysqlEventType::WRITE_ROWS_EVENT_V1, MysqlEventType::WRITE_ROWS_EVENT_V2])) {
-            $data = RowEvent::addRow(self::getInstance(), self::$EVENT_TYPE, $event_size_without_header);
-            self::$_POS = self::$EVENT_INFO['pos'];
-        }elseif(in_array(self::$EVENT_TYPE,[MysqlEventType::DELETE_ROWS_EVENT_V1, MysqlEventType::DELETE_ROWS_EVENT_V2])) {
-            $data = RowEvent::delRow(self::getInstance(), self::$EVENT_TYPE, $event_size_without_header);
-            self::$_POS = self::$EVENT_INFO['pos'];
-        }elseif(self::$EVENT_TYPE == 16) {
-            //var_dump(bin2hex($pack),$this->readUint64());
-            //return RowEvent::delRow(self::getInstance(), self::$EVENT_TYPE);
-        }elseif(self::$EVENT_TYPE == MysqlEventType::ROTATE_EVENT) {
-            $log_pos = $this->readUint64();
-            self::$_FILE_NAME = $this->read($event_size_without_header-8);
-        }elseif(self::$EVENT_TYPE == MysqlEventType::GTID_LOG_EVENT) {
-            //gtid event
 
-        }elseif(self::$EVENT_TYPE == 15) {
-            //$pack = self::getInstance();
-            //$pack->read(4);
-        } elseif(self::$EVENT_TYPE == MysqlEventType::QUERY_EVENT) {
 
-        } elseif(self::$EVENT_TYPE == MysqlEventType::HEARTBEAT_LOG_EVENT) {
-            //心跳检测机制
-            $binlog_name = $this->read($event_size_without_header);
-            echo 'heart beat '.$binlog_name."\n";
+        switch (self::$EVENT_TYPE) {
+			// 映射fileds相关信息
+			case MysqlEventType::TABLE_MAP_EVENT: {
+				RowEvent::tableMap(self::getInstance(), self::$EVENT_TYPE);
+			}
+			break;
+			case MysqlEventType::UPDATE_ROWS_EVENT_V2:
+			case MysqlEventType::UPDATE_ROWS_EVENT_V1: {
+				$data = RowEvent::updateRow(self::getInstance(), self::$EVENT_TYPE, $event_size_without_header);
+				self::$_POS = self::$EVENT_INFO['pos'];
+			}
+			break;
+			case MysqlEventType::WRITE_ROWS_EVENT_V1:
+			case MysqlEventType::WRITE_ROWS_EVENT_V2: {
+				$data = RowEvent::addRow(self::getInstance(), self::$EVENT_TYPE, $event_size_without_header);
+				self::$_POS = self::$EVENT_INFO['pos'];
+			}
+			break;
+			case MysqlEventType::DELETE_ROWS_EVENT_V1:
+			case MysqlEventType::DELETE_ROWS_EVENT_V2: {
+				$data = RowEvent::delRow(self::getInstance(), self::$EVENT_TYPE, $event_size_without_header);
+				self::$_POS = self::$EVENT_INFO['pos'];
+			}
+			break;
+			case MysqlEventType::ROTATE_EVENT: {
+				$log_pos = $this->readUint64();
+            	self::$_FILE_NAME = $this->read($event_size_without_header - 8);
+        	}
+        	break;
+        	case MysqlEventType::HEARTBEAT_LOG_EVENT: {
+				//心跳检测机制
+				$binlog_name = $this->read($event_size_without_header);
+            	echo '心跳事件 ' . $binlog_name . "\n";
+        	}
+        	break;
+			case MysqlEventType::QUERY_EVENT:
+				var_dump(self::$EVENT_INFO);
+				echo "查询事件";
+				var_dump($pack);
+				break;
+			default:
+				echo "未知事件";
+				var_dump(self::$EVENT_TYPE);
+				break;
         }
 
-        if(WING_DEBUG) {
+        if (WING_DEBUG) {
             $msg  = self::$_FILE_NAME;
             $msg .= '-- next pos -> '.$log_pos;
             $msg .= ' --  typeEvent -> '.self::$EVENT_TYPE;
@@ -108,13 +124,13 @@ class BinLogPack {
         $length = (int)$length;
         $n='';
 
-        if (count(self::$unget) > 0) {
-        	foreach (self::$unget as $kk => $vv) {
-				self::$_PACK=$vv.self::$_PACK;//array_unshift(self::$_PACK, $vv);
-				unset(self::$unget[$kk]);
-                self::$_PACK_KEY--;
-			}
-		}
+//        if (count(self::$unget) > 0) {
+//        	foreach (self::$unget as $kk => $vv) {
+//				self::$_PACK=$vv.self::$_PACK;//array_unshift(self::$_PACK, $vv);
+//				unset(self::$unget[$kk]);
+//                self::$_PACK_KEY--;
+//			}
+//		}
 
         for($i = self::$_PACK_KEY; $i < self::$_PACK_KEY + $length; $i++) {
             if (!isset(self::$_PACK[$i])) return $n;

@@ -280,17 +280,16 @@ var_dump($smtid);
 	{
 		//消息头
 		$header = $this->_readBytes(4);
-		var_dump("readPacket=>1=>",$header);
-		if($header === false) return false;
+		//var_dump("readPacket=>1=>",$header);
 		//消息体长度3bytes 小端序
 		$unpack_data = unpack("L",$header[0].$header[1].$header[2].chr(0))[1];
-		var_dump("readPacket=>2=>",$unpack_data);
+		//var_dump("readPacket=>2=>",$unpack_data);
 
-        var_dump("readPacket=>3=>",ord($header[0]) | ord($header[1])<<8 | ord($header[2])<<16);
+       // var_dump("readPacket=>3=>",ord($header[0]) | ord($header[1])<<8 | ord($header[2])<<16);
 
 
 		$result = $this->_readBytes($unpack_data);
-		var_dump("readPacket=>4=>",$result);
+		//var_dump("readPacket=>4=>",$result);
 		return $result;
 	}
 
