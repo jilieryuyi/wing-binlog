@@ -34,4 +34,6 @@ class Context
 	 */
 	public $checksum;
 	public $slave_server_id;
+	public $last_binlog_file = null;
+	public $last_pos = 4;
 }

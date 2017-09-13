@@ -7,10 +7,10 @@
  */
 class Binlog
 {
-	public static $slave_server_id;
-	public static $checksum;
-	public static $last_binlog_file = null;
-	public static $last_pos = 4;
+	/**
+	 * @var Context
+	 */
+	public static $context;
 
 	/**
 	 * 注册成slave
@@ -22,7 +22,7 @@ class Binlog
 
 		// COM_BINLOG_DUMP
 		$data  = $header . chr(ConstCommand::COM_REGISTER_SLAVE);
-		$data .= pack('L', self::$slave_server_id);
+		$data .= pack('L', self::$context->slave_server_id);
 		$data .= chr(0);
 		$data .= chr(0);
 		$data .= chr(0);
@@ -41,9 +41,10 @@ class Binlog
 	public static function registerSlave()
 	{
 
-		$last_binlog_file = null; $last_pos = 4;
+		$last_binlog_file = self::$context->last_binlog_file;
+		$last_pos = self::$context->last_pos;
 		// checksum
-		if (self::$checksum){
+		if (self::$context->checksum){
 			Mysql::query("set @master_binlog_checksum= @@global.binlog_checksum");
 		}
 		//heart_period
@@ -84,7 +85,7 @@ class Binlog
 		$data  = $header . chr(ConstCommand::COM_BINLOG_DUMP);
 		$data .= pack('L', $last_pos);
 		$data .= pack('s', 0);
-		$data .= pack('L', self::$slave_server_id);
+		$data .= pack('L', self::$context->slave_server_id);
 		$data .= $last_binlog_file;
 
 		Net::send($data);
@@ -102,7 +103,7 @@ class Binlog
 		PacketAuth::success($pack);
 
 		$binlog = BinLogPack::getInstance();
-		$result = $binlog->init($pack, self::$checksum);
+		$result = $binlog->init($pack, self::$context->checksum);
 		return $result;
 	}
 }

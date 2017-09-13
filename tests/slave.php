@@ -33,15 +33,15 @@ $context->password 	= $mysql_config["mysql"]["password"];
 $context->port	 	= $mysql_config["mysql"]["port"];
 $context->checksum  = !!\Wing\Bin\Db::getChecksum();
 
+$context->slave_server_id 	= $mysql_config["slave_server_id"];
+$context->last_binlog_file 	= null;
+$context->last_pos 			= 0;
+
 //认证
 \Wing\Bin\Auth\Auth::execute($context);
 
 //初始化Binlog需要的基础数据
-\Wing\Bin\Binlog::$checksum 		=
-\Wing\Bin\Binlog::$slave_server_id 	= $mysql_config["slave_server_id"];
-\Wing\Bin\Binlog::$last_binlog_file = null;
-\Wing\Bin\Binlog::$last_pos 		= 4;
-
+\Wing\Bin\Binlog::$context = $context;
 //把客户端注册为salve服务器
 \Wing\Bin\Binlog::registerSlave();
 
