@@ -1,13 +1,9 @@
 <?php namespace Wing\Bin\Auth;
-use Symfony\Component\Console\Command\Command;
 use Wing\Bin\Constant\CapabilityFlag;
-use Wing\Bin\Constant\CommandType;
 use Wing\Bin\Context;
 use Wing\Bin\Net;
 use Wing\Bin\Packet;
 use Wing\Bin\PacketAuth;
-use Wing\Bin\RowEvent;
-use Wing\Library\PDO;
 
 /**
  * ClientSocket.php
