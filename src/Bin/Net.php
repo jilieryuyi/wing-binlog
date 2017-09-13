@@ -19,9 +19,9 @@ class Net
 	{
 
 		// server gone away
-		if ($data_len == 5) {
-			throw new \Exception('read 5 bytes from mysql server has gone away');
-		}
+//		if ($data_len == 5) {
+//			throw new \Exception('read 5 bytes from mysql server has gone away');
+//		}
 
 		try{
 			$bytes_read = 0;

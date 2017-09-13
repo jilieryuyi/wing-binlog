@@ -51,14 +51,17 @@ class Auth
 		// 3、生成auth协议包
 		// 4、发送协议包，认证完成
 
-		//希望的服务器权能信息
-		$flag = CapabilityFlag::DEFAULT_CAPABILITIES;
-		if ($db) {
-			$flag |= CapabilityFlag::CLIENT_CONNECT_WITH_DB;
-		}
+
 		// 获取server信息 加密salt
 		$pack   	 = Net::readPacket();
 		$server_info = ServerInfo::parse($pack);
+var_dump("capability_flag", $server_info->capability_flag);
+
+        //希望的服务器权能信息
+        $flag = CapabilityFlag::DEFAULT_CAPABILITIES | $server_info->capability_flag;
+        if ($db) {
+            $flag |= CapabilityFlag::CLIENT_CONNECT_WITH_DB;
+        }
 
 		//认证
 		$data = Packet::getAuthPack($flag, $user, $password, $server_info->salt,  $db);

@@ -14,8 +14,27 @@ class Mysql
 		$prelude    = pack('LC',$chunk_size, CommandType::COM_QUERY);
 		Net::send($prelude . $sql);
 		$res = Net::readPacket();
+		var_dump($res);
+		var_dump("ord",ord($res));
+
+		$data = $res;
+		while (ord($res[0]) != 0xfe) {
+            $res = Net::readPacket();
+            var_dump(ord($res[0]));
+            $data .= $res;
+        }
 		//PacketAuth::success($res);
-		return $res;
+//        $res = Net::readPacket();
+//        var_dump($res);
+//        $res = Net::readPacket();
+//        var_dump($res);
+//        $res = Net::readPacket();
+//        var_dump($res);
+//        $res = Net::readPacket();
+//        var_dump($res);
+//        $res = Net::readPacket();
+//        var_dump($res);
+		return $data;
 	}
 
     public static function excute($sql) {
