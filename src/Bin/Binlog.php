@@ -7,17 +7,22 @@
  */
 class Binlog
 {
+	public static $slave_server_id;
+	public static $checksum;
+	public static $last_binlog_file = null;
+	public static $last_pos = 4;
+
 	/**
 	 * 注册成slave
 	 * @param int $slave_server_id
 	 */
-	private static function _sendRegisterSlavePacket($slave_server_id)
+	private static function _sendRegisterSlavePacket()
 	{
 		$header   = pack('l', 18);
 
 		// COM_BINLOG_DUMP
 		$data  = $header . chr(ConstCommand::COM_REGISTER_SLAVE);
-		$data .= pack('L', $slave_server_id);
+		$data .= pack('L', self::$slave_server_id);
 		$data .= chr(0);
 		$data .= chr(0);
 		$data .= chr(0);
@@ -33,28 +38,28 @@ class Binlog
 		PacketAuth::success($result);
 	}
 
-	public function registerSlave($slave_server_id)
+	public static function registerSlave()
 	{
 
 		$last_binlog_file = null; $last_pos = 4;
 		// checksum
-		if($this->checksum){
-			$this->excute("set @master_binlog_checksum= @@global.binlog_checksum");
+		if (self::$checksum){
+			Mysql::query("set @master_binlog_checksum= @@global.binlog_checksum");
 		}
 		//heart_period
 		$heart = 5;
 		if ($heart) {
-			$this->excute("set @master_heartbeat_period=".($heart*1000000000));
+			Mysql::query("set @master_heartbeat_period=".($heart*1000000000));
 		}
 
-		$this->_registerAsSlave($slave_server_id);
+		self::_sendRegisterSlavePacket();
 
 		// 开始读取的二进制日志位置
 		if(!$last_binlog_file) {
 //            $sql  = 'show binary logs';
 //            $res  = $this->pdo->query($sql);
 
-			$logInfo = $this->getPos();
+			$logInfo = Db::getPos();
 			//如果没有配置 则从第一个有效的binlog开始
 			$last_binlog_file = $logInfo['File'];//$res[0]["Log_name"];
 //            foreach ($res as $item) {
@@ -79,27 +84,25 @@ class Binlog
 		$data  = $header . chr(ConstCommand::COM_BINLOG_DUMP);
 		$data .= pack('L', $last_pos);
 		$data .= pack('s', 0);
-		$data .= pack('L', $slave_server_id);
+		$data .= pack('L', self::$slave_server_id);
 		$data .= $last_binlog_file;
 
-		$this->send($data);
+		Net::send($data);
 
 		//认证
-		$result = $this->readPacket();
+		$result = Net::readPacket();
 		PacketAuth::success($result);
 	}
 
-	public function getEvent() {
+	public static function getEvent() {
 
-		$pack   = $this->readPacket();
+		$pack   = Net::readPacket();
 
 		// 校验数据包格式
 		PacketAuth::success($pack);
 
 		$binlog = BinLogPack::getInstance();
-		$result = $binlog->init($pack, $this->checksum);
-
-
+		$result = $binlog->init($pack, self::$checksum);
 		return $result;
 	}
 }
