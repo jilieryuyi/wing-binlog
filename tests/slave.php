@@ -25,7 +25,7 @@ $mysql_config 	= load_config("app");
 $context		= new \Wing\Bin\Context();
 $pdo			= new \Wing\Library\PDO();
 
-$context->pdo 		= \Wing\Bin\Db::$pdo = \Wing\Bin\RowEvent::$pdo = $pdo;
+$context->pdo 		= \Wing\Bin\Db::$pdo = $pdo;
 $context->host 		= $mysql_config["mysql"]["host"];
 $context->db_name 	= $mysql_config["mysql"]["db_name"];
 $context->user		= $mysql_config["mysql"]["user"];

@@ -9,10 +9,6 @@ use Wing\Library\PDO;
  */
 class RowEvent extends BinLogEvent
 {
-    /**
-     * @var PDO
-     */
-    public static $pdo;
     public static function rowInit(BinLogPack $pack, $event_type, $size)
     {
         parent::_init($pack, $event_type, $size);
@@ -31,19 +27,6 @@ class RowEvent extends BinLogEvent
 
         // Body
         self::$COLUMNS_NUM = self::$PACK->readCodedBinary();
-    }
-
-
-    public static function getFields($schema, $table) {
-
-        $sql = "SELECT
-                COLUMN_NAME,COLLATION_NAME,CHARACTER_SET_NAME,COLUMN_COMMENT,COLUMN_TYPE,COLUMN_KEY
-                FROM
-                information_schema.columns
-                WHERE
-                table_schema = '{$schema}' AND table_name = '{$table}'";
-        $result = self::$pdo->query($sql);
-        return $result;
     }
 
     public static function tableMap(BinLogPack $pack, $event_type)
@@ -92,7 +75,7 @@ class RowEvent extends BinLogEvent
 
 
         // fields 相应属性
-        $colums = self::getFields($data['schema_name'], $data['table_name']);
+        $colums = Db::getFields($data['schema_name'], $data['table_name']);
 
         self::$TABLE_MAP[self::$SCHEMA_NAME][self::$TABLE_NAME]['fields'] = [];
 

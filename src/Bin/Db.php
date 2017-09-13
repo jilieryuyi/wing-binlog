@@ -24,4 +24,16 @@ class Db
 		$result = self::$pdo->row($sql);
 		return $result;
 	}
+
+	public static function getFields($schema, $table) {
+
+		$sql = "SELECT
+                COLUMN_NAME,COLLATION_NAME,CHARACTER_SET_NAME,COLUMN_COMMENT,COLUMN_TYPE,COLUMN_KEY
+                FROM
+                information_schema.columns
+                WHERE
+                table_schema = '{$schema}' AND table_name = '{$table}'";
+		$result = self::$pdo->query($sql);
+		return $result;
+	}
 }
