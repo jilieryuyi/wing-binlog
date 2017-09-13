@@ -8,7 +8,7 @@ use Wing\Library\PDO;
  * Email: huangxiaoan@xunlei.com
  * @property PDO $pdo
  */
-class ClientNet
+class Auth
 {
 	private $socket;
 	private $pdo;

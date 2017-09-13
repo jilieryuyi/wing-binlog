@@ -102,7 +102,9 @@ var_dump($pack);
 			case MysqlEventType::QUERY_EVENT:
 				var_dump(self::$EVENT_INFO);
 				echo "查询事件";
-				var_dump($pack);
+				$this->read(16);
+				$binlog_name = $this->read($event_size_without_header);
+				var_dump($binlog_name);
 				break;
 			default:
 				echo "未知事件";
@@ -116,6 +118,7 @@ var_dump($pack);
             $msg .= ' --  typeEvent -> '.self::$EVENT_TYPE;
             wing_log("slave_debug", $msg);
         }
+		wing_log("slave_bin", $pack."\r\n\r\n");
         return $data;
     }
 
