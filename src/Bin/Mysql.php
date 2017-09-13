@@ -9,7 +9,8 @@ use Wing\Bin\Constant\CommandType;
  */
 class Mysql
 {
-	public static function query($sql) {
+	public static function query($sql)
+    {
 		$chunk_size = strlen($sql) + 1;
 		$prelude    = pack('LC',$chunk_size, CommandType::COM_QUERY);
 
@@ -34,7 +35,8 @@ class Mysql
         return true;
 	}
 
-    public static function excute($sql) {
+    public static function excute($sql)
+    {
         $chunk_size = strlen($sql) + 1;
         $prelude    = pack('LC',$chunk_size, CommandType::COM_STMT_PREPARE);
         Net::send($prelude . $sql);
