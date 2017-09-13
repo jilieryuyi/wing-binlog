@@ -24,7 +24,8 @@ $start = time();
 
 $context = new \Wing\Bin\Context();
 $pdo = new \Wing\Library\PDO();
-$context->pdo = $pdo;
+$context->pdo = \Wing\Bin\Db::$pdo = $pdo;
+$context->checksum = !!\Wing\Bin\Db::getChecksum();
 
 $mysql_config = load_config("add")["mysql"];
 $context->host = $mysql_config["host"];
