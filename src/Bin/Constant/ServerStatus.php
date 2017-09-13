@@ -1,4 +1,4 @@
-<?php
+<?php namespace Wing\Bin\Constant;
 /**
  * MysqServerStatus.php
  * User: huangxiaoan

@@ -1,4 +1,4 @@
-<?php namespace Wing\Bin;
+<?php namespace Wing\Bin\Constant;
 /**
  * Created by PhpStorm.
  * User: yuyi

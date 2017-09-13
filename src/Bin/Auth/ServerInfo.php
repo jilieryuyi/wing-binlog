@@ -1,4 +1,4 @@
-<?php namespace Wing\Bin;
+<?php namespace Wing\Bin\Auth;
 /**
  * Created by PhpStorm.
  * User: yuyi
@@ -8,12 +8,16 @@
 class ServerInfo
 {
 
-    private $protocol_version = '';
-    private $server_version = '';
-    private $character_set = '';
-    private $salt = '';
-    private $connection_id = 0;
-    private $auth_plugin_name = '';
+    public $protocol_version = '';
+	public $server_version = '';
+	public $character_set = '';
+	public $salt = '';
+	public $connection_id = 0;
+	public $auth_plugin_name = '';
+
+    public static function parse($pack){
+    	return new self($pack);
+	}
 
     public function __construct($pack) 
 	{

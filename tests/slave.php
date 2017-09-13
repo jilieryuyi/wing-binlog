@@ -19,6 +19,28 @@ if(!date_default_timezone_get() || !ini_get("date.timezone")) {
 
 define("WING_DEBUG", true);
 $start = time();
+
+
+
+$context = new \Wing\Bin\Context();
+$pdo = new \Wing\Library\PDO();
+$context->pdo = $pdo;
+
+$mysql_config = load_config("add")["mysql"];
+$context->host = $mysql_config["host"];
+$context->db_name = $mysql_config["db_name"];//  => "xl",
+$context->user	=         $mysql_config["user"];//     => "root",
+$context->password =         $mysql_config["password"];// => "123456",
+$context->password =         $mysql_config["port"];//     => 3306
+
+
+
+
+
+
+
+
+
 $times = 0;
 $slave = new \Wing\Library\Slave();
 

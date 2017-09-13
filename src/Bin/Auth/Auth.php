@@ -1,4 +1,10 @@
-<?php namespace Wing\Bin;
+<?php namespace Wing\Bin\Auth;
+use Symfony\Component\Console\Command\Command;
+use Wing\Bin\Constant\CapabilityFlag;
+use Wing\Bin\Constant\CommandType;
+use Wing\Bin\Context;
+use Wing\Bin\PacketAuth;
+use Wing\Bin\RowEvent;
 use Wing\Library\PDO;
 
 /**
@@ -6,26 +12,26 @@ use Wing\Library\PDO;
  * User: huangxiaoan
  * Created: 2017/9/11 18:26
  * Email: huangxiaoan@xunlei.com
- * @property PDO $pdo
  */
 class Auth
 {
-	private $socket;
-	private $pdo;
-	private $checksum;
-	public function __construct($host, $port)
+	private static $socket;
+	private static $pdo;
+	private static $checksum;
+
+	public static function execute(Context &$context)
 	{
-		if (($this->socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP)) == false) {
+		if ((self::$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP)) == false) {
 			throw new \Exception(sprintf("Unable to create a socket: %s", socket_strerror(socket_last_error())));
 		}
 
-		socket_set_block($this->socket);
-		socket_set_option($this->socket, SOL_SOCKET, SO_KEEPALIVE, 1);
+		socket_set_block(self::$socket);
+		socket_set_option(self::$socket, SOL_SOCKET, SO_KEEPALIVE, 1);
 		//socket_set_option($this->socket, SOL_SOCKET,SO_SNDTIMEO, ['sec' => 2, 'usec' => 5000]);
 		//socket_set_option($this->socket, SOL_SOCKET,SO_RCVTIMEO, ['sec' => 2, 'usec' => 5000]);
 
 		//连接到mysql
-		if(!socket_connect($this->socket, $host, $port)) {
+		if(!socket_connect(self::$socket, $context->host, $context->port)) {
 			throw new \Exception(
 				sprintf(
 					'error:%s, msg:%s',
@@ -35,44 +41,44 @@ class Auth
 			);
 		}
 
-		$this->pdo      = RowEvent::$pdo = new PDO();
+		self::$pdo = RowEvent::$pdo = $context->pdo;
 
-		$res = $this->pdo->row("SHOW GLOBAL VARIABLES LIKE 'BINLOG_CHECKSUM'");
-		$this->checksum = !!$res['Value'];
+		$res = self::$pdo->row("SHOW GLOBAL VARIABLES LIKE 'BINLOG_CHECKSUM'");
+		self::$checksum = !!$res['Value'];
+
+		self::auth($context->user, $context->password, $context->db_name);
 	}
 
-	public function auth($user, $password, $db)
+	private static function auth($user, $password, $db)
 	{
-		$flag = CapabilityFlag::CAPABILITIES;
+		$flag = CapabilityFlag::DEFAULT_CAPABILITIES;
 		if ($db) {
 			$flag |= CapabilityFlag::CLIENT_CONNECT_WITH_DB;
 		}
 		// 获取server信息 加密salt
-		$pack   	 = $this->readPacket();
-		$server_info = new ServerInfo($pack);
-		var_dump($server_info);
-		$salt   	 = $server_info->getSalt();
+		$pack   	 = self::readPacket();
+		$server_info = ServerInfo::parse($pack);
 
 		// 认证
 		// pack拼接
-		$data = PacketAuth::getAuthPack($flag, $user, $password, $salt,  $db);
+		$data = PacketAuth::getAuthPack($flag, $user, $password, $server_info->salt,  $db);
 
-		$this->send($data);
+		self::send($data);
 		//
-		$result = $this->readPacket();
+		$result = self::readPacket();
 
 		// 认证是否成功
 		PacketAuth::success($result);
 	}
 
-	public function send($data)
+	private static function send($data)
 	{
-		if(socket_write($this->socket, $data, strlen($data))=== false ) {
+		if(socket_write(self::$socket, $data, strlen($data))=== false ) {
 			throw new \Exception( sprintf( "Unable to write to socket: %s", socket_strerror( socket_last_error())));
 		}
 		return true;
 	}
-	private function _readBytes($data_len)
+	private static function _readBytes($data_len)
 	{
 
 		// server gone away
@@ -84,7 +90,7 @@ class Auth
 			$bytes_read = 0;
 			$body       = '';
 			while ($bytes_read < $data_len) {
-				$resp = socket_read($this->socket, $data_len - $bytes_read);
+				$resp = socket_read(self::$socket, $data_len - $bytes_read);
 
 				//
 				if($resp === false) {
@@ -112,11 +118,11 @@ class Auth
 		}
 		return null;
 	}
-	public function excute($sql) {
+	public static function excute($sql) {
 		$chunk_size = strlen($sql) + 1;
 		$prelude    = pack('LC',$chunk_size, CommandType::COM_QUERY);
-		$this->send($prelude . $sql);
-		$res = $this->readPacket();
+		self::send($prelude . $sql);
+		$res = self::readPacket();
 		file_put_contents(HOME."/logs/sql_debug.log", $res, FILE_APPEND);
 	}
 /*

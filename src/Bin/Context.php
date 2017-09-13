@@ -1,4 +1,7 @@
 <?php namespace Wing\Bin;
+use phpDocumentor\Reflection\Types\Resource;
+use Wing\Library\PDO;
+
 /**
  * Context.php
  * User: huangxiaoan
@@ -7,5 +10,27 @@
  */
 class Context
 {
+	/**
+	 * @var PDO
+	 */
+	public $pdo;
 
+	/**
+	 * @var string
+	 */
+	public $host;
+
+	public $db_name;
+	public $user;
+	public $password;
+	public $port;
+
+	/**
+	 * @var Resource $socket socket resource
+	 */
+	public $socket;
+	/**
+	 * @var bool
+	 */
+	public $checksum;
 }
