@@ -24,6 +24,34 @@ class Mysql
 		if ($fbyte >= Packet::RESULT_SET_HEAD[0] && $fbyte <= Packet::RESULT_SET_HEAD[1]) {
             //列数量
 		    $column = $fbyte;
+
+		    /**
+            n	目录名称（Length Coded String）
+            n	数据库名称（Length Coded String）
+            n	数据表名称（Length Coded String）
+            n	数据表原始名称（Length Coded String）
+            n	列（字段）名称（Length Coded String）
+            4	列（字段）原始名称（Length Coded String）
+            1	填充值
+            2	字符编码
+            4	列（字段）长度
+            1	列（字段）类型
+            2	列（字段）标志
+            1	整型值精度
+            2	填充值（0x00）
+            n	默认值（Length Coded String）
+
+            目录名称：在4.1及之后的版本中，该字段值为"def"。
+            数据库名称：数据库名称标识。
+            数据表名称：数据表的别名（AS之后的名称）。
+            数据表原始名称：数据表的原始名称（AS之前的名称）。
+            列（字段）名称：列（字段）的别名（AS之后的名称）。
+            列（字段）原始名称：列（字段）的原始名称（AS之前的名称）。
+            字符编码：列（字段）的字符编码值。
+            列（字段）长度：列（字段）的长度值，真实长度可能小于该值，例如VARCHAR(2)类型的字段实际只能存储1个字符。
+            列（字段）类型：列（字段）的类型值，取值范围如下（参考源代码/include/mysql_com.h头文件中的enum_field_type枚举类型定义
+             */
+
 		    //列信息
 		    $columns = '';
             //一直读取直到遇到结束报文
