@@ -4,6 +4,7 @@ use Wing\Bin\Constant\CapabilityFlag;
 use Wing\Bin\Constant\CommandType;
 use Wing\Bin\Context;
 use Wing\Bin\Net;
+use Wing\Bin\Packet;
 use Wing\Bin\PacketAuth;
 use Wing\Bin\RowEvent;
 use Wing\Library\PDO;
@@ -48,6 +49,13 @@ class Auth
 
 	private static function auth($user, $password, $db)
 	{
+		//mysql认证流程
+		// 1、socket连接服务器
+		// 2、读取服务器返回的信息，关键是获取到加盐信息，用于后面生成加密的password
+		// 3、生成auth协议包
+		// 4、发送协议包，认证完成
+
+		//希望的服务器权能信息
 		$flag = CapabilityFlag::DEFAULT_CAPABILITIES;
 		if ($db) {
 			$flag |= CapabilityFlag::CLIENT_CONNECT_WITH_DB;
@@ -56,14 +64,11 @@ class Auth
 		$pack   	 = Net::readPacket();
 		$server_info = ServerInfo::parse($pack);
 
-		// 认证
-		// pack拼接
-		$data = PacketAuth::getAuthPack($flag, $user, $password, $server_info->salt,  $db);
-
+		//认证
+		$data = Packet::getAuthPack($flag, $user, $password, $server_info->salt,  $db);
 		Net::send($data);
-		//
-		$result = Net::readPacket();
 
+		$result = Net::readPacket();
 		// 认证是否成功
 		PacketAuth::success($result);
 	}
