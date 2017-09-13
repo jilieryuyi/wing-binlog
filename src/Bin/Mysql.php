@@ -12,29 +12,26 @@ class Mysql
 	public static function query($sql) {
 		$chunk_size = strlen($sql) + 1;
 		$prelude    = pack('LC',$chunk_size, CommandType::COM_QUERY);
-		Net::send($prelude . $sql);
-		$res = Net::readPacket();
-		var_dump($res);
-		var_dump("ord",ord($res));
 
-		$data = $res;
-		while (ord($res[0]) != 0xfe) {
-            $res = Net::readPacket();
-            var_dump(ord($res[0]));
-            $data .= $res;
+		Net::send($prelude . $sql);
+
+		$res   = Net::readPacket();
+		$fbyte = ord($res[0]);
+
+		if ($fbyte>=Packet::RESULT_SET_HEAD[0] && $fbyte <= Packet::RESULT_SET_HEAD[1]) {
+            $data = $res;
+            //一直读取直到遇到结束报文
+            while (ord($res[0]) != Packet::EOF_HEAD) {
+                $res = Net::readPacket();
+                var_dump(ord($res[0]));
+                $data .= $res;
+            }
+
+            //这里还需要对报文进行解析
+
+            return $data;
         }
-		//PacketAuth::success($res);
-//        $res = Net::readPacket();
-//        var_dump($res);
-//        $res = Net::readPacket();
-//        var_dump($res);
-//        $res = Net::readPacket();
-//        var_dump($res);
-//        $res = Net::readPacket();
-//        var_dump($res);
-//        $res = Net::readPacket();
-//        var_dump($res);
-		return $data;
+        return true;
 	}
 
     public static function excute($sql) {
