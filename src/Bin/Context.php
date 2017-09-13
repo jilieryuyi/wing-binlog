@@ -33,4 +33,5 @@ class Context
 	 * @var bool
 	 */
 	public $checksum;
+	public $slave_server_id;
 }

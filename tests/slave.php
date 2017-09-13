@@ -21,20 +21,21 @@ define("WING_DEBUG", true);
 $start = time();
 
 
+$mysql_config 	= load_config("add");
+$context		= new \Wing\Bin\Context();
+$pdo			= new \Wing\Library\PDO();
 
-$context = new \Wing\Bin\Context();
-$pdo = new \Wing\Library\PDO();
-$context->pdo = \Wing\Bin\Db::$pdo = $pdo;
-$context->checksum = !!\Wing\Bin\Db::getChecksum();
+$context->pdo 		= \Wing\Bin\Db::$pdo = $pdo;
+$context->checksum 	= !!\Wing\Bin\Db::getChecksum();
+$context->host 		= $mysql_config["mysql"]["host"];
+$context->db_name 	= $mysql_config["mysql"]["db_name"];
+$context->user		= $mysql_config["mysql"]["user"];
+$context->password 	= $mysql_config["mysql"]["password"];
+$context->password 	= $mysql_config["mysql"]["port"];
 
-$mysql_config = load_config("add")["mysql"];
-$context->host = $mysql_config["host"];
-$context->db_name = $mysql_config["db_name"];//  => "xl",
-$context->user	=         $mysql_config["user"];//     => "root",
-$context->password =         $mysql_config["password"];// => "123456",
-$context->password =         $mysql_config["port"];//     => 3306
+$context->slave_server_id = $mysql_config["slave_server_id"];
 
-
+\Wing\Bin\Auth\Auth::execute($context);
 
 
 
