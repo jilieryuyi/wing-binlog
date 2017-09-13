@@ -29,4 +29,9 @@ class Context
 	 * @var Resource $socket socket resource
 	 */
 	public $socket;
+	/**
+	 * @var bool
+	 */
+	public $checksum;
+	public $slave_server_id;
 }

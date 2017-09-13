@@ -21,22 +21,23 @@ define("WING_DEBUG", true);
 $start = time();
 
 
-$mysql_config 	= load_config("add");
+$mysql_config 	= load_config("app");
 $context		= new \Wing\Bin\Context();
 $pdo			= new \Wing\Library\PDO();
 
-$context->pdo 		= \Wing\Bin\Db::$pdo = $pdo;
+$context->pdo 		= \Wing\Bin\Db::$pdo = \Wing\Bin\RowEvent::$pdo = $pdo;
 $context->host 		= $mysql_config["mysql"]["host"];
 $context->db_name 	= $mysql_config["mysql"]["db_name"];
 $context->user		= $mysql_config["mysql"]["user"];
 $context->password 	= $mysql_config["mysql"]["password"];
-$context->password 	= $mysql_config["mysql"]["port"];
+$context->port	 	= $mysql_config["mysql"]["port"];
+$context->checksum  = !!\Wing\Bin\Db::getChecksum();
 
 //认证
 \Wing\Bin\Auth\Auth::execute($context);
 
 //初始化Binlog需要的基础数据
-\Wing\Bin\Binlog::$checksum 		= !!\Wing\Bin\Db::getChecksum();
+\Wing\Bin\Binlog::$checksum 		=
 \Wing\Bin\Binlog::$slave_server_id 	= $mysql_config["slave_server_id"];
 \Wing\Bin\Binlog::$last_binlog_file = null;
 \Wing\Bin\Binlog::$last_pos 		= 4;
