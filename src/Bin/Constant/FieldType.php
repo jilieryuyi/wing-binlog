@@ -6,6 +6,8 @@
  * Date: 17/9/8
  * Time: 23:19
  * 字段类型
+ * include/mysql_com.h
+ * include/mysql.h.pp
  */
 class FieldType
 {

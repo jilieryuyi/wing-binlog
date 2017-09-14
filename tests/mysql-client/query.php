@@ -40,5 +40,5 @@ $context->last_pos 			= 0;
 //认证
 \Wing\Bin\Auth\Auth::execute($context);
 
-$res = \Wing\Bin\Mysql::query('SELECT * FROM `wp_posts` WHERE 1 limit 2');
+$res = \Wing\Bin\Mysql::query('SELECT * FROM `content_type` WHERE 1 limit 2');
 var_dump($res);
