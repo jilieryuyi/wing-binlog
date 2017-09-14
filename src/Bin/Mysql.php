@@ -184,18 +184,53 @@ class Mysql
                 while ($start <strlen($res)) {
 					$len = ord($res[$start]);
 
+					/**
+					case
+					when first_byte <= 250
+					first_byte
+					when first_byte == 251
+					nil
+					when first_byte == 252
+					read_uint16
+					when first_byte == 253
+					read_uint24
+					when first_byte == 254
+					read_uint64
+					when first_byte == 255
+					 */
+					if ($len == 251) {
+						$row[$columns[$index++]] = null;
+						$start++;
+						continue;
+					}
+
 					if ($len == 252) {
 						//$len = unpack("v",$res[$start+1].$res[$start+2]);
 
-						$data = unpack("C3", $res[$start].$res[$start+1].$res[$start+2]);
-						var_dump($data);
-
-						$res = $data[1] + ($data[2] << 8) + ($data[3] << 16);
-
-						var_dump($res);
-						exit;
+						$len = unpack("v", $res[$start+1].$res[$start+2])[1];
 						$start+=2;
+					} else if ($len == 253) {
+						$data = unpack("C3", $res[$start+1].$res[$start+2].$res[$start+3]);//[1];
+
+
+      					$len = $data[1] + ($data[2] << 8) + ($data[3] << 16);
+//						var_dump($len);
+//						exit;
+						$start+=3;
 					}
+				else if ($len == 254) {
+					$len = unpack("Q",
+						$res[$start+1].
+						$res[$start+2].
+						$res[$start+3].
+						$res[$start+4].
+						$res[$start+5].
+						$res[$start+6].
+						$res[$start+7].
+						$res[$start+8]
+					)[1];
+					$start+=8;
+				}
 					$start++;
 
 
