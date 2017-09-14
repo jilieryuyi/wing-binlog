@@ -201,7 +201,7 @@ const utf8_slovak_ci           = ["id" => 205, "character_set" =>"utf8"     ];
 const utf8_slovenian_ci        = ["id" => 196, "character_set" =>"utf8"     ];
 const utf8_spanish2_ci         = ["id" => 206, "character_set" =>"utf8"     ];
 const utf8_spanish_ci          = ["id" => 199, "character_set" =>"utf8"     ];
-const utf8_swedish_ci          = ["id" => 200, "character_set" =>"utf8"     ];
+const utf8_swedish_ci          = 200;//["id" => 200, "character_set" =>"utf8"     ];
 const utf8_turkish_ci          = ["id" => 201, "character_set" =>"utf8"     ];
 const utf8_unicode_ci          = ["id" => 192, "character_set" =>"utf8"     ];
 }

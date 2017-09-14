@@ -58,14 +58,21 @@ class Mysql
             //一直读取直到遇到结束报文
             while (ord($res[0]) != Packet::EOF_HEAD) {
                 $res = Net::readPacket();
+                for ($i = 0; $i<strlen($res);$i++)
+                    echo ord($res[$i])."-";
+
+                echo "\r\n\r\n";
+
+
                 $len = ord($res[0]);
+                echo $len,"\r\n";
                 $start = 0;
                 $start++;
 var_dump($res);
                 //目录名称
                 $dir_name = substr($res, $start, $len);
                 $start += $len;
-                $len = ord($res[0]);
+                $len = ord($res[$start]);
                 $start++;
                 echo $dir_name,"\r\n";
                 echo $len,"\r\n";
@@ -75,22 +82,68 @@ var_dump($res);
 
                 //数据库名称
                 $database_name = substr($res, $start, $len);
-                $start += $len+1;
-                $len = ord($res[0]);
+                $start += $len;
+                $len = ord($res[$start]);
+                $start++;
                 echo $database_name,"\r\n";
 
                 $table_name = substr($res, $start, $len);
-                $start += $len+1;
-                $len = ord($res[0]);
+                $start += $len;
+                $len = ord($res[$start]);
+                $start++;
                 echo $table_name,"\r\n";
 
                 $old_table_name = substr($res, $start, $len);
-                $start += $len+1;
-                $len = ord($res[0]);
+                $start += $len;
+                $len = ord($res[$start]);
+                $start++;
                 echo $old_table_name,"\r\n";
 
+                echo $len,"\r\n";
                 $column1_name = substr($res, $start, $len);
                 echo $column1_name,"\r\n";
+
+                $start += $len;
+                $len = ord($res[$start]);
+                $start++;
+                $old_column1_name = substr($res, $start, $len);
+                echo $old_column1_name, "\r\n";
+
+                if ($len<4)$len = 4;
+                $start += $len;
+                $start++;
+
+                for ($i = $start; $i<strlen($res);$i++)
+                    echo ord($res[$i])."-";
+
+                echo "\r\n\r\n";
+                $chart_set = ord($res[$start]).ord($res[$start+1]);
+                $start+=2;
+
+                echo $chart_set,"\r\n";
+                for ($i = $start; $i<strlen($res);$i++)
+                    echo ord($res[$i])."-";
+                echo "\r\n";
+
+                $column_len = ord($res[$start]).ord($res[$start+1]).
+                    ord($res[$start+2]).
+                    ord($res[$start+3]);
+                $start+=4;
+                echo $column_len,"\r\n";
+                $column_type = ord($res[$start]);
+                $start++;
+                echo $column_type,"\r\n";
+
+                $column_flag = ord($res[$start]).ord($res[$start+1]);
+                $start+=2;
+                echo $column_flag,"\r\n";
+
+                $start+=2;//填充值0x00
+
+                $len = ord($res[$start]);
+                echo $len;
+
+
 
                 //$columns .= $res;
                 $times++;
