@@ -255,7 +255,42 @@ class Mysql
             //2bytes 告警计数
             //nbytes 服务器消息，无结束符号，直接读取到尾部
 
+			/**
+			1	OK报文，值恒为0x00
+			1-9	受影响行数（Length Coded Binary）
+			1-9	索引ID值（Length Coded Binary）
+			2	服务器状态
+			2	告警计数
+			n	服务器消息（字符串到达消息尾部时结束，无结束符，可选）
+			受影响行数：当执行INSERT/UPDATE/DELETE语句时所影响的数据行数。
+
+			索引ID值：该值为AUTO_INCREMENT索引字段生成，如果没有索引字段，则为0x00。注意：当INSERT插入语句为多行数据时，该索引ID值为第一个插入的数据行索引值，而非最后一个。
+
+			服务器状态：客户端可以通过该值检查命令是否在事务处理中。
+
+			告警计数：告警发生的次数。
+
+			服务器消息：服务器返回给客户端的消息，一般为简单的描述性字符串，可选字段。
+			 */
+
             //消息解析
+			for ($i=0;$i<strlen($res);$i++) {
+				echo ord($res[$i]),"-";
+			}
+			echo "\r\n";
+			$start = 1;
+			$len = ord($res[$start]);
+			var_dump($len);
+			$start++;
+			$rows_affected = ord($res[$start]);//substr($res, $start, $len);
+			var_dump($rows_affected);
+			$start+=$len;
+
+			$len = ord($res[$start]);
+			$start++;
+			$rows_affected = substr($res, $start, $len);
+			var_dump($rows_affected);
+			echo "insert";
         }
 
         else if ($fbyte == Packet::ERR_PACK_HEAD) {

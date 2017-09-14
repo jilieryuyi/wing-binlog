@@ -20,25 +20,30 @@ if(!date_default_timezone_get() || !ini_get("date.timezone")) {
 define("WING_DEBUG", true);
 $start = time();
 
+try {
+	$mysql_config = load_config("app");
+	$context = new \Wing\Bin\Context();
+	$pdo = new \Wing\Library\PDO();
 
-$mysql_config 	= load_config("app");
-$context		= new \Wing\Bin\Context();
-$pdo			= new \Wing\Library\PDO();
+	$context->pdo = \Wing\Bin\Db::$pdo = $pdo;
+	$context->host = $mysql_config["mysql"]["host"];
+	$context->db_name = $mysql_config["mysql"]["db_name"];
+	$context->user = $mysql_config["mysql"]["user"];
+	$context->password = $mysql_config["mysql"]["password"];
+	$context->port = $mysql_config["mysql"]["port"];
+	$context->checksum = !!\Wing\Bin\Db::getChecksum();
 
-$context->pdo 		= \Wing\Bin\Db::$pdo = $pdo;
-$context->host 		= $mysql_config["mysql"]["host"];
-$context->db_name 	= $mysql_config["mysql"]["db_name"];
-$context->user		= $mysql_config["mysql"]["user"];
-$context->password 	= $mysql_config["mysql"]["password"];
-$context->port	 	= $mysql_config["mysql"]["port"];
-$context->checksum  = !!\Wing\Bin\Db::getChecksum();
-
-$context->slave_server_id 	= $mysql_config["slave_server_id"];
-$context->last_binlog_file 	= null;
-$context->last_pos 			= 0;
+	$context->slave_server_id = $mysql_config["slave_server_id"];
+	$context->last_binlog_file = null;
+	$context->last_pos = 0;
 
 //认证
-\Wing\Bin\Auth\Auth::execute($context);
+	\Wing\Bin\Auth\Auth::execute($context);
 
-$res = \Wing\Bin\Mysql::query('SELECT * FROM `content_type` WHERE 1 limit 2');
-var_dump($res);
+	$res = \Wing\Bin\Mysql::query('INSERT INTO `content_type`( `name`) VALUES ("hello")');//'SELECT * FROM `content_type` WHERE 1 limit 2');
+	var_dump($res);
+} catch (\Exception $e) {
+	var_dump($e);
+}
+
+echo "end";
