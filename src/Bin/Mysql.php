@@ -54,11 +54,50 @@ class Mysql
 
 		    //列信息
 		    $columns = '';
+		    $times = 0;
             //一直读取直到遇到结束报文
             while (ord($res[0]) != Packet::EOF_HEAD) {
                 $res = Net::readPacket();
-                $columns .= $res;
+                $len = ord($res[0]);
+                $start = 0;
+                $start++;
+var_dump($res);
+                //目录名称
+                $dir_name = substr($res, $start, $len);
+                $start += $len;
+                $len = ord($res[0]);
+                $start++;
+                echo $dir_name,"\r\n";
+                echo $len,"\r\n";
+
+//                var_dump(substr($res, $start-1));
+//                var_dump(substr($res, $start));
+
+                //数据库名称
+                $database_name = substr($res, $start, $len);
+                $start += $len+1;
+                $len = ord($res[0]);
+                echo $database_name,"\r\n";
+
+                $table_name = substr($res, $start, $len);
+                $start += $len+1;
+                $len = ord($res[0]);
+                echo $table_name,"\r\n";
+
+                $old_table_name = substr($res, $start, $len);
+                $start += $len+1;
+                $len = ord($res[0]);
+                echo $old_table_name,"\r\n";
+
+                $column1_name = substr($res, $start, $len);
+                echo $column1_name,"\r\n";
+
+                //$columns .= $res;
+                $times++;
+                exit;
             }
+            var_dump($times);
+            exit;
 
             //行信息
             $res  = Net::readPacket();
