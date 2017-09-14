@@ -183,7 +183,22 @@ class Mysql
                 $start = 0;
                 while ($start <strlen($res)) {
 					$len = ord($res[$start]);
+
+					if ($len == 252) {
+						//$len = unpack("v",$res[$start+1].$res[$start+2]);
+
+						$data = unpack("C3", $res[$start].$res[$start+1].$res[$start+2]);
+						var_dump($data);
+
+						$res = $data[1] + ($data[2] << 8) + ($data[3] << 16);
+
+						var_dump($res);
+						exit;
+						$start+=2;
+					}
 					$start++;
+
+
 					$row[$columns[$index++]] = substr($res, $start, $len);
 					$start += $len;
 				}
