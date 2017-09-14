@@ -60,10 +60,7 @@ class Mysql
                 $res = Net::readPacket();
 
 				if (ord($res[0]) == Packet::EOF_HEAD) break;
-				var_dump($res);
-
-
-
+				//var_dump($res);
 
                 $len = ord($res[0]);
                // echo $len,"\r\n";
@@ -101,7 +98,7 @@ class Mysql
                 //echo $old_table_name,"\r\n";
 
                 //echo $len,"\r\n";
-				$column['column_name'] = substr($res, $start, $len);
+				$column['column_name'] = $columns[] = substr($res, $start, $len);
                // echo $column1_name,"\r\n";
 
                 $start += $len;
@@ -127,6 +124,7 @@ class Mysql
                 //    echo ord($res[$i])."-";
                // echo "\r\n";
 
+				//这里的解析不确定是否正确
 				$column['column_len'] = unpack("I",$res[$start].$res[$start+1].$res[$start+2].$res[$start+3])[1];
 
 //				$data = unpack('C4', $res[$start].$res[$start+1].$res[$start+2].$res[$start+3]);
@@ -152,32 +150,51 @@ class Mysql
                 //echo $default_value,"\r\n";
 
 
-				for ($i = 0; $i<strlen($res);$i++)
-					echo ord($res[$i])."-";
-
-				echo "\r\n\r\n";
-				var_dump($column);
-				$columns[] = $column;
+//				for ($i = 0; $i<strlen($res);$i++)
+//					echo ord($res[$i])."-";
+//
+//				echo "\r\n\r\n";
+//				var_dump($column);
+				//$columns[] = $column;
                 //$columns .= $res;
                 $times++;
                // exit;
             }
-           // var_dump($columns);
-            exit;
+            //var_dump($columns);
+            //exit;
 
             //行信息
-            $res  = Net::readPacket();
-            $rows = $res;
+            $rows = [];
             //一直读取直到遇到结束报文
-            while (ord($res[0]) != Packet::EOF_HEAD) {
+            while (1) {
                 $res = Net::readPacket();
-                $rows .= $res;
+                if (ord($res[0]) == Packet::EOF_HEAD) break;
+                $index = 0;
+                $row = [];
+
+                /**
+				0-250	0	第一个字节值即为数据的真实长度
+				251		0	空数据，数据的真实长度为零
+				252		2	后续额外2个字节标识了数据的真实长度
+				253		3	后续额外3个字节标识了数据的真实长度
+				254		8	后续额外8个字节标识了数据的真实长度
+				 */
+
+                $start = 0;
+                while ($start <strlen($res)) {
+					$len = ord($res[$start]);
+					$start++;
+					$row[$columns[$index++]] = substr($res, $start, $len);
+					$start += $len;
+				}
+				$rows[] = $row;
             }
+            var_dump($rows);
 
             //这里还需要对报文进行解析
-            var_dump($columns);
-            var_dump($rows);
-            return null;
+//            var_dump($columns);
+//            var_dump($rows);
+            return $rows;
         }
 
         else if ($fbyte == Packet::OK_PACK_HEAD) {
