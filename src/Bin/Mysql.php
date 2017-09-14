@@ -62,10 +62,7 @@ class Mysql
 				if (ord($res[0]) == Packet::EOF_HEAD) break;
 				var_dump($res);
 
-                for ($i = 0; $i<strlen($res);$i++)
-                    echo ord($res[$i])."-";
 
-                echo "\r\n\r\n";
 
 
                 $len = ord($res[0]);
@@ -130,10 +127,11 @@ class Mysql
                 //    echo ord($res[$i])."-";
                // echo "\r\n";
 
-				$column['column_len'] = ord($res[$start]);
-//					.ord($res[$start+1]).
-//                    ord($res[$start+2]).
-//                    ord($res[$start+3]);
+				$column['column_len'] = unpack("I",$res[$start].$res[$start+1].$res[$start+2].$res[$start+3])[1];
+
+//				$data = unpack('C4', $res[$start].$res[$start+1].$res[$start+2].$res[$start+3]);
+//				$column['column_len'] = ($data[1] << 24)|($data[2] << 16) | ($data[3] << 8) | $data[4];
+
                 $start+=4;
                // echo $column_len,"\r\n";
 				$column['column_type'] = ord($res[$start]);
@@ -153,12 +151,18 @@ class Mysql
 				$column['default_value'] = substr($res, $start, $len);
                 //echo $default_value,"\r\n";
 
+
+				for ($i = 0; $i<strlen($res);$i++)
+					echo ord($res[$i])."-";
+
+				echo "\r\n\r\n";
+				var_dump($column);
 				$columns[] = $column;
                 //$columns .= $res;
                 $times++;
                // exit;
             }
-            var_dump($columns);
+           // var_dump($columns);
             exit;
 
             //行信息
