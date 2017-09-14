@@ -279,18 +279,18 @@ class Mysql
 			}
 			echo "\r\n";
 			$start = 1;
-			$len = ord($res[$start]);
-			var_dump($len);
+			//$len = ord($res[$start]);
 			$start++;
-			$rows_affected = ord($res[$start]);//substr($res, $start, $len);
-			var_dump($rows_affected);
-			$start+=$len;
-
-			$len = ord($res[$start]);
-			$start++;
-			$rows_affected = substr($res, $start, $len);
-			var_dump($rows_affected);
-			echo "insert";
+			$last_insert_id = ord($res[$start]);//substr($res, $start, $len);
+//			var_dump($rows_affected);
+//			$start+=$len;
+//
+//			$len = ord($res[$start]);
+//			$start++;
+//			$rows_affected = substr($res, $start, $len);
+//			var_dump($rows_affected);
+//			echo "insert";
+			return $last_insert_id;
         }
 
         else if ($fbyte == Packet::ERR_PACK_HEAD) {

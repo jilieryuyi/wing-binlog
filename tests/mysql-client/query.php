@@ -40,7 +40,7 @@ try {
 //认证
 	\Wing\Bin\Auth\Auth::execute($context);
 
-	$res = \Wing\Bin\Mysql::query('INSERT INTO `content_type`( `name`) VALUES ("hello")');//'SELECT * FROM `content_type` WHERE 1 limit 2');
+	$res = \Wing\Bin\Mysql::query('SELECT * FROM `content_type` WHERE 1 limit 2');//'INSERT INTO `content_type`( `name`) VALUES ("hello")');//
 	var_dump($res);
 } catch (\Exception $e) {
 	var_dump($e);
