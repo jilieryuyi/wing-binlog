@@ -279,9 +279,12 @@ class Mysql
 			}
 			echo "\r\n";
 			$start = 1;
-			//$len = ord($res[$start]);
+			$len = ord($res[$start]);
 			$start++;
 			$last_insert_id = ord($res[$start]);//substr($res, $start, $len);
+			if ($last_insert_id <= 0) {
+				return $len;
+			}
 //			var_dump($rows_affected);
 //			$start+=$len;
 //
