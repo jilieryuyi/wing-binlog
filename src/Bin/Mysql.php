@@ -1,5 +1,6 @@
 <?php namespace Wing\Bin;
 use Wing\Bin\Constant\CommandType;
+use Wing\Bin\Constant\Cursor;
 
 /**
  * Mysql.php
@@ -349,9 +350,33 @@ class Mysql
         echo "cloumns count=".unpack("n", $res[4].$res[5].$res[6].$res[7])[1],"\r\n";
 
 
-        $chunk_size = strlen($smtid) + 1;
-        $prelude    = pack('LC',$chunk_size, CommandType::COM_STMT_EXECUTE);
-        Net::send($prelude . $smtid);
+
+        /**
+        字节	说明
+        4	预处理语句的ID值
+        1	标志位
+            0x00: CURSOR_TYPE_NO_CURSOR
+            0x01: CURSOR_TYPE_READ_ONLY
+            0x02: CURSOR_TYPE_FOR_UPDATE
+            0x04: CURSOR_TYPE_SCROLLABLE
+        4	保留（值恒为0x01）
+
+        如果参数数量大于0
+        n	空位图（Null-Bitmap，长度 = (参数数量 + 7) / 8 字节）
+        1	参数分隔标志
+
+        如果参数分隔标志值为1
+        n	每个参数的类型值（长度 = 参数数量 * 2 字节）
+        n	每个参数的值
+         */
+        $chunk_size = 10;
+        $data    = pack('LC',$chunk_size, CommandType::COM_STMT_EXECUTE);
+        //4字节预处理语句的ID值
+        $data .= pack("V", $smtid);
+        $data .= Cursor::TYPE_NO_CURSOR;
+        $data .= pack("V", 0x01);
+
+        Net::send($data );
         $res = Net::readPacket();
         var_dump($res);
 
