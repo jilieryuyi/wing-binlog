@@ -1,6 +1,7 @@
 <?php namespace Wing\Bin;
 use Wing\Bin\Constant\CommandType;
 use Wing\Bin\Constant\Cursor;
+use Wing\Bin\Constant\FieldType;
 
 /**
  * Mysql.php
@@ -336,7 +337,7 @@ class Mysql
         return true;
 	}
 
-    public static function excute($sql)
+    public static function excute($sql,array $params = null)
     {
         $chunk_size = strlen($sql) + 1;
         $prelude    = pack('LC',$chunk_size, CommandType::COM_STMT_PREPARE);
@@ -369,15 +370,26 @@ class Mysql
         n	每个参数的类型值（长度 = 参数数量 * 2 字节）
         n	每个参数的值
          */
-        $chunk_size = 10;
-        $data    = pack('LC',$chunk_size, CommandType::COM_STMT_EXECUTE);
+        $data  = pack('C', CommandType::COM_STMT_EXECUTE);
         //4字节预处理语句的ID值
         $data .= pack("V", $smtid);
         $data .= Cursor::TYPE_NO_CURSOR;
         $data .= pack("V", 0x01);
 
+        $len = intval((count($params)+7)/8);
+        for ($i=0;$i<$len;$i++)
+            $data.=chr(0x00);
+
+        $data .= chr(0x01);
+        for ($i=0;$i<count($params);$i++)
+        $data .= pack("v", FieldType::TINY);
+
+        $data = pack("L", strlen($data)).$data;
+
+
         Net::send($data );
         $res = Net::readPacket();
+        //Packet::success($res);
         var_dump($res);
 
 
