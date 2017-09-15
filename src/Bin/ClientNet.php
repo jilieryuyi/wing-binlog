@@ -41,29 +41,29 @@ class ClientNet
 		$this->checksum = !!$res['Value'];
 	}
 
-	public function auth($user, $password, $db)
-	{
-		$flag = CapabilityFlag::CAPABILITIES;
-		if ($db) {
-			$flag |= CapabilityFlag::CLIENT_CONNECT_WITH_DB;
-		}
-		// 获取server信息 加密salt
-		$pack   	 = $this->readPacket();
-		$server_info = new ServerInfo($pack);
-		var_dump($server_info);
-		$salt   	 = $server_info->getSalt();
-
-		// 认证
-		// pack拼接
-		$data = PacketAuth::getAuthPack($flag, $user, $password, $salt,  $db);
-
-		$this->send($data);
-		//
-		$result = $this->readPacket();
-
-		// 认证是否成功
-		PacketAuth::success($result);
-	}
+//	public function auth($user, $password, $db)
+//	{
+//		$flag = CapabilityFlag::CAPABILITIES;
+//		if ($db) {
+//			$flag |= CapabilityFlag::CLIENT_CONNECT_WITH_DB;
+//		}
+//		// 获取server信息 加密salt
+//		$pack   	 = $this->readPacket();
+//		$server_info = "";//new ServerInfo($pack);
+//		var_dump($server_info);
+//		$salt   	 = "";//$server_info->getSalt();
+//
+//		// 认证
+//		// pack拼接
+//		$data = "";//PacketAuth::getAuthPack($flag, $user, $password, $salt,  $db);
+//
+//		$this->send($data);
+//		//
+//		$result = $this->readPacket();
+//
+//		// 认证是否成功
+//		PacketAuth::success($result);
+//	}
 
 	public function send($data)
 	{
