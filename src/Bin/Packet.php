@@ -27,6 +27,10 @@ class Packet
 	const ROW_DATA_HEAD 	= [0x01, 0xfa];
 	const EOF_HEAD 			= 0xfe;
 
+	private $packet;
+	private $pos;
+	private $len;
+
 	/**
 	 * http://boytnt.blog.51cto.com/966121/1279318
 	 * @param $flag
@@ -119,4 +123,68 @@ class Packet
         }
         throw new \Exception($error_msg, $error_code);
     }
+
+    public function __construct($packet)
+    {
+        $this->packet = $packet;
+        $this->pos    = 0;
+        $this->len    = strlen($packet);
+    }
+
+    public function read($bytes)
+    {
+        $sub_str = substr($this->packet, $this->pos, $bytes);
+        $this->pos += $bytes;
+        return $sub_str;
+    }
+
+    public function getLength()
+    {
+        $len = ord($this->packet[0]);
+        $this->pos++;
+
+        if ($len == 251) {
+            return 0;
+        }
+
+        if ($len == 252) {
+            $len = unpack("v", $this->packet[$this->pos+1].$this->packet[$this->pos+2])[1];
+            $this->pos += 2;
+            return $len;
+        }
+
+        if ($len == 253) {
+            $data = unpack("C3", $this->packet[$this->pos+1].$this->packet[$this->pos+2].$this->packet[$this->pos+3]);//[1];
+            $len  = $data[1] + ($data[2] << 8) + ($data[3] << 16);
+            $this->pos += 3;
+            return $len;
+        }
+
+        if ($len == 254) {
+            $len = unpack("Q",
+                $this->packet[$this->pos+1].
+                $this->packet[$this->pos+2].
+                $this->packet[$this->pos+3].
+                $this->packet[$this->pos+4].
+                $this->packet[$this->pos+5].
+                $this->packet[$this->pos+6].
+                $this->packet[$this->pos+7].
+                $this->packet[$this->pos+8]
+            )[1];
+            $this->pos += 8;
+            return $len;
+        }
+
+        return 0;
+    }
+
+    public function next()
+    {
+        if ($this->pos >= $this->len) {
+            return null;
+        }
+        return $this->read($this->getLength());
+    }
+
+
 }
