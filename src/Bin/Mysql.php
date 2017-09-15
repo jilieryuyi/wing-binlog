@@ -21,7 +21,7 @@ class Mysql
         //以下解析 Result set
 		if ($fbyte >= Packet::RESULT_SET_HEAD[0] && $fbyte <= Packet::RESULT_SET_HEAD[1]) {
             //列数量
-		    $column_num = $fbyte;
+		    //$column_num = $fbyte;
 
 		    /**
             n	目录名称（Length Coded String）
@@ -52,7 +52,7 @@ class Mysql
 
 		    //列信息
 		    $columns = [];
-		    $times = 0;
+		    //$times = 0;
             //一直读取直到遇到结束报文
             while (1) {
                 $res = Net::readPacket();
@@ -61,11 +61,25 @@ class Mysql
 				//var_dump($res);
 
                 $packet = new Packet($res);
-                $column['dir_name']         = $packet->next();
-                $column['database_name']    = $packet->next();
-                $column['table_name']       = $packet->next();
-                $column['old_table_name']   = $packet->next();
-                $column['column_name']      = $columns[] = $packet->next();
+//                $column['dir_name']         = $packet->next();
+//                $column['database_name']    = $packet->next();
+//                $column['table_name']       = $packet->next();
+//                $column['old_table_name']   = $packet->next();
+//                $column['column_name']      = $columns[] = $packet->next();
+
+                //def 移动游标至下一个
+                $packet->next();
+                //数据库名称
+                $packet->next();
+                //数据表名称
+                $packet->next();
+                //原数据表名称
+                $packet->next();
+                //列名称 这个才是我们要的
+                $columns[] = $packet->next();
+                unset($packet);
+//
+                //
 //                var_dump($column);
 //                exit;
 
