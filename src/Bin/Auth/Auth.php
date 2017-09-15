@@ -64,7 +64,7 @@ var_dump("capability_flag", $server_info->capability_flag);
         }
 
 		//认证
-		$data = Packet::getAuthPack($flag, $user, $password, $server_info->salt,  $db);
+		$data = Packet::getAuth($flag, $user, $password, $server_info->salt,  $db);
 		Net::send($data);
 
 		$result = Net::readPacket();

@@ -12,32 +12,6 @@ class Binlog
 	 */
 	public static $context;
 
-	/**
-	 * 注册成slave
-	 * @param int $slave_server_id
-	 */
-	private static function _sendRegisterSlavePacket()
-	{
-		$header   = pack('l', 18);
-
-		// COM_BINLOG_DUMP
-		$data  = $header . chr(ConstCommand::COM_REGISTER_SLAVE);
-		$data .= pack('L', self::$context->slave_server_id);
-		$data .= chr(0);
-		$data .= chr(0);
-		$data .= chr(0);
-
-		$data .= pack('s', '');
-
-		$data .= pack('L', 0);
-		$data .= pack('L', 1);
-
-		Net::send($data);
-
-		$result = Net::readPacket();
-		PacketAuth::success($result);
-	}
-
 	public static function registerSlave()
 	{
 
@@ -53,7 +27,10 @@ class Binlog
 			Mysql::query("set @master_heartbeat_period=".($heart*1000000000));
 		}
 
-		self::_sendRegisterSlavePacket();
+        $data = Packet::registerSlave(self::$context->slave_server_id);
+        Net::send($data);
+        $result = Net::readPacket();
+        PacketAuth::success($result);
 
 		// 开始读取的二进制日志位置
 		if(!$last_binlog_file) {
@@ -79,14 +56,16 @@ class Binlog
 		// 初始化
 		BinLogPack::setFilePos($last_binlog_file, $last_pos);
 
-		$header = pack('l', 11 + strlen($last_binlog_file));
-
-		// COM_BINLOG_DUMP
-		$data  = $header . chr(ConstCommand::COM_BINLOG_DUMP);
-		$data .= pack('L', $last_pos);
-		$data .= pack('s', 0);
-		$data .= pack('L', self::$context->slave_server_id);
-		$data .= $last_binlog_file;
+//		$header = pack('l', 11 + strlen($last_binlog_file));
+//
+//		// COM_BINLOG_DUMP
+//		$data  = $header . chr(ConstCommand::COM_BINLOG_DUMP);
+//		$data .= pack('L', $last_pos);
+//		$data .= pack('s', 0);
+//		$data .= pack('L', self::$context->slave_server_id);
+//		$data .= $last_binlog_file;
+        //封包
+        $data = Packet::binlogDump($last_binlog_file, $last_pos, self::$context->slave_server_id);
 
 		Net::send($data);
 

@@ -33,7 +33,7 @@ class Packet
 	 * @param string $db
 	 * @return string
 	 */
-	public static function  getAuthPack($flag, $user, $pass, $salt, $db = '')
+	public static function  getAuth($flag, $user, $pass, $salt, $db = '')
 	{
 		$data 	= pack('L',$flag);						 	//4bytes权能信息
 		$data  .= pack('L', self::PACK_MAX_LENGTH); 	//4bytes最大长度
@@ -64,4 +64,35 @@ class Packet
 
 		return $data;
 	}
+
+	public static function binlogDump($binlog_file,$pos, $slave_server_id)
+    {
+        $header = pack('l', 11 + strlen($binlog_file));
+        $data   = $header . chr(ConstCommand::COM_BINLOG_DUMP);
+        $data  .= pack('L', $pos);
+        $data  .= pack('s', 0);
+        $data  .= pack('L', $slave_server_id);
+        $data  .= $binlog_file;
+
+        return $data;
+    }
+
+    public static function registerSlave($slave_server_id)
+    {
+        $header   = pack('l', 18);
+
+        // COM_BINLOG_DUMP
+        $data  = $header . chr(ConstCommand::COM_REGISTER_SLAVE);
+        $data .= pack('L', $slave_server_id);
+        $data .= chr(0);
+        $data .= chr(0);
+        $data .= chr(0);
+
+        $data .= pack('s', '');
+
+        $data .= pack('L', 0);
+        $data .= pack('L', 1);
+
+        return $data;
+    }
 }
