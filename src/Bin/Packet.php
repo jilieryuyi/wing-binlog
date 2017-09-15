@@ -104,4 +104,19 @@ class Packet
         $chunk_size = strlen($sql) + 1;
         return pack('LC',$chunk_size, CommandType::COM_QUERY).$sql;
     }
+
+    public static function success($pack)
+    {
+        if (ord($pack[0]) == self::OK_PACK_HEAD) {
+            return;
+        }
+
+        $error_code = unpack("v", $pack[1] . $pack[2])[1];
+        $error_msg  = '';
+
+        for ($i = 9; $i < strlen($pack); $i ++) {
+            $error_msg .= $pack[$i];
+        }
+        throw new \Exception($error_msg, $error_code);
+    }
 }

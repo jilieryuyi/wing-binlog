@@ -3,7 +3,6 @@ use Wing\Bin\Constant\CapabilityFlag;
 use Wing\Bin\Context;
 use Wing\Bin\Net;
 use Wing\Bin\Packet;
-use Wing\Bin\PacketAuth;
 
 /**
  * ClientSocket.php
@@ -69,6 +68,6 @@ var_dump("capability_flag", $server_info->capability_flag);
 
 		$result = Net::readPacket();
 		// 认证是否成功
-		PacketAuth::success($result);
+		Packet::success($result);
 	}
 }

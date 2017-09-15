@@ -30,7 +30,7 @@ class Binlog
         $data = Packet::registerSlave(self::$context->slave_server_id);
         Net::send($data);
         $result = Net::readPacket();
-        PacketAuth::success($result);
+        Packet::success($result);
 
 		// 开始读取的二进制日志位置
 		if(!$last_binlog_file) {
@@ -71,7 +71,7 @@ class Binlog
 
 		//认证
 		$result = Net::readPacket();
-		PacketAuth::success($result);
+		Packet::success($result);
 	}
 
 	public static function getEvent() {
@@ -79,7 +79,7 @@ class Binlog
 		$pack   = Net::readPacket();
 
 		// 校验数据包格式
-		PacketAuth::success($pack);
+		Packet::success($pack);
 
 		$binlog = BinLogPack::getInstance();
 		$result = $binlog->init($pack, self::$context->checksum);
