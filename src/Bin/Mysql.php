@@ -23,7 +23,7 @@ class Mysql
         //以下解析 Result set
 		if ($fbyte >= Packet::RESULT_SET_HEAD[0] && $fbyte <= Packet::RESULT_SET_HEAD[1]) {
             //列数量
-		    //$column_num = $fbyte;
+		    $column_num = $fbyte;
 
 		    /**
             n	目录名称（Length Coded String）
@@ -54,20 +54,20 @@ class Mysql
 
 		    //列信息
 		    $columns = [];
-		    //$times = 0;
             //一直读取直到遇到结束报文
             while (1) {
                 $res = Net::readPacket();
 
-				if (ord($res[0]) == Packet::EOF_HEAD) break;
-				//var_dump($res);
+				if (ord($res[0]) == Packet::EOF_HEAD) {
+				    break;
+                }
 
                 $packet = new Packet($res);
-//                $column['dir_name']         = $packet->next();
-//                $column['database_name']    = $packet->next();
-//                $column['table_name']       = $packet->next();
-//                $column['old_table_name']   = $packet->next();
-//                $column['column_name']      = $columns[] = $packet->next();
+                //$column['dir_name']         = $packet->next();
+                //$column['database_name']    = $packet->next();
+                //$column['table_name']       = $packet->next();
+                //$column['old_table_name']   = $packet->next();
+                //$column['column_name']      = $columns[] = $packet->next();
 
                 //def 移动游标至下一个
                 $packet->next();
@@ -80,193 +80,26 @@ class Mysql
                 //列名称 这个才是我们要的
                 $columns[] = $packet->next();
                 unset($packet);
-//
-                //
-//                var_dump($column);
-//                exit;
-
-                /*$len = ord($res[0]);
-               // echo $len,"\r\n";
-                $start = 0;
-                $start++;
-                //目录名称
-				$column['dir_name'] = substr($res."", $start, $len);
-                $start += $len;
-                $len = ord($res[$start]);
-                $start++;
-//                echo $column['dir_name'],"\r\n";
-//                exit;
-               // echo $len,"\r\n";
-
-//                var_dump(substr($res, $start-1));
-//                var_dump(substr($res, $start));
-
-                //数据库名称
-				$column['database_name'] = substr($res, $start, $len);
-                $start += $len;
-                $len = ord($res[$start]);
-                $start++;
-               // echo $database_name,"\r\n";
-
-				$column['table_name'] = substr($res, $start, $len);
-                $start += $len;
-                $len = ord($res[$start]);
-                $start++;
-               // echo $table_name,"\r\n";
-
-				$column['old_table_name'] = substr($res, $start, $len);
-                $start += $len;
-                $len = ord($res[$start]);
-                $start++;
-                //echo $old_table_name,"\r\n";
-
-                //echo $len,"\r\n";
-				$column['column_name'] = $columns[] = substr($res, $start, $len);
-               // echo $column1_name,"\r\n";
-
-                $start += $len;
-                $len = ord($res[$start]);
-                $start++;
-				$column['old_column_name']  = substr($res, $start, $len);
-                //echo $old_column1_name, "\r\n";
-
-             //   if ($len<4)$len = 4;
-                $start += $len;
-                $start++;
-
-               // echo "character_set\r\n";
-               // for ($i = $start; $i<strlen($res);$i++)
-                //    echo ord($res[$i])."-";
-
-               // echo "\r\n\r\n";
-				$column['character_set'] = ord($res[$start]);//.$res[$start+1];
-                $start+=2;
-
-                //echo $chart_set,"\r\n";
-               // for ($i = $start; $i<strlen($res);$i++)
-                //    echo ord($res[$i])."-";
-               // echo "\r\n";
-
-				//这里的解析不确定是否正确
-				$column['column_len'] = unpack("I",$res[$start].$res[$start+1].$res[$start+2].$res[$start+3])[1];
-
-//				$data = unpack('C4', $res[$start].$res[$start+1].$res[$start+2].$res[$start+3]);
-//				$column['column_len'] = ($data[1] << 24)|($data[2] << 16) | ($data[3] << 8) | $data[4];
-
-                $start+=4;
-               // echo $column_len,"\r\n";
-				$column['column_type'] = ord($res[$start]);
-                $start++;
-               // echo $column_type,"\r\n";
-
-				//索引什么的
-				$column['column_flag'] = ord($res[$start]).ord($res[$start+1]);
-                $start+=2;
-               // echo $column_flag,"\r\n";
-
-                $start+=2;//填充值0x00
-
-                $len = ord($res[$start]);
-                $start++;
-               // echo $len;
-				$column['default_value'] = substr($res, $start, $len);
-                //echo $default_value,"\r\n";
-
-
-//				for ($i = 0; $i<strlen($res);$i++)
-//					echo ord($res[$i])."-";
-//
-//				echo "\r\n\r\n";
-//				var_dump($column);
-				//$columns[] = $column;
-                //$columns .= $res;
-                $times++;
-               // exit;*/
             }
-            //var_dump($columns);
-            //exit;
 
             //行信息
             $rows = [];
             //一直读取直到遇到结束报文
             while (1) {
                 $res = Net::readPacket();
-                if (ord($res[0]) == Packet::EOF_HEAD) break;
+                if (ord($res[0]) == Packet::EOF_HEAD) {
+                    break;
+                }
                 $index = 0;
-                $row = [];
+                $row   = [];
 
-                /**
-				0-250	0	第一个字节值即为数据的真实长度
-				251		0	空数据，数据的真实长度为零
-				252		2	后续额外2个字节标识了数据的真实长度
-				253		3	后续额外3个字节标识了数据的真实长度
-				254		8	后续额外8个字节标识了数据的真实长度
-				 */
+                $packet = new Packet($res);
+                while($index < $column_num) {
+                    $row[$columns[$index++]] = $packet->next();//substr($res, $start, $len);
+                }
 
-                $start = 0;
-                while ($start <strlen($res)) {
-					$len = ord($res[$start]);
-
-					/**
-					case
-					when first_byte <= 250
-					first_byte
-					when first_byte == 251
-					nil
-					when first_byte == 252
-					read_uint16
-					when first_byte == 253
-					read_uint24
-					when first_byte == 254
-					read_uint64
-					when first_byte == 255
-					 */
-					if ($len == 251) {
-						$row[$columns[$index++]] = null;
-						$start++;
-						continue;
-					}
-
-					if ($len == 252) {
-						//$len = unpack("v",$res[$start+1].$res[$start+2]);
-
-						$len = unpack("v", $res[$start+1].$res[$start+2])[1];
-						$start+=2;
-					} else if ($len == 253) {
-						$data = unpack("C3", $res[$start+1].$res[$start+2].$res[$start+3]);//[1];
-
-
-      					$len = $data[1] + ($data[2] << 8) + ($data[3] << 16);
-//						var_dump($len);
-//						exit;
-						$start+=3;
-					}
-				else if ($len == 254) {
-					$len = unpack("Q",
-						$res[$start+1].
-						$res[$start+2].
-						$res[$start+3].
-						$res[$start+4].
-						$res[$start+5].
-						$res[$start+6].
-						$res[$start+7].
-						$res[$start+8]
-					)[1];
-					$start+=8;
-				}
-					$start++;
-
-
-					$row[$columns[$index++]] = substr($res, $start, $len);
-					$start += $len;
-				}
 				$rows[] = $row;
             }
-            var_dump($rows);
-
-            //这里还需要对报文进行解析
-//            var_dump($columns);
-//            var_dump($rows);
             return $rows;
         }
 
@@ -285,14 +118,12 @@ class Mysql
 			2	服务器状态
 			2	告警计数
 			n	服务器消息（字符串到达消息尾部时结束，无结束符，可选）
-			受影响行数：当执行INSERT/UPDATE/DELETE语句时所影响的数据行数。
 
-			索引ID值：该值为AUTO_INCREMENT索引字段生成，如果没有索引字段，则为0x00。注意：当INSERT插入语句为多行数据时，该索引ID值为第一个插入的数据行索引值，而非最后一个。
-
+            受影响行数：当执行INSERT/UPDATE/DELETE语句时所影响的数据行数。
+			索引ID值：该值为AUTO_INCREMENT索引字段生成，如果没有索引字段，则为0x00。
+            注意：当INSERT插入语句为多行数据时，该索引ID值为第一个插入的数据行索引值，而非最后一个。
 			服务器状态：客户端可以通过该值检查命令是否在事务处理中。
-
 			告警计数：告警发生的次数。
-
 			服务器消息：服务器返回给客户端的消息，一般为简单的描述性字符串，可选字段。
 			 */
 

@@ -205,7 +205,7 @@ class Packet
         //如果第一个字节为252，实际长度存储在后续两个字节当中
         //v解包，unsigned short (always 16 bit, little endian byte order)
         if ($len == 252) {
-            $len = unpack("v", $this->packet[$this->pos+1].$this->packet[$this->pos+2])[1];
+            $len = unpack("v", $this->packet[$this->pos].$this->packet[$this->pos+1])[1];
             $this->pos += 2;
             return $len;
         }
@@ -213,7 +213,7 @@ class Packet
         //如果第一个字节是253，实际长度存储在后续的三个字节当中
         //C3解包，小端序，后续字节移位8和移位16相加则为实际的结果
         if ($len == 253) {
-            $data = unpack("C3", $this->packet[$this->pos+1].$this->packet[$this->pos+2].$this->packet[$this->pos+3]);//[1];
+            $data = unpack("C3", $this->packet[$this->pos].$this->packet[$this->pos+1].$this->packet[$this->pos+2]);//[1];
             $len  = $data[1] + ($data[2] << 8) + ($data[3] << 16);
             $this->pos += 3;
             return $len;
@@ -222,16 +222,7 @@ class Packet
         //如果第一个字节为254，实际长度存储在后续的8字节当中
         //小端序，P解包
         if ($len == 254) {
-            $len = unpack("P",
-                $this->packet[$this->pos+1].
-                $this->packet[$this->pos+2].
-                $this->packet[$this->pos+3].
-                $this->packet[$this->pos+4].
-                $this->packet[$this->pos+5].
-                $this->packet[$this->pos+6].
-                $this->packet[$this->pos+7].
-                $this->packet[$this->pos+8]
-            )[1];
+            $len = unpack("P", $this->packet[$this->pos]. $this->packet[$this->pos+1]. $this->packet[$this->pos+2]. $this->packet[$this->pos+3]. $this->packet[$this->pos+4]. $this->packet[$this->pos+5]. $this->packet[$this->pos+6]. $this->packet[$this->pos+7])[1];
             $this->pos += 8;
             return $len;
         }

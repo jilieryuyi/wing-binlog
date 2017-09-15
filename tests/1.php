@@ -6,6 +6,5 @@
  * Time: 21:47
  */
 
-if ("1.0.1" < "1.0.2") {
-    echo 1;
-}
+preg_match_all('/[\d(\.\d)?]+|[a-zA-Z]{1,}/','100kk',$m);
+var_dump($m);
