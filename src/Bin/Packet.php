@@ -1,4 +1,5 @@
 <?php namespace Wing\Bin;
+use Wing\Bin\Constant\CharacterSet;
 use Wing\Bin\Constant\CommandType;
 
 /**
@@ -39,7 +40,7 @@ class Packet
 	{
 		$data 	= pack('L',$flag);						 	//4bytes权能信息
 		$data  .= pack('L', self::PACK_MAX_LENGTH); 	//4bytes最大长度
-		$data  .= chr(MysqlChartSet::utf8_general_ci);			//1byte字符编码
+		$data  .= chr(CharacterSet::utf8_general_ci);			//1byte字符编码
 
 		//填充23字节0x00
 		for ($i = 0; $i < 23; $i++) {

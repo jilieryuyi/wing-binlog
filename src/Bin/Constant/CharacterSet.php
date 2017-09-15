@@ -1,4 +1,4 @@
-<?php namespace Wing\Bin;
+<?php namespace Wing\Bin\Constant;
 /**
  * MysqlChartSet.php
  * User: huangxiaoan

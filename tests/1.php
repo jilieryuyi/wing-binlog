@@ -5,6 +5,7 @@
  * Date: 17/8/16
  * Time: 21:47
  */
-$pass = "123456";
-$salt = "456789";
-var_dump(sha1($pass, true) ^ sha1($salt . sha1(sha1($pass, true), true),true));
+
+if ("1.0.1" < "1.0.2") {
+    echo 1;
+}

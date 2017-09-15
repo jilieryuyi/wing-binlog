@@ -1,4 +1,6 @@
 <?php namespace Wing\Bin;
+use Wing\Bin\Constant\CharacterSet;
+
 /**
  * Created by PhpStorm.
  * User: yuyi
@@ -36,7 +38,7 @@ class PacketAuth
 
 
 		// Charset  1byte utf8=>33
-		$data .= chr(MysqlChartSet::utf8_general_ci);
+		$data .= chr(CharacterSet::utf8_general_ci);
 
 
 		// 空 bytes23
