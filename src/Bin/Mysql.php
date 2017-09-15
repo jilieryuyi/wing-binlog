@@ -60,7 +60,16 @@ class Mysql
 				if (ord($res[0]) == Packet::EOF_HEAD) break;
 				//var_dump($res);
 
-                $len = ord($res[0]);
+                $packet = new Packet($res);
+                $column['dir_name']         = $packet->next();
+                $column['database_name']    = $packet->next();
+                $column['table_name']       = $packet->next();
+                $column['old_table_name']   = $packet->next();
+                $column['column_name']      = $columns[] = $packet->next();
+//                var_dump($column);
+//                exit;
+
+                /*$len = ord($res[0]);
                // echo $len,"\r\n";
                 $start = 0;
                 $start++;
@@ -156,7 +165,7 @@ class Mysql
 				//$columns[] = $column;
                 //$columns .= $res;
                 $times++;
-               // exit;
+               // exit;*/
             }
             //var_dump($columns);
             //exit;

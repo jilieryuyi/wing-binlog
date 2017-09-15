@@ -140,7 +140,7 @@ class Packet
 
     public function getLength()
     {
-        $len = ord($this->packet[0]);
+        $len = ord($this->packet[$this->pos]);
         $this->pos++;
 
         if ($len == 251) {
@@ -175,7 +175,7 @@ class Packet
             return $len;
         }
 
-        return 0;
+        return $len;
     }
 
     public function next()
@@ -183,7 +183,8 @@ class Packet
         if ($this->pos >= $this->len) {
             return null;
         }
-        return $this->read($this->getLength());
+        $len = $this->getLength();
+        return $this->read($len);
     }
 
 

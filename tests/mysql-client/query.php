@@ -40,7 +40,7 @@ try {
 //认证
 	\Wing\Bin\Auth\Auth::execute($context);
 
-	$res = \Wing\Bin\Mysql::query('DELETE FROM `content_type` WHERE id=12');//'SELECT * FROM `content_type` WHERE 1 limit 2');//'INSERT INTO `content_type`( `name`) VALUES ("hello")');//
+	$res = \Wing\Bin\Mysql::query('select * from wp_posts where 1 limit 10');//'SELECT * FROM `content_type` WHERE 1 limit 2');//'INSERT INTO `content_type`( `name`) VALUES ("hello")');//
 	var_dump($res);
 } catch (\Exception $e) {
 	var_dump($e);
