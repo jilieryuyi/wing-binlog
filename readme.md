@@ -5,13 +5,14 @@ wing-binlog是一个轻量化mysql数据库监控系统
 wing-binlog可轻松实现不改变一句业务代码实现整库数据变化实时监控      
 ......
 
-### 2.1升级要点
+### 2.2升级要点
 1. 去除本地redis依赖    
 2. 支持websocket事件通知    
 3. 支持tcp事件通知    
 4. 简化安装流程      
 5. 优化性能问题，使binlog处理速度能达到binlog的写入速度，避免延迟
 6. 支持windows
+7. mysql协议支持
    
 ### 安装
 1. 开启mysql binlog，并且指定格式为row        
@@ -35,3 +36,8 @@ wing-binlog可轻松实现不改变一句业务代码实现整库数据变化实
 
 ### 帮助
    QQ群咨询 535218312  
+
+### 致谢
+   https://github.com/fengxiangyun/mysql-replication    
+   https://github.com/jeremycole/mysql_binlog.git
+   

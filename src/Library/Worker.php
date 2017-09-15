@@ -8,7 +8,7 @@
 
 class Worker
 {
-	const VERSION = "2.1";
+	const VERSION = "2.2";
 
 	//父进程相关配置
 	private $daemon         = false;
