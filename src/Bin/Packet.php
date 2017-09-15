@@ -7,6 +7,16 @@ use Wing\Bin\Constant\CommandType;
  * User: huangxiaoan
  * Created: 2017/9/13 17:57
  * Email: huangxiaoan@xunlei.com
+ *
+ * mysql协议数据包处理
+ * n，null terminated string，空字符标志结束
+ * N，length coded binary，1-9字节前置编码长度
+ * 规则如下：
+ *  0-250	0	第一个字节值即为数据的真实长度
+ *  251	    0	空数据，数据的真实长度为零
+ *  252	    2	后续额外2个字节标识了数据的真实长度
+ *  253	    3	后续额外3个字节标识了数据的真实长度
+ *  254	    8	后续额外8个字节标识了数据的真实长度
  */
 class Packet
 {
@@ -33,11 +43,13 @@ class Packet
 
 	/**
 	 * http://boytnt.blog.51cto.com/966121/1279318
-	 * @param $flag
-	 * @param $user
-	 * @param $pass
-	 * @param $salt
-	 * @param string $db
+     * 生成auth认证包
+     *
+	 * @param int $flag 服务器权能标志
+	 * @param string $user 数据库用户
+	 * @param string $pass 数据库密码
+	 * @param string $salt 密码加密加盐
+	 * @param string $db 数据库
 	 * @return string
 	 */
 	public static function  getAuth($flag, $user, $pass, $salt, $db = '')
@@ -72,6 +84,14 @@ class Packet
 		return $data;
 	}
 
+	/**
+	 * COM_BINLOG_DUMP封包
+     *
+     * @param string $binlog_file
+     * @param int $pos
+     * @param int $slave_server_id
+     * @return string
+     */
 	public static function binlogDump($binlog_file,$pos, $slave_server_id)
     {
         $header = pack('l', 11 + strlen($binlog_file));
@@ -84,6 +104,12 @@ class Packet
         return $data;
     }
 
+    /**
+     * COM_REGISTER_SLAVE封包
+     *
+     * @param int $slave_server_id
+     * @return string
+     */
     public static function registerSlave($slave_server_id)
     {
         $header   = pack('l', 18);
@@ -103,12 +129,24 @@ class Packet
         return $data;
     }
 
+    /**
+     * COM_QUERY封包，此命令最常用，常用于增删改查
+     *
+     * @param string $sql
+     * @return string
+     */
     public static function query($sql)
     {
         $chunk_size = strlen($sql) + 1;
         return pack('LC',$chunk_size, CommandType::COM_QUERY).$sql;
     }
 
+    /**
+     * 数据包校验
+     *
+     * @param string $pack
+     * @throws \Exception
+     */
     public static function success($pack)
     {
         if (ord($pack[0]) == self::OK_PACK_HEAD) {
@@ -124,6 +162,11 @@ class Packet
         throw new \Exception($error_msg, $error_code);
     }
 
+    /**
+     * 包处理构造函数
+     *
+     * @param string $packet
+     */
     public function __construct($packet)
     {
         $this->packet = $packet;
@@ -131,6 +174,12 @@ class Packet
         $this->len    = strlen($packet);
     }
 
+    /**
+     * 读取固定字节
+     *
+     * @param int $bytes
+     * @return string
+     */
     public function read($bytes)
     {
         $sub_str = substr($this->packet, $this->pos, $bytes);
@@ -138,21 +187,31 @@ class Packet
         return $sub_str;
     }
 
+    /**
+     * 获取数据长度
+     *
+     * @param int
+     */
     public function getLength()
     {
         $len = ord($this->packet[$this->pos]);
         $this->pos++;
 
+        //如果第一个字节为251，则实际数据包长度为0
         if ($len == 251) {
             return 0;
         }
 
+        //如果第一个字节为252，实际长度存储在后续两个字节当中
+        //v解包，unsigned short (always 16 bit, little endian byte order)
         if ($len == 252) {
             $len = unpack("v", $this->packet[$this->pos+1].$this->packet[$this->pos+2])[1];
             $this->pos += 2;
             return $len;
         }
 
+        //如果第一个字节是253，实际长度存储在后续的三个字节当中
+        //C3解包，小端序，后续字节移位8和移位16相加则为实际的结果
         if ($len == 253) {
             $data = unpack("C3", $this->packet[$this->pos+1].$this->packet[$this->pos+2].$this->packet[$this->pos+3]);//[1];
             $len  = $data[1] + ($data[2] << 8) + ($data[3] << 16);
@@ -160,8 +219,10 @@ class Packet
             return $len;
         }
 
+        //如果第一个字节为254，实际长度存储在后续的8字节当中
+        //小端序，P解包
         if ($len == 254) {
-            $len = unpack("Q",
+            $len = unpack("P",
                 $this->packet[$this->pos+1].
                 $this->packet[$this->pos+2].
                 $this->packet[$this->pos+3].
@@ -175,9 +236,15 @@ class Packet
             return $len;
         }
 
+        //否则第一个字节就是真实的数据长度
         return $len;
     }
 
+    /**
+     * 自动化，获取下一个数据包
+     *
+     * @param string
+     */
     public function next()
     {
         if ($this->pos >= $this->len) {
