@@ -1,4 +1,5 @@
 <?php namespace Wing\Bin;
+use Wing\Bin\Constant\Column;
 use Wing\Bin\Constant\EventType;
 
 /**
@@ -15,6 +16,7 @@ class BinLogPack {
 
     private static $_PACK_KEY = 0;
     private static $_PACK;
+    private static $_BUFFER = '';
 
     private static $_instance = null;
 
@@ -129,16 +131,19 @@ var_dump($pack);
         $length = (int)$length;
         $n='';
 
-//        if (count(self::$unget) > 0) {
-//        	foreach (self::$unget as $kk => $vv) {
-//				self::$_PACK=$vv.self::$_PACK;//array_unshift(self::$_PACK, $vv);
-//				unset(self::$unget[$kk]);
-//                self::$_PACK_KEY--;
-//			}
-//		}
+        if(self::$_BUFFER) {
+            $n = substr(self::$_BUFFER, 0 , $length);
+            if(strlen($n) == $length) {
+                self::$_BUFFER = substr(self::$_BUFFER, $length);;
+                return $n;
+            } else {
+                self::$_BUFFER = '';
+                $length = $length - strlen($n);
+            }
+
+        }
 
         for($i = self::$_PACK_KEY; $i < self::$_PACK_KEY + $length; $i++) {
-            if (!isset(self::$_PACK[$i])) return $n;
             $n .= self::$_PACK[$i];
         }
 
@@ -174,10 +179,10 @@ var_dump($pack);
         } elseif($c == Column::UNSIGNED_SHORT) {
             return $this->unpackUint16($this->read(Column::UNSIGNED_SHORT_LENGTH));
 
-        }elseif($c == Column::UNSIGNED_INT24_COLUMN) {
+        }elseif($c == Column::UNSIGNED_INT24) {
             return $this->unpackInt24($this->read(Column::UNSIGNED_INT24_LENGTH));
         }
-        elseif($c == Column::UNSIGNED_INT64_COLUMN) {
+        elseif($c == Column::UNSIGNED_INT64) {
             return $this->unpackInt64($this->read(Column::UNSIGNED_INT64_LENGTH));
         }
     }
@@ -392,6 +397,10 @@ return null;//
      */
     public static function getFilePos() {
         return array(self::$_FILE_NAME, self::$_POS);
+    }
+
+    public function unread($data) {
+        self::$_BUFFER.=$data;
     }
 
 }

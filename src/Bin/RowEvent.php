@@ -215,63 +215,59 @@ class RowEvent extends BinLogEvent
         return $string;
     }
 
-private static function read_newdecimal($col) {
-    $precision = $col["precision"];$scale = $col["decimals"];
-	$digits_per_integer = 9;
-	$compressed_bytes = [0, 1, 1, 2, 2, 3, 3, 4, 4, 4];
-	$integral = ($precision - $scale);
-	$uncomp_integral = intval($integral / $digits_per_integer);
-	$uncomp_fractional = intval($scale / $digits_per_integer);
-	$comp_integral = $integral - ($uncomp_integral * $digits_per_integer);
-	$comp_fractional = $scale - ($uncomp_fractional * $digits_per_integer);
+    private static function read_new_decimal($column) {
+        #Read MySQL's new decimal format introduced in MySQL 5"""
 
-	# The sign is encoded in the high bit of the first byte/digit. The byte
-	# might be part of a larger integer, so apply the optional bit-flipper
-	# and push back the byte into the input stream.
+        # This project was a great source of inspiration for
+        # understanding this storage format.
+        # https://github.com/jeremycole/mysql_binlog
 
-    $value =   self::$PACK->readUint8();//unpack('C', self::$PACK->read(1))[1];
-    list($str, $mask) =
-        ($value & 0x80 != 0) ?
-            ["", 0] : ["-", -1];
-//var_dump(pack("C",$value ^ 0x80));
+        $digits_per_integer = 9;
+        $compressed_bytes = [0, 1, 1, 2, 2, 3, 3, 4, 4, 4];
+        $integral = ($column['precision'] - $column['decimals']);
+        $uncomp_integral = intval($integral / $digits_per_integer);
+        $uncomp_fractional = intval($column['decimals'] / $digits_per_integer);
+        $comp_integral = $integral - ($uncomp_integral * $digits_per_integer);
+        $comp_fractional = $column['decimals'] - ($uncomp_fractional * $digits_per_integer);
 
-	BinLogPack::$unget[] = pack("<B",$value ^ 0x80);
+        # Support negative
+        # The sign is encoded in the high bit of the the byte
+        # But this bit can also be used in the value
+        $value = self::$PACK->readUint8();
+        if ( ($value & 0x80) != 0) {
+            $res  = "";
+            $mask = 0;
+        }else {
+            $mask = -1;
+            $res  = "-";
+        }
+        self::$PACK->unread(pack('C', $value ^ 0x80));
+        $size = $compressed_bytes[$comp_integral];
+        if ($size > 0) {
+            $value =  self::$PACK->read_int_be_by_size($size) ^ $mask;
+            $res .= (string)$value;
+        }
 
-	$size = $compressed_bytes[$comp_integral];
 
-    var_dump($str,$size);
-//    exit;
+        for($i=0;$i<$uncomp_integral;$i++) {
+            $value = unpack('N', self::$PACK->read(4))[1] ^ $mask;
+            $res .= sprintf('%09d' , $value);
+        }
 
-if ($size > 0) {
-	$value = self::$PACK->read_int_be_by_size($size) ^ $mask;
-	$str .= $value;// << value . to_s
-}
+        $res .= ".";
+        for($i=0;$i<$uncomp_fractional;$i++) {
+            $value = unpack('N', self::$PACK->read(4))[1] ^ $mask;
+            $res .= sprintf('%09d' , $value);
+        }
 
+        $size = $compressed_bytes[$comp_fractional];
+        if ($size > 0) {
+            $value = self::$PACK->read_int_be_by_size($size) ^ $mask;
 
-for($i=1; $i<$uncomp_integral;$i++) { // . each do
-	$value = self::$PACK->read_int32_be() ^ $mask;
-	$str .= $value;//<< value . to_s
-}
-
-if (!$str) $str = '0';
-	$str .= ".";
-	for($i=1; $i<$uncomp_fractional;$i++) {
-//(1. . uncomp_fractional) . each do
-		$value = self::$PACK->read_int32_be() ^ $mask;
-$str.=$value;// << value . to_s
-}
-
-$size = $compressed_bytes[$comp_fractional];
-
-if ($size > 0) {
-	$value = self::$PACK->read_int_be_by_size($size) ^ $mask;
-$str.=$value;// << value . to_s
-}
-//
-//BigDecimal . new(str)
-    var_dump($str);//exit;
-	return $str;
-}
+            $res.=sprintf('%0'.$comp_fractional.'d' , $value);
+        }
+        return number_format($res,$comp_fractional,'.','');
+    }
 
     private static function columnFormat($cols_bitmap, $len)
     {
@@ -342,7 +338,7 @@ $str.=$value;// << value . to_s
 //var_dump($precision,$decimals);exit;
 //precision = metadata[:precision]
 //        scale = metadata[:decimals]
-                $values[$name] = self::read_newdecimal($column);
+                $values[$name] = self::read_new_decimal($column);
             } elseif ($column['type'] == FieldType::BLOB) {
                 //ok
                 $values[$name] = self::_read_string($column['length_size'], $column);
