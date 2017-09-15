@@ -1,4 +1,6 @@
 <?php namespace Wing\Bin;
+use Wing\Bin\Constant\EventType;
+
 /**
  * Created by PhpStorm.
  * User: yuyi
@@ -66,40 +68,40 @@ var_dump($pack);
 
         switch (self::$EVENT_TYPE) {
 			// 映射fileds相关信息
-			case MysqlEventType::TABLE_MAP_EVENT: {
+			case EventType::TABLE_MAP_EVENT: {
 				RowEvent::tableMap(self::getInstance(), self::$EVENT_TYPE);
 			}
 			break;
-			case MysqlEventType::UPDATE_ROWS_EVENT_V2:
-			case MysqlEventType::UPDATE_ROWS_EVENT_V1: {
+			case EventType::UPDATE_ROWS_EVENT_V2:
+			case EventType::UPDATE_ROWS_EVENT_V1: {
 				$data = RowEvent::updateRow(self::getInstance(), self::$EVENT_TYPE, $event_size_without_header);
 				self::$_POS = self::$EVENT_INFO['pos'];
 			}
 			break;
-			case MysqlEventType::WRITE_ROWS_EVENT_V1:
-			case MysqlEventType::WRITE_ROWS_EVENT_V2: {
+			case EventType::WRITE_ROWS_EVENT_V1:
+			case EventType::WRITE_ROWS_EVENT_V2: {
 				$data = RowEvent::addRow(self::getInstance(), self::$EVENT_TYPE, $event_size_without_header);
 				self::$_POS = self::$EVENT_INFO['pos'];
 			}
 			break;
-			case MysqlEventType::DELETE_ROWS_EVENT_V1:
-			case MysqlEventType::DELETE_ROWS_EVENT_V2: {
+			case EventType::DELETE_ROWS_EVENT_V1:
+			case EventType::DELETE_ROWS_EVENT_V2: {
 				$data = RowEvent::delRow(self::getInstance(), self::$EVENT_TYPE, $event_size_without_header);
 				self::$_POS = self::$EVENT_INFO['pos'];
 			}
 			break;
-			case MysqlEventType::ROTATE_EVENT: {
+			case EventType::ROTATE_EVENT: {
 				$log_pos = $this->readUint64();
             	self::$_FILE_NAME = $this->read($event_size_without_header - 8);
         	}
         	break;
-        	case MysqlEventType::HEARTBEAT_LOG_EVENT: {
+        	case EventType::HEARTBEAT_LOG_EVENT: {
 				//心跳检测机制
 				$binlog_name = $this->read($event_size_without_header);
             	echo '心跳事件 ' . $binlog_name . "\n";
         	}
         	break;
-			case MysqlEventType::QUERY_EVENT:
+			case EventType::QUERY_EVENT:
 				var_dump(self::$EVENT_INFO);
 				echo "查询事件";
 				$this->read(16);
@@ -164,19 +166,19 @@ var_dump($pack);
 
     public function readCodedBinary(){
         $c = ord($this->read(1));
-        if($c == ConstMy::NULL_COLUMN) {
+        if($c == Column::NULL) {
             return '';
         }
-        if($c < ConstMy::UNSIGNED_CHAR_COLUMN) {
+        if($c < Column::UNSIGNED_CHAR) {
             return $c;
-        } elseif($c == ConstMy::UNSIGNED_SHORT_COLUMN) {
-            return $this->unpackUint16($this->read(ConstMy::UNSIGNED_SHORT_LENGTH));
+        } elseif($c == Column::UNSIGNED_SHORT) {
+            return $this->unpackUint16($this->read(Column::UNSIGNED_SHORT_LENGTH));
 
-        }elseif($c == ConstMy::UNSIGNED_INT24_COLUMN) {
-            return $this->unpackInt24($this->read(ConstMy::UNSIGNED_INT24_LENGTH));
+        }elseif($c == Column::UNSIGNED_INT24_COLUMN) {
+            return $this->unpackInt24($this->read(Column::UNSIGNED_INT24_LENGTH));
         }
-        elseif($c == ConstMy::UNSIGNED_INT64_COLUMN) {
-            return $this->unpackInt64($this->read(ConstMy::UNSIGNED_INT64_LENGTH));
+        elseif($c == Column::UNSIGNED_INT64_COLUMN) {
+            return $this->unpackInt64($this->read(Column::UNSIGNED_INT64_LENGTH));
         }
     }
 

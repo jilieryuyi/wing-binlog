@@ -1,11 +1,11 @@
-<?php namespace Wing\Bin;
+<?php namespace Wing\Bin\Constant;
 /**
  * Created by PhpStorm.
  * User: yuyi
  * Date: 17/9/8
  * Time: 23:20
  */
-class MysqlEventType
+class EventType
 {
 	const UNKNOWN_EVENT    			= 0;
 	const START_EVENT_V3         	= 1;

@@ -1,4 +1,6 @@
 <?php namespace Wing\Bin;
+use Wing\Bin\Constant\EventType;
+use Wing\Bin\Constant\FieldType;
 use Wing\Library\PDO;
 
 /**
@@ -14,7 +16,7 @@ class RowEvent extends BinLogEvent
         parent::_init($pack, $event_type, $size);
         self::$TABLE_ID = self::readTableId();
 
-        if (in_array(self::$EVENT_TYPE, [MysqlEventType::DELETE_ROWS_EVENT_V2, MysqlEventType::WRITE_ROWS_EVENT_V2, MysqlEventType::UPDATE_ROWS_EVENT_V2])) {
+        if (in_array(self::$EVENT_TYPE, [EventType::DELETE_ROWS_EVENT_V2, EventType::WRITE_ROWS_EVENT_V2, EventType::UPDATE_ROWS_EVENT_V2])) {
             self::$FLAGS = unpack('S', self::$PACK->read(2))[1];
 
             self::$EXTRA_DATA_LENGTH = unpack('S', self::$PACK->read(2))[1];
@@ -299,40 +301,40 @@ $str.=$value;// << value . to_s
 
             if (self::_is_null($null_bitmap, $nullBitmapIndex)) {
                 $values[$name] = null;
-            } elseif ($column['type'] == MysqlFieldType::TINY) {
+            } elseif ($column['type'] == FieldType::TINY) {
                 if ($unsigned)
                     $values[$name] = unpack("C", self::$PACK->read(1))[1];
                 else
                     $values[$name] = unpack("c", self::$PACK->read(1))[1];
-            } elseif ($column['type'] == MysqlFieldType::SHORT) {
+            } elseif ($column['type'] == FieldType::SHORT) {
                 if ($unsigned)
                     $values[$name] = unpack("S", self::$PACK->read(2))[1];
                 else
                     $values[$name] = unpack("s", self::$PACK->read(2))[1];
-            } elseif ($column['type'] == MysqlFieldType::LONG) {
+            } elseif ($column['type'] == FieldType::LONG) {
 
                 if ($unsigned) {
                     $values[$name] = unpack("I", self::$PACK->read(4))[1];
                 } else {
                     $values[$name] = unpack("i", self::$PACK->read(4))[1];
                 }
-            } elseif ($column['type'] == MysqlFieldType::INT24) {
+            } elseif ($column['type'] == FieldType::INT24) {
                 if ($unsigned)
                     $values[$name] = self::$PACK->readUint24();
                 else
                     $values[$name] = self::$PACK->read_int24();
-            } elseif ($column['type'] == MysqlFieldType::FLOAT)
+            } elseif ($column['type'] == FieldType::FLOAT)
                 $values[$name] = unpack("f", self::$PACK->read(4))[1];
-            elseif ($column['type'] == MysqlFieldType::DOUBLE)
+            elseif ($column['type'] == FieldType::DOUBLE)
                 $values[$name] = unpack("d", self::$PACK->read(8))[1];
-            elseif ($column['type'] == MysqlFieldType::VARCHAR ||
-                $column['type'] == MysqlFieldType::STRING
+            elseif ($column['type'] == FieldType::VARCHAR ||
+                $column['type'] == FieldType::STRING
             ) {
                 if ($column['max_length'] > 255)
                     $values[$name] = self::_read_string(2, $column);
                 else
                     $values[$name] = self::_read_string(1, $column);
-            } elseif ($column['type'] == MysqlFieldType::NEWDECIMAL) {
+            } elseif ($column['type'] == FieldType::NEWDECIMAL) {
 
 				//$precision = unpack('C', self::$PACK->read(1))[1];
           		//$decimals  = unpack('C', self::$PACK->read(1))[1];
@@ -341,64 +343,64 @@ $str.=$value;// << value . to_s
 //precision = metadata[:precision]
 //        scale = metadata[:decimals]
                 $values[$name] = self::read_newdecimal($column);
-            } elseif ($column['type'] == MysqlFieldType::BLOB) {
+            } elseif ($column['type'] == FieldType::BLOB) {
                 //ok
                 $values[$name] = self::_read_string($column['length_size'], $column);
 
             }
-            elseif ($column['type'] == MysqlFieldType::DATETIME) {
+            elseif ($column['type'] == FieldType::DATETIME) {
 
                 $values[$name] = self::_read_datetime();
-            } elseif ($column['type'] == MysqlFieldType::DATETIME2) {
+            } elseif ($column['type'] == FieldType::DATETIME2) {
                 //ok
                 $values[$name] = self::_read_datetime2($column);
-            }elseif ($column['type'] == MysqlFieldType::TIME2) {
+            }elseif ($column['type'] == FieldType::TIME2) {
 
                 $values[$name] = self::_read_time2($column);
             }
-            elseif ($column['type'] == MysqlFieldType::TIMESTAMP2){
+            elseif ($column['type'] == FieldType::TIMESTAMP2){
                 //ok
                 $time = date('Y-m-d H:i:m',self::$PACK->read_int_be_by_size(4));
                 // 微妙
                 $time .= '.' . self::_add_fsp_to_time($column);
                 $values[$name] = $time;
             }
-            elseif ($column['type'] == MysqlFieldType::DATE)
+            elseif ($column['type'] == FieldType::DATE)
                 $values[$name] = self::_read_date();
             /*
-        elseif ($column['type'] == MysqlFieldType::TIME:
+        elseif ($column['type'] == FieldType::TIME:
             $values[$name] = self.__read_time()
-        elseif ($column['type'] == MysqlFieldType::DATE:
+        elseif ($column['type'] == FieldType::DATE:
             $values[$name] = self.__read_date()
             */
-            elseif ($column['type'] == MysqlFieldType::TIMESTAMP) {
+            elseif ($column['type'] == FieldType::TIMESTAMP) {
                 $values[$name] = date('Y-m-d H:i:s', self::$PACK->readUint32());
             }
 
             # For new date format:
             /*
-                        elseif ($column['type'] == MysqlFieldType::TIME2:
+                        elseif ($column['type'] == FieldType::TIME2:
                             $values[$name] = self.__read_time2(column)
-                        elseif ($column['type'] == MysqlFieldType::TIMESTAMP2:
+                        elseif ($column['type'] == FieldType::TIMESTAMP2:
                             $values[$name] = self.__add_fsp_to_time(
                                     datetime.datetime.fromtimestamp(
                                         self::$PACK->read_int_be_by_size(4)), column)
                         */
-            elseif ($column['type'] == MysqlFieldType::LONGLONG) {
+            elseif ($column['type'] == FieldType::LONGLONG) {
                 if ($unsigned) {
                     $values[$name] = self::$PACK->readUint64();
                 } else {
                     $values[$name] = self::$PACK->readInt64();
                 }
 
-            } elseif($column['type'] == MysqlFieldType::ENUM) {
+            } elseif($column['type'] == FieldType::ENUM) {
                 $values[$name] = $column['enum_values'][self::$PACK->read_uint_by_size($column['size']) - 1];
             } else {
             }
             /*
-            elseif ($column['type'] == MysqlFieldType::YEAR:
+            elseif ($column['type'] == FieldType::YEAR:
                 $values[$name] = self::$PACK->read_uint8() + 1900
-            elseif ($column['type'] == MysqlFieldType::SET:
+            elseif ($column['type'] == FieldType::SET:
                 # We read set columns as a bitmap telling us which options
                 # are enabled
                 bit_mask = self::$PACK->read_uint_by_size(column.size)
@@ -407,9 +409,9 @@ $str.=$value;// << value . to_s
                 if bit_mask & 2 ** idx
                 ) or None
 
-            elseif ($column['type'] == MysqlFieldType::BIT:
+            elseif ($column['type'] == FieldType::BIT:
                 $values[$name] = self.__read_bit(column)
-            elseif ($column['type'] == MysqlFieldType::GEOMETRY:
+            elseif ($column['type'] == FieldType::GEOMETRY:
                 $values[$name] = self::$PACK->read_length_coded_pascal_string(
                         column.length_size)
             else:

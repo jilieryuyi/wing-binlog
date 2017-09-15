@@ -1,5 +1,7 @@
 <?php namespace Wing\Bin;
 
+use Wing\Bin\Constant\FieldType;
+
 /**
  * Created by PhpStorm.
  * User: yuyi
@@ -23,30 +25,30 @@ class BinLogColumns {
         self::$field['type_is_bool'] = false;
         self::$field['is_primary'] = $column_schema["COLUMN_KEY"] == "PRI";
 
-        if (self::$field['type'] == MysqlFieldType::VARCHAR) {
+        if (self::$field['type'] == FieldType::VARCHAR) {
             self::$field['max_length'] = unpack('s', $packet->read(2))[1];
-        }elseif (self::$field['type'] == MysqlFieldType::DOUBLE){
+        }elseif (self::$field['type'] == FieldType::DOUBLE){
             self::$field['size'] = $packet->readUint8();
-        }elseif (self::$field['type'] == MysqlFieldType::FLOAT){
+        }elseif (self::$field['type'] == FieldType::FLOAT){
             self::$field['size'] = $packet->readUint8();
-        }elseif (self::$field['type'] == MysqlFieldType::TIMESTAMP2){
+        }elseif (self::$field['type'] == FieldType::TIMESTAMP2){
             self::$field['fsp'] = $packet->readUint8();
-        }elseif (self::$field['type'] == MysqlFieldType::DATETIME2){
+        }elseif (self::$field['type'] == FieldType::DATETIME2){
             self::$field['fsp']= $packet->readUint8();
-        }elseif (self::$field['type'] == MysqlFieldType::TIME2) {
+        }elseif (self::$field['type'] == FieldType::TIME2) {
             self::$field['fsp'] = $packet->readUint8();
-        }elseif (self::$field['type'] == MysqlFieldType::TINY && $column_schema["COLUMN_TYPE"] == "tinyint(1)") {
+        }elseif (self::$field['type'] == FieldType::TINY && $column_schema["COLUMN_TYPE"] == "tinyint(1)") {
             self::$field['type_is_bool'] = True;
-        }elseif (self::$field['type'] == MysqlFieldType::VAR_STRING || self::$field['type'] == MysqlFieldType::STRING){
+        }elseif (self::$field['type'] == FieldType::VAR_STRING || self::$field['type'] == FieldType::STRING){
             self::_read_string_metadata($packet, $column_schema);
-        }elseif( self::$field['type'] == MysqlFieldType::BLOB){
+        }elseif( self::$field['type'] == FieldType::BLOB){
             self::$field['length_size'] = $packet->readUint8();
-        }elseif (self::$field['type'] == MysqlFieldType::GEOMETRY){
+        }elseif (self::$field['type'] == FieldType::GEOMETRY){
             self::$field['length_size'] = $packet->readUint8();
-        }elseif( self::$field['type'] == MysqlFieldType::NEWDECIMAL){
+        }elseif( self::$field['type'] == FieldType::NEWDECIMAL){
             self::$field['precision'] = $packet->readUint8();
             self::$field['decimals'] = $packet->readUint8();
-        }elseif (self::$field['type'] == MysqlFieldType::BIT) {
+        }elseif (self::$field['type'] == FieldType::BIT) {
             $bits = $packet->readUint8();
             $bytes = $packet->readUint8();
             self::$field['bits'] = ($bytes * 8) + $bits;
@@ -59,7 +61,7 @@ class BinLogColumns {
 
         $metadata = ($packet->readUint8() << 8) + $packet->readUint8();
         $real_type = $metadata >> 8;
-        if($real_type == MysqlFieldType::SET || $real_type == MysqlFieldType::ENUM) {
+        if($real_type == FieldType::SET || $real_type == FieldType::ENUM) {
             self::$field['type'] = $real_type;
             self::$field['size'] = $metadata & 0x00ff;
             self::_read_enum_metadata($column_schema);
@@ -69,7 +71,7 @@ class BinLogColumns {
     }
     private static function _read_enum_metadata($column_schema) {
         $enums = $column_schema["COLUMN_TYPE"];
-        if (self::$field['type'] == MysqlFieldType::ENUM) {
+        if (self::$field['type'] == FieldType::ENUM) {
             $enums = str_replace('enum(', '', $enums);
             $enums = str_replace(')', '', $enums);
             $enums = str_replace('\'', '', $enums);
