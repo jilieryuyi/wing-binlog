@@ -67,8 +67,10 @@ class Net
 		$Sequence_id = $header[3];
 		// var_dump("readPacket=>3=>",ord($header[0]) | ord($header[1])<<8 | ord($header[2])<<16);
 
-        var_dump("msg length=",$unpack_data);
+        //var_dump("msg length=",$unpack_data);
 		$result = self::_readBytes($unpack_data);
+		//校验数据包，如果是错误的包会抛出异常
+		Packet::success($result);
 		//var_dump("readPacket=>4=>",$result);
 		return $result;
 	}
