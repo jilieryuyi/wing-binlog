@@ -11,10 +11,8 @@ class Mysql
 {
 	public static function query($sql)
     {
-		$chunk_size = strlen($sql) + 1;
-		$prelude    = pack('LC',$chunk_size, CommandType::COM_QUERY);
-
-		Net::send($prelude . $sql);
+		$packet = Packet::query($sql);
+		Net::send($packet);
 
 		$res   = Net::readPacket();
 		$fbyte = ord($res[0]);

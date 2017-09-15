@@ -1,4 +1,6 @@
 <?php namespace Wing\Bin;
+use Wing\Bin\Constant\CommandType;
+
 /**
  * Packet.php
  * User: huangxiaoan
@@ -68,7 +70,7 @@ class Packet
 	public static function binlogDump($binlog_file,$pos, $slave_server_id)
     {
         $header = pack('l', 11 + strlen($binlog_file));
-        $data   = $header . chr(ConstCommand::COM_BINLOG_DUMP);
+        $data   = $header . chr(CommandType::COM_BINLOG_DUMP);
         $data  .= pack('L', $pos);
         $data  .= pack('s', 0);
         $data  .= pack('L', $slave_server_id);
@@ -82,7 +84,7 @@ class Packet
         $header   = pack('l', 18);
 
         // COM_BINLOG_DUMP
-        $data  = $header . chr(ConstCommand::COM_REGISTER_SLAVE);
+        $data  = $header . chr(CommandType::COM_REGISTER_SLAVE);
         $data .= pack('L', $slave_server_id);
         $data .= chr(0);
         $data .= chr(0);
@@ -94,5 +96,11 @@ class Packet
         $data .= pack('L', 1);
 
         return $data;
+    }
+
+    public static function query($sql)
+    {
+        $chunk_size = strlen($sql) + 1;
+        return pack('LC',$chunk_size, CommandType::COM_QUERY).$sql;
     }
 }
