@@ -70,7 +70,7 @@ class Net
         //var_dump("msg length=",$unpack_data);
 		$result = self::_readBytes($unpack_data);
 		//校验数据包，如果是错误的包会抛出异常
-		Packet::success($result);
+		//Packet::success($result);
 		//var_dump("readPacket=>4=>",$result);
 		return $result;
 	}
