@@ -37,7 +37,7 @@ try {
 	$context->last_binlog_file = null;
 	$context->last_pos = 0;
 
-//认证
+    //认证
 	\Wing\Bin\Auth\Auth::execute($context);
 
 	$res = \Wing\Bin\Mysql::query('select * from wp_posts where 1 limit 10');//'SELECT * FROM `content_type` WHERE 1 limit 2');//'INSERT INTO `content_type`( `name`) VALUES ("hello")');//
@@ -46,4 +46,4 @@ try {
 	var_dump($e);
 }
 
-echo "end";
+echo "\r\nend\r\n";
