@@ -404,13 +404,12 @@ class Mysql
                 $type = $columns[$index]["type"];
                 $name = $columns[$index]["column"];
                 switch ($type) {
-
-
                     case FieldType::DECIMAL:// 	= 0x00;
                         break;
                     case FieldType::TINY:// 		= 0x01;
                         break;
-                        case FieldType::SHORT;// 		= 0x02;
+                    case FieldType::SHORT;// 		= 0x02;
+                        break;
                     case FieldType::LONG:// 		= 0x03;
                         break;
                     case FieldType::FLOAT://		= 0x04;
@@ -422,6 +421,7 @@ class Mysql
                     case FieldType::TIMESTAMP://	= 0x07;
                         break;
                     case FieldType::BIGINT://0x08;
+                        //8bytes
                         $row[$name] = $packet->readUint64();
                         break;
                     case FieldType::INT24:// 		= 0x09;
@@ -431,6 +431,7 @@ class Mysql
                     case FieldType::TIME:// 		= 0x0B;
                     break;
                     case FieldType::DATETIME://	= 0x0C;
+                        //8bytes
                         $row[$name] = $packet->readDatetime();
                         break;
                     case FieldType::YEAR:// 		= 0x0D;
@@ -458,8 +459,11 @@ class Mysql
                     case FieldType::MEDIUM_BLOB:// = 0xFA;
                         break;
                     case FieldType::LONG_BLOB:// 	= 0xFB;
+
                         break;
                     case FieldType::BLOB:// 		= 0xFC;
+                        $len = $packet->readUint16();
+                        $row[$name] = $packet->read($len);
                         break;
                     case FieldType::VAR_STRING:// 	= 0xFD; //253
                         break;

@@ -38,7 +38,7 @@ class FieldType
 	const 	TINY_BLOB 	= 0xF9;
 	const 	MEDIUM_BLOB = 0xFA;
 	const 	LONG_BLOB 	= 0xFB;
-	const 	BLOB 		= 0xFC;
+	const 	BLOB 		= 0xFC; //252
 	const 	VAR_STRING 	= 0xFD; //253
 	const 	STRING 		= 0xFE;
 	const 	GEOMETRY 	= 0xFF;
