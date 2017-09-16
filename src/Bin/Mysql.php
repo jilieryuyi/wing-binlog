@@ -350,7 +350,34 @@ class Mysql
         //fetch rows
         $prelude = pack('LC',1, CommandType::COM_STMT_FETCH);
         Net::send($prelude);
-        $res = Net::readPacket();
+        //行信息
+        $rows = [];
+        //一直读取直到遇到结束报文
+        //while (1)
+        {
+            $res = Net::readPacket();
+//            if (ord($res[0]) == Packet::EOF_HEAD) {
+//                break;
+//            }
+            $index = 0;
+            $row   = [];
+
+            $packet = new Packet($res);
+//            for ($i=0;$i<64;$i++){
+//                echo ord($res[$i]),"-";
+//            }
+//            echo "\r\n";
+           // $packet->read(1);
+            //$packet->read(7);
+
+            while($index < $columns_count) {
+                $row[$columns[$index++]] = $packet->next();
+            }
+            unset($packet, $res);
+            $rows[] = $row;
+        }
+        var_dump($rows);
+        //return $rows;
         //这里得到响应结果
         //var_dump($res);
 
