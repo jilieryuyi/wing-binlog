@@ -11,8 +11,8 @@ use Wing\Bin\Constant\FieldType;
  */
 class Mysql
 {
-    public static $rows_affected  = 0;//$packet->getLength();
-    public static $last_insert_id = 0;//$packet->getLength();
+    public static $rows_affected  = 0;
+    public static $last_insert_id = 0;
 
 	public static function query($sql)
     {
