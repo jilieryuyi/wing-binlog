@@ -171,11 +171,28 @@ class Mysql
         Net::send($prelude . $sql);
         $res = Net::readPacket();
 
-        $smtid = unpack("L", $res[1].$res[2].$res[3].chr(0))[1];
+        /**
+        1	OK报文，值为0x00
+        4	预处理语句ID值
+        2	列数量
+        2	参数数量
+        1	填充值（0x00）
+        2	告警计数
+         */
+        Packet::success($res);
+        $packet = new Packet($res);
+        $packet->debugDump();
+        $packet->read(1);//ok包头
+        $smtid = $packet->readUint32();//unpack("L", $res[1].$res[2].$res[3].chr(0))[1];
         echo "smtid=",$smtid,"\r\n";
 
         //cloumns count
-        echo "cloumns count=".unpack("n", $res[4].$res[5].$res[6].$res[7])[1],"\r\n";
+        var_dump($packet->readUint16());
+        //params count
+        var_dump($packet->readUint16());
+        $packet->read(1);
+        //warnings count
+        var_dump($packet->readUint16());
 
 
 

@@ -193,6 +193,18 @@ class Packet
         $_server_status = self::read(2);
         return unpack("v", $_server_status[0].$_server_status[1])[1];
     }
+    public function readUint24()
+    {
+        $res = $this->read(3);
+        $data = unpack("C3", $res[0].$res[1].$res[2]);//[1];
+        return $data[1] + ($data[2] << 8) + ($data[3] << 16);
+    }
+
+    public function readUint32()
+    {
+        $res = $this->read(4);
+        return unpack("V", $res)[1];
+    }
 
     /**
      * 获取数据长度
@@ -250,6 +262,14 @@ class Packet
         }
         $len = $this->getLength();
         return $this->read($len);
+    }
+
+    public function debugDump()
+    {
+        for ($i = 0; $i < $this->len; $i++) {
+            echo ord($this->packet[$i]),"-";
+        }
+        echo "\r\n";
     }
 
 
