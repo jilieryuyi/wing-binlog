@@ -204,7 +204,39 @@ class Packet
         $data = unpack("C3", $res[0].$res[1].$res[2]);//[1];
         return $data[1] + ($data[2] << 8) + ($data[3] << 16);
     }
+    public function readUint64()
+    {
+        $res = $this->read(8);
+        return unpack("P", $res)[1];
+    }
+    public function readDatetime()
+    {
+        /**
+        DATETIME
+        Storage: eight bytes.
+        Part 1 is a 32-bit integer containing year*10000 + month*100 + day.
+        Part 2 is a 32-bit integer containing hour*10000 + minute*100 + second.
+        Example: a DATETIME column for '0001-01-01 01:01:01' looks like: hexadecimal B5 2E 11 5A 02 00 00 00
+         */
+//        $res = pack("V", 10101);
+//        for ($i=0;$i<4;$i++) {
+//            echo ord($res[$i]),"-";
+//        }
 
+        $f = $this->readUint32();
+        var_dump($f);
+        $year = intval($f/10000);
+        $month = intval(($f - $year*10000)/100);
+        $day = ($f - $year*10000 - $month*100);
+
+        $f = $this->readUint32();
+        $hour = intval($f/10000);
+        $minute = intval(($f - $hour*10000)/100);
+        $second = ($f - $hour*10000 - $minute*100);
+
+        return sprintf("%d-%d-%d %d:%d:%d",$year, $month, $day,
+            $hour, $minute, $second);
+    }
     public function readUint32()
     {
         $res = $this->read(4);
@@ -272,7 +304,7 @@ class Packet
     public function debugDump()
     {
         for ($i = 0; $i < $this->len; $i++) {
-            echo ord($this->packet[$i]),"-";
+            echo ord($this->packet[$i]),"(".$this->packet[$i].")-";
         }
         echo "\r\n\r\n";
     }

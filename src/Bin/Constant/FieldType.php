@@ -19,7 +19,8 @@ class FieldType
     const 	DOUBLE 		= 0x05;
     const 	NULL 		= 0x06;
 	const 	TIMESTAMP	= 0x07;
-	const 	LONGLONG	= 0x08;
+    const 	BIGINT	    = 0x08;
+    const 	LONGLONG	= 0x08;
 	const 	INT24 		= 0x09;
 	const 	DATE 		= 0x0A;
 	const 	TIME 		= 0x0B;

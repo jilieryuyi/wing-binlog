@@ -164,6 +164,7 @@ class Mysql
         return true;
 	}
 
+	//https://dev.mysql.com/doc/internals/en/myisam-column-attributes.html
     public static function excute($sql,array $params = [])
     {
         $chunk_size = strlen($sql) + 1;
@@ -330,19 +331,40 @@ class Mysql
             //$packet->debugDump();
 
             //def 移动游标至下一个
-            ($packet->next());
-            //数据库名称
-            ($packet->next());
-            //数据表名称
-            ($packet->next());
-            //原数据表名称
-            ($packet->next());
-            //列名称 这个才是我们要的
-            $column_name = $packet->next();
-            $columns[] = $column_name;
+//            ($packet->next());
+//            //数据库名称
+//            ($packet->next());
+//            //数据表名称
+//            ($packet->next());
+//            //原数据表名称
+//            ($packet->next());
+//            //列名称 这个才是我们要的
+//            $column_name = $packet->next();
+            $column = [
+                "dir" => $packet->next(),
+                "database"=>$packet->next(),
+                "table"=>$packet->next(),
+                "table_alias"=>$packet->next(),
+                "column"=>$packet->next(),
+                "column_alias"=>$packet->next(),
+            ];
+
+            $packet->read(1);
+            $column["character_set"] = $packet->readUint16();
+            $column["length"] = $packet->readUint32();
+            $column["type"] = $packet->readUint8();
+            $column["flag"] = $packet->readUint16();
+            $column["precision"] = $packet->readUint8();
+            $packet->read(2);
+            $column["default"] = $packet->next();
+            $columns[] = $column;
+            //填充值
+
+            //$column_name_old = $packet->next();
             unset($packet);
         }
         var_dump($columns);
+        //exit;
 
         //EOF
         Net::readPacket();
@@ -356,6 +378,7 @@ class Mysql
         //while (1)
         {
             $res = Net::readPacket();
+            var_dump($res);
 //            if (ord($res[0]) == Packet::EOF_HEAD) {
 //                break;
 //            }
@@ -363,15 +386,89 @@ class Mysql
             $row   = [];
 
             $packet = new Packet($res);
+            $packet->debugDump();
 //            for ($i=0;$i<64;$i++){
 //                echo ord($res[$i]),"-";
 //            }
 //            echo "\r\n";
            // $packet->read(1);
-            //$packet->read(7);
+            /**
+            1	结构头（0x00）
+            (列数量 + 7 + 2) / 8	空位图
+            n	字段值
+             * https://dev.mysql.com/doc/internals/en/myisam-column-attributes.html
+             */
+            $packet->read(intval(($columns_count+9)/8)+1);
 
             while($index < $columns_count) {
-                $row[$columns[$index++]] = $packet->next();
+                $type = $columns[$index]["type"];
+                $name = $columns[$index]["column"];
+                switch ($type) {
+
+
+                    case FieldType::DECIMAL:// 	= 0x00;
+                        break;
+                    case FieldType::TINY:// 		= 0x01;
+                        break;
+                        case FieldType::SHORT;// 		= 0x02;
+                    case FieldType::LONG:// 		= 0x03;
+                        break;
+                    case FieldType::FLOAT://		= 0x04;
+                        break;
+                    case FieldType::DOUBLE:// 		= 0x05;
+                        break;
+                    case FieldType::NULL:// 		= 0x06;
+                        break;
+                    case FieldType::TIMESTAMP://	= 0x07;
+                        break;
+                    case FieldType::BIGINT://0x08;
+                        $row[$name] = $packet->readUint64();
+                        break;
+                    case FieldType::INT24:// 		= 0x09;
+                        break;
+                    case FieldType::DATE:// 		= 0x0A;
+                        break;
+                    case FieldType::TIME:// 		= 0x0B;
+                    break;
+                    case FieldType::DATETIME://	= 0x0C;
+                        $row[$name] = $packet->readDatetime();
+                        break;
+                    case FieldType::YEAR:// 		= 0x0D;
+                        break;
+                    case FieldType::NEWDATE:// 	= 0x0E;
+                        break;
+                    case FieldType::VARCHAR:// 	= 0x0F;// (new in MySQL 5.0)
+                        break;
+                    case FieldType::BIT:// 		= 0x10;// (new in MySQL 5.0)
+                        break;
+                    case FieldType::TIMESTAMP2:// 	= 0x11;//17;
+                        break;
+                    case FieldType::DATETIME2:// 	= 0x12;//18;
+                        break;
+                    case FieldType::TIME2:// 		= 0x13;//19;
+                        break;
+                    case FieldType::NEWDECIMAL:// 	= 0xF6;// (new in MYSQL 5.0)
+                        break;
+                    case FieldType::ENUM:// 		= 0xF7;
+                        break;
+                    case FieldType::SET:// 		= 0xF8;
+                        break;
+                    case FieldType::TINY_BLOB:// 	= 0xF9;
+                        break;
+                    case FieldType::MEDIUM_BLOB:// = 0xFA;
+                        break;
+                    case FieldType::LONG_BLOB:// 	= 0xFB;
+                        break;
+                    case FieldType::BLOB:// 		= 0xFC;
+                        break;
+                    case FieldType::VAR_STRING:// 	= 0xFD; //253
+                        break;
+                    case FieldType::STRING:// 		= 0xFE;
+                        break;
+                    case FieldType::GEOMETRY:// 	= 0xFF;
+                }
+               //  = $packet->next();
+                $index++;
             }
             unset($packet, $res);
             $rows[] = $row;
