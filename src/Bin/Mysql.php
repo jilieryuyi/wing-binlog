@@ -183,15 +183,18 @@ class Mysql
         $packet = new Packet($res);
         $packet->debugDump();
         $packet->read(1);//ok包头
+
+        //预处理语句ID值
         $smtid = $packet->readUint32();//unpack("L", $res[1].$res[2].$res[3].chr(0))[1];
         echo "smtid=",$smtid,"\r\n";
 
-        //cloumns count
+        //列数量cloumns count
         var_dump($packet->readUint16());
-        //params count
+        //参数数量params count
         var_dump($packet->readUint16());
+        //填充值（0x00）
         $packet->read(1);
-        //warnings count
+        //告警计数warnings count
         var_dump($packet->readUint16());
 
 
