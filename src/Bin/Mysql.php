@@ -164,7 +164,7 @@ class Mysql
         return true;
 	}
 
-    public static function excute($sql,array $params = null)
+    public static function excute($sql,array $params = [])
     {
         $chunk_size = strlen($sql) + 1;
         $prelude    = pack('LC',$chunk_size, CommandType::COM_STMT_PREPARE);
@@ -189,7 +189,8 @@ class Mysql
         echo "smtid=",$smtid,"\r\n";
 
         //列数量cloumns count
-        var_dump($packet->readUint16());
+        $columns_count = $packet->readUint16();
+        var_dump($columns_count);
         //参数数量params count
         var_dump($packet->readUint16());
         //填充值（0x00）
@@ -220,30 +221,83 @@ class Mysql
         $data  = pack('C', CommandType::COM_STMT_EXECUTE);
         //4字节预处理语句的ID值
         $data .= pack("V", $smtid);
+        //1字节标志位
         $data .= Cursor::TYPE_NO_CURSOR;
+        //4字节保留（值恒为0x01）
         $data .= pack("V", 0x01);
 
+        //n字节空位图（Null-Bitmap，长度 = (参数数量 + 7) / 8 字节）
         $len = intval((count($params)+7)/8);
-        for ($i=0;$i<$len;$i++)
-            $data.=chr(0x00);
+        for ($i = 0; $i < $len; $i++) {
+            $data .= chr(0x00);
+        }
 
+        //1字节参数分隔标志
         $data .= chr(0x01);
-        for ($i=0;$i<count($params);$i++)
-        $data .= pack("v", FieldType::TINY);
 
-        $data = pack("L", strlen($data)).$data;
+        //n字节每个参数的类型值（长度 = 参数数量 * 2 字节）
+        foreach ($params as $value) {
+            $type = FieldType::VAR_STRING;
+            if (is_numeric($value)) {
+                if (intval($value) == $value) {
+                    $type = FieldType::LONG;
+                } else {
+                    $type = FieldType::DOUBLE;
+                }
+            } else {
+                $type = FieldType::VAR_STRING;
+            }
+            $data .= pack("v", $type);
+        }
+
+        //n字节每个参数的值
+        foreach ($params as $value) {
+            $data .= pack("V",strlen($value)).$value;
+        }
+
+        //封包
+        $data = pack("V", strlen($data)).$data;
 
 
         Net::send($data );
-        $res = Net::readPacket();
-        //Packet::success($res);
-        var_dump($res);
+//        $res = Net::readPacket();
+//        //Packet::success($res);
+//        var_dump($res);
 
+        //列信息
+        $columns = [];
+        $cc = 0;
+        //一直读取直到遇到结束报文
+        while ($cc < $columns_count) {
+            $cc++;
+            $res = Net::readPacket();
+
+            $packet = new Packet($res);
+            //$column['dir_name']         = $packet->next();
+            //$column['database_name']    = $packet->next();
+            //$column['table_name']       = $packet->next();
+            //$column['old_table_name']   = $packet->next();
+            //$column['column_name']      = $columns[] = $packet->next();
+
+            //def 移动游标至下一个
+            $packet->next();
+            //数据库名称
+            $packet->next();
+            //数据表名称
+            $packet->next();
+            //原数据表名称
+            $packet->next();
+            //列名称 这个才是我们要的
+            $columns[] = $packet->next();
+            unset($packet);
+        }
+        var_dump($columns);
 
        // $chunk_size = strlen($sql) + 1;
         $prelude = pack('LC',1, CommandType::COM_STMT_FETCH);
         Net::send($prelude);
         $res = Net::readPacket();
+
         return $res;
     }
 

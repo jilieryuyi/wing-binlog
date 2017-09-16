@@ -6,5 +6,9 @@
  * Time: 21:47
  */
 
-preg_match_all('/[\d(\.\d)?]+|[a-zA-Z]{1,}/','100kk',$m);
-var_dump($m);
+var_dump(is_numeric("1.01"));
+if (intval("1.01") == "10.1") {
+    var_dump("int");
+} else {
+    var_dump("float");
+}
