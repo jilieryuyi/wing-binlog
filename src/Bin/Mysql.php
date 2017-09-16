@@ -207,14 +207,21 @@ class Mysql
          */
         for ($i = 0; $i < count($params); $i++) {
             $res = Net::readPacket();
-            (new Packet($res))->debugDump();
+            $packet = new Packet($res);
+            $packet->debugDump();
+            echo "\r\n";
+
+            $dir = $packet->next();
+            $type = $packet->readUint16();
+            $flag = $packet->readUint16();
+            $precision = $packet->readUint8();
+            $length = $packet->readUint32();
+
+            var_dump($dir, $type,$flag,$precision,$length);
+            echo "\r\n";
         }
-        //这里还有一个null包
-        $res = Net::readPacket();
-        (new Packet($res))->debugDump();
-//        $res = Net::readPacket();
-//        (new Packet($res))->debugDump();
-//        exit;
+        //EOF
+        Net::readPacket();
 
         //响应列包
         //列信息
@@ -242,7 +249,8 @@ class Mysql
             unset($packet);
         }
         var_dump($columns);
-
+        //EOF
+        Net::readPacket();
         /**
         字节	说明
         4	预处理语句的ID值
@@ -304,11 +312,11 @@ class Mysql
 
         Net::send($data );
 
-        //null包
+        //列数量
         $res = Net::readPacket();
-        (new Packet($res))->debugDump();
-        $res = Net::readPacket();
-        (new Packet($res))->debugDump();
+        $packet = new  Packet($res);//)->debugDump();
+        $columns_count = $packet->readUint8();
+        var_dump($columns_count);
         //响应列包
         //列信息
         $columns = [];
@@ -336,17 +344,17 @@ class Mysql
         }
         var_dump($columns);
 
-        $res = Net::readPacket();
-        (new Packet($res))->debugDump();
+        //EOF
+        Net::readPacket();
 
-       // $chunk_size = strlen($sql) + 1;
+        //fetch rows
         $prelude = pack('LC',1, CommandType::COM_STMT_FETCH);
         Net::send($prelude);
         $res = Net::readPacket();
         //这里得到响应结果
-        var_dump($res);
+        //var_dump($res);
 
-        return $res;
+        //return $res;
     }
 
 }

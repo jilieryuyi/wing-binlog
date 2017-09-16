@@ -187,6 +187,11 @@ class Packet
         return $sub_str;
     }
 
+    public function readUint8()
+    {
+        $res = $this->read(1);
+        return unpack("C", $res)[1];
+    }
     //小端序16bit
     public function readUint16()
     {
