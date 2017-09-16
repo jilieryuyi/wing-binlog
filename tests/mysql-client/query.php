@@ -40,9 +40,7 @@ try {
     //认证
 	\Wing\Bin\Auth\Auth::execute($context);
 
-//	$res = \Wing\Bin\Mysql::query('select * from wp_posts where 1 limit 10');
-	//'SELECT * FROM `content_type` WHERE 1 limit 2');//'INSERT INTO `content_type`( `name`) VALUES ("hello")');//
-    $res = \Wing\Bin\Mysql::query('select * from wp_posts where 1 limit 100');
+    $res = \Wing\Bin\Mysql::query('INSERT INTO xsl.`x_logs`(`id`,`module_name`,`message`) VALUES (999998, "test","test")');//'select * from wp_posts where 1 limit 100');
 
     var_dump($res);
 } catch (\Exception $e) {

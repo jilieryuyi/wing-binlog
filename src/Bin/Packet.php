@@ -187,6 +187,13 @@ class Packet
         return $sub_str;
     }
 
+    //小端序16bit
+    public function readUint16()
+    {
+        $_server_status = self::read(2);
+        return unpack("v", $_server_status[0].$_server_status[1])[1];
+    }
+
     /**
      * 获取数据长度
      *

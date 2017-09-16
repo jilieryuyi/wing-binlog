@@ -11,6 +11,9 @@ use Wing\Bin\Constant\FieldType;
  */
 class Mysql
 {
+    public static $rows_affected  = 0;//$packet->getLength();
+    public static $last_insert_id = 0;//$packet->getLength();
+
 	public static function query($sql)
     {
 		$packet = Packet::query($sql);
@@ -95,9 +98,9 @@ class Mysql
 
                 $packet = new Packet($res);
                 while($index < $column_num) {
-                    $row[$columns[$index++]] = $packet->next();//substr($res, $start, $len);
+                    $row[$columns[$index++]] = $packet->next();
                 }
-
+                unset($packet, $res);
 				$rows[] = $row;
             }
             return $rows;
@@ -127,27 +130,20 @@ class Mysql
 			服务器消息：服务器返回给客户端的消息，一般为简单的描述性字符串，可选字段。
 			 */
 
-            //消息解析
-			for ($i=0;$i<strlen($res);$i++) {
-				echo ord($res[$i]),"-";
-			}
-			echo "\r\n";
-			$start = 1;
-			$len = ord($res[$start]);
-			$start++;
-			$last_insert_id = ord($res[$start]);//substr($res, $start, $len);
-			if ($last_insert_id <= 0) {
-				return $len;
-			}
-//			var_dump($rows_affected);
-//			$start+=$len;
-//
-//			$len = ord($res[$start]);
-//			$start++;
-//			$rows_affected = substr($res, $start, $len);
-//			var_dump($rows_affected);
-//			echo "insert";
-			return $last_insert_id;
+			$packet = new Packet($res);
+			//报头1byte
+			$packet->read(1);
+
+			//length coded binary
+            self::$rows_affected  = $packet->getLength();
+            self::$last_insert_id = $packet->getLength();
+
+            //db 状态
+            $server_status = $packet->readUint16();
+
+            var_dump(self::$rows_affected,self::$last_insert_id, $server_status);
+
+            return true;
         }
 
         else if ($fbyte == Packet::ERR_PACK_HEAD) {
