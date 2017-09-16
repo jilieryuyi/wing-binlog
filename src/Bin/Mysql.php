@@ -199,6 +199,12 @@ class Mysql
         var_dump($packet->readUint16());
 
         //参数响应包
+        /**
+            2	类型
+            2	标志
+            1	数值精度
+            4	字段长度
+         */
         for ($i = 0; $i < count($params); $i++) {
             $res = Net::readPacket();
             (new Packet($res))->debugDump();
