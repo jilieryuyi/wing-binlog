@@ -269,7 +269,7 @@ class Packet
         for ($i = 0; $i < $this->len; $i++) {
             echo ord($this->packet[$i]),"-";
         }
-        echo "\r\n";
+        echo "\r\n\r\n";
     }
 
 

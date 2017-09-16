@@ -198,7 +198,44 @@ class Mysql
         //告警计数warnings count
         var_dump($packet->readUint16());
 
+        //参数响应包
+        for ($i = 0; $i < count($params); $i++) {
+            $res = Net::readPacket();
+            (new Packet($res))->debugDump();
+        }
+        //这里还有一个null包
+        $res = Net::readPacket();
+        (new Packet($res))->debugDump();
+//        $res = Net::readPacket();
+//        (new Packet($res))->debugDump();
+//        exit;
 
+        //响应列包
+        //列信息
+        $columns = [];
+        $cc = 0;
+        //一直读取直到遇到结束报文
+        while ($cc < $columns_count) {
+            $cc++;
+            $res = Net::readPacket();
+
+            $packet = new Packet($res);
+            //$packet->debugDump();
+
+            //def 移动游标至下一个
+            ($packet->next());
+            //数据库名称
+            ($packet->next());
+            //数据表名称
+            ($packet->next());
+            //原数据表名称
+            ($packet->next());
+            //列名称 这个才是我们要的
+            $column_name = $packet->next();
+            $columns[] = $column_name;
+            unset($packet);
+        }
+        var_dump($columns);
 
         /**
         字节	说明
@@ -260,10 +297,13 @@ class Mysql
 
 
         Net::send($data );
-//        $res = Net::readPacket();
-//        //Packet::success($res);
-//        var_dump($res);
 
+        //null包
+        $res = Net::readPacket();
+        (new Packet($res))->debugDump();
+        $res = Net::readPacket();
+        (new Packet($res))->debugDump();
+        //响应列包
         //列信息
         $columns = [];
         $cc = 0;
@@ -273,30 +313,32 @@ class Mysql
             $res = Net::readPacket();
 
             $packet = new Packet($res);
-            //$column['dir_name']         = $packet->next();
-            //$column['database_name']    = $packet->next();
-            //$column['table_name']       = $packet->next();
-            //$column['old_table_name']   = $packet->next();
-            //$column['column_name']      = $columns[] = $packet->next();
+            //$packet->debugDump();
 
             //def 移动游标至下一个
-            $packet->next();
+            ($packet->next());
             //数据库名称
-            $packet->next();
+            ($packet->next());
             //数据表名称
-            $packet->next();
+            ($packet->next());
             //原数据表名称
-            $packet->next();
+            ($packet->next());
             //列名称 这个才是我们要的
-            $columns[] = $packet->next();
+            $column_name = $packet->next();
+            $columns[] = $column_name;
             unset($packet);
         }
         var_dump($columns);
+
+        $res = Net::readPacket();
+        (new Packet($res))->debugDump();
 
        // $chunk_size = strlen($sql) + 1;
         $prelude = pack('LC',1, CommandType::COM_STMT_FETCH);
         Net::send($prelude);
         $res = Net::readPacket();
+        //这里得到响应结果
+        var_dump($res);
 
         return $res;
     }
