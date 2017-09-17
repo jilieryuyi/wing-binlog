@@ -168,12 +168,24 @@ class Mysql
 	//https://dev.mysql.com/doc/internals/en/myisam-column-attributes.html
     public static function execute($sql,array $params = [])
     {
+        //COM_STMT_PREPARE --- start ---
+        /**
+        COM_STMT_PREPARE
+        结构	说明
+        [PREPARE_OK]	PREPARE_OK结构
+        如果参数数量大于0
+        [Field]	与Result Set消息结构相同
+        [EOF]
+        如果列数大于0
+        [Field]	与Result Set消息结构相同
+        [EOF]
+         */
         $chunk_size = strlen($sql) + 1;
         $prelude    = pack('LC',$chunk_size, CommandType::COM_STMT_PREPARE);
         Net::send($prelude . $sql);
         $res = Net::readPacket();
 
-        /**
+        /**PREPARE_OK 结构
         1	OK报文，值为0x00
         4	预处理语句ID值
         2	列数量
@@ -258,6 +270,9 @@ class Mysql
         $res = Net::readPacket();
         (new Packet($res))->debugDump();
        // exit;
+        //COM_STMT_PREPARE --- end ---
+
+        
         /**
         字节	说明
         4	预处理语句的ID值
