@@ -166,7 +166,7 @@ class Mysql
 	}
 
 	//https://dev.mysql.com/doc/internals/en/myisam-column-attributes.html
-    public static function excute($sql,array $params = [])
+    public static function execute($sql,array $params = [])
     {
         $chunk_size = strlen($sql) + 1;
         $prelude    = pack('LC',$chunk_size, CommandType::COM_STMT_PREPARE);

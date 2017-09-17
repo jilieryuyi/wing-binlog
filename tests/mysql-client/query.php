@@ -40,7 +40,7 @@ try {
     //认证
 	\Wing\Bin\Auth\Auth::execute($context);
 
-    $res = \Wing\Bin\Mysql::excute(
+    $res = \Wing\Bin\Mysql::execute(
         //'INSERT INTO xsl.`x_logs`(`id`,`module_name`,`message`) VALUES (999998, "test","test")');//
     'select * from wp_posts where id=?', [2]);
 
