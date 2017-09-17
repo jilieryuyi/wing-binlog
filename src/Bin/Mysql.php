@@ -190,15 +190,15 @@ class Mysql
         $smtid = $packet->readUint32();//unpack("L", $res[1].$res[2].$res[3].chr(0))[1];
         echo "smtid=",$smtid,"\r\n";
 
-        //列数量cloumns count
+        //列数量columns count
         $columns_count = $packet->readUint16();
-        var_dump($columns_count);
+        echo "列数量columns count=",$columns_count,"\r\n";
         //参数数量params count
-        var_dump($packet->readUint16());
+        echo "参数数量params count=",$packet->readUint16(),"\r\n";
         //填充值（0x00）
         $packet->read(1);
         //告警计数warnings count
-        var_dump($packet->readUint16());
+        echo "告警计数warnings count=",$packet->readUint16(),"\r\n";
 
         //参数响应包
         /**
@@ -207,23 +207,26 @@ class Mysql
             1	数值精度
             4	字段长度
          */
+        $params_res = [];
         for ($i = 0; $i < count($params); $i++) {
-            $res = Net::readPacket();
+            $res    = Net::readPacket();
             $packet = new Packet($res);
             $packet->debugDump();
             echo "\r\n";
 
-            $dir = $packet->next();
-            $type = $packet->readUint16();
-            $flag = $packet->readUint16();
-            $precision = $packet->readUint8();
-            $length = $packet->readUint32();
-
-            var_dump($dir, $type,$flag,$precision,$length);
-            echo "\r\n";
+            //这里的值可能还有问题
+            $params_res[] = [
+                "dir" => $packet->next(),
+                "type" => $packet->readUint16(),
+                "flag" => $packet->readUint16(),
+                "precision" => $packet->readUint8(),
+                "length" => $packet->readUint32(),
+            ];
+            //echo "\r\n";
         }
         //EOF
         Net::readPacket();
+        var_dump($params_res);
 
         //响应列包
         //列信息
@@ -252,7 +255,9 @@ class Mysql
         }
         var_dump($columns);
         //EOF
-        Net::readPacket();
+        $res = Net::readPacket();
+        (new Packet($res))->debugDump();
+       // exit;
         /**
         字节	说明
         4	预处理语句的ID值
@@ -368,7 +373,13 @@ class Mysql
         //exit;
 
         //EOF
-        Net::readPacket();
+        $res = Net::readPacket();
+        $packet = new Packet($res);
+        $packet->debugDump();
+        $res = Net::readPacket();
+        $packet = new Packet($res);
+        $packet->debugDump();
+       // exit;
 
         //fetch rows
         $prelude = pack('LC',1, CommandType::COM_STMT_FETCH);
@@ -388,6 +399,7 @@ class Mysql
 
             $packet = new Packet($res);
             $packet->debugDump();
+            exit;
 //            for ($i=0;$i<64;$i++){
 //                echo ord($res[$i]),"-";
 //            }
