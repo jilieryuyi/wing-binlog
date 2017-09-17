@@ -224,21 +224,13 @@ class Mysql
             $res    = Net::readPacket();
             $packet = new Packet($res);
             $packet->debugDump();
-            echo "\r\n";
-
-            //这里的值可能还有问题
-            $params_res[] = [
-                "dir" => $packet->next(),
-                "type" => $packet->readUint16(),
-                "flag" => $packet->readUint16(),
-                "precision" => $packet->readUint8(),
-                "length" => $packet->readUint32(),
-            ];
-            //echo "\r\n";
+            $params_res[] = $packet->getColumns();
+            unset($packet);
         }
         //EOF
         Net::readPacket();
         var_dump($params_res);
+        exit;
 
         //响应列包
         //列信息
@@ -248,21 +240,8 @@ class Mysql
         while ($cc < $columns_count) {
             $cc++;
             $res = Net::readPacket();
-
             $packet = new Packet($res);
-            //$packet->debugDump();
-
-            //def 移动游标至下一个
-            ($packet->next());
-            //数据库名称
-            ($packet->next());
-            //数据表名称
-            ($packet->next());
-            //原数据表名称
-            ($packet->next());
-            //列名称 这个才是我们要的
-            $column_name = $packet->next();
-            $columns[] = $column_name;
+            $columns[] = $column["column"];
             unset($packet);
         }
         var_dump($columns);
@@ -272,7 +251,7 @@ class Mysql
        // exit;
         //COM_STMT_PREPARE --- end ---
 
-        
+
         /**
         字节	说明
         4	预处理语句的ID值

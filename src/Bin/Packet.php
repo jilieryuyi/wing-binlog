@@ -308,5 +308,43 @@ class Packet
         echo "\r\n\r\n";
     }
 
+    public function getColumns()
+    {
+        /**
+        n	目录名称（Length Coded String）
+        n	数据库名称（Length Coded String）
+        n	数据表名称（Length Coded String）
+        n	数据表原始名称（Length Coded String）
+        n	列（字段）名称（Length Coded String）
+        4	列（字段）原始名称（Length Coded String）
+        1	填充值
+        2	字符编码
+        4	列（字段）长度
+        1	列（字段）类型
+        2	列（字段）标志
+        1	整型值精度
+        2	填充值（0x00）
+        n	默认值（Length Coded String）
+         */
+        $column = [
+            "dir" => $this->next(),
+            "database"=>$this->next(),
+            "table"=>$this->next(),
+            "table_alias"=>$this->next(),
+            "column"=>$this->next(),
+            "column_alias"=>$this->next(),
+        ];
+
+        $this->read(1);
+        $column["character_set"] = $this->readUint16();
+        $column["length"] = $this->readUint32();
+        $column["type"] = $this->readUint8();
+        $column["flag"] = $this->readUint16();
+        $column["precision"] = $this->readUint8();
+        $this->read(2);
+        $column["default"] = $this->next();
+        return $column;
+    }
+
 
 }
