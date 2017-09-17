@@ -462,10 +462,11 @@ class Mysql
 
                         break;
                     case FieldType::BLOB:// 		= 0xFC;
-                        $len = $packet->readUint16();
-                        $row[$name] = $packet->read($len);
+                        //length coded binary
+                        $row[$name] = $packet->next();
                         break;
                     case FieldType::VAR_STRING:// 	= 0xFD; //253
+                        $row[$name] = $packet->next();
                         break;
                     case FieldType::STRING:// 		= 0xFE;
                         break;

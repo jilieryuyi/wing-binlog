@@ -212,29 +212,26 @@ class Packet
     public function readDatetime()
     {
         /**
+        https://dev.mysql.com/doc/internals/en/myisam-column-attributes.html
+        https://dev.mysql.com/doc/internals/en/date-and-time-data-type-representation.html
         DATETIME
         Storage: eight bytes.
         Part 1 is a 32-bit integer containing year*10000 + month*100 + day.
         Part 2 is a 32-bit integer containing hour*10000 + minute*100 + second.
         Example: a DATETIME column for '0001-01-01 01:01:01' looks like: hexadecimal B5 2E 11 5A 02 00 00 00
          */
-//        $res = pack("V", 10101);
-//        for ($i=0;$i<4;$i++) {
-//            echo ord($res[$i]),"-";
-//        }
 
-        $f = $this->readUint32();
-        var_dump($f);
-        $year = intval($f/10000);
-        $month = intval(($f - $year*10000)/100);
-        $day = ($f - $year*10000 - $month*100);
+        //第一个字节暂时不知道干嘛的
+        $this->read(1);
+        $year = $this->readUint16();
 
-        $f = $this->readUint32();
-        $hour = intval($f/10000);
-        $minute = intval(($f - $hour*10000)/100);
-        $second = ($f - $hour*10000 - $minute*100);
+        $month = $this->readUint8();
+        $day = $this->readUint8();
+        $hour = $this->readUint8();
+        $minute = $this->readUint8();
+        $second = $this->readUint8();
 
-        return sprintf("%d-%d-%d %d:%d:%d",$year, $month, $day,
+        return sprintf("%d-%02d-02%d %02d:%02d:%02d",$year, $month, $day,
             $hour, $minute, $second);
     }
     public function readUint32()
