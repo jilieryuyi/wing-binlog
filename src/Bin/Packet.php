@@ -221,8 +221,10 @@ class Packet
         Example: a DATETIME column for '0001-01-01 01:01:01' looks like: hexadecimal B5 2E 11 5A 02 00 00 00
          */
 
-        //第一个字节暂时不知道干嘛的
-        $this->read(1);
+        //libmysql/libmysql.c 3176 read_binary_datetime
+        //第一个字节获取日期的存储长度
+        $length = $this->getLength();
+
         $year = $this->readUint16();
 
         $month = $this->readUint8();

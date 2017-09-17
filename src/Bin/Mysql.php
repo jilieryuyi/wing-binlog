@@ -1,6 +1,7 @@
 <?php namespace Wing\Bin;
 use Wing\Bin\Constant\CommandType;
 use Wing\Bin\Constant\Cursor;
+use Wing\Bin\Constant\FieldFlag;
 use Wing\Bin\Constant\FieldType;
 
 /**
@@ -403,6 +404,10 @@ class Mysql
             while($index < $columns_count) {
                 $type = $columns[$index]["type"];
                 $name = $columns[$index]["column"];
+
+                $field_is_unsigned = $columns[$index]["flag"] & FieldFlag::UNSIGNED_FLAG;
+
+
                 switch ($type) {
                     case FieldType::DECIMAL:// 	= 0x00;
                         break;
@@ -411,8 +416,10 @@ class Mysql
                     case FieldType::SHORT;// 		= 0x02;
                         break;
                     case FieldType::LONG:// 		= 0x03;
+                        $row[$name] = $packet->readUint32();
                         break;
                     case FieldType::FLOAT://		= 0x04;
+
                         break;
                     case FieldType::DOUBLE:// 		= 0x05;
                         break;
