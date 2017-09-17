@@ -212,7 +212,7 @@ class Mysql
         //告警计数warnings count
         echo "告警计数warnings count=",$packet->readUint16(),"\r\n";
 
-        //参数响应包
+        //参数响应包 暂时还不知道这个有什么用
         /**
             2	类型
             2	标志
@@ -230,7 +230,6 @@ class Mysql
         //EOF
         Net::readPacket();
         var_dump($params_res);
-        exit;
 
         //响应列包
         //列信息
@@ -241,6 +240,7 @@ class Mysql
             $cc++;
             $res = Net::readPacket();
             $packet = new Packet($res);
+            $column = $packet->getColumns();
             $columns[] = $column["column"];
             unset($packet);
         }
@@ -248,8 +248,13 @@ class Mysql
         //EOF
         $res = Net::readPacket();
         (new Packet($res))->debugDump();
-       // exit;
         //COM_STMT_PREPARE --- end ---
+
+
+
+
+
+
 
 
         /**
