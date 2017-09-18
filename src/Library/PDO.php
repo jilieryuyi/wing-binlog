@@ -113,7 +113,7 @@ class PDO implements IDb
             $this->bconnected = true;
         } catch (\PDOException $e) {
 			if (WING_DEBUG)
-			var_dump("pdo ".__FUNCTION__,$e->errorInfo);
+			var_dump(__CLASS__."::".__FUNCTION__,$e->errorInfo);
             sleep(1);
             $this->connect();
 			if (WING_DEBUG)
@@ -146,7 +146,7 @@ class PDO implements IDb
 
         $this->lastSql = $query;
         if ($parameters)
-            $this->lastSql .= " with raw data : ".json_encode($parameters,JSON_UNESCAPED_UNICODE);
+            $this->lastSql .= ", with data: ".json_encode($parameters,JSON_UNESCAPED_UNICODE);
 
         if (!$this->bconnected) {
             $this->connect();
@@ -167,7 +167,7 @@ class PDO implements IDb
             $this->close();
             $this->connect();
 			if (WING_DEBUG)
-			var_dump("pdo ".__FUNCTION__,$e->errorInfo);
+			var_dump(__CLASS__."::".__FUNCTION__,$e->errorInfo);
         }
         $this->parameters = array();
         return false;
@@ -214,7 +214,7 @@ class PDO implements IDb
             }
         } catch (\PDOException $e) {
 			if (WING_DEBUG)
-			var_dump("pdo ".__FUNCTION__,$e->errorInfo);
+			var_dump(__CLASS__."::".__FUNCTION__,$e->errorInfo);
             $this->close();
             $this->connect();
         }
@@ -236,7 +236,7 @@ class PDO implements IDb
                 return 0;
         } catch (\PDOException $e) {
 			if (WING_DEBUG)
-			var_dump("pdo ".__FUNCTION__,$e->errorInfo);
+			var_dump(__CLASS__."::".__FUNCTION__,$e->errorInfo);
             $this->close();
             $this->connect();
         }
@@ -255,7 +255,7 @@ class PDO implements IDb
                 return $this->pdo->beginTransaction();
         } catch (\PDOException $e) {
 			if (WING_DEBUG)
-			var_dump("pdo ".__FUNCTION__,$e->errorInfo);
+			var_dump(__CLASS__."::".__FUNCTION__,$e->errorInfo);
             $this->close();
             $this->connect();
         }
@@ -274,7 +274,7 @@ class PDO implements IDb
                 return $this->pdo->commit();
         } catch (\PDOException $e) {
 			if (WING_DEBUG)
-			var_dump("pdo ".__FUNCTION__,$e->errorInfo);
+			var_dump(__CLASS__."::".__FUNCTION__,$e->errorInfo);
             $this->close();
             $this->connect();
         }
@@ -293,7 +293,7 @@ class PDO implements IDb
                 return $this->pdo->rollBack();
         } catch (\PDOException $e) {
 			if (WING_DEBUG)
-			var_dump("pdo ".__FUNCTION__,$e->errorInfo);
+			var_dump(__CLASS__."::".__FUNCTION__,$e->errorInfo);
             $this->close();
             $this->connect();
         }
@@ -320,7 +320,7 @@ class PDO implements IDb
             }
         } catch (\PDOException $e) {
 			if (WING_DEBUG)
-			var_dump("pdo ".__FUNCTION__,$e->errorInfo);
+			var_dump(__CLASS__."::".__FUNCTION__,$e->errorInfo);
             $this->close();
             $this->connect();
         }
