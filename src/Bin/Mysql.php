@@ -250,6 +250,7 @@ class Mysql
         (new Packet($res))->debugDump();
         //COM_STMT_PREPARE --- end ---
 
+        //exit;
 
 
 
@@ -329,14 +330,17 @@ class Mysql
         }
 
         //封包
-        $data = Packet::storeLength(strlen($data)).$data;
+        $data = pack('L',strlen($data)).$data;
 
 
-        Net::send($data );
+        Net::send($data);
 
         //列数量
         $res = Net::readPacket();
-        $packet = new  Packet($res);//)->debugDump();
+        $packet = new  Packet($res);
+        $packet->debugDump();
+
+        //exit;
         $columns_count = $packet->readUint8();
         var_dump($columns_count);
         //响应列包
@@ -414,7 +418,7 @@ class Mysql
 
             $packet = new Packet($res);
             $packet->debugDump();
-            exit;
+           // exit;
 //            for ($i=0;$i<64;$i++){
 //                echo ord($res[$i]),"-";
 //            }

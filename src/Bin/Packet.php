@@ -357,9 +357,9 @@ class Packet
             return pack("C", 252).pack("v", $length);
         }
         if ($length < 16777216) {
-          $data = pack("C", 253);
-          $data .= chr($length).chr($length>>8).chr($length>>16);
-        return $data;
+            $data = pack("C", 253);
+            $data .= chr($length).chr($length >> 8).chr($length >> 16);
+            return $data;
         }
 
         return pack("C", 254).pack("P", $length);
