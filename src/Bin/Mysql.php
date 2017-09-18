@@ -295,38 +295,41 @@ class Mysql
         $data .= pack("V", 0x01);
 
 
-
+        ///Users/yuyi/Downloads/mysql-5.7.19/libmysql/libmysql.c 2240
         //n字节空位图（Null-Bitmap，长度 = (参数数量 + 7) / 8 字节）
         $len = intval((count($params)+7)/8);
         for ($i = 0; $i < $len; $i++) {
             $data .= chr(0x00);
         }
 
+        //libmysql/libmysql.c 2251
+        //是否发送类型到服务器 send_types_to_server
         //1字节参数分隔标志
-        $data .= chr(0x01);
+        $data .= chr(0x00);
 
         //n字节每个参数的类型值（长度 = 参数数量 * 2 字节）
-        foreach ($params as $value) {
-            $type = FieldType::VAR_STRING;
-            if (is_numeric($value)) {
-                if (intval($value) == $value) {
-                    $type = FieldType::LONG;
-                } else {
-                    $type = FieldType::DOUBLE;
-                }
-            } else {
-                $type = FieldType::VAR_STRING;
-            }
-            $data .= pack("v", $type);
-        }
+//        foreach ($params as $value) {
+//            $type = FieldType::VAR_STRING;
+//            if (is_numeric($value)) {
+//                if (intval($value) == $value) {
+//                    $type = FieldType::LONG;
+//                } else {
+//                    $type = FieldType::DOUBLE;
+//                }
+//            } else {
+//                $type = FieldType::VAR_STRING;
+//            }
+//            $data .= pack("v", $type);
+//        }
 
+        //libmysql/libmysql.c 2081
         //n字节每个参数的值
         foreach ($params as $value) {
-            $data .= pack("V",strlen($value)).$value;
+            $data .= Packet::storeLength(strlen($value)).$value;
         }
 
         //封包
-        $data = pack("V", strlen($data)).$data;
+        $data = Packet::storeLength(strlen($data)).$data;
 
 
         Net::send($data );

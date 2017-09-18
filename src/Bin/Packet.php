@@ -346,5 +346,22 @@ class Packet
         return $column;
     }
 
+    ///Users/yuyi/Downloads/mysql-5.7.19/sql-common/pack.c 93
+    public static function storeLength($length)
+    {
+        if ($length < 251) {
+            return pack("C", $length);
+        }
+        /* 251 is reserved for NULL */
+        if ($length < 65536) {
+            return pack("C", 252).pack("v", $length);
+        }
+        if ($length < 16777216) {
+          $data = pack("C", 253);
+          $data .= chr($length).chr($length>>8).chr($length>>16);
+        return $data;
+        }
 
+        return pack("C", 254).pack("P", $length);
+    }
 }
