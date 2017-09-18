@@ -308,35 +308,36 @@ class Mysql
         //1字节参数分隔标志
         $data .= chr(0x01);
 
-        /**
+        /**Users/yuyi/Downloads/mysql-5.7.19/libmysql/libmysql.c 1916
         uint typecode= param->buffer_type | (param->is_unsigned ? 32768 : 0);
         int2store(*pos, typecode);
          *pos+= 2;
          */
         //n字节每个参数的类型值（长度 = 参数数量 * 2 字节）
-//        foreach ($params as $value) {
-//            $type = FieldType::VAR_STRING;
-//            if (is_numeric($value)) {
-//                if (intval($value) == $value) {
-//                    $type = FieldType::LONG|32768;
-//                } else {
-//                    $type = FieldType::DOUBLE|32768;
-//                }
-//            } else {
-//                $type = FieldType::VAR_STRING;
-//            }
-//
-//            $data .= pack("v", $type);
-//        }
+        foreach ($params as $value) {
+            $type = FieldType::VAR_STRING;
+            if (is_numeric($value)) {
+                if (intval($value) == $value) {
+                    $type = FieldType::LONG|0;
+                } else {
+                    $type = FieldType::DOUBLE|0;
+                }
+            } else {
+                $type = FieldType::VAR_STRING;
+            }
+
+            $data .= pack("v", $type);
+        }
 
         //libmysql/libmysql.c 2081
         //n字节每个参数的值
-//        foreach ($params as $value) {
-//            $data .= Packet::storeLength(strlen($value)).$value;
-//        }
+        foreach ($params as $value) {
+            $data .= Packet::storeLength(strlen($value)).$value;
+        }
 
         //封包
-        $data = pack('L',strlen($data)).$data;
+        $data = pack('L', strlen($data)).$data;
+        (new Packet($data))->debugDump();
 
 
         Net::send($data);
@@ -346,6 +347,7 @@ class Mysql
         var_dump($res);
         $packet = new  Packet($res);
         $packet->debugDump();
+        exit;
 
         //exit;
         $columns_count = $packet->readUint8();
