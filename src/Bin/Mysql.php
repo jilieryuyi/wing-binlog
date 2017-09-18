@@ -275,13 +275,26 @@ class Mysql
         n	每个参数的类型值（长度 = 参数数量 * 2 字节）
         n	每个参数的值
          */
+
+
         $data  = pack('C', CommandType::COM_STMT_EXECUTE);
+
+
+        ///Users/yuyi/Downloads/mysql-5.7.19/libmysql/libmysql.c 2146
+        ///Users/yuyi/Downloads/mysql-5.7.19/include/byte_order_generic.h int4store
+        /**
+        int4store(buff, stmt->stmt_id);
+        buff[4]= (char) stmt->flags;
+        int4store(buff+5, 1);
+         */
         //4字节预处理语句的ID值
         $data .= pack("V", $smtid);
         //1字节标志位
-        $data .= Cursor::TYPE_NO_CURSOR;
+        $data .= chr(Cursor::TYPE_NO_CURSOR);
         //4字节保留（值恒为0x01）
         $data .= pack("V", 0x01);
+
+
 
         //n字节空位图（Null-Bitmap，长度 = (参数数量 + 7) / 8 字节）
         $len = intval((count($params)+7)/8);
