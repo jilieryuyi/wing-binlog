@@ -306,28 +306,34 @@ class Mysql
         //libmysql/libmysql.c 2251
         //是否发送类型到服务器 send_types_to_server
         //1字节参数分隔标志
-        $data .= chr(0x00);
+        $data .= chr(0x01);
 
+        /**
+        uint typecode= param->buffer_type | (param->is_unsigned ? 32768 : 0);
+        int2store(*pos, typecode);
+         *pos+= 2;
+         */
         //n字节每个参数的类型值（长度 = 参数数量 * 2 字节）
 //        foreach ($params as $value) {
 //            $type = FieldType::VAR_STRING;
 //            if (is_numeric($value)) {
 //                if (intval($value) == $value) {
-//                    $type = FieldType::LONG;
+//                    $type = FieldType::LONG|32768;
 //                } else {
-//                    $type = FieldType::DOUBLE;
+//                    $type = FieldType::DOUBLE|32768;
 //                }
 //            } else {
 //                $type = FieldType::VAR_STRING;
 //            }
+//
 //            $data .= pack("v", $type);
 //        }
 
         //libmysql/libmysql.c 2081
         //n字节每个参数的值
-        foreach ($params as $value) {
-            $data .= Packet::storeLength(strlen($value)).$value;
-        }
+//        foreach ($params as $value) {
+//            $data .= Packet::storeLength(strlen($value)).$value;
+//        }
 
         //封包
         $data = pack('L',strlen($data)).$data;
@@ -337,6 +343,7 @@ class Mysql
 
         //列数量
         $res = Net::readPacket();
+        var_dump($res);
         $packet = new  Packet($res);
         $packet->debugDump();
 
