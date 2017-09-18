@@ -421,13 +421,13 @@ class Mysql
         //行信息
         $rows = [];
         //一直读取直到遇到结束报文
-        //while (1)
+        while (1)
         {
             $res = Net::readPacket();
             var_dump($res);
-//            if (ord($res[0]) == Packet::EOF_HEAD) {
-//                break;
-//            }
+            if (ord($res[0]) == Packet::EOF_HEAD) {
+                break;
+            }
             $index = 0;
             $row   = [];
 
