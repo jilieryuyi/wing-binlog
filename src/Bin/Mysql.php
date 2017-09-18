@@ -219,38 +219,47 @@ class Mysql
             1	数值精度
             4	字段长度
          */
-        $params_res = [];
-        for ($i = 0; $i < count($params); $i++) {
-            $res    = Net::readPacket();
-            $packet = new Packet($res);
-            $packet->debugDump();
-            $params_res[] = $packet->getColumns();
-            unset($packet);
-        }
-        //EOF
-        Net::readPacket();
-        var_dump($params_res);
 
-        //响应列包
-        //列信息
-        $columns = [];
-        $cc = 0;
-        //一直读取直到遇到结束报文
-        while ($cc < $columns_count) {
-            $cc++;
+        $params_len = count($params);
+        if ($params_len > 0) {
+            $params_res = [];
+            for ($i = 0; $i < $params_len; $i++) {
+                $res = Net::readPacket();
+                $packet = new Packet($res);
+                $packet->debugDump();
+                $params_res[] = $packet->getColumns();
+                unset($packet);
+            }
+            //EOF
             $res = Net::readPacket();
-            $packet = new Packet($res);
-            $column = $packet->getColumns();
-            $columns[] = $column["column"];
-            unset($packet);
+            (new Packet($res))->debugDump();
+            var_dump($params_res);
         }
-        var_dump($columns);
-        //EOF
-        $res = Net::readPacket();
-        (new Packet($res))->debugDump();
-        //COM_STMT_PREPARE --- end ---
 
-        //exit;
+
+        if ($columns_count > 0) {
+            //响应列包
+            //列信息
+            $columns = [];
+            $cc = 0;
+            //一直读取直到遇到结束报文
+            while ($cc < $columns_count) {
+                $cc++;
+                $res = Net::readPacket();
+                $packet = new Packet($res);
+                //$packet->debugDump();
+                //echo "\r\n";
+                $column = $packet->getColumns();
+                $columns[] = $column["column"];
+                unset($packet);
+            }
+            var_dump($columns);
+            //EOF
+            $res = Net::readPacket();
+            (new Packet($res))->debugDump();
+            //COM_STMT_PREPARE --- end ---
+        }
+
 
 
 
@@ -298,60 +307,57 @@ class Mysql
 
         ///Users/yuyi/Downloads/mysql-5.7.19/libmysql/libmysql.c 2240
         //n字节空位图（Null-Bitmap，长度 = (参数数量 + 7) / 8 字节）
-        $len = intval((count($params)+7)/8);
-        for ($i = 0; $i < $len; $i++) {
-            $data .= chr(0x00);
-        }
+//        $len = intval((count($params)+7)/8);
+//        for ($i = 0; $i < $len; $i++) {
+//            $data .= chr(0x00);
+//        }
 
         //libmysql/libmysql.c 2251
         //是否发送类型到服务器 send_types_to_server
         //1字节参数分隔标志
-        $data .= chr(0x01);
+//        $data .= chr(0x01);
 
-        /**Users/yuyi/Downloads/mysql-5.7.19/libmysql/libmysql.c 1916
-        uint typecode= param->buffer_type | (param->is_unsigned ? 32768 : 0);
+        /*
+         Users/yuyi/Downloads/mysql-5.7.19/libmysql/libmysql.c 1916
+         uint typecode= param->buffer_type | (param->is_unsigned ? 32768 : 0);
         int2store(*pos, typecode);
          *pos+= 2;
          */
         //n字节每个参数的类型值（长度 = 参数数量 * 2 字节）
-        foreach ($params as $value) {
-            $type = FieldType::VAR_STRING;
-            if (is_numeric($value)) {
-                if (intval($value) == $value) {
-                    $type = FieldType::LONG|0;
-                } else {
-                    $type = FieldType::DOUBLE|0;
-                }
-            } else {
-                $type = FieldType::VAR_STRING;
-            }
-
-            $data .= pack("v", $type);
-        }
+//        foreach ($params as $value) {
+//            $type = FieldType::VAR_STRING;
+//            if (is_numeric($value)) {
+//                if (intval($value) == $value) {
+//                    $type = FieldType::LONG|0;
+//                } else {
+//                    $type = FieldType::DOUBLE|0;
+//                }
+//            } else {
+//                $type = FieldType::VAR_STRING;
+//            }
+//
+//            $data .= pack("v", $type);
+//        }
 
         //libmysql/libmysql.c 2081
         //n字节每个参数的值
-        foreach ($params as $value) {
-            $data .= Packet::storeLength(strlen($value)).$value;
-        }
+//        foreach ($params as $value) {
+//            $data .= Packet::storeLength(strlen($value)).$value;
+//        }
 
         //封包
         $data = pack('L', strlen($data)).$data;
-        (new Packet($data))->debugDump();
+        //(new Packet($data))->debugDump();
 
 
         Net::send($data);
 
         //列数量
         $res = Net::readPacket();
-        var_dump($res);
         $packet = new  Packet($res);
-        $packet->debugDump();
-        exit;
 
-        //exit;
         $columns_count = $packet->readUint8();
-        var_dump($columns_count);
+
         //响应列包
         //列信息
         $columns = [];
@@ -360,7 +366,6 @@ class Mysql
         while ($cc < $columns_count) {
             $cc++;
             $res = Net::readPacket();
-
             $packet = new Packet($res);
             //$packet->debugDump();
 
@@ -374,7 +379,7 @@ class Mysql
 //            ($packet->next());
 //            //列名称 这个才是我们要的
 //            $column_name = $packet->next();
-            $column = [
+          /*  $column = [
                 "dir" => $packet->next(),
                 "database"=>$packet->next(),
                 "table"=>$packet->next(),
@@ -390,8 +395,8 @@ class Mysql
             $column["flag"] = $packet->readUint16();
             $column["precision"] = $packet->readUint8();
             $packet->read(2);
-            $column["default"] = $packet->next();
-            $columns[] = $column;
+            $column["default"] = $packet->next();*/
+            $columns[] = $packet->getColumns();
             //填充值
 
             //$column_name_old = $packet->next();
@@ -404,9 +409,10 @@ class Mysql
         $res = Net::readPacket();
         $packet = new Packet($res);
         $packet->debugDump();
-        $res = Net::readPacket();
-        $packet = new Packet($res);
-        $packet->debugDump();
+
+//        $res = Net::readPacket();
+//        $packet = new Packet($res);
+//        $packet->debugDump();
        // exit;
 
         //fetch rows
