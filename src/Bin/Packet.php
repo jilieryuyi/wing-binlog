@@ -338,7 +338,9 @@ class Packet
         $this->read(1);
         $column["character_set"] = $this->readUint16();
         $column["length"] = $this->readUint32();
-        $column["type"] = $this->readUint8();
+        $type = $this->readUint8();
+        $column["type"] = $type;
+        $column["type_text"] = FieldType::fieldtype2str($type);
         $column["flag"] = $this->readUint16();
         $column["precision"] = $this->readUint8();
         $this->read(2);

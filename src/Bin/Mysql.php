@@ -253,7 +253,7 @@ class Mysql
                 $columns[] = $column["column"];
                 unset($packet);
             }
-           // var_dump($columns);
+            //var_dump($columns);
             //EOF
             $res = Net::readPacket();
            // (new Packet($res))->debugDump();
@@ -379,7 +379,7 @@ class Mysql
             $columns[]  = $packet->getColumns();
             unset($packet);
         }
-        //var_dump($columns);
+        var_dump($columns);
 
         //EOF
         $res = Net::readPacket();
