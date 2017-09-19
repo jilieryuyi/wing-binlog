@@ -21,8 +21,7 @@ class FieldType extends \Wing\Bin\Constant\FieldType
 
     private function isInt()
     {
-        return is_numeric($this->value) &&
-            (intval($this->value) - $this->value) == 0;
+        return (intval($this->value) - $this->value) == 0;
     }
 
     /**
@@ -30,29 +29,33 @@ class FieldType extends \Wing\Bin\Constant\FieldType
      */
     public function getType()
     {
-        if(is_numeric($this->value)) {
-            if ($this->isInt()) {
-                //tinyint
-                if((-1 << 7) <= $this->value && $this->value <= ((1 << 7)-1)) {
-                    return self::TINY;
-                }
-                //2字节
-                else if((-1 << 15) <= $this->value && $this->value <= ((1 << 15)-1)) {
-                    self::SHORT;
-                }
-                //3个字节
-                else if((-1 << 23) <= $this->value && $this->value <= ((1 << 23)-1)) {
-                   self::INT24;
-                }
-                //4个字节
-                else if((-1 << 31) <= $this->value && $this->value <= ((1 << 31)-1)) {
-                    return self::INT24;
-                }
-                return self::BIGINT;
-            }
-        } else {
+        if(!is_numeric($this->value)) {
             return self::VAR_STRING;
         }
+
+        if ($this->isInt()) {
+            $this->value = intval($this->value);
+            //tinyint
+            if((-1 << 7) <= $this->value && $this->value <= ((1 << 7)-1)) {
+                return self::TINY;
+            }
+            //2字节
+            else if((-1 << 15) <= $this->value && $this->value <= ((1 << 15)-1)) {
+                self::SHORT;
+            }
+            //3个字节
+            else if((-1 << 23) <= $this->value && $this->value <= ((1 << 23)-1)) {
+               self::INT24;
+            }
+            //4个字节
+            else if((-1 << 31) <= $this->value && $this->value <= ((1 << 31)-1)) {
+                return self::INT24;
+            }
+            return self::BIGINT;
+        }
+
+
+
         return self::VAR_STRING;
     }
 }
