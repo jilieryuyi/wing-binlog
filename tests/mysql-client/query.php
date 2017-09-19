@@ -42,7 +42,7 @@ try {
 
     $res = \Wing\Bin\Mysql::execute(
         //'INSERT INTO xsl.`x_logs`(`id`,`module_name`,`message`) VALUES (999998, "test","test")');//
-    'select * from wp_posts where 1 limit 10');//, [2]);
+    'select * from wp_posts where id=?', [12]);
 
     var_dump($res);
 } catch (\Exception $e) {

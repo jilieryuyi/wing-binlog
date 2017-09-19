@@ -305,45 +305,51 @@ class Mysql
         $data .= pack("V", 0x01);
 
 
+        // mysql源码 绑定参数的实现
+        // /Users/yuyi/Downloads/mysql-5.7.19/libmysql/libmysql.c 2901行
+        // 函数 mysql_stmt_bind_param
+
         ///Users/yuyi/Downloads/mysql-5.7.19/libmysql/libmysql.c 2240
         //n字节空位图（Null-Bitmap，长度 = (参数数量 + 7) / 8 字节）
-//        $len = intval((count($params)+7)/8);
-//        for ($i = 0; $i < $len; $i++) {
-//            $data .= chr(0x00);
-//        }
+        if ($params_len > 0) {
+            $len = intval((count($params) + 7) / 8);
+            for ($i = 0; $i < $len; $i++) {
+                $data .= chr(0x00);
+            }
 
-        //libmysql/libmysql.c 2251
-        //是否发送类型到服务器 send_types_to_server
-        //1字节参数分隔标志
-//        $data .= chr(0x01);
+            //libmysql/libmysql.c 2251
+            //是否发送类型到服务器 send_types_to_server
+            //1字节参数分隔标志
+            $data .= chr(0x01);
 
-        /*
-         Users/yuyi/Downloads/mysql-5.7.19/libmysql/libmysql.c 1916
-         uint typecode= param->buffer_type | (param->is_unsigned ? 32768 : 0);
-        int2store(*pos, typecode);
-         *pos+= 2;
-         */
-        //n字节每个参数的类型值（长度 = 参数数量 * 2 字节）
-//        foreach ($params as $value) {
-//            $type = FieldType::VAR_STRING;
-//            if (is_numeric($value)) {
-//                if (intval($value) == $value) {
-//                    $type = FieldType::LONG|0;
-//                } else {
-//                    $type = FieldType::DOUBLE|0;
-//                }
-//            } else {
-//                $type = FieldType::VAR_STRING;
-//            }
-//
-//            $data .= pack("v", $type);
-//        }
+            /*
+             Users/yuyi/Downloads/mysql-5.7.19/libmysql/libmysql.c 1916
+             uint typecode= param->buffer_type | (param->is_unsigned ? 32768 : 0);
+            int2store(*pos, typecode);
+             *pos+= 2;
+             */
+            //n字节每个参数的类型值（长度 = 参数数量 * 2 字节）
+            foreach ($params as $value) {
+                $type = FieldType::VAR_STRING;
+    //            if (is_numeric($value)) {
+    //                if (intval($value) == $value) {
+    //                    $type = FieldType::LONG|0;
+    //                } else {
+    //                    $type = FieldType::DOUBLE|0;
+    //                }
+    //            } else {
+    //                $type = FieldType::VAR_STRING;
+    //            }
 
-        //libmysql/libmysql.c 2081
-        //n字节每个参数的值
-//        foreach ($params as $value) {
-//            $data .= Packet::storeLength(strlen($value)).$value;
-//        }
+                $data .= pack("v", $type);
+            }
+
+            //libmysql/libmysql.c 2081
+            //n字节每个参数的值
+            foreach ($params as $value) {
+                $data .= Packet::storeLength(strlen($value)).$value;
+            }
+        }
 
         //封包
         $data = pack('L', strlen($data)).$data;
