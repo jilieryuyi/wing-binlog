@@ -37,9 +37,9 @@ class FieldFlag
 	const	FIELD_IN_ADD_INDEX              = (1 << 20);
 	const 	FIELD_IS_RENAMED                = (1<< 21);     /* Intern: Field is being renamed */
 	const 	FIELD_FLAGS_STORAGE_MEDIA       = 22;           /* Field storage media, bit 22-23 */
-	const 	FIELD_FLAGS_STORAGE_MEDIA_MASK  = (3 << 22);
+	const 	FIELD_FLAGS_STORAGE_MEDIA_MASK  = (3 << self::FIELD_FLAGS_STORAGE_MEDIA);
 	const 	FIELD_FLAGS_COLUMN_FORMAT       = 24;           /* Field column format, bit 24-25 */
-	const 	FIELD_FLAGS_COLUMN_FORMAT_MASK  = (3 << 24);
+	const 	FIELD_FLAGS_COLUMN_FORMAT_MASK  = (3 << self::FIELD_FLAGS_COLUMN_FORMAT);
 	const 	FIELD_IS_DROPPED                = (1<< 26)    ; /* Intern: Field is being dropped */
 	const 	EXPLICIT_NULL_FLAG              = (1<< 27)  ;   /* Field is explicitly specified as NULL by the user */
 }

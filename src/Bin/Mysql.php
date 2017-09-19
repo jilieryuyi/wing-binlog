@@ -325,7 +325,7 @@ class Mysql
             /*
              Users/yuyi/Downloads/mysql-5.7.19/libmysql/libmysql.c 1916
              uint typecode= param->buffer_type | (param->is_unsigned ? 32768 : 0);
-            int2store(*pos, typecode);
+             int2store(*pos, typecode);
              *pos+= 2;
              */
             //n字节每个参数的类型值（长度 = 参数数量 * 2 字节）
@@ -371,45 +371,12 @@ class Mysql
         //一直读取直到遇到结束报文
         while ($cc < $columns_count) {
             $cc++;
-            $res = Net::readPacket();
-            $packet = new Packet($res);
-            //$packet->debugDump();
-
-            //def 移动游标至下一个
-//            ($packet->next());
-//            //数据库名称
-//            ($packet->next());
-//            //数据表名称
-//            ($packet->next());
-//            //原数据表名称
-//            ($packet->next());
-//            //列名称 这个才是我们要的
-//            $column_name = $packet->next();
-          /*  $column = [
-                "dir" => $packet->next(),
-                "database"=>$packet->next(),
-                "table"=>$packet->next(),
-                "table_alias"=>$packet->next(),
-                "column"=>$packet->next(),
-                "column_alias"=>$packet->next(),
-            ];
-
-            $packet->read(1);
-            $column["character_set"] = $packet->readUint16();
-            $column["length"] = $packet->readUint32();
-            $column["type"] = $packet->readUint8();
-            $column["flag"] = $packet->readUint16();
-            $column["precision"] = $packet->readUint8();
-            $packet->read(2);
-            $column["default"] = $packet->next();*/
-            $columns[] = $packet->getColumns();
-            //填充值
-
-            //$column_name_old = $packet->next();
+            $res        = Net::readPacket();
+            $packet     = new Packet($res);
+            $columns[]  = $packet->getColumns();
             unset($packet);
         }
         var_dump($columns);
-        //exit;
 
         //EOF
         $res = Net::readPacket();
