@@ -142,7 +142,7 @@ class Mysql
             //db 状态
             $server_status = $packet->readUint16();
 
-            var_dump(self::$rows_affected,self::$last_insert_id, $server_status);
+            //var_dump(self::$rows_affected,self::$last_insert_id, $server_status);
 
             return true;
         }
@@ -195,7 +195,7 @@ class Mysql
          */
         Packet::success($res);
         $packet = new Packet($res);
-        $packet->debugDump();
+        //$packet->debugDump();
         $packet->read(1);//ok包头
 
         //预处理语句ID值
@@ -226,14 +226,14 @@ class Mysql
             for ($i = 0; $i < $params_len; $i++) {
                 $res = Net::readPacket();
                 $packet = new Packet($res);
-                $packet->debugDump();
+                //$packet->debugDump();
                 $params_res[] = $packet->getColumns();
                 unset($packet);
             }
             //EOF
             $res = Net::readPacket();
-            (new Packet($res))->debugDump();
-            var_dump($params_res);
+            //(new Packet($res))->debugDump();
+            //var_dump($params_res);
         }
 
 
@@ -253,10 +253,10 @@ class Mysql
                 $columns[] = $column["column"];
                 unset($packet);
             }
-            var_dump($columns);
+           // var_dump($columns);
             //EOF
             $res = Net::readPacket();
-            (new Packet($res))->debugDump();
+           // (new Packet($res))->debugDump();
             //COM_STMT_PREPARE --- end ---
         }
 
@@ -328,9 +328,12 @@ class Mysql
              int2store(*pos, typecode);
              *pos+= 2;
              */
+
+            $pfields = \Wing\Bin\FieldType::parse($params);
+
             //n字节每个参数的类型值（长度 = 参数数量 * 2 字节）
-            foreach ($params as $value) {
-                $type = FieldType::VAR_STRING;
+            foreach ($pfields as $value) {
+                //$type = FieldType::VAR_STRING;
     //            if (is_numeric($value)) {
     //                if (intval($value) == $value) {
     //                    $type = FieldType::LONG|0;
@@ -341,13 +344,13 @@ class Mysql
     //                $type = FieldType::VAR_STRING;
     //            }
 
-                $data .= pack("v", $type);
+                $data .= pack("v", $value->type);
             }
 
             //libmysql/libmysql.c 2081
             //n字节每个参数的值
-            foreach ($params as $value) {
-                $data .= Packet::storeLength(strlen($value)).$value;
+            foreach ($pfields as $value) {
+                $data .= $value->pack();//Packet::storeLength(strlen($value)).$value;
             }
         }
 
@@ -376,12 +379,12 @@ class Mysql
             $columns[]  = $packet->getColumns();
             unset($packet);
         }
-        var_dump($columns);
+        //var_dump($columns);
 
         //EOF
         $res = Net::readPacket();
         $packet = new Packet($res);
-        $packet->debugDump();
+        //$packet->debugDump();
 
 //        $res = Net::readPacket();
 //        $packet = new Packet($res);
@@ -397,7 +400,7 @@ class Mysql
         while (1)
         {
             $res = Net::readPacket();
-            var_dump($res);
+            //var_dump($res);
             if (ord($res[0]) == Packet::EOF_HEAD) {
                 break;
             }
@@ -405,7 +408,7 @@ class Mysql
             $row   = [];
 
             $packet = new Packet($res);
-            $packet->debugDump();
+            //$packet->debugDump();
            // exit;
 //            for ($i=0;$i<64;$i++){
 //                echo ord($res[$i]),"-";

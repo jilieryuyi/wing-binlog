@@ -8,7 +8,8 @@
 class FieldType extends \Wing\Bin\Constant\FieldType
 {
     private $value;
-    private $type;
+    public $type;
+
     public function __construct($value, $type = -1)
     {
         $this->value = $value;
@@ -52,6 +53,10 @@ class FieldType extends \Wing\Bin\Constant\FieldType
                 return self::BIGINT;
             }
             return self::BIGINT;
+        } else {
+            //浮点数
+
+
         }
 
         return self::VAR_STRING;
@@ -113,6 +118,58 @@ class FieldType extends \Wing\Bin\Constant\FieldType
                 return $this->storeLength().$this->value;
 
         }
+
+        //include/big_endian.h
+        //self::FLOAT;
+        //float4store
+
+        //self::DOUBLE;
+        //float8store
+
         return null;
     }
+
+
+    public static function parse(array $params)
+    {
+        $res = [];
+        foreach ($params as $value) {
+            $res[] = new self($value);
+        }
+        return $res;
+    }
+
+public static function fieldtype2str($type)
+{
+  switch ($type) {
+    case self::BIT:         return "BIT";
+    case self::BLOB:        return "BLOB";
+    case self::DATE:        return "DATE";
+    case self::DATETIME:    return "DATETIME";
+    case self::NEWDECIMAL:  return "NEWDECIMAL";
+    case self::DECIMAL:     return "DECIMAL";
+    case self::DOUBLE:      return "DOUBLE";
+    case self::ENUM:        return "ENUM";
+    case self::FLOAT:       return "FLOAT";
+    case self::GEOMETRY:    return "GEOMETRY";
+    case self::INT24:       return "INT24";
+    case self::JSON:        return "JSON";
+    case self::LONG:        return "LONG";
+    case self::LONGLONG:    return "LONGLONG";
+    case self::LONG_BLOB:   return "LONG_BLOB";
+    case self::MEDIUM_BLOB: return "MEDIUM_BLOB";
+    case self::NEWDATE:     return "NEWDATE";
+    case self::NULL:        return "NULL";
+    case self::SET:         return "SET";
+    case self::SHORT:       return "SHORT";
+    case self::STRING:      return "STRING";
+    case self::TIME:        return "TIME";
+    case self::TIMESTAMP:   return "TIMESTAMP";
+    case self::TINY:        return "TINY";
+    case self::TINY_BLOB:   return "TINY_BLOB";
+    case self::VAR_STRING:  return "VAR_STRING";
+    case self::YEAR:        return "YEAR";
+    default:                     return "?-unknown-?";
+  }
+}
 }
