@@ -54,8 +54,11 @@ class FieldType extends \Wing\Bin\Constant\FieldType
             return self::BIGINT;
         }
 
-
-
         return self::VAR_STRING;
+    }
+
+    public function pack()
+    {
+
     }
 }
