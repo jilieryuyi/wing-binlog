@@ -55,10 +55,13 @@ class FieldType extends \Wing\Bin\Constant\FieldType
             return self::BIGINT;
         } else {
             //浮点数
-
-
+            //float型数据的取值范围在-3.4*10^38到+3.4*10^38次之间
+//            if ($this->value >= -3.4*pow(10, 38) && $this->value < 3.4 * pow(10, 38)) {
+//                return self::FLOAT;
+//            }
         }
 
+        //其他的一律以字符串处理，有待验证
         return self::VAR_STRING;
     }
 

@@ -11,3 +11,8 @@
 //$len  = $data[1] + ($data[2] << 8) + ($data[3] << 16);
 //var_dump($len);
 var_dump(-1<<7, (2<<62));
+
+$a = 1.1;
+$str = pack("V", 1.1);
+var_dump($str);
+var_dump(10<<2);
