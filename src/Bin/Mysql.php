@@ -431,14 +431,16 @@ class Mysql
                     case FieldType::DECIMAL:// 	= 0x00;
                         break;
                     case FieldType::TINY:// 		= 0x01;
+                        $row[$name] = $packet->readUint8();
                         break;
                     case FieldType::SHORT;// 		= 0x02;
+                        $row[$name] = $packet->readUint16();
                         break;
                     case FieldType::LONG:// 		= 0x03;
                         $row[$name] = $packet->readUint32();
                         break;
                     case FieldType::FLOAT://		= 0x04;
-
+                        //mysql-5.7.19/include/big_endian.h
                         break;
                     case FieldType::DOUBLE:// 		= 0x05;
                         break;
@@ -451,6 +453,7 @@ class Mysql
                         $row[$name] = $packet->readUint64();
                         break;
                     case FieldType::INT24:// 		= 0x09;
+                        $row[$name] = $packet->readUint24();
                         break;
                     case FieldType::DATE:// 		= 0x0A;
                         break;
