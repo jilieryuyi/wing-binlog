@@ -46,10 +46,14 @@ class FieldType
     const   INTERVAL 	= self::ENUM;
     const   JSON        = 245;*/
 
-const DECIMAL = 0; const TINY = 1;
-const SHORT = 2; const LONG = 3;
-const FLOAT = 4; const DOUBLE = 5;
-const NULL = 6; const TIMESTAMP = 7;
+const DECIMAL = 0;
+const TINY = 1;
+const SHORT = 2;
+const LONG = 3;
+const FLOAT = 4;
+const DOUBLE = 5;
+const NULL = 6;
+const TIMESTAMP = 7;
 
 const LONGLONG = 8;
 const BIGINT = 8;

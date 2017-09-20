@@ -354,19 +354,7 @@ var_dump($pack);
         elseif( $size == 8)
             return unpack('N', $this->read($size))[1];
 
-return null;//
-        if ($size == 1)
-            return unpack('b', $this->read($size))[1];
-        elseif ($size == 2)
-            return unpack('h', $this->read($size))[1];
-        elseif($size == 3)
-            return $this->read_int24_be();
-        elseif($size == 4)
-            return unpack('i', $this->read($size))[1];
-        elseif($size == 5)
-            return $this->read_int40_be();
-        elseif($size == 8)
-            return unpack('l', $this->read($size))[1];
+return null;
 
     }
 
