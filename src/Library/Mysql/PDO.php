@@ -5,7 +5,7 @@
  * Date: 17/9/20
  * Time: 15:31
  */
-class PDO2
+class PDO
 {
     public $affected_rows;
     public $client_info;//Get MySQL client info
@@ -26,7 +26,32 @@ class PDO2
     public $thread_id;//(){}//Returns the thread ID for the current connection
     public $warning_count;//(){}//Returns the number of warnings from the last query for the given link
 
-    public function autocommit(){}
+    //Open a new connection to the MySQL server
+    public function __construct($host, $username, $passwd, $dbname, $port = 3306)
+    {
+        $context        = new \Wing\Bin\Context();
+        $pdo            = new \Wing\Library\PDO();
+
+        $context->pdo       = \Wing\Bin\Db::$pdo = $pdo;
+        $context->host      = $host;//$mysql_config["mysql"]["host"];
+        $context->db_name   = $dbname;//$mysql_config["mysql"]["db_name"];
+        $context->user      = $username;//$mysql_config["mysql"]["user"];
+        $context->password  = $passwd;//$mysql_config["mysql"]["password"];
+        $context->port      = $port;//$mysql_config["mysql"]["port"];
+        $context->checksum  = !!\Wing\Bin\Db::getChecksum();
+
+        $context->slave_server_id   = 9999;//$mysql_config["slave_server_id"];
+        $context->last_binlog_file  = null;
+        $context->last_pos          = 0;
+
+        //认证
+        \Wing\Bin\Auth\Auth::execute($context);
+    }
+
+    public function autocommit()
+    {
+        
+    }
     public function begin_transaction(){
         
     }//(){}//Starts a transaction
@@ -34,7 +59,6 @@ class PDO2
     public function character_set_name(){}//Returns the default character set for the database connection
     public function close(){}//Closes a previously opened database connection
     public function commit(){}//Commits the current transaction
-    public function __construct(){}//Open a new connection to the MySQL server
     public function debug(){}//Performs debugging operations
     public function dump_debug_info(){}//Dump debugging information into the log
     public function get_charset(){}//Returns a character set object
