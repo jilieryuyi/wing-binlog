@@ -1,4 +1,7 @@
 <?php namespace Wing\Library\Mysql;
+use Wing\Bin\Constant\Trans;
+use Wing\Bin\Mysql;
+
 /**
  * Created by PhpStorm.
  * User: yuyi
@@ -46,16 +49,42 @@ class PDO
 
         //认证
         \Wing\Bin\Auth\Auth::execute($context);
+        $this->autocommit();
     }
 
-    public function autocommit()
+    public function autocommit($auto = true)
     {
-        
+        $auto = $auto?1:0;
+        Mysql::query('set autocommit='.$auto);
     }
-    public function begin_transaction(){
-        
-    }//(){}//Starts a transaction
-    public function change_user(){}//(){}//Changes the user of the specified database connection
+    //Starts a transaction
+    public function begin_transaction($mode = 0)
+    {
+        $sql = 'START TRANSACTION';
+
+        if ($mode & Trans::WITH_CONSISTENT_SNAPSHOT) {
+           $sql .=" WITH CONSISTENT SNAPSHOT";
+        }
+
+        //5.6.5之前的版本不支持
+        if ($mode & (Trans::READ_WRITE | Trans::READ_ONLY)) {
+            if ($mode & Trans::READ_WRITE) {
+                $sql .= " READ WRITE";
+            } else if ($mode & Trans::READ_ONLY) {
+                $sql .= " READ ONLY";
+            }
+        }
+
+        $this->autocommit(false);
+        Mysql::query($sql);
+    }
+
+    //Changes the user of the specified database connection
+    public function change_user()
+    {
+
+    }
+
     public function character_set_name(){}//Returns the default character set for the database connection
     public function close(){}//Closes a previously opened database connection
     public function commit(){}//Commits the current transaction
