@@ -100,9 +100,17 @@ class PDO
 
     public function __destruct()
 	{
-		$res = Mysql::close();
+		$res = $this->close();
 		Auth::free();
 		return $res;
+	}
+
+	/*
+	 * 	Closes a previously opened database connection
+	 */
+	public function close()
+	{
+		return Mysql::close();
 	}
 
 	/**
@@ -154,11 +162,12 @@ class PDO
     {
 
     }
+	
+	//Commits the current transaction
+    public function commit()
+	{
 
-
-
-    public function close(){}//Closes a previously opened database connection
-    public function commit(){}//Commits the current transaction
+	}
     public function debug(){}//Performs debugging operations
     public function dump_debug_info(){}//Dump debugging information into the log
     public function get_charset(){}//Returns a character set object
