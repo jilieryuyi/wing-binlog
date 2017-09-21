@@ -39,7 +39,13 @@ class PDO
 	 * define int Binlog/src/Bin/Constant/CharacterSet.php
 	 */
 	private $character_set = '';
+
+	/**
+	 * @var string $salt
+	 * use for encode password
+	 */
 	public $salt = '';
+
 	/**
 	 * @var int $thread_id
 	 * Returns the thread ID for the current connection\
