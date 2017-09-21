@@ -124,7 +124,6 @@ class PDO
 	public function character_set_name()
 	{
 		return CharacterSet::getCharacterSet($this->character_set);
-
 	}
 
     public function close(){}//Closes a previously opened database connection
