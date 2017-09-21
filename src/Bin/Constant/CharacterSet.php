@@ -208,8 +208,599 @@ class CharacterSet
 	public static function getCharacterSet($flag)
 	{
 		switch ($flag) {
+//			case self::utf8_general_ci:
+//				return "utf8_general_ci";
+//				break;
+			case self::armscii8_bin:
+				return "armscii8_bin";
+				break;
+			case self::armscii8_general_ci:
+				return "armscii8_general_ci";
+				break;
+			case self::ascii_bin:
+				return "ascii_bin";
+				break;
+			case self::ascii_general_ci:
+				return "ascii_general_ci";
+				break;
+			case self::big5_bin:
+				return "big5_bin";
+				break;
+			case self::big5_chinese_ci:
+				return "big5_chinese_ci";
+				break;
+			case self::binary:
+				return "binary";
+				break;
+			case self::cp1250_bin:
+				return "cp1250_bin";
+				break;
+			case self::cp1250_croatian_ci:
+				return "cp1250_croatian_ci";
+				break;
+			case self::cp1250_czech_cs:
+				return "cp1250_czech_cs";
+				break;
+			case self::cp1250_general_ci:
+				return "cp1250_general_ci";
+				break;
+			case self::cp1250_polish_ci:
+				return "cp1250_polish_ci";
+				break;
+			case self::cp1251_bin:
+				return "cp1251_bin";
+				break;
+			case self::cp1251_bulgarian_ci:
+				return "cp1251_bulgarian_ci";
+				break;
+			case self::cp1251_general_ci:
+				return "cp1251_general_ci";
+				break;
+			case self::cp1251_general_cs:
+				return "cp1251_general_cs";
+				break;
+			case self::cp1251_ukrainian_ci:
+				return "cp1251_ukrainian_ci";
+				break;
+			case self::cp1256_bin:
+				return "cp1256_bin";
+				break;
+			case self::cp1256_general_ci:
+				return "cp1256_general_ci";
+				break;
+			case self::cp1257_bin:
+				return "cp1257_bin";
+				break;
+			case self::cp1257_general_ci:
+				return "cp1257_general_ci";
+				break;
+			case self::cp1257_lithuanian_ci:
+				return "cp1257_lithuanian_ci";
+				break;
+			case self::cp850_bin:
+				return "cp850_bin";
+				break;
+			case self::cp850_general_ci:
+				return "cp850_general_ci";
+				break;
+			case self::cp852_bin:
+				return "cp852_bin";
+				break;
+			case self::cp852_general_ci:
+				return "cp852_general_ci";
+				break;
+			case self::cp866_bin:
+				return "cp866_bin";
+				break;
+			case self::cp866_general_ci:
+				return "cp866_general_ci";
+				break;
+			case self::cp932_bin:
+				return "cp932_bin";
+				break;
+			case self::cp932_japanese_ci:
+				return "cp932_japanese_ci";
+				break;
+			case self::dec8_bin:
+				return "dec8_bin";
+				break;
+			case self::dec8_swedish_ci:
+				return "dec8_swedish_ci";
+				break;
+			case self::eucjpms_bin:
+				return "eucjpms_bin";
+				break;
+			case self::eucjpms_japanese_ci:
+				return "eucjpms_japanese_ci";
+				break;
+			case self::euckr_bin:
+				return "euckr_bin";
+				break;
+			case self::euckr_korean_ci:
+				return "euckr_korean_ci";
+				break;
+			case self::gb2312_bin:
+				return "gb2312_bin";
+				break;
+			case self::gb2312_chinese_ci:
+				return "gb2312_chinese_ci";
+				break;
+			case self::gbk_bin:
+				return "gbk_bin";
+				break;
+			case self::gbk_chinese_ci:
+				return "gbk_chinese_ci";
+				break;
+			case self::geostd8_bin:
+				return "geostd8_bin";
+				break;
+			case self::geostd8_general_ci:
+				return "geostd8_general_ci";
+				break;
+			case self::greek_bin:
+				return "greek_bin";
+				break;
+			case self::greek_general_ci:
+				return "greek_general_ci";
+				break;
+			case self::hebrew_bin:
+				return "hebrew_bin";
+				break;
+			case self::hebrew_general_ci:
+				return "hebrew_general_ci";
+				break;
+			case self::hp8_bin:
+				return "hp8_bin";
+				break;
+			case self::hp8_english_ci:
+				return "hp8_english_ci";
+				break;
+			case self::keybcs2_bin:
+				return "keybcs2_bin";
+				break;
+			case self::keybcs2_general_ci:
+				return "keybcs2_general_ci";
+				break;
+			case self::koi8r_bin:
+				return "koi8r_bin";
+				break;
+			case self::koi8r_general_ci:
+				return "koi8r_general_ci";
+				break;
+			case self::koi8u_bin:
+				return "koi8u_bin";
+				break;
+			case self::koi8u_general_ci:
+				return "koi8u_general_ci";
+				break;
+			case self::latin1_bin:
+				return "latin1_bin";
+				break;
+			case self::latin1_danish_ci:
+				return "latin1_danish_ci";
+				break;
+			case self::latin1_general_ci:
+				return "latin1_general_ci";
+				break;
+			case self::latin1_general_cs:
+				return "latin1_general_cs";
+				break;
+			case self::latin1_german1_ci:
+				return "latin1_german1_ci";
+				break;
+			case self::latin1_german2_ci:
+				return "latin1_german2_ci";
+				break;
+			case self::latin1_spanish_ci:
+				return "latin1_spanish_ci";
+				break;
+			case self::latin1_swedish_ci:
+				return "latin1_swedish_ci";
+				break;
+			case self::latin2_bin:
+				return "latin2_bin";
+				break;
+			case self::latin2_croatian_ci:
+				return "latin2_croatian_ci";
+				break;
+			case self::latin2_czech_cs:
+				return "latin2_czech_cs";
+				break;
+			case self::latin2_general_ci:
+				return "latin2_general_ci";
+				break;
+			case self::latin2_hungarian_ci:
+				return "latin2_hungarian_ci";
+				break;
+			case self::latin5_bin:
+				return "latin5_bin";
+				break;
+			case self::latin5_turkish_ci:
+				return "latin5_turkish_ci";
+				break;
+			case self::latin7_bin:
+				return "latin7_bin";
+				break;
+			case self::latin7_estonian_cs:
+				return "latin7_estonian_cs";
+				break;
+			case self::latin7_general_ci:
+				return "latin7_general_ci";
+				break;
+			case self::latin7_general_cs:
+				return "latin7_general_cs";
+				break;
+			case self::macce_bin:
+				return "macce_bin";
+				break;
+			case self::macce_general_ci:
+				return "macce_general_ci";
+				break;
+			case self::macroman_bin:
+				return "macroman_bin";
+				break;
+			case self::macroman_general_ci:
+				return "macroman_general_ci";
+				break;
+			case self::sjis_bin:
+				return "sjis_bin";
+				break;
+			case self::sjis_japanese_ci:
+				return "sjis_japanese_ci";
+				break;
+			case self::swe7_bin:
+				return "swe7_bin";
+				break;
+			case self::swe7_swedish_ci:
+				return "swe7_swedish_ci";
+				break;
+			case self::tis620_bin:
+				return "tis620_bin";
+				break;
+			case self::tis620_thai_ci:
+				return "tis620_thai_ci";
+				break;
+			case self::ucs2_bin:
+				return "ucs2_bin";
+				break;
+			case self::ucs2_czech_ci:
+				return "ucs2_czech_ci";
+				break;
+			case self::ucs2_danish_ci:
+				return "ucs2_danish_ci";
+				break;
+			case self::ucs2_esperanto_ci:
+				return "ucs2_esperanto_ci";
+				break;
+			case self::ucs2_estonian_ci:
+				return "ucs2_estonian_ci";
+				break;
+			case self::ucs2_general_ci:
+				return "ucs2_general_ci";
+				break;
+			case self::ucs2_general_mysql500_ci:
+				return "ucs2_general_mysql500_ci";
+				break;
+			case self::ucs2_hungarian_ci:
+				return "ucs2_hungarian_ci";
+				break;
+			case self::ucs2_icelandic_ci:
+				return "ucs2_icelandic_ci";
+				break;
+			case self::ucs2_latvian_ci:
+				return "ucs2_latvian_ci";
+				break;
+			case self::ucs2_lithuanian_ci:
+				return "ucs2_lithuanian_ci";
+				break;
+			case self::ucs2_persian_ci:
+				return "ucs2_persian_ci";
+				break;
+			case self::ucs2_polish_ci:
+				return "ucs2_polish_ci";
+				break;
+			case self::ucs2_romanian_ci:
+				return "ucs2_romanian_ci";
+				break;
+			case self::ucs2_roman_ci:
+				return "ucs2_roman_ci";
+				break;
+			case self::ucs2_sinhala_ci:
+				return "ucs2_sinhala_ci";
+				break;
+			case self::ucs2_slovak_ci:
+				return "ucs2_slovak_ci";
+				break;
+			case self::ucs2_slovenian_ci:
+				return "ucs2_slovenian_ci";
+				break;
+			case self::ucs2_spanish2_ci:
+				return "ucs2_spanish2_ci";
+				break;
+			case self::ucs2_spanish_ci:
+				return "ucs2_spanish_ci";
+				break;
+			case self::ucs2_swedish_ci:
+				return "ucs2_swedish_ci";
+				break;
+			case self::ucs2_turkish_ci:
+				return "ucs2_turkish_ci";
+				break;
+			case self::ucs2_unicode_ci:
+				return "ucs2_unicode_ci";
+				break;
+			case self::ujis_bin:
+				return "ujis_bin";
+				break;
+			case self::ujis_japanese_ci:
+				return "ujis_japanese_ci";
+				break;
+			case self::utf16_bin:
+				return "utf16_bin";
+				break;
+			case self::utf16_czech_ci:
+				return "utf16_czech_ci";
+				break;
+			case self::utf16_danish_ci:
+				return "utf16_danish_ci";
+				break;
+			case self::utf16_esperanto_ci:
+				return "utf16_esperanto_ci";
+				break;
+			case self::utf16_estonian_ci:
+				return "utf16_estonian_ci";
+				break;
+			case self::utf16_general_ci:
+				return "utf16_general_ci";
+				break;
+			case self::utf16_hungarian_ci:
+				return "utf16_hungarian_ci";
+				break;
+			case self::utf16_icelandic_ci:
+				return "utf16_icelandic_ci";
+				break;
+			case self::utf16_latvian_ci:
+				return "utf16_latvian_ci";
+				break;
+			case self::utf16_lithuanian_ci:
+				return "utf16_lithuanian_ci";
+				break;
+			case self::utf16_persian_ci:
+				return "utf16_persian_ci";
+				break;
+			case self::utf16_polish_ci:
+				return "utf16_polish_ci";
+				break;
+			case self::utf16_romanian_ci:
+				return "utf16_romanian_ci";
+				break;
+			case self::utf16_roman_ci:
+				return "utf16_roman_ci";
+				break;
+			case self::utf16_sinhala_ci:
+				return "utf16_sinhala_ci";
+				break;
+			case self::utf16_slovak_ci:
+				return "utf16_slovak_ci";
+				break;
+			case self::utf16_slovenian_ci:
+				return "utf16_slovenian_ci";
+				break;
+			case self::utf16_spanish2_ci:
+				return "utf16_spanish2_ci";
+				break;
+			case self::utf16_spanish_ci:
+				return "utf16_spanish_ci";
+				break;
+			case self::utf16_swedish_ci:
+				return "utf16_swedish_ci";
+				break;
+			case self::utf16_turkish_ci:
+				return "utf16_turkish_ci";
+				break;
+			case self::utf16_unicode_ci:
+				return "utf16_unicode_ci";
+				break;
+			case self::utf32_bin:
+				return "utf32_bin";
+				break;
+			case self::utf32_czech_ci:
+				return "utf32_czech_ci";
+				break;
+			case self::utf32_danish_ci:
+				return "utf32_danish_ci";
+				break;
+			case self::utf32_esperanto_ci:
+				return "utf32_esperanto_ci";
+				break;
+			case self::utf32_estonian_ci:
+				return "utf32_estonian_ci";
+				break;
+			case self::utf32_general_ci:
+				return "utf32_general_ci";
+				break;
+			case self::utf32_hungarian_ci:
+				return "utf32_hungarian_ci";
+				break;
+			case self::utf32_icelandic_ci:
+				return "utf32_icelandic_ci";
+				break;
+			case self::utf32_latvian_ci:
+				return "utf32_latvian_ci";
+				break;
+			case self::utf32_lithuanian_ci:
+				return "utf32_lithuanian_ci";
+				break;
+			case self::utf32_persian_ci:
+				return "utf32_persian_ci";
+				break;
+			case self::utf32_polish_ci:
+				return "utf32_polish_ci";
+				break;
+			case self::utf32_romanian_ci:
+				return "utf32_romanian_ci";
+				break;
+			case self::utf32_roman_ci:
+				return "utf32_roman_ci";
+				break;
+			case self::utf32_sinhala_ci:
+				return "utf32_sinhala_ci";
+				break;
+			case self::utf32_slovak_ci:
+				return "utf32_slovak_ci";
+				break;
+			case self::utf32_slovenian_ci:
+				return "utf32_slovenian_ci";
+				break;
+			case self::utf32_spanish2_ci:
+				return "utf32_spanish2_ci";
+				break;
+			case self::utf32_spanish_ci:
+				return "utf32_spanish_ci";
+				break;
+			case self::utf32_swedish_ci:
+				return "utf32_swedish_ci";
+				break;
+			case self::utf32_turkish_ci:
+				return "utf32_turkish_ci";
+				break;
+			case self::utf32_unicode_ci:
+				return "utf32_unicode_ci";
+				break;
+			case self::utf8mb4_bin:
+				return "utf8mb4_bin";
+				break;
+			case self::utf8mb4_czech_ci:
+				return "utf8mb4_czech_ci";
+				break;
+			case self::utf8mb4_danish_ci:
+				return "utf8mb4_danish_ci";
+				break;
+			case self::utf8mb4_esperanto_ci:
+				return "utf8mb4_esperanto_ci";
+				break;
+			case self::utf8mb4_estonian_ci:
+				return "utf8mb4_estonian_ci";
+				break;
+			case self::utf8mb4_general_ci:
+				return "utf8mb4_general_ci";
+				break;
+			case self::utf8mb4_hungarian_ci:
+				return "utf8mb4_hungarian_ci";
+				break;
+			case self::utf8mb4_icelandic_ci:
+				return "utf8mb4_icelandic_ci";
+				break;
+			case self::utf8mb4_latvian_ci:
+				return "utf8mb4_latvian_ci";
+				break;
+			case self::utf8mb4_lithuanian_ci:
+				return "utf8mb4_lithuanian_ci";
+				break;
+			case self::utf8mb4_persian_ci:
+				return "utf8mb4_persian_ci";
+				break;
+			case self::utf8mb4_polish_ci:
+				return "utf8mb4_polish_ci";
+				break;
+			case self::utf8mb4_romanian_ci:
+				return "utf8mb4_romanian_ci";
+				break;
+			case self::utf8mb4_roman_ci:
+				return "utf8mb4_roman_ci";
+				break;
+			case self::utf8mb4_sinhala_ci:
+				return "utf8mb4_sinhala_ci";
+				break;
+			case self::utf8mb4_slovak_ci:
+				return "utf8mb4_slovak_ci";
+				break;
+			case self::utf8mb4_slovenian_ci:
+				return "utf8mb4_slovenian_ci";
+				break;
+			case self::utf8mb4_spanish2_ci:
+				return "utf8mb4_spanish2_ci";
+				break;
+			case self::utf8mb4_spanish_ci:
+				return "utf8mb4_spanish_ci";
+				break;
+			case self::utf8mb4_swedish_ci:
+				return "utf8mb4_swedish_ci";
+				break;
+			case self::utf8mb4_turkish_ci:
+				return "utf8mb4_turkish_ci";
+				break;
+			case self::utf8mb4_unicode_ci:
+				return "utf8mb4_unicode_ci";
+				break;
+			case self::utf8_bin:
+				return "utf8_bin";
+				break;
+			case self::utf8_czech_ci:
+				return "utf8_czech_ci";
+				break;
+			case self::utf8_danish_ci:
+				return "utf8_danish_ci";
+				break;
+			case self::utf8_esperanto_ci:
+				return "utf8_esperanto_ci";
+				break;
+			case self::utf8_estonian_ci:
+				return "utf8_estonian_ci";
+				break;
 			case self::utf8_general_ci:
 				return "utf8_general_ci";
+				break;
+			case self::utf8_general_mysql500_ci:
+				return "utf8_general_mysql500_ci";
+				break;
+			case self::utf8_hungarian_ci:
+				return "utf8_hungarian_ci";
+				break;
+			case self::utf8_icelandic_ci:
+				return "utf8_icelandic_ci";
+				break;
+			case self::utf8_latvian_ci:
+				return "utf8_latvian_ci";
+				break;
+			case self::utf8_lithuanian_ci:
+				return "utf8_lithuanian_ci";
+				break;
+			case self::utf8_persian_ci:
+				return "utf8_persian_ci";
+				break;
+			case self::utf8_polish_ci:
+				return "utf8_polish_ci";
+				break;
+			case self::utf8_romanian_ci:
+				return "utf8_romanian_ci";
+				break;
+			case self::utf8_roman_ci:
+				return "utf8_roman_ci";
+				break;
+			case self::utf8_sinhala_ci:
+				return "utf8_sinhala_ci";
+				break;
+			case self::utf8_slovak_ci:
+				return "utf8_slovak_ci";
+				break;
+			case self::utf8_slovenian_ci:
+				return "utf8_slovenian_ci";
+				break;
+			case self::utf8_spanish2_ci:
+				return "utf8_spanish2_ci";
+				break;
+			case self::utf8_spanish_ci:
+				return "utf8_spanish_ci";
+				break;
+			case self::utf8_swedish_ci:
+				return "utf8_swedish_ci";
+				break;
+			case self::utf8_turkish_ci:
+				return "utf8_turkish_ci";
+				break;
+			case self::utf8_unicode_ci:
+				return "utf8_unicode_ci";
 				break;
 			default:
 				return $flag;
