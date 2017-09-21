@@ -53,6 +53,7 @@ try {
 		$mysql_config["mysql"]["port"]
 		);
 	echo $pdo->character_set_name(), "\r\n";
+	$pdo->autocommit(false);
 
 } catch (\Exception $e) {
 	var_dump($e);

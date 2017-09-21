@@ -110,7 +110,8 @@ class PDO
     public function autocommit($auto = true)
     {
         $auto = $auto?1:0;
-        Mysql::query('set autocommit='.$auto);
+        $res = Mysql::query('set autocommit='.$auto);
+        var_dump($res);
     }
     //Starts a transaction
     public function begin_transaction($mode = 0)

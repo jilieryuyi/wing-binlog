@@ -14,6 +14,7 @@ class Mysql
 {
     public static $rows_affected  = 0;
     public static $last_insert_id = 0;
+    public static $debug = true;
 
 	public static function query($sql)
     {
@@ -26,7 +27,10 @@ class Mysql
 		//这里可能是三种类型的报文 Result set、Field和Row Data
         //以下解析 Result set
 		if ($fbyte >= Packet::RESULT_SET_HEAD[0] && $fbyte <= Packet::RESULT_SET_HEAD[1]) {
-            //列数量
+            if (self::$debug) {
+            	var_dump("Result set");
+			}
+			//列数量
 		    $column_num = $fbyte;
 
 		    /**
@@ -108,6 +112,9 @@ class Mysql
         }
 
         else if ($fbyte == Packet::OK_PACK_HEAD) {
+			if (self::$debug) {
+				var_dump("OK报文");
+			}
 		    //1byte 0x00 OK报文 恒定为0x00
             //1-9bytes 受影响的行数
             //1-9bytes 索引id，执行多个insert时，默认是第一个
@@ -141,6 +148,7 @@ class Mysql
 
             //db 状态
             $server_status = $packet->readUint16();
+            var_dump($server_status);
 
             //var_dump(self::$rows_affected,self::$last_insert_id, $server_status);
 
@@ -148,6 +156,7 @@ class Mysql
         }
 
         else if ($fbyte == Packet::ERR_PACK_HEAD) {
+			var_dump("Error报文");
 		    //1byte Error报文 恒定为0xff
             //2bytes 错误编号，小字节序
             //1byte 服务器状态标志，恒为#字符
