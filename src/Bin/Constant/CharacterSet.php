@@ -208,9 +208,6 @@ class CharacterSet
 	public static function getCharacterSet($flag)
 	{
 		switch ($flag) {
-//			case self::utf8_general_ci:
-//				return "utf8_general_ci";
-//				break;
 			case self::armscii8_bin:
 				return "armscii8_bin";
 				break;
