@@ -54,6 +54,7 @@ try {
 		);
 	echo $pdo->character_set_name(), "\r\n";
 	$pdo->autocommit(false);
+	var_dump(\Wing\Bin\Mysql::query('select @@autocommit'));
 
 } catch (\Exception $e) {
 	var_dump($e);
