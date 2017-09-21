@@ -15,8 +15,11 @@ class ServerInfo
 	mysql-server/config.h.cmake 399
 	*/
     public $protocol_version = '';
-    //mysql-server/include/mysql_version.h.in 12行
-	//mysql-server/cmake/mysql_version.cmake 59行
+    /**
+	 * @var string $server_info
+	 * mysql-server/include/mysql_version.h.in 12行
+	 * mysql-server/cmake/mysql_version.cmake 59行
+	 */
 	public $server_info = '';
 	public $character_set = '';
 	public $salt = '';

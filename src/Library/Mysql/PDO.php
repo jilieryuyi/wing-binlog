@@ -12,14 +12,33 @@ use Wing\Bin\Mysql;
  */
 class PDO
 {
-	public $protocol_version;//(){}//Returns the version of the MySQL protocol used
-	public $server_info;//(){}//Returns the version of the MySQL server
+	/*
+	 * @var int $protocol_version
+	 * Returns the version of the MySQL protocol used
+	 * 服务协议版本号：该值由 PROTOCOL_VERSION
+	 * 宏定义决定（参考MySQL源代码/include/mysql_version.h头文件定义）
+	 * mysql-server/config.h.cmake 399
+	 */
+	public $protocol_version;
+	/**
+	 * @var string $server_info like 5.7.17-log
+	 * Returns the version of the MySQL server
+	 * mysql-server/include/mysql_version.h.in 12行
+	 * mysql-server/cmake/mysql_version.cmake 59行
+	 */
+	public $server_info;
+	/**
+	 * @var int $server_version like 50717
+	 * Returns the version of the MySQL server as an integer
+	 * == main_version*10000 + minor_version *100 + sub_version
+     */
+	public $server_version;
+
 	private $character_set = '';
 	public $salt = '';
 	public $thread_id;//(){}//Returns the thread ID for the current connection
 	public $auth_plugin_name = '';
 	public $capability_flag;
-	public $server_version;//(){}//Returns the version of the MySQL server as an integer
 
 	public $affected_rows;
     public $client_info;//Get MySQL client info
