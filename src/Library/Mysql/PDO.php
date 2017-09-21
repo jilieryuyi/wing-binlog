@@ -107,12 +107,18 @@ class PDO
 		return CharacterSet::getCharacterSet($this->character_set);
 	}
 
+	/**
+	 * set autocommit
+	 *
+	 * @param bool $auto
+	 * @return bool
+	 */
     public function autocommit($auto = true)
     {
         $auto = $auto?1:0;
-        $res = Mysql::query('set autocommit='.$auto);
-        var_dump($res);
+        return Mysql::query('set autocommit='.$auto);
     }
+
     //Starts a transaction
     public function begin_transaction($mode = 0)
     {

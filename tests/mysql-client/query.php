@@ -52,7 +52,10 @@ try {
 		$mysql_config["mysql"]["db_name"],
 		$mysql_config["mysql"]["port"]
 		);
+	//test ok
 	echo $pdo->character_set_name(), "\r\n";
+
+	//test ok
 	$pdo->autocommit(false);
 	var_dump(\Wing\Bin\Mysql::query('select @@autocommit'));
 

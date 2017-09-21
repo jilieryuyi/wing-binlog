@@ -14,6 +14,7 @@ class Mysql
 {
     public static $rows_affected  = 0;
     public static $last_insert_id = 0;
+    public static $server_status;
     public static $debug = true;
 
 	public static function query($sql)
@@ -147,8 +148,8 @@ class Mysql
             self::$last_insert_id = $packet->getLength();
 
             //db 状态
-            $server_status = $packet->readUint16();
-            var_dump($server_status);
+            self::$server_status = $packet->readUint16();
+            //var_dump($server_status);
 
             //var_dump(self::$rows_affected,self::$last_insert_id, $server_status);
 
