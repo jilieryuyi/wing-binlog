@@ -41,21 +41,6 @@ class PDO
     //Open a new connection to the MySQL server
     public function __construct($host, $username, $passwd, $dbname, $port = 3306)
     {
-//        $context        = new \Wing\Bin\Context();
-//        $pdo            = new \Wing\Library\PDO();
-//
-//        $context->pdo       = \Wing\Bin\Db::$pdo = $pdo;
-//        $context->host      = $host;//$mysql_config["mysql"]["host"];
-//        $context->db_name   = $dbname;//$mysql_config["mysql"]["db_name"];
-//        $context->user      = $username;//$mysql_config["mysql"]["user"];
-//        $context->password  = $passwd;//$mysql_config["mysql"]["password"];
-//        $context->port      = $port;//$mysql_config["mysql"]["port"];
-//        $context->checksum  = !!\Wing\Bin\Db::getChecksum();
-//
-//        $context->slave_server_id   = 9999;//$mysql_config["slave_server_id"];
-//        $context->last_binlog_file  = null;
-//        $context->last_pos          = 0;
-
 		/**
 		 * @var ServerInfo $server_info
 		 */
@@ -63,25 +48,29 @@ class PDO
         list($this->socket, $server_info) = \Wing\Bin\Auth\Auth::execute($host,$username,$passwd, $dbname, $port);
         $this->autocommit(true);
 
-//		public $auth_plugin_name = '';
-//		public $capability_flag;
 		$this->protocol_version = $server_info->protocol_version;
-		$this->server_info = $server_info->server_info;
-		$this->thread_id = $server_info->thread_id;
-		$this->character_set = $server_info->character_set;
-		$this->salt = $server_info->salt;
+		$this->server_info 		= $server_info->server_info;
+		$this->thread_id 		= $server_info->thread_id;
+		$this->character_set 	= $server_info->character_set;
+		$this->salt 			= $server_info->salt;
 		$this->auth_plugin_name = $server_info->auth_plugin_name;
-		$this->capability_flag = $server_info->capability_flag;
-		var_dump($server_info);
+		$this->capability_flag 	= $server_info->capability_flag;
 
 		//main_version*10000 + minor_version *100 + sub_version
 		list($main_version, $minor_version, $sub_version) = explode(".", $this->server_info);
 		$sub_version = preg_replace("/\D/","", $sub_version);
 		$this->server_version = $main_version*10000 + $minor_version *100 + $sub_version;
-
-		var_dump($this);
-
     }
+
+	/**
+	 * Returns the default character set for the database connection
+	 *
+	 * @return string like "utf8_general_ci"
+	 */
+	public function character_set_name()
+	{
+		return CharacterSet::getCharacterSet($this->character_set);
+	}
 
     public function autocommit($auto = true)
     {
@@ -116,15 +105,7 @@ class PDO
 
     }
 
-	/**
-	 * Returns the default character set for the database connection
-	 *
-	 * @return string like "utf8_general_ci"
-	 */
-	public function character_set_name()
-	{
-		return CharacterSet::getCharacterSet($this->character_set);
-	}
+
 
     public function close(){}//Closes a previously opened database connection
     public function commit(){}//Commits the current transaction

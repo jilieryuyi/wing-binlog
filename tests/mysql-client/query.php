@@ -52,6 +52,7 @@ try {
 		$mysql_config["mysql"]["db_name"],
 		$mysql_config["mysql"]["port"]
 		);
+	echo $pdo->character_set_name(), "\r\n";
 
 } catch (\Exception $e) {
 	var_dump($e);
