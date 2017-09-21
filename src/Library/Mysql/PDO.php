@@ -34,9 +34,17 @@ class PDO
      */
 	public $server_version;
 
+	/**
+	 * @var int $character_set
+	 * define int Binlog/src/Bin/Constant/CharacterSet.php
+	 */
 	private $character_set = '';
 	public $salt = '';
-	public $thread_id;//(){}//Returns the thread ID for the current connection
+	/**
+	 * @var int $thread_id
+	 * Returns the thread ID for the current connection\
+	 */
+	public $thread_id;
 	public $auth_plugin_name = '';
 	public $capability_flag;
 
