@@ -15,13 +15,12 @@ class Mysql
     public static $rows_affected  = 0;
     public static $last_insert_id = 0;
     public static $server_status;
-    public static $debug = true;
+    public static $debug = false;
 
     public static function close()
 	{
 		//COM_QUIT
-		$chunk_size = 1;
-		$packet =  pack('LC',$chunk_size, CommandType::COM_QUIT);
+		$packet =  pack('VC',1, CommandType::COM_QUIT);
 		return Net::send($packet);
 	}
 
@@ -528,8 +527,16 @@ class Mysql
             unset($packet, $res);
             $rows[] = $row;
         }
-        var_dump($rows);
-        //return $rows;
+
+        //COM_CLOSE_STMT 释放预处理资源
+		$data  = pack('C', CommandType::COM_STMT_CLOSE);
+		//4字节预处理语句的ID值
+		$data .= pack("V", $smtid);
+		$packet = pack('V',strlen($data)).$data;
+		Net::send($packet);
+
+        //var_dump($rows);
+        return $rows;
         //这里得到响应结果
         //var_dump($res);
 

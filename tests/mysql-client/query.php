@@ -45,6 +45,7 @@ try {
     'select * from wp_posts where id=?', [12]);
 
     var_dump($res);*/
+	\Wing\Bin\Mysql::$debug = true;
 	$pdo = new \Wing\Library\Mysql\PDO(
 		$mysql_config["mysql"]["host"],
 		$mysql_config["mysql"]["user"],
@@ -55,9 +56,16 @@ try {
 	//test ok
 	echo $pdo->character_set_name(), "\r\n";
 
+	//close 后，后面再执行sql相关的东西，直接抛出异常了，说明关闭正常
+	//\Wing\Bin\Mysql::close();
+
 	//test ok
 	$pdo->autocommit(false);
+	//设置automit false之后，后面查询的值为0，设置为true以后，后面查询的值为1，说明正确
 	var_dump(\Wing\Bin\Mysql::query('select @@autocommit'));
+
+	//预处理查询 ok
+	var_dump(\Wing\Bin\Mysql::execute('select * from wp_posts where id=?', [12]));
 
 } catch (\Exception $e) {
 	var_dump($e);
