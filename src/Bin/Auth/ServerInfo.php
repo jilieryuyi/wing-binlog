@@ -52,63 +52,46 @@ class ServerInfo
 		$length = strlen($pack);
 		//1byte协议版本号
        	$this->protocol_version = ord($pack[$i]);
-        $i++;
 
-        //version
-        $start = $i;
         //服务器版本信息 以null(0x00)结束
-        for ($i = $start; $i < $length; $i++) {
-            if ($pack[$i] === chr(0)) {
-                $i++;
-                break;
-            } else {
-               $this->server_info .= $pack[$i];
-            }
-        }
+        while ($pack[$i++] !== chr(0x00)) {
+			$this->server_info .= $pack[$i];
+		}
 
         //thread_id 4 bytes 线程id
-       	$this->thread_id = unpack("V", $pack[$i]. $pack[++$i] .
-			$pack[++$i] . $pack[++$i])[1];
-        $i++;
+       	$this->thread_id = unpack("V", substr($pack, $i, 4))[1];
+        $i+=4;
 
 		//8bytes加盐信息 用于握手认证
-        for ($j = $i; $j < $i + 8; $j++) {
-           	$this->salt .= $pack[$j];
-        }
+		$this->salt .= substr($pack,$i,8);//;[$j];
         $i = $i + 8;
 
         //1byte填充值 -- 0x00
         $i++;
 
-        //capability_flag_1 (2) -- lower 2 bytes of the Protocol::CapabilityFlags (optional)
-        //2bytes服务器权能信息
+        //2bytes 低位服务器权能信息
 		$this->capability_flag = $pack[$i]. $pack[$i+1];
         $i = $i + 2;
 
-
-        //character_set (1) -- default server character-set, only the lower 8-bits Protocol::CharacterSet (optional)
        	//1byte字符编码
 		$this->character_set = ord($pack[$i]);
 
         $i++;
 
-        //status_flags (2) -- Protocol::StatusFlags (optional)
         //2byte服务器状态
 		//SERVER_STATUS_AUTOCOMMIT == 2
 		$this->server_status = unpack("v", $pack[$i].$pack[$i+1])[1];
 		$i = $i + 2;
 
-        //capability_flags_2 (2) -- upper 2 bytes of the Protocol::CapabilityFlags
         //服务器权能标志 高16位
 		$this->capability_flag = unpack("V", $this->capability_flag.$pack[$i]. $pack[$i+1])[1];
 		$i = $i + 2;
 
-
-        //auth_plugin_data_len (1) -- length of the combined auth_plugin_data, if auth_plugin_data_len is > 0
         //1byte加盐长度
 		$salt_len = ord($pack[$i]);
         $i++;
 
+        //mysql-server/sql/auth/sql_authentication.cc 2696 native_password_authenticate
         $salt_len = max(12, $salt_len - 9);
 
         //10bytes填充值 0x00
