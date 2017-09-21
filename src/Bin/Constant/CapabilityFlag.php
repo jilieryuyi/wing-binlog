@@ -67,4 +67,38 @@ class CapabilityFlag
             self::CLIENT_PROTOCOL_41 |
 			self::CLIENT_SECURE_CONNECTION
 		);
+
+
+	const CLIENT_ALL_FLAGS = (self::CLIENT_LONG_PASSWORD
+							| self::CLIENT_FOUND_ROWS
+							| self::CLIENT_LONG_FLAG
+							| self::CLIENT_CONNECT_WITH_DB
+							| self::CLIENT_NO_SCHEMA
+							| self::CLIENT_COMPRESS
+							| self::CLIENT_ODBC
+							| self::CLIENT_LOCAL_FILES
+							| self::CLIENT_IGNORE_SPACE
+							| self::CLIENT_PROTOCOL_41
+							| self::CLIENT_INTERACTIVE
+							| self::CLIENT_SSL
+							| self::CLIENT_IGNORE_SIGPIPE
+							| self::CLIENT_TRANSACTIONS
+							| self::CLIENT_RESERVED
+							| self::CLIENT_RESERVED2
+							| self::CLIENT_MULTI_STATEMENTS
+							| self::CLIENT_MULTI_RESULTS
+							| self::CLIENT_PS_MULTI_RESULTS
+							| self::CLIENT_SSL_VERIFY_SERVER_CERT
+							| self::CLIENT_REMEMBER_OPTIONS
+							| self::CLIENT_PLUGIN_AUTH
+							| self::CLIENT_CONNECT_ATTRS
+							| self::CLIENT_PLUGIN_AUTH_LENENC_CLIENT_DATA
+							| self::CLIENT_CAN_HANDLE_EXPIRED_PASSWORDS
+							| self::CLIENT_SESSION_TRACK
+							| self::CLIENT_DEPRECATE_EOF
+								);
+	const CLIENT_BASIC_FLAGS = (((self::CLIENT_ALL_FLAGS & ~self::CLIENT_SSL)
+							& ~self::CLIENT_COMPRESS)
+							& ~self::CLIENT_SSL_VERIFY_SERVER_CERT);
+
 }

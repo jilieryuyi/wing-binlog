@@ -22,7 +22,7 @@ $start = time();
 
 try {
 	$mysql_config   = load_config("app");
-	$context        = new \Wing\Bin\Context();
+	/*$context        = new \Wing\Bin\Context();
 	$pdo            = new \Wing\Library\PDO();
 
 	$context->pdo       = \Wing\Bin\Db::$pdo = $pdo;
@@ -44,7 +44,15 @@ try {
         //'INSERT INTO xsl.`x_logs`(`id`,`module_name`,`message`) VALUES (999998, "test","test")');//
     'select * from wp_posts where id=?', [12]);
 
-    var_dump($res);
+    var_dump($res);*/
+	$pdo = new \Wing\Library\Mysql\PDO(
+		$mysql_config["mysql"]["host"],
+		$mysql_config["mysql"]["user"],
+		$mysql_config["mysql"]["password"],
+		$mysql_config["mysql"]["db_name"],
+		$mysql_config["mysql"]["port"]
+		);
+
 } catch (\Exception $e) {
 	var_dump($e);
 }

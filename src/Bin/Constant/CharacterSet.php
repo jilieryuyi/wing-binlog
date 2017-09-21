@@ -204,4 +204,15 @@ class CharacterSet
     const utf8_swedish_ci          = 200;//["id" => 200, "character_set" =>"utf8"     ];
     const utf8_turkish_ci          = 201;//["id" => 201, "character_set" =>"utf8"     ];
     const utf8_unicode_ci          = 192;//["id" => 192, "character_set" =>"utf8"     ];
+
+	public static function getCharacterSet($flag)
+	{
+		switch ($flag) {
+			case self::utf8_general_ci:
+				return "utf8_general_ci";
+				break;
+			default:
+				return $flag;
+		}
+	}
 }

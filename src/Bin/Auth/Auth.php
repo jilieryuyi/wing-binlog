@@ -12,11 +12,12 @@ use Wing\Bin\Packet;
  */
 class Auth
 {
-//	private static $socket;
+	private static $socket;
 //	private static $pdo;
 //	private static $checksum;
 
-	public static function execute(Context &$context)
+	//Context &$context
+	public static function execute($host, $user, $password, $db_name, $port)
 	{
 		if (($socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP)) == false) {
 			throw new \Exception(sprintf("Unable to create a socket: %s", socket_strerror(socket_last_error())));
@@ -28,7 +29,7 @@ class Auth
 		//socket_set_option($this->socket, SOL_SOCKET,SO_RCVTIMEO, ['sec' => 2, 'usec' => 5000]);
 
 		//连接到mysql
-		if(!socket_connect($socket, $context->host, $context->port)) {
+		if(!socket_connect($socket, $host, $port)) {
 			throw new \Exception(
 				sprintf(
 					'error:%s, msg:%s',
@@ -38,8 +39,9 @@ class Auth
 			);
 		}
 
-		$context->socket = Net::$socket = $socket;
-		self::auth($context->user, $context->password, $context->db_name);
+		self::$socket = Net::$socket = $socket;
+		$serverinfo = self::auth($user, $password, $db_name);
+		return [self::$socket, $serverinfo];
 	}
 
 	private static function auth($user, $password, $db)
@@ -54,10 +56,10 @@ class Auth
 		// 获取server信息 加密salt
 		$pack   	 = Net::readPacket();
 		$server_info = ServerInfo::parse($pack);
-var_dump("capability_flag", $server_info->capability_flag);
+//var_dump("capability_flag", $server_info->capability_flag);
 
         //希望的服务器权能信息
-        $flag = CapabilityFlag::DEFAULT_CAPABILITIES | $server_info->capability_flag;
+        $flag = CapabilityFlag::DEFAULT_CAPABILITIES;//| CapabilityFlag::CLIENT_SECURE_CONNECTION ;//| $server_info->capability_flag;
         if ($db) {
             $flag |= CapabilityFlag::CLIENT_CONNECT_WITH_DB;
         }
@@ -69,5 +71,6 @@ var_dump("capability_flag", $server_info->capability_flag);
 		$result = Net::readPacket();
 		// 认证是否成功
 		Packet::success($result);
+		return $server_info;
 	}
 }
