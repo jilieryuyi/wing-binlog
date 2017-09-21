@@ -17,6 +17,14 @@ class Mysql
     public static $server_status;
     public static $debug = true;
 
+    public static function close()
+	{
+		//COM_QUIT
+		$chunk_size = 1;
+		$packet =  pack('LC',$chunk_size, CommandType::COM_QUIT);
+		return Net::send($packet);
+	}
+
 	public static function query($sql)
     {
 		$packet = Packet::query($sql);

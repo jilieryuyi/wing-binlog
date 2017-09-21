@@ -1,4 +1,5 @@
 <?php namespace Wing\Library\Mysql;
+use Wing\Bin\Auth\Auth;
 use Wing\Bin\Auth\ServerInfo;
 use Wing\Bin\Constant\CharacterSet;
 use Wing\Bin\Constant\Trans;
@@ -96,6 +97,13 @@ class PDO
 		$sub_version = preg_replace("/\D/","", $sub_version);
 		$this->server_version = $main_version*10000 + $minor_version *100 + $sub_version;
     }
+
+    public function __destruct()
+	{
+		$res = Mysql::close();
+		Auth::free();
+		return $res;
+	}
 
 	/**
 	 * Returns the default character set for the database connection

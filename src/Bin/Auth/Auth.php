@@ -73,4 +73,10 @@ class Auth
 		Packet::success($result);
 		return $server_info;
 	}
+
+	public static function free()
+	{
+		socket_close(self::$socket);
+
+	}
 }
