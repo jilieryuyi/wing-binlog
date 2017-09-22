@@ -17,6 +17,63 @@ use Wing\Bin\Constant\CommandType;
  *  252	    2	后续额外2个字节标识了数据的真实长度
  *  253	    3	后续额外3个字节标识了数据的真实长度
  *  254	    8	后续额外8个字节标识了数据的真实长度
+ *
+ *
+/**
+Return OK to the client.
+
+The OK packet has the following structure:
+
+Here 'n' denotes the length of state change information.
+
+Bytes                Name
+-----                ----
+1                    [00] or [FE] the OK header
+[FE] is used as header for result set rows
+1-9 (lenenc-int)     affected rows
+1-9 (lenenc-int)     last-insert-id
+
+if capabilities & CLIENT_PROTOCOL_41 {
+2                  status_flags; Copy of thd->server_status; Can be used
+by client to check if we are inside a transaction.
+2                  warnings (New in 4.1 protocol)
+} elseif capabilities & CLIENT_TRANSACTIONS {
+2                  status_flags
+}
+
+if capabilities & CLIENT_ACCEPTS_SERVER_STATUS_CHANGE_INFO {
+1-9(lenenc_str)    info (message); Stored as length of the message string +
+message.
+if n > 0 {
+1-9 (lenenc_int) total length of session state change
+information to follow (= n)
+n                session state change information
+}
+}
+else {
+string[EOF]          info (message); Stored as packed length (1-9 bytes) +
+message. Is not stored if no message.
+}
+
+ *
+ *
+ *
+ *
+ *
+ *
+ *  Send eof (= end of result set) to the client.
+
+The eof packet has the following structure:
+
+- 254           : Marker (1 byte)
+- warning_count : Stored in 2 bytes; New in 4.1 protocol
+- status_flag   : Stored in 2 bytes;
+For flags like SERVER_MORE_RESULTS_EXISTS.
+
+Note that the warning count will not be sent if 'no_flush' is set as
+we don't want to report the warning count until all data is sent to the
+client.
+
  */
 class Packet
 {

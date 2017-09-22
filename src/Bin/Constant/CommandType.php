@@ -6,7 +6,7 @@
  * Time: 07:05
  * 用于标识当前请求消息的类型，例如切换数据库（0x02）、查询命令（0x03）等。
  * 命令值的取值范围及说明如下表
- * （参考MySQL源代码/include/mysql_com.h头文件中的定义）
+ * （参考MySQL源代码mysql-server/include/my_command.h头文件中的定义）
  * 类型值	命令	功能	关联函数
 	0x00	COM_SLEEP	（内部线程状态）	（无）
 	0x01	COM_QUIT	关闭连接	mysql_close

@@ -277,25 +277,6 @@ class Mysql
             //COM_STMT_PREPARE --- end ---
         }
 
-
-
-
-        //mysql-server/libmysql/libmysql.c 4819
-		//COM_CLOSE_STMT 释放预处理资源
-		/*$data  = pack('C', CommandType::COM_STMT_CLOSE);
-		//4字节预处理语句的ID值
-		$data .= pack("V", $smtid);
-		$packet = pack("V",strlen($data)).$data;
-		Net::send($packet);
-
-		$res = Net::readPacket();
-		var_dump($res);
-		exit;*/
-
-
-
-
-
         /**
         字节	说明
         4	预处理语句的ID值
@@ -540,6 +521,19 @@ class Mysql
             $rows[] = $row;
         }
 
+
+		//mysql-server/sql/protocol_classic.cc 904
+		//mysql-server/libmysql/libmysql.c 4819
+		//COM_CLOSE_STMT 释放预处理资源
+		$data  = pack('C', CommandType::COM_STMT_CLOSE);
+		//4字节预处理语句的ID值
+		$data .= pack("V", $smtid);
+		//$data = pack("V", 5).$data;
+		Net::send(pack("V", 5).$data);
+
+		$res = Net::readPacket();
+		var_dump($res);
+		exit;
 
         return $rows;
         //这里得到响应结果
