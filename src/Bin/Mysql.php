@@ -525,11 +525,12 @@ class Mysql
 		//mysql-server/sql/protocol_classic.cc 904
 		//mysql-server/libmysql/libmysql.c 4819
 		//COM_CLOSE_STMT 释放预处理资源
-		$data  = pack('C', CommandType::COM_STMT_CLOSE);
-		//4字节预处理语句的ID值
-		$data .= pack("V", $smtid);
+		$data  = pack('VCV', 5,CommandType::COM_STMT_CLOSE, $smtid);
+		(new Packet($data))->debugDump();
+        //4字节预处理语句的ID值
+//		$data .= pack("V", $smtid);
 		//$data = pack("V", 5).$data;
-		Net::send(pack("V", 5).$data);
+		Net::send($data);
 
 		$res = Net::readPacket();
 		var_dump($res);
