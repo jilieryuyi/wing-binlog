@@ -144,14 +144,9 @@ class PDO
 	 */
     public function begin_transaction($mode = Trans::NO_OPT, $name = '')
     {
-        $sql = 'START TRANSACTION';
-
-        if ($name) {
-        	//mysql-server/mysys/charset.c  777 需要过滤
-        	$sql .= ' '.$this->real_escape_string($name);
-		}
-
+		$sql = '';
         if ($mode & Trans::WITH_CONSISTENT_SNAPSHOT) {
+        	if ($sql) $sql .= ',';
            $sql .=" WITH CONSISTENT SNAPSHOT";
         }
 
@@ -159,16 +154,27 @@ class PDO
 		if ( $this->server_version >= 50605) {
 			if ($mode & (Trans::READ_WRITE | Trans::READ_ONLY)) {
 				if ($mode & Trans::READ_WRITE) {
-					$sql .= ", READ WRITE";
+					if ($sql) $sql .= ',';
+					$sql .= " READ WRITE";
 				} else if ($mode & Trans::READ_ONLY) {
-					$sql .= ", READ ONLY";
+					if ($sql) $sql .= ',';
+					$sql .= " READ ONLY";
 				}
 			}
 		}
 
-//        echo $sql;
+		$parse_sql = 'START TRANSACTION';
+
+		if ($name) {
+			//mysql-server/mysys/charset.c  777 需要过滤
+			$parse_sql .= ' '.$this->real_escape_string($name);
+		}
+
+		$parse_sql .= $sql;
+
+        echo $parse_sql;
         $this->autocommit(false);
-        return Mysql::query($sql);
+        return Mysql::query($parse_sql);
     }
 
     //Changes the user of the specified database connection

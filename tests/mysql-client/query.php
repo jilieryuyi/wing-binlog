@@ -71,7 +71,8 @@ try {
 	//开启事务
 	var_dump($pdo->begin_transaction(
 		\Wing\Bin\Constant\Trans::WITH_CONSISTENT_SNAPSHOT |
-		\Wing\Bin\Constant\Trans::READ_ONLY
+		\Wing\Bin\Constant\Trans::READ_ONLY|
+		\Wing\Bin\Constant\Trans::READ_WRITE
 	));
 
 } catch (\Exception $e) {
