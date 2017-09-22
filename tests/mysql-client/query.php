@@ -64,8 +64,15 @@ try {
 	//设置automit false之后，后面查询的值为0，设置为true以后，后面查询的值为1，说明正确
 	var_dump(\Wing\Bin\Mysql::query('select @@autocommit'));
 
+
 	//预处理查询 ok
-	var_dump(\Wing\Bin\Mysql::execute('select * from wp_posts where id=?', [12]));
+//	var_dump(\Wing\Bin\Mysql::execute('select * from wp_posts where id=?', [12]));
+
+	//开启事务
+	var_dump($pdo->begin_transaction(
+		\Wing\Bin\Constant\Trans::WITH_CONSISTENT_SNAPSHOT |
+		\Wing\Bin\Constant\Trans::READ_ONLY
+	));
 
 } catch (\Exception $e) {
 	var_dump($e);

@@ -126,6 +126,7 @@ class PDO
 	/**
 	 * set autocommit
 	 *
+	 * @throws \Exception
 	 * @param bool $auto
 	 * @return bool
 	 */
@@ -135,26 +136,39 @@ class PDO
         return Mysql::query('set autocommit='.$auto);
     }
 
-    //Starts a transaction
-    public function begin_transaction($mode = 0)
+    /**
+	 * Starts a transaction
+	 *
+	 * @param int $mode
+	 * @param string $name Savepoint name for the transaction.
+	 */
+    public function begin_transaction($mode = Trans::NO_OPT, $name = '')
     {
         $sql = 'START TRANSACTION';
+
+        if ($name) {
+        	//mysql-server/mysys/charset.c  777 需要过滤
+        	$sql .= ' '.$this->real_escape_string($name);
+		}
 
         if ($mode & Trans::WITH_CONSISTENT_SNAPSHOT) {
            $sql .=" WITH CONSISTENT SNAPSHOT";
         }
 
         //5.6.5之前的版本不支持
-        if ($mode & (Trans::READ_WRITE | Trans::READ_ONLY)) {
-            if ($mode & Trans::READ_WRITE) {
-                $sql .= " READ WRITE";
-            } else if ($mode & Trans::READ_ONLY) {
-                $sql .= " READ ONLY";
-            }
-        }
+		if ( $this->server_version >= 50605) {
+			if ($mode & (Trans::READ_WRITE | Trans::READ_ONLY)) {
+				if ($mode & Trans::READ_WRITE) {
+					$sql .= ", READ WRITE";
+				} else if ($mode & Trans::READ_ONLY) {
+					$sql .= ", READ ONLY";
+				}
+			}
+		}
 
+//        echo $sql;
         $this->autocommit(false);
-        Mysql::query($sql);
+        return Mysql::query($sql);
     }
 
     //Changes the user of the specified database connection
@@ -162,7 +176,7 @@ class PDO
     {
 
     }
-	
+
 	//Commits the current transaction
     public function commit()
 	{
@@ -187,7 +201,10 @@ class PDO
     public function prepare(){}//Prepare an SQL statement for execution
     public function query(){}//Performs a query on the database
     public function real_connect(){}//Opens a connection to a mysql server
-    public function real_escape_string(){}//Escapes special characters in a string for use in an SQL statement, taking into account the current charset of the connection
+    public function real_escape_string($str){
+		//mysql-server/mysys/charset.c  777 需要过滤
+		return $str;
+	}//Escapes special characters in a string for use in an SQL statement, taking into account the current charset of the connection
     public function real_query(){}//Execute an SQL query
     public function reap_async_query(){}//Get result from async query
     public function refresh(){}//Refreshes
