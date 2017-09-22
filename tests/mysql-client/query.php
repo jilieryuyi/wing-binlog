@@ -66,13 +66,13 @@ try {
 
 
 	//预处理查询 ok
-//	var_dump(\Wing\Bin\Mysql::execute('select * from wp_posts where id=?', [12]));
+	var_dump(\Wing\Bin\Mysql::execute('select * from wp_posts where id=?', [12]));
 
 	//开启事务
 	var_dump($pdo->begin_transaction(
-		\Wing\Bin\Constant\Trans::WITH_CONSISTENT_SNAPSHOT |
-		\Wing\Bin\Constant\Trans::READ_ONLY|
-		\Wing\Bin\Constant\Trans::READ_WRITE
+//		\Wing\Bin\Constant\Trans::WITH_CONSISTENT_SNAPSHOT |
+//		\Wing\Bin\Constant\Trans::READ_ONLY|
+//		\Wing\Bin\Constant\Trans::READ_WRITE
 	));
 
 } catch (\Exception $e) {

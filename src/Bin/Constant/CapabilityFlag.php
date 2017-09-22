@@ -66,6 +66,7 @@ class CapabilityFlag
 			self::CLIENT_TRANSACTIONS |
             self::CLIENT_PROTOCOL_41 |
 			self::CLIENT_SECURE_CONNECTION
+			| self::CLIENT_MULTI_RESULTS /* needed for mysql_multi_query() */
 		);
 
 
