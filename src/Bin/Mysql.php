@@ -280,6 +280,18 @@ class Mysql
 
 
 
+        //mysql-server/libmysql/libmysql.c 4819
+		//COM_CLOSE_STMT 释放预处理资源
+		/*$data  = pack('C', CommandType::COM_STMT_CLOSE);
+		//4字节预处理语句的ID值
+		$data .= pack("V", $smtid);
+		$packet = pack("V",strlen($data)).$data;
+		Net::send($packet);
+
+		$res = Net::readPacket();
+		var_dump($res);
+		exit;*/
+
 
 
 
@@ -528,14 +540,7 @@ class Mysql
             $rows[] = $row;
         }
 
-        //COM_CLOSE_STMT 释放预处理资源
-		$data  = pack('C', CommandType::COM_STMT_CLOSE);
-		//4字节预处理语句的ID值
-		$data .= pack("V", $smtid);
-		$packet = pack('V',strlen($data)).$data;
-		Net::send($packet);
 
-        //var_dump($rows);
         return $rows;
         //这里得到响应结果
         //var_dump($res);

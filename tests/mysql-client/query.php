@@ -59,21 +59,24 @@ try {
 	//close 后，后面再执行sql相关的东西，直接抛出异常了，说明关闭正常
 	//\Wing\Bin\Mysql::close();
 
-	//test ok
-	$pdo->autocommit(false);
-	//设置automit false之后，后面查询的值为0，设置为true以后，后面查询的值为1，说明正确
-	var_dump(\Wing\Bin\Mysql::query('select @@autocommit'));
 
 
 	//预处理查询 ok
 	var_dump(\Wing\Bin\Mysql::execute('select * from wp_posts where id=?', [12]));
 
+
+	//test ok
+//	$pdo->autocommit(false);
+//	//设置automit false之后，后面查询的值为0，设置为true以后，后面查询的值为1，说明正确
+//	var_dump(\Wing\Bin\Mysql::query('select @@autocommit'));
+
+
 	//开启事务
-	var_dump($pdo->begin_transaction(
+	//var_dump($pdo->begin_transaction(
 //		\Wing\Bin\Constant\Trans::WITH_CONSISTENT_SNAPSHOT |
 //		\Wing\Bin\Constant\Trans::READ_ONLY|
 //		\Wing\Bin\Constant\Trans::READ_WRITE
-	));
+	//));
 
 } catch (\Exception $e) {
 	var_dump($e);
