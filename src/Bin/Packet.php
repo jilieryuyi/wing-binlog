@@ -280,11 +280,11 @@ class Packet
         $data = unpack("C3", $res[0].$res[1].$res[2]);//[1];
         return $data[1] + ($data[2] << 8) + ($data[3] << 16);
     }
-    public function readUint64()
-    {
-        $res = $this->read(8);
-        return unpack("P", $res)[1];
-    }
+//    public function readUint64()
+//    {
+//        $res = $this->read(8);
+//        return unpack("P", $res)[1];
+//    }
     public function readDatetime()
     {
         /**
@@ -448,7 +448,122 @@ class Packet
 
         return chr(254).pack("P", $length);
     }
+	public function read_int24()
+	{
+		$data = unpack("CCC", $this->read(3));
 
+		$res = $data[1] | ($data[2] << 8) | ($data[3] << 16);
+		if ($res >= 0x800000)
+			$res -= 0x1000000;
+		return $res;
+	}
+	public function read_int40_be()
+	{
+		$data1= unpack("N", $this->read(4))[1];
+		$data2 = unpack("C", $this->read(1))[1];
+		return $data2 + ($data1 << 8);
+	}
+	public function read_int_be_by_size($size) {
+		//Read a big endian integer values based on byte number
+		if ($size == 1)
+			return unpack('c', $this->read($size))[1];
+		elseif( $size == 2)
+			return unpack('n', $this->read($size))[1];
+		elseif( $size == 3)
+			return $this->read_int24_be();
+		elseif( $size == 4)
+			return unpack('N', $this->read($size))[1];
+		elseif( $size == 5)
+			return $this->read_int40_be();
+		//TODO
+		elseif( $size == 8)
+			return unpack('N', $this->read($size))[1];
+
+		return null;
+
+	}
+	public function readInt64()
+	{
+		return $this->readUint64();
+	}
+
+	public function read_uint_by_size($size)
+	{
+
+		if($size == 1)
+			return $this->readUint8();
+		elseif($size == 2)
+			return $this->readUint16();
+		elseif($size == 3)
+			return $this->readUint24();
+		elseif($size == 4)
+			return $this->readUint32();
+		elseif($size == 5)
+			return $this->readUint40();
+		elseif($size == 6)
+			return $this->readUint48();
+		elseif($size == 7)
+			return $this->readUint56();
+		elseif($size == 8)
+			return $this->readUint64();
+
+		return null;
+	}
+
+	public function readUint40()
+	{
+		$data = unpack("CI", $this->read(5));
+		return $data[1] + ($data[2] << 8);
+	}
+
+
+
+	//
+	public function readUint48()
+	{
+		$data = unpack("vvv", $this->read(6));
+		return $data[1] + ($data[2] << 16) + ($data[3] << 32);
+	}
+
+	//
+	public function readUint56()
+	{
+		$data = unpack("CSI", $this->read(7));
+		return $data[1] + ($data[2] << 8) + ($data[3] << 24);
+	}
+
+	/*
+	 * 不支持unsigned long long，溢出
+	 */
+	public function readUint64() {
+		$d = $this->read(8);
+		$data = unpack('V*', $d);
+		$bigInt = bcadd($data[1], bcmul($data[2], bcpow(2, 32)));
+		return $bigInt;
+
+//        $unpackArr = unpack('I2', $d);
+		//$data = unpack("C*", $d);
+		//$r = $data[1] + ($data[2] << 8) + ($data[3] << 16) + ($data[4] << 24);//+
+		//$r2= ($data[5]) + ($data[6] << 8) + ($data[7] << 16) + ($data[8] << 24);
+
+//        return $unpackArr[1] + ($unpackArr[2] << 32);
+	}
+
+	public function read_length_coded_pascal_string($size)
+	{
+		$length = $this->read_uint_by_size($size);
+		return $this->read($length);
+	}
+
+
+	public function read_int24_be()
+	{
+		$data = unpack('C3', $this->read(3));
+		$res = ($data[1] << 16) | ($data[2] << 8) | $data[3];
+		if ($res >= 0x800000)
+			$res -= 0x1000000;
+		return $res;
+	}
 	/**
 	 * @return bool
 	 */
