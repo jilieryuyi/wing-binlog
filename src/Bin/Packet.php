@@ -74,6 +74,8 @@ Note that the warning count will not be sent if 'no_flush' is set as
 we don't want to report the warning count until all data is sent to the
 client.
 
+ *
+ * /Users/yuyi/Web/xiaoan/wing/src/Binlog/tests/tidb/_vendor/src/github.com/go-sql-driver/mysql/packets.go
  */
 class Packet
 {
@@ -359,6 +361,9 @@ class Packet
 
     public function debugDump()
     {
+    	var_dump($this->packet);
+    	echo "\r\n\r\n";
+
         for ($i = 0; $i < $this->len; $i++) {
             echo ord($this->packet[$i]),"(".$this->packet[$i].")-";
         }
@@ -426,4 +431,16 @@ class Packet
 
         return chr(254).pack("P", $length);
     }
+
+    private static $sequence = 0;
+    public static function writeCommand($command, $packet = '')
+	{
+		self::$sequence = 0;
+		$length = strlen($packet)+1;
+		$ll     = chr($length) . chr($length >> 8) . chr($length >> 16);
+		$data   = $ll.chr(self::$sequence).pack('C', $command).$packet;
+		$res = ($length + 4) == Net::send($data);
+		//if ($res) self::$sequence++;
+		return $res;
+	}
 }

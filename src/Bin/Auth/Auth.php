@@ -63,6 +63,30 @@ class Auth
         if ($db) {
             $flag |= CapabilityFlag::CLIENT_CONNECT_WITH_DB;
         }
+        /**
+		clientFlags := clientProtocol41 |
+		clientSecureConn |
+		clientLongPassword |
+		clientTransactions |
+		clientLocalFiles |
+		clientPluginAuth |
+		clientMultiResults |
+		mc.flags&clientLongFlag
+		 * if mc.cfg.ClientFoundRows {
+		clientFlags |= clientFoundRows
+		}
+
+		// To enable TLS / SSL
+		if mc.cfg.tls != nil {
+		clientFlags |= clientSSL
+		}
+
+		if mc.cfg.MultiStatements {
+		clientFlags |= clientMultiStatements
+		}
+
+		 */
+
 
 		//认证
 		$data = Packet::getAuth($flag, $user, $password, $server_info->salt,  $db);

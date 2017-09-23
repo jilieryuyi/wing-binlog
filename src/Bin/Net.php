@@ -10,10 +10,10 @@ class Net
 	public static $socket;
 	public static function send($data)
 	{
-		if(socket_write(self::$socket, $data, strlen($data))=== false ) {
+		if(($bytes = socket_write(self::$socket, $data, strlen($data)))=== false ) {
 			throw new \Exception( sprintf( "Unable to write to socket: %s", socket_strerror( socket_last_error())));
 		}
-		return true;
+		return $bytes;
 	}
 	public static function _readBytes($data_len)
 	{

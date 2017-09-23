@@ -197,9 +197,14 @@ class Mysql
         [Field]	与Result Set消息结构相同
         [EOF]
          */
-        $chunk_size = strlen($sql) + 1;
-        $prelude    = pack('LC',$chunk_size, CommandType::COM_STMT_PREPARE);
-        Net::send($prelude . $sql);
+        //$chunk_size = strlen($sql) + 1;
+        //$prelude    = pack('LC',$chunk_size, CommandType::COM_STMT_PREPARE);
+        //Net::send($prelude . $sql);
+        $success = Packet::writeCommand(CommandType::COM_STMT_PREPARE, $sql);
+        if (!$success) {
+        	echo "write command COM_STMT_PREPARE failure\r\n";
+        	return false;
+		}
         $res = Net::readPacket();
 
         /**PREPARE_OK 结构
@@ -270,12 +275,13 @@ class Mysql
                 $columns[] = $column["column"];
                 unset($packet);
             }
-            //var_dump($columns);
+            var_dump($columns);
             //EOF
             $res = Net::readPacket();
            // (new Packet($res))->debugDump();
             //COM_STMT_PREPARE --- end ---
         }
+
 
         /**
         字节	说明
@@ -297,7 +303,7 @@ class Mysql
          */
 
 
-        $data  = pack('C', CommandType::COM_STMT_EXECUTE);
+        //$data  = pack('C', CommandType::COM_STMT_EXECUTE);
 
 
         ///Users/yuyi/Downloads/mysql-5.7.19/libmysql/libmysql.c 2146
@@ -308,7 +314,7 @@ class Mysql
         int4store(buff+5, 1);
          */
         //4字节预处理语句的ID值
-        $data .= pack("V", $smtid);
+        $data = pack("V", $smtid);
         //1字节标志位
         $data .= chr(Cursor::TYPE_NO_CURSOR);
         //4字节保留（值恒为0x01）
@@ -365,17 +371,24 @@ class Mysql
         }
 
         //封包
-        $data = pack('L', strlen($data)).$data;
+       // $data = pack('L', strlen($data)).$data;
         //(new Packet($data))->debugDump();
 
 
-        Net::send($data);
+        //Net::send($data);
+		$success = Packet::writeCommand(CommandType::COM_STMT_EXECUTE, $data);
+		if (!$success) {
+			echo "write command COM_STMT_EXECUTE failure\r\n";
+			return false;
+		}
 
         //列数量
         $res = Net::readPacket();
         $packet = new  Packet($res);
+		$packet->debugDump();
 
         $columns_count = $packet->readUint8();
+        var_dump($columns_count);
 
         //响应列包
         //列信息
@@ -394,7 +407,7 @@ class Mysql
         //EOF
         $res = Net::readPacket();
         $packet = new Packet($res);
-        //$packet->debugDump();
+        $packet->debugDump();
 
 //        $res = Net::readPacket();
 //        $packet = new Packet($res);
@@ -402,8 +415,15 @@ class Mysql
        // exit;
 
         //fetch rows
-        $prelude = pack('LC',1, CommandType::COM_STMT_FETCH);
-        Net::send($prelude);
+       // $prelude = pack('LC',1, CommandType::COM_STMT_FETCH);
+       // Net::send($prelude);
+
+		$success = Packet::writeCommand(CommandType::COM_STMT_FETCH);
+		if (!$success) {
+			echo "write command COM_STMT_FETCH failure\r\n";
+			return false;
+		}
+
         //行信息
         $rows = [];
         //一直读取直到遇到结束报文
@@ -521,19 +541,36 @@ class Mysql
             $rows[] = $row;
         }
 
+var_dump($rows);
 
 		//mysql-server/sql/protocol_classic.cc 904
 		//mysql-server/libmysql/libmysql.c 4819
 		//COM_CLOSE_STMT 释放预处理资源
-		$data  = pack('VCV', 5,CommandType::COM_STMT_CLOSE, $smtid);
-		(new Packet($data))->debugDump();
-        //4字节预处理语句的ID值
-//		$data .= pack("V", $smtid);
-		//$data = pack("V", 5).$data;
-		Net::send($data);
+		//for ($ii = 0; $ii < 10; $ii++) {
+//			$length = 5;
+//        	var_dump($smtid);
+//			$ll = chr($length) . chr($length >> 8) . chr($length >> 16);
+//			$data =  pack('VCV', 5,CommandType::COM_STMT_CLOSE, $smtid);
+//			(new Packet($data))->debugDump();
+//			//4字节预处理语句的ID值
+////		$data .= pack("V", $smtid);
+//			//$data = pack("V", 5).$data;
+//			Net::send($data);
 
-		$res = Net::readPacket();
-		var_dump($res);
+		$packet = chr($smtid).chr($smtid >> 8)
+	.chr($smtid >> 16)
+	.chr($smtid >> 24);
+		$success = Packet::writeCommand(CommandType::COM_STMT_CLOSE,
+			$packet);
+		if (!$success) {
+			echo "write command COM_STMT_CLOSE failure\r\n";
+			return false;
+		}
+
+			$res = Net::readPacket();
+		(new Packet($res))->debugDump();
+
+		//}
 		exit;
 
         return $rows;
