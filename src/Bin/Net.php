@@ -13,7 +13,7 @@ class Net
 		if(($bytes = socket_write(self::$socket, $data, strlen($data)))=== false ) {
 			throw new \Exception( sprintf( "Unable to write to socket: %s", socket_strerror( socket_last_error())));
 		}
-		return $bytes;
+		return $bytes === strlen($data);
 	}
 	public static function _readBytes($data_len)
 	{

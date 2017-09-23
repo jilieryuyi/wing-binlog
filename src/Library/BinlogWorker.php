@@ -25,8 +25,7 @@ class BinlogWorker extends BaseWorker
 	private $binlog;
     public function __construct($daemon, $workers)
 	{
-		$config 	= load_config("app");
-
+		$config = load_config("app");
 		//认证
 		\Wing\Bin\Auth\Auth::execute(
 			$config["mysql"]["host"],
@@ -36,27 +35,20 @@ class BinlogWorker extends BaseWorker
 			$config["mysql"]["port"]
 		);
 
-		$this->binlog = new \Wing\Bin\BinLog(
+		$this->binlog = new BinLog(new PDO);
+
+		//注册为slave
+		$this->binlog->registerSlave(
 			null,
 			0,
 			!!\Wing\Bin\Db::getChecksum(),
 			$config["slave_server_id"]
 		);
 
-
-//		$this->pdo     = new PDO();
-//		$this->workers = $workers;
-//        $this->daemon  = $daemon;
-//		for ($i = 1; $i <= $this->workers; $i++) {
-//		    $this->task[$i] = 0;
-//        }
-
-        //$subscribe = load_config("app");
 		if ($config
             && isset($config["subscribe"])
             && is_array($config["subscribe"])
-            && count($config["subscribe"]) > 0
-        ) {
+            && count($config["subscribe"]) > 0) {
 		    foreach ($config["subscribe"] as $class => $params) {
                 $params["daemon"]  = $daemon;
                 $params["workers"] = $workers;

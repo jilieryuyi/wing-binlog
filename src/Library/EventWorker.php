@@ -185,7 +185,7 @@ class EventWorker extends BaseWorker
 
 
 		$pdo             = new PDO();
-		$bin             = new BinLog($pdo);
+		$bin             = new Binlog($pdo);
 		$limit           = 10000;
         $last_binlog     = null;
         $current_binlog  = null;
