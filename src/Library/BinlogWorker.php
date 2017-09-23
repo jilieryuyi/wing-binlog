@@ -104,7 +104,6 @@ class BinlogWorker extends BaseWorker
 
 				$result = $this->binlog->getEvent();
 				if ($result) {
-					var_dump($result);
 					$times += count($result["event"]["data"]);
 					$s = time()-$start;
 					if ($s > 0) {
@@ -116,6 +115,7 @@ class BinlogWorker extends BaseWorker
 						$datas = $result["event"]["data"];
 						foreach ($datas as $row) {
 							$result["event"]["data"] = $row;
+							var_dump($result);
 							foreach ($this->notify as $notify) {
 								$notify->onchange($result);
 							}
