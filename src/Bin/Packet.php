@@ -99,6 +99,7 @@ class Packet
 	private $packet;
 	private $pos;
 	private $len;
+	private $buffer;
 
 	/**
 	 * http://boytnt.blog.51cto.com/966121/1279318
@@ -241,10 +242,26 @@ class Packet
      */
     public function read($bytes)
     {
+		if ($this->buffer) {
+			$sub_str = substr($this->buffer, 0 , $bytes);
+			if(strlen($sub_str) == $bytes) {
+				$this->buffer = substr($this->buffer, $bytes);;
+				return $sub_str;
+			} else {
+				$this->buffer = '';
+				$bytes = $bytes - strlen($sub_str);
+			}
+
+		}
+
         $sub_str = substr($this->packet, $this->pos, $bytes);
         $this->pos += $bytes;
         return $sub_str;
     }
+
+	public function unread($data) {
+		$this->buffer .= $data;
+	}
 
     public function readUint8()
     {
@@ -431,6 +448,17 @@ class Packet
 
         return chr(254).pack("P", $length);
     }
+
+	/**
+	 * @return bool
+	 */
+	public function isComplete($size) {
+		// 20解析server_id ...
+		if ($this->pos + 1 - 20 < $size) {
+			return false;
+		}
+		return true;
+	}
 
     private static $sequence = 0;
     public static function writeCommand($command, $packet = '')

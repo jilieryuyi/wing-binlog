@@ -3,6 +3,8 @@ use Wing\Bin\Constant\Column;
 use Wing\Bin\Constant\EventType;
 use Wing\Bin\RowEvents\TableMapEvent;
 use Wing\Bin\RowEvents\UpdateEvent;
+use Wing\Bin\RowEvents\UpdateRowsEvent;
+use Wing\Bin\RowEvents\WriteRowsEvent;
 
 /**
  * Created by PhpStorm.
@@ -48,15 +50,21 @@ class BinLogPacket
 
         $handlers = [
 			EventType::TABLE_MAP_EVENT => TableMapEvent::class,
-			EventType::UPDATE_ROWS_EVENT_V2 => UpdateEvent::class,
-			EventType::UPDATE_ROWS_EVENT_V1 => UpdateEvent::class
+			EventType::UPDATE_ROWS_EVENT_V1 => UpdateRowsEvent::class,
+			EventType::UPDATE_ROWS_EVENT_V2 => UpdateRowsEvent::class,
+			EventType::WRITE_ROWS_EVENT_V1 => WriteRowsEvent::class,
+			EventType::WRITE_ROWS_EVENT_V2 => WriteRowsEvent::class,
 		];
 
         /**
          * @var \Wing\Bin\RowEvents\BinlogEvent $handler
 		 */
-        $handler = new $handlers[$event_type]($packet, $event_type);
-        $handler->parse();
+        $handler = new $handlers[$event_type]($packet, $event_type, $event_size);
+        $event = $handler->parse();
+
+		$event["event"]["time"] = date("Y-m-d H:i:s", $timestamp);
+
+        return $event;
 
 
 

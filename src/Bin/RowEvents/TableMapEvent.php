@@ -21,13 +21,13 @@ class TableMapEvent extends BinlogEvent
 		$flags 	  = unpack('S', $this->packet->read(2))[1];
 
 		$schema_length = unpack("C", $this->packet->read(1))[1];
-		$schema_name   = $this->packet->read($schema_length);
+		$schema_name   = self::$SCHEMA_NAME = $this->packet->read($schema_length);
 
 		// 00
 		$this->packet->read(1);
 
 		$table_length = unpack("C", $this->packet->read(1))[1];
-		$table_name   = $this->packet->read($table_length);
+		$table_name   = self::$TABLE_NAME = $this->packet->read($table_length);
 
 		// 00
 		$this->packet->read(1);

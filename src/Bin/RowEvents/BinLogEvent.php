@@ -12,6 +12,8 @@ use Wing\Bin\Packet;
 abstract class BinlogEvent {
 
 	protected $packet;
+	protected $event_type;
+	protected $packet_size;
 	//private $table_id;
 
     public static $EVENT_TYPE;
@@ -69,8 +71,9 @@ abstract class BinlogEvent {
 
     public function __construct(Packet $packet,$event_type, $size = 0) {
 		$this->packet = $packet;
-        self::$EVENT_TYPE = $event_type;
-        self::$PACK_SIZE  = $size;
+        $this->event_type  = $event_type;
+        self::$PACK_SIZE   = $size;
+        $this->packet_size = $size;
     }
 
     public function readTableId()
