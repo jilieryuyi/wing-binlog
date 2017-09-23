@@ -546,28 +546,15 @@ var_dump($rows);
 		//mysql-server/sql/protocol_classic.cc 904
 		//mysql-server/libmysql/libmysql.c 4819
 		//COM_CLOSE_STMT 释放预处理资源
-		//for ($ii = 0; $ii < 10; $ii++) {
-//			$length = 5;
-//        	var_dump($smtid);
-//			$ll = chr($length) . chr($length >> 8) . chr($length >> 16);
-//			$data =  pack('VCV', 5,CommandType::COM_STMT_CLOSE, $smtid);
-//			(new Packet($data))->debugDump();
-//			//4字节预处理语句的ID值
-////		$data .= pack("V", $smtid);
-//			//$data = pack("V", 5).$data;
-//			Net::send($data);
 
-		$packet = chr($smtid).chr($smtid >> 8)
-	.chr($smtid >> 16)
-	.chr($smtid >> 24);
-		$success = Packet::writeCommand(CommandType::COM_STMT_CLOSE,
-			$packet);
+		$packet  = chr($smtid).chr($smtid >> 8) .chr($smtid >> 16) .chr($smtid >> 24);
+		$success = Packet::writeCommand(CommandType::COM_STMT_CLOSE, $packet);
 		if (!$success) {
 			echo "write command COM_STMT_CLOSE failure\r\n";
 			return false;
 		}
 
-			$res = Net::readPacket();
+		$res = Net::readPacket();
 		(new Packet($res))->debugDump();
 
 		//}

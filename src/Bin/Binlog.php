@@ -7,18 +7,25 @@
  */
 class Binlog
 {
-	/**
-	 * @var Context
-	 */
-	public static $context;
+	private $binlog_file,
+		$last_pos,
+		$checksum,
+		$slave_server_id;
 
-	public static function registerSlave()
+	public function __construct(
+		$binlog_file,
+		$last_pos,
+		$checksum,
+		$slave_server_id
+	)
 	{
 
-		$last_binlog_file = self::$context->last_binlog_file;
-		$last_pos = self::$context->last_pos;
+		$this->binlog_file = $binlog_file;
+		$this->last_pos = $last_pos;
+		$this->checksum = $checksum;
+		$this->slave_server_id = $slave_server_id;
 		// checksum
-		if (self::$context->checksum){
+		if ($checksum){
 			Mysql::query("set @master_binlog_checksum= @@global.binlog_checksum");
 		}
 		//heart_period
@@ -27,19 +34,19 @@ class Binlog
 			Mysql::query("set @master_heartbeat_period=".($heart*1000000000));
 		}
 
-        $data = Packet::registerSlave(self::$context->slave_server_id);
+        $data = Packet::registerSlave($slave_server_id);
         Net::send($data);
         $result = Net::readPacket();
         Packet::success($result);
 
 		// 开始读取的二进制日志位置
-		if(!$last_binlog_file) {
+		if(!$binlog_file) {
 //            $sql  = 'show binary logs';
 //            $res  = $this->pdo->query($sql);
 
 			$logInfo = Db::getPos();
 			//如果没有配置 则从第一个有效的binlog开始
-			$last_binlog_file = $logInfo['File'];//$res[0]["Log_name"];
+			$binlog_file = $logInfo['File'];//$res[0]["Log_name"];
 //            foreach ($res as $item) {
 //                if ($item["File_size"] > 0) {
 //                    $this->last_binlog_file = $item["Log_name"];
@@ -54,18 +61,18 @@ class Binlog
 
 
 		// 初始化
-		BinLogPack::setFilePos($last_binlog_file, $last_pos);
+		BinLogPack::setFilePos($binlog_file, $last_pos);
 
-//		$header = pack('l', 11 + strlen($last_binlog_file));
+//		$header = pack('l', 11 + strlen($binlog_file));
 //
 //		// COM_BINLOG_DUMP
 //		$data  = $header . chr(ConstCommand::COM_BINLOG_DUMP);
 //		$data .= pack('L', $last_pos);
 //		$data .= pack('s', 0);
-//		$data .= pack('L', self::$context->slave_server_id);
-//		$data .= $last_binlog_file;
+//		$data .= pack('L', $slave_server_id);
+//		$data .= $binlog_file;
         //封包
-        $data = Packet::binlogDump($last_binlog_file, $last_pos, self::$context->slave_server_id);
+        $data = Packet::binlogDump($binlog_file, $last_pos, $slave_server_id);
 
 		Net::send($data);
 
@@ -74,7 +81,7 @@ class Binlog
 		Packet::success($result);
 	}
 
-	public static function getEvent() {
+	public function getEvent() {
 
 		$pack   = Net::readPacket();
 
@@ -82,7 +89,7 @@ class Binlog
 		Packet::success($pack);
 
 		$binlog = BinLogPack::getInstance();
-		$result = $binlog->init($pack, self::$context->checksum);
+		$result = $binlog->init($pack, $this->checksum);
 		return $result;
 	}
 }

@@ -22,34 +22,27 @@ $start = time();
 
 
 $mysql_config 	= load_config("app");
-$context		= new \Wing\Bin\Context();
-$pdo			= new \Wing\Library\PDO();
-
-$context->pdo 		= \Wing\Bin\Db::$pdo = $pdo;
-$context->host 		= $mysql_config["mysql"]["host"];
-$context->db_name 	= $mysql_config["mysql"]["db_name"];
-$context->user		= $mysql_config["mysql"]["user"];
-$context->password 	= $mysql_config["mysql"]["password"];
-$context->port	 	= $mysql_config["mysql"]["port"];
-$context->checksum  = !!\Wing\Bin\Db::getChecksum();
-
-$context->slave_server_id 	= $mysql_config["slave_server_id"];
-$context->last_binlog_file 	= null;
-$context->last_pos 			= 0;
 
 //认证
-\Wing\Bin\Auth\Auth::execute($context);
+\Wing\Bin\Auth\Auth::execute(
+	$mysql_config["mysql"]["host"],
+	$mysql_config["mysql"]["user"],
+	$mysql_config["mysql"]["password"], $mysql_config["mysql"]["db_name"],
+	$mysql_config["mysql"]["port"]
+);
 
-//初始化Binlog需要的基础数据
-\Wing\Bin\Binlog::$context = $context;
-//把客户端注册为salve服务器
-\Wing\Bin\Binlog::registerSlave();
+$binlog = new \Wing\Bin\BinLog(
+	null,
+	0,
+	!!\Wing\Bin\Db::getChecksum(),
+	$mysql_config["slave_server_id"]
+);
 
 $times = 0;
 
 //binlog事件监听
 while(1){
-    $result = \Wing\Bin\Binlog::getEvent();
+    $result = $binlog->getEvent();//\Wing\Bin\Binlog::getEvent();
     if ($result) {
         var_dump($result);
         $times+=count($result["event"]["data"]);

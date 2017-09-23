@@ -12,20 +12,24 @@ class Db
 	/**
 	 * @var PDO
 	 */
-	public static $pdo;
+	public static $pdo = null;
 	public static function getChecksum()
 	{
+		if (!self::$pdo)self::$pdo = new \Wing\Library\PDO();
 		$res = self::$pdo->row("SHOW GLOBAL VARIABLES LIKE 'BINLOG_CHECKSUM'");
 		return $res['Value'];
 	}
 
 	public static function getPos() {
+		if (!self::$pdo)self::$pdo = new \Wing\Library\PDO();
+
 		$sql    = "SHOW MASTER STATUS";
 		$result = self::$pdo->row($sql);
 		return $result;
 	}
 
 	public static function getFields($schema, $table) {
+		if (!self::$pdo)self::$pdo = new \Wing\Library\PDO();
 
 		$sql = "SELECT
                 COLUMN_NAME,COLLATION_NAME,CHARACTER_SET_NAME,COLUMN_COMMENT,COLUMN_TYPE,COLUMN_KEY
