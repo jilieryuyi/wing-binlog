@@ -267,6 +267,9 @@ abstract class BinlogEvent {
 //		self::$_BUFFER.=$data;
 //	}
 
+	/**
+	 * @return array
+	 */
 	abstract public function Parse();
 	public function BitGet($bitmap, $position)
 	{
