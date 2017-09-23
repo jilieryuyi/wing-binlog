@@ -36,7 +36,7 @@ class Mysql
         //以下解析 Result set
 		if ($fbyte >= Packet::RESULT_SET_HEAD[0] && $fbyte <= Packet::RESULT_SET_HEAD[1]) {
             if (self::$debug) {
-            	var_dump("Result set");
+            	//var_dump("Result set");
 			}
 			//列数量
 		    $column_num = $fbyte;
@@ -121,7 +121,7 @@ class Mysql
 
         else if ($fbyte == Packet::OK_PACK_HEAD) {
 			if (self::$debug) {
-				var_dump("OK报文");
+				//var_dump("OK报文");
 			}
 		    //1byte 0x00 OK报文 恒定为0x00
             //1-9bytes 受影响的行数
@@ -164,7 +164,7 @@ class Mysql
         }
 
         else if ($fbyte == Packet::ERR_PACK_HEAD) {
-			var_dump("Error报文");
+			//var_dump("Error报文");
 		    //1byte Error报文 恒定为0xff
             //2bytes 错误编号，小字节序
             //1byte 服务器状态标志，恒为#字符
@@ -275,7 +275,7 @@ class Mysql
                 $columns[] = $column["column"];
                 unset($packet);
             }
-            var_dump($columns);
+            //var_dump($columns);
             //EOF
             $res = Net::readPacket();
            // (new Packet($res))->debugDump();
@@ -388,7 +388,7 @@ class Mysql
 		$packet->debugDump();
 
         $columns_count = $packet->readUint8();
-        var_dump($columns_count);
+        //var_dump($columns_count);
 
         //响应列包
         //列信息
@@ -402,7 +402,7 @@ class Mysql
             $columns[]  = $packet->getColumns();
             unset($packet);
         }
-        var_dump($columns);
+        //var_dump($columns);
 
         //EOF
         $res = Net::readPacket();
@@ -541,7 +541,7 @@ class Mysql
             $rows[] = $row;
         }
 
-var_dump($rows);
+//var_dump($rows);
 
 		//mysql-server/sql/protocol_classic.cc 904
 		//mysql-server/libmysql/libmysql.c 4819

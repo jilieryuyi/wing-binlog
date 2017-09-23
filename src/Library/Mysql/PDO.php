@@ -90,7 +90,7 @@ class PDO
 		$this->auth_plugin_name = $server_info->auth_plugin_name;
 		$this->capability_flag 	= $server_info->capability_flag;
 
-		var_dump($server_info);
+		//var_dump($server_info);
 
 		//main_version*10000 + minor_version *100 + sub_version
 		list($main_version, $minor_version, $sub_version) = explode(".", $this->server_info);

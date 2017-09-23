@@ -39,8 +39,6 @@ class BinlogWorker extends BaseWorker
 
 		//注册为slave
 		$this->binlog->registerSlave(
-			null,
-			0,
 			!!\Wing\Bin\Db::getChecksum(),
 			$config["slave_server_id"]
 		);
@@ -109,7 +107,7 @@ class BinlogWorker extends BaseWorker
 						$datas = $result["event"]["data"];
 						foreach ($datas as $row) {
 							$result["event"]["data"] = $row;
-							var_dump($result);
+							//var_dump($result,$row);
 							foreach ($this->notify as $notify) {
 								$notify->onchange($result);
 							}

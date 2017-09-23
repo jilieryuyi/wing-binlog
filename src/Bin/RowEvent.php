@@ -285,7 +285,7 @@ class RowEvent extends BinLogEvent
         $nullBitmapIndex = 0;
         foreach (self::$TABLE_MAP[self::$SCHEMA_NAME][self::$TABLE_NAME]['fields'] as $i => $value) {
             $column = $value;
-            var_dump($column);
+            //var_dump($column);
             $name = $value['name'];
             $unsigned = $value['unsigned'];
 

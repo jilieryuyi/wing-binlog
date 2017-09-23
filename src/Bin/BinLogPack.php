@@ -43,7 +43,6 @@ class BinLogPack {
 
 
     public function init($pack, $checkSum = true) {
-var_dump($pack);
         if(!self::$_instance) {
             self::$_instance = new self();
         }
@@ -104,15 +103,15 @@ var_dump($pack);
         	}
         	break;
 			case EventType::QUERY_EVENT:
-				var_dump(self::$EVENT_INFO);
-				echo "查询事件";
+				//var_dump(self::$EVENT_INFO);
+				//echo "查询事件";
 				$this->read(16);
 				$binlog_name = $this->read($event_size_without_header);
-				var_dump($binlog_name);
+				//var_dump($binlog_name);
 				break;
 			default:
 				echo "未知事件";
-				var_dump(self::$EVENT_TYPE);
+				//var_dump(self::$EVENT_TYPE);
 				break;
         }
 
