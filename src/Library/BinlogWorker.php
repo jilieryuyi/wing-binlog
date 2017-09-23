@@ -25,8 +25,6 @@ class BinlogWorker extends BaseWorker
 	private $binlog;
     public function __construct($daemon, $workers)
 	{
-
-
 		$config 	= load_config("app");
 
 		//认证
@@ -102,6 +100,7 @@ class BinlogWorker extends BaseWorker
 			ob_start();
 
 			try {
+				pcntl_signal_dispatch();
 
 				$result = $this->binlog->getEvent();
 				if ($result) {
