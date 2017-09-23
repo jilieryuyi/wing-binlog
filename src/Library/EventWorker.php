@@ -107,7 +107,7 @@ class EventWorker extends BaseWorker
 				self::$event_times += count($events);
 				$this->event_index += count($events);
 
-                var_dump($events);
+                //var_dump($events);
                 wing_debug("总事件次数：", self::$event_times);
 
                 try {

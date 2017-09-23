@@ -1,5 +1,6 @@
 <?php namespace Wing\Library;
 use Wing\Bin\BinLogPack;
+use Wing\Bin\BinLogPacket;
 use Wing\Bin\Db;
 use Wing\Bin\Mysql;
 use Wing\Bin\Net;
@@ -83,8 +84,16 @@ class Binlog
 		$pack   = Net::readPacket();
 		// 校验数据包格式
 		Packet::success($pack);
-		$binlog = BinLogPack::getInstance();
-		$result = $binlog->init($pack, $this->checksum);
+//		$binlog = BinLogPack::getInstance();
+//		$result = $binlog->init($pack, $this->checksum);
+
+		list($result, $binlog_file, $last_pos) = BinLogPacket::parse($pack, $this->checksum);
+
+		if ($binlog_file)
+		$this->setLastBinLog($binlog_file);
+		if ($last_pos)
+		$this->setLastPosition(0, $last_pos);
+
 		return $result;
 	}
 	public function registerSlave(
