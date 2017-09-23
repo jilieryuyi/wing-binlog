@@ -284,7 +284,7 @@ class Worker
         echo $str;
         unset($str, $format);
 
-        $p = new EventWorker($this->daemon, $this->workers);
+        $p = new BinlogWorker($this->daemon, $this->workers);
 		$this->event_process_id = $p->start();
 		unset($p);
         $this->processes[] = $this->event_process_id;
@@ -321,7 +321,7 @@ class Worker
                         unset($this->processes[$id]);
 
                         if ($pid == $this->event_process_id) {
-                            $p = new EventWorker($this->daemon, $this->workers);
+                            $p = new BinlogWorker($this->daemon, $this->workers);
                             $this->event_process_id = $p->start();
                             unset($p);
                             $this->processes[] = $this->event_process_id;
