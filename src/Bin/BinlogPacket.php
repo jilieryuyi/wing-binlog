@@ -10,16 +10,12 @@ use Wing\Bin\Constant\EventType;
  */
 class BinLogPacket
 {
-	private $offset = 0;
-	private $packet;
-	private $buffer = '';
-
-	private static $_instance = null;
-
+	protected $offset = 0;
+	protected $packet;
+	protected $buffer = '';
 	protected $schema_name;
 	protected $table_name;
 	protected $table_map;
-
 
 	public static $bitCountInByte = [
 		0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
@@ -41,6 +37,7 @@ class BinLogPacket
 	];
 
 
+	private static $_instance = null;
 	public static function parse($pack, $checkSum = true)
 	{
 		if(!self::$_instance) {
@@ -50,7 +47,6 @@ class BinLogPacket
 	}
 
 	private function _parse($pack, $checkSum = true) {
-
 
 		$file_name  = null;
 		$data       = [];
@@ -80,48 +76,44 @@ class BinLogPacket
 
 		$event_size_without_header = $checkSum === true ? ($event_size -23) : $event_size - 19;
 
-
-
 		switch ($event_type) {
 			// 映射fileds相关信息
 			case EventType::TABLE_MAP_EVENT: {
-				//RowEvent::tableMap($this, $event_type);
-				$this->tableMap();
-			}
-			break;
+					//RowEvent::tableMap($this, $event_type);
+					$this->tableMap();
+				}
+				break;
 			case EventType::UPDATE_ROWS_EVENT_V2:
 			case EventType::UPDATE_ROWS_EVENT_V1: {
-				$data = $this->updateRow($event_type, $event_size_without_header);
+					$data = $this->updateRow($event_type, $event_size_without_header);
 					//RowEvent::updateRow($this, $event_type, $event_size_without_header);
-				$data["event"]["time"] = date("Y-m-d H:i:s", $timestamp);
+					$data["event"]["time"] = date("Y-m-d H:i:s", $timestamp);
 				}
 				break;
 			case EventType::WRITE_ROWS_EVENT_V1:
 			case EventType::WRITE_ROWS_EVENT_V2: {
-				$data = $this->addRow($event_type, $event_size_without_header);
+					$data = $this->addRow($event_type, $event_size_without_header);
 					//RowEvent::addRow($this, $event_type, $event_size_without_header);
-			$data["event"]["time"] = date("Y-m-d H:i:s", $timestamp);
-
-		}
+					$data["event"]["time"] = date("Y-m-d H:i:s", $timestamp);
+				}
 				break;
 			case EventType::DELETE_ROWS_EVENT_V1:
 			case EventType::DELETE_ROWS_EVENT_V2: {
 					$data =  $this->delRow($event_type, $event_size_without_header);
 					//RowEvent::delRow($this, $event_type, $event_size_without_header);
 					$data["event"]["time"] = date("Y-m-d H:i:s", $timestamp);
-
 				}
 				break;
 			case EventType::ROTATE_EVENT: {
-				$log_pos = $this->readUint64();
-				$file_name = $this->read($event_size_without_header - 8);
-			}
+					$log_pos = $this->readUint64();
+					$file_name = $this->read($event_size_without_header - 8);
+				}
 				break;
 			case EventType::HEARTBEAT_LOG_EVENT: {
-				//心跳检测机制
-				$binlog_name = $this->read($event_size_without_header);
-				wing_debug('心跳事件 => ' . $binlog_name);
-			}
+					//心跳检测机制
+					$binlog_name = $this->read($event_size_without_header);
+					wing_debug('心跳事件 => ' . $binlog_name);
+				}
 				break;
 			default:
 				wing_log("binlog_not_support_event", $event_type, $pack);
@@ -129,61 +121,63 @@ class BinLogPacket
 				break;
 		}
 
-//		if (WING_DEBUG) {
-//			$msg  = $file_name;
-//			$msg .= '-- next pos -> '.$log_pos;
-//			$msg .= ' --  typeEvent -> '.$event_type;
-//			wing_log("slave_debug", $msg);
-//		}
-//		wing_log("slave_bin", $pack."\r\n\r\n");
+		if (WING_DEBUG) {
+			$msg  = $file_name;
+			$msg .= '-- next pos -> '.$log_pos;
+			$msg .= ' --  typeEvent -> '.$event_type;
+			wing_log("slave_debug", $msg);
+			wing_log("slave_bin", $pack."\r\n\r\n");
+		}
 
 		end:
 		return [$data, $file_name, $log_pos];
 	}
 
-	public function read($length) {
-		$length = (int)$length;
-		$n='';
+	public function read($length)
+	{
+		$length  = intval($length);
+		$sub_str ='';
 
 		if ($this->buffer) {
-			$n = substr($this->buffer, 0 , $length);
-			if(strlen($n) == $length) {
+			$sub_str = substr($this->buffer, 0 , $length);
+			if (strlen($sub_str) == $length) {
 				$this->buffer = substr($this->buffer, $length);;
-				return $n;
+				return $sub_str;
 			} else {
 				$this->buffer = '';
-				$length = $length - strlen($n);
+				$length = $length - strlen($sub_str);
 			}
-
 		}
 
-		for($i = $this->offset; $i < $this->offset + $length; $i++) {
-			$n .= $this->packet[$i];
+		for ($i = $this->offset; $i < $this->offset + $length; $i++) {
+			$sub_str .= $this->packet[$i];
 		}
 
 		$this->offset += $length;
 
-		return $n;
-
+		return $sub_str;
 	}
 
 	/**
-	 * @brief 前进步长
+	 * 前进步长
 	 * @param $length
 	 */
-	public  function advance($length) {
+	public  function advance($length)
+	{
 		$this->read($length);
 	}
 
 	/**
-	 * @brief read a 'Length Coded Binary' number from the data buffer.
-	 ** Length coded numbers can be anywhere from 1 to 9 bytes depending
-	 ** on the value of the first byte.
-	 ** From PyMYSQL source code
+	 * read a 'Length Coded Binary' number from the data buffer.
+	 * Length coded numbers can be anywhere from 1 to 9 bytes depending
+	 * on the value of the first byte.
+	 * From PyMYSQL source code
+	 *
 	 * @return int|string
 	 */
 
-	public function readCodedBinary(){
+	public function readCodedBinary()
+	{
 		$c = ord($this->read(1));
 		if($c == Column::NULL) {
 			return '';
@@ -202,7 +196,8 @@ class BinLogPacket
 		return null;
 	}
 
-	public function unpackUint16($data) {
+	public function unpackUint16($data)
+	{
 		return unpack("S",$data[0] . $data[1])[1];
 	}
 
@@ -214,7 +209,8 @@ class BinLogPacket
 	}
 
 	//ok
-	public function unpackInt64($data) {
+	public function unpackInt64($data)
+	{
 		$a = (int)(ord($data[0]) & 0xFF);
 		$a += (int)((ord($data[1]) & 0xFF) << 8);
 		$a += (int)((ord($data[2]) & 0xFF) << 16);
