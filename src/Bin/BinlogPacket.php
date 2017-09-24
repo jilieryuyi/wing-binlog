@@ -72,24 +72,30 @@ class BinLogPacket
 			case EventType::TABLE_MAP_EVENT: {
 				RowEvent::tableMap(self::getInstance(), self::$EVENT_TYPE);
 			}
-				break;
+			break;
 			case EventType::UPDATE_ROWS_EVENT_V2:
 			case EventType::UPDATE_ROWS_EVENT_V1: {
 				$data = RowEvent::updateRow(self::getInstance(), self::$EVENT_TYPE, $event_size_without_header);
 				self::$_POS = self::$EVENT_INFO['pos'];
-			}
+			$data["event"]["time"] = date("Y-m-d H:i:s", $timestamp);
+
+		}
 				break;
 			case EventType::WRITE_ROWS_EVENT_V1:
 			case EventType::WRITE_ROWS_EVENT_V2: {
 				$data = RowEvent::addRow(self::getInstance(), self::$EVENT_TYPE, $event_size_without_header);
 				self::$_POS = self::$EVENT_INFO['pos'];
-			}
+			$data["event"]["time"] = date("Y-m-d H:i:s", $timestamp);
+
+		}
 				break;
 			case EventType::DELETE_ROWS_EVENT_V1:
 			case EventType::DELETE_ROWS_EVENT_V2: {
 				$data = RowEvent::delRow(self::getInstance(), self::$EVENT_TYPE, $event_size_without_header);
 				self::$_POS = self::$EVENT_INFO['pos'];
-			}
+			$data["event"]["time"] = date("Y-m-d H:i:s", $timestamp);
+
+		}
 				break;
 			case EventType::ROTATE_EVENT: {
 				$log_pos = $this->readUint64();
@@ -122,6 +128,7 @@ class BinLogPacket
 			wing_log("slave_debug", $msg);
 		}
 		wing_log("slave_bin", $pack."\r\n\r\n");
+
 		return [$data, self::$_FILE_NAME, $log_pos];
 	}
 

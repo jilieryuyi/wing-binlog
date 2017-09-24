@@ -114,7 +114,6 @@ class RowEvent extends BinLogEvent
             "table"    => self::$TABLE_NAME,
             "event"    =>  [
                 "event_type" => "write_rows",
-                "time"       => date("Y-m-d H:i:s", BinLogPack::$EVENT_INFO['time']),
                 "data"       => self::_getAddRows($result, $len)
             ]
         ];
@@ -144,7 +143,6 @@ class RowEvent extends BinLogEvent
             "table"    => self::$TABLE_NAME,
             "event"    =>  [
                 "event_type" => "delete_rows",
-                "time"       => date("Y-m-d H:i:s", BinLogPack::$EVENT_INFO['time']),
                 "data"       => self::_getDelRows($result, $len)
             ]
         ];
@@ -175,7 +173,6 @@ class RowEvent extends BinLogEvent
             "table"    => self::$TABLE_NAME,
             "event"    =>  [
                 "event_type" => "update_rows",
-                "time"       => date("Y-m-d H:i:s", BinLogPacket::$EVENT_INFO['time']),
                 "data"       => self::_getUpdateRows($result, $len)
                 ]
         ];
