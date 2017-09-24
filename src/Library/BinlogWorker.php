@@ -105,26 +105,27 @@ class BinlogWorker extends BaseWorker
 				pcntl_signal_dispatch();
 				do {
 					$result = $this->binlog->getBinlogEvents();
-					if (!$result) break;
+					if (!$result) {
+						break;
+					}
 
+					$times += count($result["event"]["data"]);
+					$span_time = time() - $start;
+					if ($span_time > 0) {
+						echo $times, "次，", $times / ($span_time) . "/次事件每秒，耗时", $span_time, "秒\r\n";
+					}
 
-						$times += count($result["event"]["data"]);
-						$s = time() - $start;
-						if ($s > 0) {
-							echo $times, "次，", $times / ($s) . "/次事件每秒，耗时", $s, "秒\r\n";
-						}
-
-						//通知订阅者
-						if (is_array($this->notify) && count($this->notify) > 0) {
-							$datas = $result["event"]["data"];
-							foreach ($datas as $row) {
-								$result["event"]["data"] = $row;
-								var_dump($result);
-								foreach ($this->notify as $notify) {
-									$notify->onchange($result);
-								}
+					//通知订阅者
+					if (is_array($this->notify) && count($this->notify) > 0) {
+						$datas = $result["event"]["data"];
+						foreach ($datas as $row) {
+							$result["event"]["data"] = $row;
+							var_dump($result);
+							foreach ($this->notify as $notify) {
+								$notify->onchange($result);
 							}
 						}
+					}
 
 
 				} while (0);
