@@ -84,9 +84,6 @@ class Binlog
 		$pack   = Net::readPacket();
 		// 校验数据包格式
 		Packet::success($pack);
-//		$binlog = BinLogPack::getInstance();
-//		$result = $binlog->init($pack, $this->checksum);
-
 
 		$res = BinLogPacket::parse($pack, $this->checksum);
 
@@ -98,8 +95,6 @@ class Binlog
 			$this->setLastPosition(0, $last_pos);
 
 		return $result;
-
-
 	}
 
 	/**

@@ -30,8 +30,6 @@ class Net
 			$body       = '';
 			while ($bytes_read < $data_len) {
 				$resp = socket_read(self::$socket, $data_len - $bytes_read);
-
-				//
 				if($resp === false) {
 					throw new NetCloseException(
 						sprintf(
@@ -62,18 +60,10 @@ class Net
 	{
 		//消息头
 		$header = self::_readBytes(4);
-		//var_dump("readPacket=>1=>",$header);
 		//消息体长度3bytes 小端序
 		$unpack_data = unpack("L",$header[0].$header[1].$header[2].chr(0))[1];
-		//var_dump("readPacket=>2=>",$unpack_data);
-		$Sequence_id = $header[3];
-		// var_dump("readPacket=>3=>",ord($header[0]) | ord($header[1])<<8 | ord($header[2])<<16);
-
-        //var_dump("msg length=",$unpack_data);
+		//$sequence_id = $header[3];
 		$result = self::_readBytes($unpack_data);
-		//校验数据包，如果是错误的包会抛出异常
-		//Packet::success($result);
-		//var_dump("readPacket=>4=>",$result);
 		return $result;
 	}
 
