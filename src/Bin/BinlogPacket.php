@@ -105,14 +105,14 @@ class BinLogPacket
 			case EventType::HEARTBEAT_LOG_EVENT: {
 				//心跳检测机制
 				$binlog_name = $this->read($event_size_without_header);
-				echo '心跳事件 ' . $binlog_name . "\n";
+				wing_debug('心跳事件 ' . $binlog_name);// . "\n";
 			}
 				break;
 			case EventType::QUERY_EVENT:
 				//var_dump(self::$EVENT_INFO);
 				//echo "查询事件";
-				$this->read(16);
-				$binlog_name = $this->read($event_size_without_header);
+//				$this->read(16);
+//				$binlog_name = $this->read($event_size_without_header);
 				//var_dump($binlog_name);
 				break;
 			default:
