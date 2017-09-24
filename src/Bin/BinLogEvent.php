@@ -46,7 +46,7 @@ class BinLogEvent {
         4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8,
     ];
 
-    public static function _init(BinLogPack $pack,$event_type, $size = 0) {
+    public static function _init( $pack,$event_type, $size = 0) {
 
         self::$PACK       = $pack;
         self::$EVENT_TYPE = $event_type;

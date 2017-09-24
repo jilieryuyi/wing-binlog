@@ -8,19 +8,19 @@
  */
 class BinlogWorker extends BaseWorker
 {
-	private $all_pos            = [];
-	private $dispatch_pipes     = [];
-	private $dispatch_processes = [];
-
-	private $write_run_time     = 0;
+//	private $all_pos            = [];
+//	private $dispatch_pipes     = [];
+//	private $dispatch_processes = [];
+//
+//	private $write_run_time     = 0;
 	//private $pdo;
 
 	private $notify = [];
 	private $daemon;
-    private $event_index        = 0;
+   // private $event_index        = 0;
 
     /**
-     * @var \Wing\Bin\Binlog
+     * @var \Wing\Library\Binlog
 	 */
 	private $binlog;
     public function __construct($daemon, $workers)
@@ -92,27 +92,29 @@ class BinlogWorker extends BaseWorker
 			try {
 				pcntl_signal_dispatch();
 				do {
-					$result = $this->binlog->getEvent();
-					if (!$result) {
-						break;
-					}
-					$times += count($result["event"]["data"]);
-					$s = time() - $start;
-					if ($s > 0) {
-						echo $times, "次，", $times / ($s) . "/次事件每秒，耗时", $s, "秒\r\n";
-					}
+					$result = $this->binlog->getBinlogEvents();
+					if (!$result) break;
 
-					//通知订阅者
-					if (is_array($this->notify) && count($this->notify) > 0) {
-						$datas = $result["event"]["data"];
-						foreach ($datas as $row) {
-							$result["event"]["data"] = $row;
-							var_dump($result);
-							foreach ($this->notify as $notify) {
-								$notify->onchange($result);
+
+						$times += count($result["event"]["data"]);
+						$s = time() - $start;
+						if ($s > 0) {
+							echo $times, "次，", $times / ($s) . "/次事件每秒，耗时", $s, "秒\r\n";
+						}
+
+						//通知订阅者
+						if (is_array($this->notify) && count($this->notify) > 0) {
+							$datas = $result["event"]["data"];
+							foreach ($datas as $row) {
+								$result["event"]["data"] = $row;
+								var_dump($result);
+								foreach ($this->notify as $notify) {
+									$notify->onchange($result);
+								}
 							}
 						}
-					}
+
+
 				} while (0);
 			} catch (\Exception $e) {
 				if (WING_DEBUG) {

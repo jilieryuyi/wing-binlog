@@ -11,7 +11,7 @@ use Wing\Library\PDO;
  */
 class RowEvent extends BinLogEvent
 {
-    public static function rowInit(BinLogPack $pack, $event_type, $size)
+    public static function rowInit( $pack, $event_type, $size)
     {
         parent::_init($pack, $event_type, $size);
         self::$TABLE_ID = self::readTableId();
@@ -31,7 +31,7 @@ class RowEvent extends BinLogEvent
         self::$COLUMNS_NUM = self::$PACK->readCodedBinary();
     }
 
-    public static function tableMap(BinLogPack $pack, $event_type)
+    public static function tableMap($pack, $event_type)
     {
         parent::_init($pack, $event_type);
 
@@ -93,7 +93,7 @@ class RowEvent extends BinLogEvent
         return $data;
     }
 
-    public static function addRow(BinLogPack $pack, $event_type, $size)
+    public static function addRow( $pack, $event_type, $size)
     {
         self::rowInit($pack, $event_type, $size);
 
@@ -121,7 +121,7 @@ class RowEvent extends BinLogEvent
         return $value;
     }
 
-    public static function delRow(BinLogPack $pack, $event_type, $size)
+    public static function delRow( $pack, $event_type, $size)
     {
         self::rowInit($pack, $event_type, $size);
 
@@ -151,7 +151,7 @@ class RowEvent extends BinLogEvent
         return $value;
     }
 
-    public static function updateRow(BinLogPack $pack, $event_type, $size)
+    public static function updateRow( $pack, $event_type, $size)
     {
 
         self::rowInit($pack, $event_type, $size);
@@ -175,7 +175,7 @@ class RowEvent extends BinLogEvent
             "table"    => self::$TABLE_NAME,
             "event"    =>  [
                 "event_type" => "update_rows",
-                "time"       => date("Y-m-d H:i:s", BinLogPack::$EVENT_INFO['time']),
+                "time"       => date("Y-m-d H:i:s", BinLogPacket::$EVENT_INFO['time']),
                 "data"       => self::_getUpdateRows($result, $len)
                 ]
         ];

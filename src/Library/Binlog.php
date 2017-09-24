@@ -70,8 +70,8 @@ class Binlog
         $this->cache_handler = new File(HOME."/cache/binlog");
 
 		//初始化，最后操作的binlog文件
-		$this->binlog_file = $this->getLastBinLog();
-		list(, $this->last_pos) = $this->getLastPosition();
+		$this->binlog_file = null;//$this->getLastBinLog();
+		list(, $this->last_pos) = 0;//$this->getLastPosition();
 		if (!$this->binlog_file || !$this->last_pos) {
 			//当前使用的binlog 文件
 			$info = $this->getCurrentLogInfo();
@@ -80,21 +80,26 @@ class Binlog
 		}
     }
 
-	public function getEvent() {
+	public function getBinlogEvents() {
 		$pack   = Net::readPacket();
 		// 校验数据包格式
 		Packet::success($pack);
 //		$binlog = BinLogPack::getInstance();
 //		$result = $binlog->init($pack, $this->checksum);
 
-		list($result, $binlog_file, $last_pos) = BinLogPacket::parse($pack, $this->checksum);
 
+		$res = BinLogPacket::getInstance()->parse($pack, $this->checksum);
+
+		if (!$res) return null;
+		list($result, $binlog_file, $last_pos) = $res;
 		if ($binlog_file)
-		$this->setLastBinLog($binlog_file);
+			$this->setLastBinLog($binlog_file);
 		if ($last_pos)
-		$this->setLastPosition(0, $last_pos);
+			$this->setLastPosition(0, $last_pos);
 
 		return $result;
+
+
 	}
 	public function registerSlave(
 		$checksum,

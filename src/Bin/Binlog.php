@@ -81,7 +81,7 @@ class Binlog
 		Packet::success($result);
 	}
 
-	public function getEvent() {
+	public function getBinlogEvents() {
 
 		$pack   = Net::readPacket();
 
