@@ -17,7 +17,7 @@ class BinLogEvent {
 
     public static $TABLE_MAP;
     /**
-     * @var BinLogPack $PACK
+     * @var BinLogPacket $PACK
      */
     public static $PACK;
     public static $PACK_SIZE;

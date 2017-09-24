@@ -11,7 +11,7 @@ use Wing\Library\PDO;
  */
 class RowEvent extends BinLogEvent
 {
-    public static function rowInit( $pack, $event_type, $size)
+    public static function rowInit(BinLogPacket $pack, $event_type, $size)
     {
         parent::_init($pack, $event_type, $size);
         self::$TABLE_ID = self::readTableId();
@@ -31,7 +31,7 @@ class RowEvent extends BinLogEvent
         self::$COLUMNS_NUM = self::$PACK->readCodedBinary();
     }
 
-    public static function tableMap($pack, $event_type)
+    public static function tableMap(BinLogPacket $pack, $event_type)
     {
         parent::_init($pack, $event_type);
 

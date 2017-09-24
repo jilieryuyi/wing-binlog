@@ -126,7 +126,7 @@ class Binlog
 		Packet::success($result);
 
 		// 初始化
-		BinLogPack::setFilePos($this->binlog_file, $this->last_pos);
+		BinLogPacket::setFilePos($this->binlog_file, $this->last_pos);
 
 		//封包
 		$data = Packet::binlogDump($this->binlog_file, $this->last_pos, $slave_server_id);

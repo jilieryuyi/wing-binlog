@@ -14,8 +14,8 @@ class BinLogPacket
 	public static $EVENT_INFO;
 	public static $EVENT_TYPE;
 
-	private static $_PACK_KEY = 0;
-	private static $_PACK;
+	private $_offset = 0;
+	private $_packet;
 	private static $_BUFFER = '';
 
 	private static $_instance = null;
@@ -50,8 +50,8 @@ class BinLogPacket
 		//package error
 		if (strlen($pack) < 19) return null;
 		//
-		self::$_PACK       = $pack;
-		self::$_PACK_KEY   = 0;
+		$this->_packet       = $pack;
+		$this->_offset   = 0;
 		self::$EVENT_INFO  = [];
 		$this->advance(1);
 		self::$EVENT_INFO['time'] = $timestamp  = unpack('L', $this->read(4))[1];
@@ -149,11 +149,11 @@ class BinLogPacket
 
 		}
 
-		for($i = self::$_PACK_KEY; $i < self::$_PACK_KEY + $length; $i++) {
-			$n .= self::$_PACK[$i];
+		for($i = $this->_offset; $i < $this->_offset + $length; $i++) {
+			$n .= $this->_packet[$i];
 		}
 
-		self::$_PACK_KEY += $length;
+		$this->_offset += $length;
 
 		return $n;
 
@@ -369,7 +369,7 @@ class BinLogPacket
 	 */
 	public function isComplete($size) {
 		// 20解析server_id ...
-		if(self::$_PACK_KEY + 1 - 20 < $size) {
+		if ($this->_offset + 1 - 20 < $size) {
 			return false;
 		}
 		return true;

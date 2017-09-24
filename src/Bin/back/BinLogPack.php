@@ -8,7 +8,7 @@ use Wing\Bin\Constant\EventType;
  * Date: 17/9/8
  * Time: 23:14
  */
-class BinLogPack {
+class BinLogPack11 {
 
 
     public static $EVENT_INFO;
