@@ -10,96 +10,111 @@ use Wing\Bin\Constant\EventType;
  */
 class BinLogPacket
 {
-
-	public static $EVENT_INFO;
-	public static $EVENT_TYPE;
-
-	private $_offset = 0;
-	private $_packet;
-	private static $_BUFFER = '';
+	private $offset = 0;
+	private $packet;
+	private $buffer = '';
 
 	private static $_instance = null;
 
-	// 持久化记录 file pos  不能在next event 为dml操作记录
-	// 获取不到table map
-	private static $_FILE_NAME;
-	private static $_POS;
+	protected $schema_name;
+	protected $table_name;
+	protected $table_map;
 
 
-	public function getLastBinLogFile()
+	public static $bitCountInByte = [
+		0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
+		1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+		1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+		1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+		3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+		1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+		3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+		3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+		3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+		4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8,
+	];
+
+
+	public static function parse($pack, $checkSum = true)
 	{
-		return self::$_FILE_NAME;
-	}
-	public function getLastPos()
-	{
-		return self::$_POS;
-	}
-	public static function getInstance() {
 		if(!self::$_instance) {
 			self::$_instance = new self();
 		}
-		return self::$_instance;
+		return self::$_instance->_parse($pack, $checkSum);
 	}
 
+	private function _parse($pack, $checkSum = true) {
 
-	public function parse($pack, $checkSum = true) {
-		if(!self::$_instance) {
-			self::$_instance = new self();
+
+		$file_name  = null;
+		$data       = [];
+		$log_pos    = 0;
+
+		if (strlen($pack) < 19) {
+			goto end;
 		}
 
-		//package error
-		if (strlen($pack) < 19) return null;
-		//
-		$this->_packet       = $pack;
-		$this->_offset   = 0;
-		self::$EVENT_INFO  = [];
+		$this->packet   = $pack;
+		$this->offset   = 0;
+
 		$this->advance(1);
-		self::$EVENT_INFO['time'] = $timestamp  = unpack('L', $this->read(4))[1];
-		self::$EVENT_INFO['type'] = self::$EVENT_TYPE = unpack('C', $this->read(1))[1];
-		self::$EVENT_INFO['id']   = $server_id  = unpack('L', $this->read(4))[1];
-		self::$EVENT_INFO['size'] = $event_size = unpack('L', $this->read(4))[1];
+		$timestamp  = unpack('L', $this->read(4))[1];
+		$event_type = unpack('C', $this->read(1))[1];
+
+		$this->read(4);
+		//$server_id  = unpack('L', $this->read(4))[1];
+
+		$event_size = unpack('L', $this->read(4))[1];
 
 		//position of the next event
-		self::$EVENT_INFO['pos']  = $log_pos    = unpack('L', $this->read(4))[1];//
-		self::$EVENT_INFO['flag'] = $flags      = unpack('S', $this->read(2))[1];
+		$log_pos    = unpack('L', $this->read(4))[1];//
+
+		$this->read(2);
+		//$flags      = unpack('S', $this->read(2))[1];
+
 		$event_size_without_header = $checkSum === true ? ($event_size -23) : $event_size - 19;
-		$data = [];
 
 
 
-		switch (self::$EVENT_TYPE) {
+		switch ($event_type) {
 			// 映射fileds相关信息
 			case EventType::TABLE_MAP_EVENT: {
-				RowEvent::tableMap(self::getInstance(), self::$EVENT_TYPE);
+				//RowEvent::tableMap($this, $event_type);
+				$this->tableMap();
 			}
 			break;
 			case EventType::UPDATE_ROWS_EVENT_V2:
 			case EventType::UPDATE_ROWS_EVENT_V1: {
-				$data = RowEvent::updateRow(self::getInstance(), self::$EVENT_TYPE, $event_size_without_header);
-				self::$_POS = self::$EVENT_INFO['pos'];
-			$data["event"]["time"] = date("Y-m-d H:i:s", $timestamp);
-
-		}
+				$data = $this->updateRow($event_type, $event_size_without_header);
+					//RowEvent::updateRow($this, $event_type, $event_size_without_header);
+				$data["event"]["time"] = date("Y-m-d H:i:s", $timestamp);
+				}
 				break;
 			case EventType::WRITE_ROWS_EVENT_V1:
 			case EventType::WRITE_ROWS_EVENT_V2: {
-				$data = RowEvent::addRow(self::getInstance(), self::$EVENT_TYPE, $event_size_without_header);
-				self::$_POS = self::$EVENT_INFO['pos'];
+				$data = $this->addRow($event_type, $event_size_without_header);
+					//RowEvent::addRow($this, $event_type, $event_size_without_header);
 			$data["event"]["time"] = date("Y-m-d H:i:s", $timestamp);
 
 		}
 				break;
 			case EventType::DELETE_ROWS_EVENT_V1:
 			case EventType::DELETE_ROWS_EVENT_V2: {
-				$data = RowEvent::delRow(self::getInstance(), self::$EVENT_TYPE, $event_size_without_header);
-				self::$_POS = self::$EVENT_INFO['pos'];
+				$data =  $this->delRow($event_type, $event_size_without_header);
+					//RowEvent::delRow($this, $event_type, $event_size_without_header);
 			$data["event"]["time"] = date("Y-m-d H:i:s", $timestamp);
 
 		}
 				break;
 			case EventType::ROTATE_EVENT: {
 				$log_pos = $this->readUint64();
-				self::$_FILE_NAME = $this->read($event_size_without_header - 8);
+				$file_name = $this->read($event_size_without_header - 8);
 			}
 				break;
 			case EventType::HEARTBEAT_LOG_EVENT: {
@@ -108,52 +123,44 @@ class BinLogPacket
 				wing_debug('心跳事件 ' . $binlog_name);// . "\n";
 			}
 				break;
-			case EventType::QUERY_EVENT:
-				//var_dump(self::$EVENT_INFO);
-				//echo "查询事件";
-//				$this->read(16);
-//				$binlog_name = $this->read($event_size_without_header);
-				//var_dump($binlog_name);
-				break;
 			default:
 				echo "未知事件";
-				//var_dump(self::$EVENT_TYPE);
 				break;
 		}
 
 		if (WING_DEBUG) {
-			$msg  = self::$_FILE_NAME;
+			$msg  = $file_name;
 			$msg .= '-- next pos -> '.$log_pos;
-			$msg .= ' --  typeEvent -> '.self::$EVENT_TYPE;
+			$msg .= ' --  typeEvent -> '.$event_type;
 			wing_log("slave_debug", $msg);
 		}
 		wing_log("slave_bin", $pack."\r\n\r\n");
 
-		return [$data, self::$_FILE_NAME, $log_pos];
+		end:
+		return [$data, $file_name, $log_pos];
 	}
 
-	public static $unget = [];
 	public function read($length) {
 		$length = (int)$length;
 		$n='';
 
-		if(self::$_BUFFER) {
-			$n = substr(self::$_BUFFER, 0 , $length);
+		if ($this->buffer) {
+			$n = substr($this->buffer, 0 , $length);
 			if(strlen($n) == $length) {
-				self::$_BUFFER = substr(self::$_BUFFER, $length);;
+				$this->buffer = substr($this->buffer, $length);;
 				return $n;
 			} else {
-				self::$_BUFFER = '';
+				$this->buffer = '';
 				$length = $length - strlen($n);
 			}
 
 		}
 
-		for($i = $this->_offset; $i < $this->_offset + $length; $i++) {
-			$n .= $this->_packet[$i];
+		for($i = $this->offset; $i < $this->offset + $length; $i++) {
+			$n .= $this->packet[$i];
 		}
 
-		$this->_offset += $length;
+		$this->offset += $length;
 
 		return $n;
 
@@ -191,6 +198,7 @@ class BinLogPacket
 		elseif($c == Column::UNSIGNED_INT64) {
 			return $this->unpackInt64($this->read(Column::UNSIGNED_INT64_LENGTH));
 		}
+		return null;
 	}
 
 	public function unpackUint16($data) {
@@ -337,6 +345,8 @@ class BinLogPacket
 			return $this->readUint56();
 		elseif($size == 8)
 			return $this->readUint64();
+
+		return null;
 	}
 	public function read_length_coded_pascal_string($size)
 	{
@@ -367,34 +377,649 @@ class BinLogPacket
 	/**
 	 * @return bool
 	 */
-	public function isComplete($size) {
+	public function hasNext($size) {
 		// 20解析server_id ...
-		if ($this->_offset + 1 - 20 < $size) {
+		if ($this->offset + 1 - 20 < $size) {
 			return false;
 		}
 		return true;
 	}
 
-	/**
-	 * @biref  初始化设置 file，pos，解决持久化file为空问题
-	 * @param $file
-	 * @param $pos
-	 */
-	public static function setFilePos($file, $pos) {
-		self::$_FILE_NAME = $file;
-		self::$_POS       = $pos;
-	}
-
-	/**
-	 * @brief 获取binlog file，pos持久化
-	 * @return array
-	 */
-	public static function getFilePos() {
-		return array(self::$_FILE_NAME, self::$_POS);
-	}
-
 	public function unread($data) {
-		self::$_BUFFER.=$data;
+		$this->buffer .= $data;
 	}
+
+
+	public function readTableId()
+	{
+		$a = (int)(ord($this->read(1)) & 0xFF);
+		$a += (int)((ord($this->read(1)) & 0xFF) << 8);
+		$a += (int)((ord($this->read(1)) & 0xFF) << 16);
+		$a += (int)((ord($this->read(1)) & 0xFF) << 24);
+		$a += (int)((ord($this->read(1)) & 0xFF) << 32);
+		$a += (int)((ord($this->read(1)) & 0xFF) << 40);
+		return $a;
+	}
+
+	public function tableMap()
+	{
+		$table_id = $this->readTableId();
+
+		$this->read(2);
+		//$flags = unpack('S', $this->read(2))[1];
+
+		$schema_length = unpack("C", $this->read(1))[1];
+
+		//database 数据库名称
+		$this->schema_name = $this->read($schema_length);
+
+		// 00
+		$this->advance(1);
+
+		$table_length = unpack("C", $this->read(1))[1];
+		//数据表名称
+		$this->table_name = $this->read($table_length);
+
+		// 00
+		$this->advance(1);
+
+		$columns_num = $this->readCodedBinary();
+
+		//
+		$column_type_def = $this->read($columns_num);
+
+
+
+		// 避免重复读取 表信息
+//		if (isset(self::$TABLE_MAP[self::$SCHEMA_NAME][self::$TABLE_NAME]['table_id'])
+//			&& self::$TABLE_MAP[self::$SCHEMA_NAME][self::$TABLE_NAME]['table_id']== self::$TABLE_ID) {
+//			return $data;
+//		}
+
+		if (isset($this->table_map[$this->schema_name][$this->table_name]['table_id']) &&
+			$this->table_map[$this->schema_name][$this->table_name]['table_id'] == $table_id
+		) {
+			return [
+				'schema_name'=> $this->schema_name,
+				'table_name' => $this->table_name,
+				'table_id'   => $table_id
+			];
+		}
+
+		$this->table_map[$this->schema_name][$this->table_name] = [
+			'schema_name'=> $this->schema_name,
+			'table_name' => $this->table_name,
+			'table_id'   => $table_id
+		];
+
+//
+//		self::$TABLE_MAP[self::$SCHEMA_NAME][self::$TABLE_NAME] = array(
+//			'schema_name'=> $data['schema_name'],
+//			'table_name' => $data['table_name'],
+//			'table_id'   => self::$TABLE_ID
+//		);
+
+
+		$this->readCodedBinary();
+
+
+		// fields 相应属性
+		$colums = Db::getFields($this->schema_name, $this->table_name);
+
+		$this->table_map[$this->schema_name][$this->table_name]['fields'] = [];
+
+		for ($i = 0; $i < strlen($column_type_def); $i++) {
+			$type = ord($column_type_def[$i]);
+//			if(!isset($colums[$i])){
+//				wing_log("slave_warn", var_export($colums, true).var_export($data, true));
+//			}
+			//self::$TABLE_MAP[self::$SCHEMA_NAME][self::$TABLE_NAME]['fields'][$i] =
+			// BinLogColumns::parse($type, $colums[$i], $this);
+			$this->table_map[$this->schema_name][$this->table_name]['fields'][$i] =
+			 BinLogColumns::parse($type, $colums[$i], $this);
+		}
+
+		return [
+			'schema_name'=> $this->schema_name,
+			'table_name' => $this->table_name,
+			'table_id'   => $table_id
+		];
+	}
+
+	public function updateRow($event_type, $size)
+	{
+
+		//self::rowInit($pack, $event_type, $size);
+
+		//$table_id =
+			$this->readTableId();
+
+		if (in_array($event_type, [EventType::DELETE_ROWS_EVENT_V2, EventType::WRITE_ROWS_EVENT_V2, EventType::UPDATE_ROWS_EVENT_V2])) {
+			$this->read(2);
+			//$flags = unpack('S', $this->read(2))[1];
+
+			$extra_data_length = unpack('S', $this->read(2))[1];
+
+			//$extra_data =
+				$this->read($extra_data_length / 8);
+
+		} else {
+			$this->read(2);
+			//$flags = unpack('S', $this->read(2))[1];
+		}
+
+		// Body
+		$columns_num = $this->readCodedBinary();
+
+		//$result = [];
+		$len    = (int)(($columns_num + 7) / 8);
+
+
+		$bitmap1 = $this->read($len);
+
+		$bitmap2 = $this->read($len);
+
+
+		//nul-bitmap, length (bits set in 'columns-present-bitmap1'+7)/8
+//        $value['table'] = "";
+//        $value['update'] = self::_getUpdateRows($result, $len);
+
+
+		$value = [
+			"database" => $this->schema_name,
+			"table"    => $this->table_name,
+			"event"    =>  [
+				"event_type" => "update_rows",
+				"data"       => self::_getUpdateRows($bitmap1, $bitmap2, $size)
+			]
+		];
+
+		return $value;
+	}
+
+	private function _getUpdateRows($bitmap1, $bitmap2, $size) {
+		$rows = [];
+		while (!$this->hasNext($size)) {
+			$rows[] = [
+				"old_data" => $this->columnFormat($bitmap1),
+				"new_data" => $this->columnFormat($bitmap2)
+			];
+		}
+		return $rows;
+	}
+
+	public static function bitCount($bitmap) {
+		$n = 0;
+		for($i=0;$i<strlen($bitmap);$i++) {
+			$bit = $bitmap[$i];
+			if(is_string($bit)) {
+				$bit = ord($bit);
+			}
+			$n += self::$bitCountInByte[$bit];
+		}
+		return $n;
+	}
+
+	public static function BitGet($bitmap, $position)
+	{
+		$bit = $bitmap[intval($position / 8)];
+
+		if (is_string($bit)) {
+
+			$bit = ord($bit);
+		}
+
+		return $bit & (1 << ($position & 7));
+	}
+
+	public static function _is_null($null_bitmap, $position)
+	{
+		$bit = $null_bitmap[intval($position / 8)];
+		if (is_string($bit)) {
+			$bit = ord($bit);
+		}
+
+
+		return $bit & (1 << ($position % 8));
+	}
+
+	private function _read_string($size, $column)
+	{
+		$string = $this->read_length_coded_pascal_string($size);
+		if ($column['character_set_name']) {
+			//string = string . decode(column . character_set_name)
+		}
+		return $string;
+	}
+
+	private function read_new_decimal($column) {
+		#Read MySQL's new decimal format introduced in MySQL 5"""
+
+		# This project was a great source of inspiration for
+		# understanding this storage format.
+		# https://github.com/jeremycole/mysql_binlog
+
+		$digits_per_integer = 9;
+		$compressed_bytes = [0, 1, 1, 2, 2, 3, 3, 4, 4, 4];
+		$integral = ($column['precision'] - $column['decimals']);
+		$uncomp_integral = intval($integral / $digits_per_integer);
+		$uncomp_fractional = intval($column['decimals'] / $digits_per_integer);
+		$comp_integral = $integral - ($uncomp_integral * $digits_per_integer);
+		$comp_fractional = $column['decimals'] - ($uncomp_fractional * $digits_per_integer);
+
+		# Support negative
+		# The sign is encoded in the high bit of the the byte
+		# But this bit can also be used in the value
+		$value = $this->readUint8();
+		if ( ($value & 0x80) != 0) {
+			$res  = "";
+			$mask = 0;
+		}else {
+			$mask = -1;
+			$res  = "-";
+		}
+		$this->unread(pack('C', $value ^ 0x80));
+		$size = $compressed_bytes[$comp_integral];
+		if ($size > 0) {
+			$value =  $this->read_int_be_by_size($size) ^ $mask;
+			$res .= (string)$value;
+		}
+
+
+		for($i=0;$i<$uncomp_integral;$i++) {
+			$value = unpack('N', $this->read(4))[1] ^ $mask;
+			$res .= sprintf('%09d' , $value);
+		}
+
+		$res .= ".";
+		for($i=0;$i<$uncomp_fractional;$i++) {
+			$value = unpack('N', $this->read(4))[1] ^ $mask;
+			$res .= sprintf('%09d' , $value);
+		}
+
+		$size = $compressed_bytes[$comp_fractional];
+		if ($size > 0) {
+			$value = $this->read_int_be_by_size($size) ^ $mask;
+
+			$res.=sprintf('%0'.$comp_fractional.'d' , $value);
+		}
+		return number_format($res,$comp_fractional,'.','');
+	}
+
+	private function _read_datetime()
+	{
+		$value = $this->readUint64();
+		if ($value == 0)  # nasty mysql 0000-00-00 dates
+			return null;
+
+		$date = $value / 1000000;
+		$time = (int)($value % 1000000);
+
+		$year = (int)($date / 10000);
+		$month = (int)(($date % 10000) / 100);
+		$day = (int)($date % 100);
+		if ($year == 0 or $month == 0 or $day == 0)
+			return null;
+
+		return $year.'-'.$month.'-'.$day .' '.intval($time / 10000).':'.intval(($time % 10000) / 100).':'.intval($time % 100);
+
+	}
+	private static function _read_binary_slice($binary, $start, $size, $data_length) {
+		/*
+		Read a part of binary data and extract a number
+		binary: the data
+		start: From which bit (1 to X)
+		size: How many bits should be read
+		data_length: data size
+		*/
+		$binary = $binary >> $data_length - ($start + $size);
+		$mask = ((1 << $size) - 1);
+		return $binary & $mask;
+	}
+
+	private function  _read_datetime2($column) {
+		/*DATETIME
+
+		1 bit  sign           (1= non-negative, 0= negative)
+		17 bits year*13+month  (year 0-9999, month 0-12)
+		 5 bits day            (0-31)
+		 5 bits hour           (0-23)
+		 6 bits minute         (0-59)
+		 6 bits second         (0-59)
+		---------------------------
+		40 bits = 5 bytes
+		*/
+		$data = $this->read_int_be_by_size(5);
+
+		$year_month = self::_read_binary_slice($data, 1, 17, 40);
+
+
+		$year=(int)($year_month / 13);
+		$month=$year_month % 13;
+		$day=self::_read_binary_slice($data, 18, 5, 40);
+		$hour=self::_read_binary_slice($data, 23, 5, 40);
+		$minute=self::_read_binary_slice($data, 28, 6, 40);
+		$second=self::_read_binary_slice($data, 34, 6, 40);
+		if($hour < 10) {
+			$hour ='0'.$hour;
+		}
+		if($minute < 10) {
+			$minute = '0'.$minute;
+		}
+		if($second < 10) {
+			$second = '0'.$second;
+		}
+		$time = $year.'-'.$month.'-'.$day.' '.$hour.':'.$minute.':'.$second;
+		$microsecond = $this->_add_fsp_to_time($column);
+		if($microsecond) {
+			$time .='.'.$microsecond;
+		}
+		return $time;
+	}
+	private function _add_fsp_to_time($column)
+	{
+		/*Read and add the fractional part of time
+			For more details about new date format:
+			http://dev.mysql.com/doc/internals/en/date-and-time-data-type-representation.html
+			*/
+
+
+		$read = 0;
+		$time = '';
+		if( $column['fsp'] == 1 or $column['fsp'] == 2)
+			$read = 1;
+		elseif($column['fsp'] == 3 or $column['fsp'] == 4)
+			$read = 2;
+		elseif ($column ['fsp'] == 5 or $column['fsp'] == 6)
+			$read = 3;
+		if ($read > 0) {
+			$microsecond = $this->read_int_be_by_size($read);
+			if ($column['fsp'] % 2)
+				$time = (int)($microsecond / 10);
+			else
+				$time = $microsecond;
+		}
+		return $time;
+	}
+
+	private function _read_date() {
+		$time = $this->readUint24();
+
+		if ($time == 0)  # nasty mysql 0000-00-00 dates
+			return null;
+
+		$year = ($time & ((1 << 15) - 1) << 9) >> 9;
+		$month = ($time & ((1 << 4) - 1) << 5) >> 5;
+		$day = ($time & ((1 << 5) - 1));
+		if ($year == 0 || $month == 0 || $day == 0)
+			return null;
+
+		return $year.'-'.$month.'-'.$day;
+	}
+
+
+	private function columnFormat($cols_bitmap)
+	{
+		$values = [];
+
+		//$l = (int)(($len * 8 + 7) / 8);
+		$l = (int)((self::bitCount($cols_bitmap) + 7) / 8);
+
+		# null bitmap length = (bits set in 'columns-present-bitmap'+7)/8
+		# See http://dev.mysql.com/doc/internals/en/rows-event.html
+
+
+		$null_bitmap = $this->read($l);
+
+		$nullBitmapIndex = 0;
+		foreach ($this->table_map[$this->schema_name][$this->table_name]['fields'] as $i => $value) {
+			$column = $value;
+			//var_dump($column);
+			$name = $value['name'];
+			$unsigned = $value['unsigned'];
+
+
+			if (self::BitGet($cols_bitmap, $i) == 0) {
+				$values[$name] = null;
+				continue;
+			}
+
+			if (self::_is_null($null_bitmap, $nullBitmapIndex)) {
+				$values[$name] = null;
+			} elseif ($column['type'] == FieldType::TINY) {
+				if ($unsigned)
+					$values[$name] = unpack("C", $this->read(1))[1];
+				else
+					$values[$name] = unpack("c", $this->read(1))[1];
+			} elseif ($column['type'] == FieldType::SHORT) {
+				if ($unsigned)
+					$values[$name] = unpack("S", $this->read(2))[1];
+				else
+					$values[$name] = unpack("s", $this->read(2))[1];
+			} elseif ($column['type'] == FieldType::LONG) {
+
+				if ($unsigned) {
+					$values[$name] = unpack("I", $this->read(4))[1];
+				} else {
+					$values[$name] = unpack("i", $this->read(4))[1];
+				}
+			} elseif ($column['type'] == FieldType::INT24) {
+				if ($unsigned)
+					$values[$name] = $this->readUint24();
+				else
+					$values[$name] = $this->read_int24();
+			} elseif ($column['type'] == FieldType::FLOAT)
+				$values[$name] = unpack("f", $this->read(4))[1];
+			elseif ($column['type'] == FieldType::DOUBLE)
+				$values[$name] = unpack("d", $this->read(8))[1];
+			elseif ($column['type'] == FieldType::VARCHAR ||
+				$column['type'] == FieldType::STRING
+			) {
+				if ($column['max_length'] > 255)
+					$values[$name] = $this->_read_string(2, $column);
+				else
+					$values[$name] = $this->_read_string(1, $column);
+			} elseif ($column['type'] == FieldType::NEWDECIMAL) {
+
+				//$precision = unpack('C', $this->read(1))[1];
+				//$decimals  = unpack('C', $this->read(1))[1];
+
+//var_dump($precision,$decimals);exit;
+//precision = metadata[:precision]
+//        scale = metadata[:decimals]
+				$values[$name] = $this->read_new_decimal($column);
+			} elseif ($column['type'] == FieldType::BLOB) {
+				//ok
+				$values[$name] = self::_read_string($column['length_size'], $column);
+
+			}
+			elseif ($column['type'] == FieldType::DATETIME) {
+
+				$values[$name] = $this->_read_datetime();
+			} elseif ($column['type'] == FieldType::DATETIME2) {
+				//ok
+				$values[$name] = $this->_read_datetime2($column);
+			}elseif ($column['type'] == FieldType::TIME2) {
+
+				$values[$name] = self::_read_time2($column);
+			}
+			elseif ($column['type'] == FieldType::TIMESTAMP2){
+				//ok
+				$time = date('Y-m-d H:i:m',$this->read_int_be_by_size(4));
+				// 微妙
+				$time .= '.' . self::_add_fsp_to_time($column);
+				$values[$name] = $time;
+			}
+			elseif ($column['type'] == FieldType::DATE)
+				$values[$name] = $this->_read_date();
+			/*
+		elseif ($column['type'] == FieldType::TIME:
+			$values[$name] = self.__read_time()
+		elseif ($column['type'] == FieldType::DATE:
+			$values[$name] = self.__read_date()
+			*/
+			elseif ($column['type'] == FieldType::TIMESTAMP) {
+				$values[$name] = date('Y-m-d H:i:s', $this->readUint32());
+			}
+
+			# For new date format:
+			/*
+						elseif ($column['type'] == FieldType::TIME2:
+							$values[$name] = self.__read_time2(column)
+						elseif ($column['type'] == FieldType::TIMESTAMP2:
+							$values[$name] = self.__add_fsp_to_time(
+									datetime.datetime.fromtimestamp(
+										$this->read_int_be_by_size(4)), column)
+						*/
+			elseif ($column['type'] == FieldType::LONGLONG) {
+				if ($unsigned) {
+					$values[$name] = $this->readUint64();
+				} else {
+					$values[$name] = $this->readInt64();
+				}
+
+			} elseif($column['type'] == FieldType::ENUM) {
+				$values[$name] = $column['enum_values'][$this->read_uint_by_size($column['size']) - 1];
+			} else {
+			}
+			/*
+			elseif ($column['type'] == FieldType::YEAR:
+				$values[$name] = $this->read_uint8() + 1900
+			elseif ($column['type'] == FieldType::SET:
+				# We read set columns as a bitmap telling us which options
+				# are enabled
+				bit_mask = $this->read_uint_by_size(column.size)
+				$values[$name] = set(
+					val for idx, val in enumerate(column.set_values)
+				if bit_mask & 2 ** idx
+				) or None
+
+			elseif ($column['type'] == FieldType::BIT:
+				$values[$name] = self.__read_bit(column)
+			elseif ($column['type'] == FieldType::GEOMETRY:
+				$values[$name] = $this->read_length_coded_pascal_string(
+						column.length_size)
+			else:
+				raise NotImplementedError("Unknown MySQL column type: %d" %
+					(column.type))
+			*/
+			$nullBitmapIndex += 1;
+		}
+		//$values['table_name'] = self::$TABLE_NAME;
+		return $values;
+	}
+
+
+	public function addRow( $event_type, $size)
+	{
+		//$table_id =
+		$this->readTableId();
+
+		if (in_array($event_type, [EventType::DELETE_ROWS_EVENT_V2, EventType::WRITE_ROWS_EVENT_V2, EventType::UPDATE_ROWS_EVENT_V2])) {
+			$this->read(2);
+			//$flags = unpack('S', $this->read(2))[1];
+
+			$extra_data_length = unpack('S', $this->read(2))[1];
+
+			//$extra_data =
+			$this->read($extra_data_length / 8);
+
+		} else {
+			$this->read(2);
+			//$flags = unpack('S', $this->read(2))[1];
+		}
+
+		// Body
+		$columns_num = $this->readCodedBinary();
+
+		//$result = [];
+		// ？？？？
+		//$result['extra_data'] = getData($data, );
+//        $result['columns_length'] = unpack("C", $this->read(1))[1];
+		//$result['schema_name']   = getData($data, 29, 28+$result['schema_length'][1]);
+		$len = (int)(($columns_num + 7) / 8);
+
+
+		$bitmap = $this->read($len);
+
+		//nul-bitmap, length (bits set in 'columns-present-bitmap1'+7)/8
+
+		$value = [
+			"database" => $this->schema_name,
+			"table"    => $this->table_name,
+			"event"    =>  [
+				"event_type" => "write_rows",
+				"data"       => self::_getAddRows($bitmap, $size)
+			]
+		];
+		return $value;
+	}
+
+	public function delRow($event_type, $size)
+	{
+		//$table_id =
+		$this->readTableId();
+
+		if (in_array($event_type, [EventType::DELETE_ROWS_EVENT_V2, EventType::WRITE_ROWS_EVENT_V2, EventType::UPDATE_ROWS_EVENT_V2])) {
+			$this->read(2);
+			//$flags = unpack('S', $this->read(2))[1];
+
+			$extra_data_length = unpack('S', $this->read(2))[1];
+
+			//$extra_data =
+			$this->read($extra_data_length / 8);
+
+		} else {
+			$this->read(2);
+			//$flags = unpack('S', $this->read(2))[1];
+		}
+
+		// Body
+		$columns_num = $this->readCodedBinary();
+
+		//$result = [];
+		// ？？？？
+		//$result['extra_data'] = getData($data, );
+//        $result['columns_length'] = unpack("C", $this->read(1))[1];
+		//$result['schema_name']   = getData($data, 29, 28+$result['schema_length'][1]);
+		$len = (int)(($columns_num + 7) / 8);
+
+
+		$bitmap = $this->read($len);
+
+
+		//nul-bitmap, length (bits set in 'columns-present-bitmap1'+7)/8
+		//$value['del'] = self::_getDelRows($result, $len);
+
+		$value = [
+			"database" => $this->schema_name,
+			"table"    => $this->table_name,
+			"event"    =>  [
+				"event_type" => "delete_rows",
+				"data"       => self::_getDelRows($bitmap, $size)
+			]
+		];
+		return $value;
+	}
+
+	private function _getDelRows($bitmap, $size) {
+		$rows = [];
+		while(!$this->hasNext($size)) {
+			$rows[] = $this->columnFormat($bitmap);
+		}
+		return $rows;
+	}
+
+	private function  _getAddRows($bitmap, $size) {
+		$rows = [];
+
+		while(!$this->hasNext($size)) {
+			$rows[] = $this->columnFormat($bitmap);
+		}
+		return $rows;
+	}
+
+
+
 
 }

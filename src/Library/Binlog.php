@@ -88,7 +88,7 @@ class Binlog
 //		$result = $binlog->init($pack, $this->checksum);
 
 
-		$res = BinLogPacket::getInstance()->parse($pack, $this->checksum);
+		$res = BinLogPacket::parse($pack, $this->checksum);
 
 		if (!$res) return null;
 		list($result, $binlog_file, $last_pos) = $res;
@@ -101,10 +101,11 @@ class Binlog
 
 
 	}
-	public function registerSlave(
-		$checksum,
-		$slave_server_id
-	)
+
+	/**
+	 * 注册成为从库（binlog协议支持）
+	 */
+	public function registerSlave($checksum, $slave_server_id)
 	{
 		$this->checksum = $checksum;
 		//$this->slave_server_id = $slave_server_id;
@@ -126,7 +127,7 @@ class Binlog
 		Packet::success($result);
 
 		// 初始化
-		BinLogPacket::setFilePos($this->binlog_file, $this->last_pos);
+		//BinLogPacket::setFilePos($this->binlog_file, $this->last_pos);
 
 		//封包
 		$data = Packet::binlogDump($this->binlog_file, $this->last_pos, $slave_server_id);
