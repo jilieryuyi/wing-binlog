@@ -106,11 +106,11 @@ class BinLogPacket
 				break;
 			case EventType::DELETE_ROWS_EVENT_V1:
 			case EventType::DELETE_ROWS_EVENT_V2: {
-				$data =  $this->delRow($event_type, $event_size_without_header);
+					$data =  $this->delRow($event_type, $event_size_without_header);
 					//RowEvent::delRow($this, $event_type, $event_size_without_header);
-			$data["event"]["time"] = date("Y-m-d H:i:s", $timestamp);
+					$data["event"]["time"] = date("Y-m-d H:i:s", $timestamp);
 
-		}
+				}
 				break;
 			case EventType::ROTATE_EVENT: {
 				$log_pos = $this->readUint64();
@@ -120,21 +120,22 @@ class BinLogPacket
 			case EventType::HEARTBEAT_LOG_EVENT: {
 				//心跳检测机制
 				$binlog_name = $this->read($event_size_without_header);
-				wing_debug('心跳事件 ' . $binlog_name);// . "\n";
+				wing_debug('心跳事件 => ' . $binlog_name);
 			}
 				break;
 			default:
+				wing_log("binlog_not_support_event", $event_type, $pack);
 				echo "未知事件";
 				break;
 		}
 
-		if (WING_DEBUG) {
-			$msg  = $file_name;
-			$msg .= '-- next pos -> '.$log_pos;
-			$msg .= ' --  typeEvent -> '.$event_type;
-			wing_log("slave_debug", $msg);
-		}
-		wing_log("slave_bin", $pack."\r\n\r\n");
+//		if (WING_DEBUG) {
+//			$msg  = $file_name;
+//			$msg .= '-- next pos -> '.$log_pos;
+//			$msg .= ' --  typeEvent -> '.$event_type;
+//			wing_log("slave_debug", $msg);
+//		}
+//		wing_log("slave_bin", $pack."\r\n\r\n");
 
 		end:
 		return [$data, $file_name, $log_pos];

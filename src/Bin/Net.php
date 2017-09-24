@@ -1,4 +1,6 @@
 <?php namespace Wing\Bin;
+use Wing\Exception\NetCloseException;
+
 /**
  * Net.php
  * User: huangxiaoan
@@ -31,7 +33,7 @@ class Net
 
 				//
 				if($resp === false) {
-					throw new \Exception(
+					throw new NetCloseException(
 						sprintf(
 							'remote host has closed. error:%s, msg:%s',
 							socket_last_error(),
@@ -41,13 +43,13 @@ class Net
 
 				// server kill connection or server gone away
 				if(strlen($resp) === 0){
-					throw new \Exception("read less " . ($data_len - strlen($body)));
+					throw new NetCloseException("read less " . ($data_len - strlen($body)));
 				}
 				$body .= $resp;
 				$bytes_read += strlen($resp);
 			}
 			if (strlen($body) < $data_len){
-				throw new \Exception("read less " . ($data_len - strlen($body)));
+				throw new NetCloseException("read less " . ($data_len - strlen($body)));
 			}
 			return $body;
 		} catch (\Exception $e) {

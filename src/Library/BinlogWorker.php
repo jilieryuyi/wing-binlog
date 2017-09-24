@@ -1,5 +1,7 @@
 <?php namespace Wing\Library;
 
+use Wing\Exception\NetCloseException;
+
 /**
  * EventWorker.php
  * User: huangxiaoan
@@ -26,22 +28,9 @@ class BinlogWorker extends BaseWorker
     public function __construct($daemon, $workers)
 	{
 		$config = load_config("app");
-		//认证
-		\Wing\Bin\Auth\Auth::execute(
-			$config["mysql"]["host"],
-			$config["mysql"]["user"],
-			$config["mysql"]["password"],
-			$config["mysql"]["db_name"],
-			$config["mysql"]["port"]
-		);
 
 		$this->binlog = new BinLog(new PDO);
-
-		//注册为slave
-		$this->binlog->registerSlave(
-			!!\Wing\Bin\Db::getChecksum(),
-			$config["slave_server_id"]
-		);
+		$this->connect($config);
 
 		if ($config
             && isset($config["subscribe"])
@@ -53,6 +42,29 @@ class BinlogWorker extends BaseWorker
                 $this->notify[] = new $class($params);
             }
         }
+	}
+
+	protected function connect($config)
+	{
+		try {
+			//认证
+			\Wing\Bin\Auth\Auth::execute(
+				$config["mysql"]["host"],
+				$config["mysql"]["user"],
+				$config["mysql"]["password"],
+				$config["mysql"]["db_name"],
+				$config["mysql"]["port"]
+			);
+
+
+			//注册为slave
+			$this->binlog->registerSlave(
+				!!\Wing\Bin\Db::getChecksum(),
+				$config["slave_server_id"]
+			);
+		} catch (\Exception $e) {
+
+		}
 	}
 
 	public function start()
@@ -116,7 +128,12 @@ class BinlogWorker extends BaseWorker
 
 
 				} while (0);
-			} catch (\Exception $e) {
+			}
+			catch (NetCloseException $e) {
+				usleep(500000);
+				$this->connect(load_config("app"));
+			}
+			catch (\Exception $e) {
 				if (WING_DEBUG) {
 					var_dump($e->getMessage());
 				}

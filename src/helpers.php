@@ -258,7 +258,7 @@ if (!function_exists("wing_debug")) {
             echo $item." ";
         	else var_dump($item);
         }
-        echo "\r\n";
+        echo PHP_EOL;
     }
 }
 
