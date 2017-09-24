@@ -536,7 +536,7 @@ class RowEvent extends BinLogEvent
 
     private static function _getUpdateRows($result, $len) {
         $rows = [];
-        while(!self::$PACK->hasNext(self::$PACK_SIZE)) {
+        while(self::$PACK->hasNext(self::$PACK_SIZE)) {
             $rows[] = [
                 "old_data" => self::columnFormat($result['bitmap1'], $len),
                 "new_data" => self::columnFormat($result['bitmap2'], $len)
@@ -547,7 +547,7 @@ class RowEvent extends BinLogEvent
 
     private static function _getDelRows($result, $len) {
         $rows = [];
-        while(!self::$PACK->hasNext(self::$PACK_SIZE)) {
+        while(self::$PACK->hasNext(self::$PACK_SIZE)) {
             $rows[] = self::columnFormat($result['bitmap'], $len);
         }
         return $rows;
@@ -556,7 +556,7 @@ class RowEvent extends BinLogEvent
     private static function  _getAddRows($result, $len) {
         $rows = [];
 
-        while(!self::$PACK->hasNext(self::$PACK_SIZE)) {
+        while(self::$PACK->hasNext(self::$PACK_SIZE)) {
             $rows[] = self::columnFormat($result['bitmap'], $len);
         }
         return $rows;

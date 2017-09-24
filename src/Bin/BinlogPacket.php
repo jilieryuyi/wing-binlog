@@ -377,9 +377,9 @@ class BinLogPacket
 	public function hasNext($size) {
 		// 20解析server_id ...
 		if ($this->offset + 1 - 20 < $size) {
-			return false;
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	public function unread($data) {
@@ -536,7 +536,7 @@ class BinLogPacket
 
 	private function _getUpdateRows($bitmap1, $bitmap2, $size) {
 		$rows = [];
-		while (!$this->hasNext($size)) {
+		while ($this->hasNext($size)) {
 			$rows[] = [
 				"old_data" => $this->columnFormat($bitmap1),
 				"new_data" => $this->columnFormat($bitmap2)
@@ -1001,7 +1001,7 @@ class BinLogPacket
 
 	private function _getDelRows($bitmap, $size) {
 		$rows = [];
-		while(!$this->hasNext($size)) {
+		while($this->hasNext($size)) {
 			$rows[] = $this->columnFormat($bitmap);
 		}
 		return $rows;
@@ -1010,7 +1010,7 @@ class BinLogPacket
 	private function  _getAddRows($bitmap, $size) {
 		$rows = [];
 
-		while(!$this->hasNext($size)) {
+		while($this->hasNext($size)) {
 			$rows[] = $this->columnFormat($bitmap);
 		}
 		return $rows;
