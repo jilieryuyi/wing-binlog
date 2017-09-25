@@ -1,6 +1,5 @@
 <?php namespace Wing\Bin\Auth;
 use Wing\Bin\Constant\CapabilityFlag;
-use Wing\Bin\Context;
 use Wing\Bin\Net;
 use Wing\Bin\Packet;
 
@@ -13,10 +12,6 @@ use Wing\Bin\Packet;
 class Auth
 {
 	private static $socket;
-//	private static $pdo;
-//	private static $checksum;
-
-	//Context &$context
 	public static function execute($host, $user, $password, $db_name, $port)
 	{
 		if (($socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP)) == false) {
@@ -101,6 +96,5 @@ class Auth
 	public static function free()
 	{
 		socket_close(self::$socket);
-
 	}
 }

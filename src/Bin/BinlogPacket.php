@@ -1,6 +1,7 @@
 <?php namespace Wing\Bin;
 use Wing\Bin\Constant\Column;
 use Wing\Bin\Constant\EventType;
+use Wing\Bin\Constant\FieldType;
 
 /**
  * Created by PhpStorm.
@@ -473,7 +474,7 @@ class BinLogPacket
 			//self::$TABLE_MAP[self::$SCHEMA_NAME][self::$TABLE_NAME]['fields'][$i] =
 			// BinLogColumns::parse($type, $colums[$i], $this);
 			$this->table_map[$this->schema_name][$this->table_name]['fields'][$i] =
-			 BinLogColumns::parse($type, $colums[$i], $this);
+			 $this->ColumnParse($type, $colums[$i]);
 		}
 
 		return [
@@ -482,6 +483,81 @@ class BinLogPacket
 			'table_id'   => $table_id
 		];
 	}
+
+	public function ColumnParse($column_type, $column_schema) {
+
+		$field = [];
+
+		$field['type'] = $column_type;
+		$field['name'] = $column_schema["COLUMN_NAME"];
+		$field['collation_name'] = $column_schema["COLLATION_NAME"];
+		$field['character_set_name'] = $column_schema["CHARACTER_SET_NAME"];
+		$field['comment'] = $column_schema["COLUMN_COMMENT"];
+		$field['unsigned'] = stripos($column_schema["COLUMN_TYPE"], 'unsigned') === false ? false : true;
+		$field['type_is_bool'] = false;
+		$field['is_primary'] = $column_schema["COLUMN_KEY"] == "PRI";
+
+		if ($field['type'] == FieldType::VARCHAR) {
+			$field['max_length'] = unpack('s', $this->read(2))[1];
+		}elseif ($field['type'] == FieldType::DOUBLE){
+			$field['size'] = $this->readUint8();
+		}elseif ($field['type'] == FieldType::FLOAT){
+			$field['size'] = $this->readUint8();
+		}elseif ($field['type'] == FieldType::TIMESTAMP2){
+			$field['fsp'] = $this->readUint8();
+		}elseif ($field['type'] == FieldType::DATETIME2){
+			$field['fsp']= $this->readUint8();
+		}elseif ($field['type'] == FieldType::TIME2) {
+			$field['fsp'] = $this->readUint8();
+		}elseif ($field['type'] == FieldType::TINY && $column_schema["COLUMN_TYPE"] == "tinyint(1)") {
+			$field['type_is_bool'] = True;
+		}elseif ($field['type'] == FieldType::VAR_STRING || $field['type'] == FieldType::STRING){
+			$this->_read_string_metadata($column_schema, $field);
+		}elseif( $field['type'] == FieldType::BLOB){
+			$field['length_size'] = $this->readUint8();
+		}elseif ($field['type'] == FieldType::GEOMETRY){
+			$field['length_size'] = $this->readUint8();
+		}elseif( $field['type'] == FieldType::NEWDECIMAL){
+			$field['precision'] = $this->readUint8();
+			$field['decimals'] = $this->readUint8();
+		}elseif ($field['type'] == FieldType::BIT) {
+			$bits = $this->readUint8();
+			$bytes = $this->readUint8();
+			$field['bits'] = ($bytes * 8) + $bits;
+			$field['bytes'] = (int)(($field['bits'] + 7) / 8);
+		}
+		return $field;
+	}
+
+	private function _read_string_metadata($column_schema, &$field){
+
+		$metadata = ($this->readUint8() << 8) + $this->readUint8();
+		$real_type = $metadata >> 8;
+		if($real_type == FieldType::SET || $real_type == FieldType::ENUM) {
+			$field['type'] = $real_type;
+			$field['size'] = $metadata & 0x00ff;
+			$this->_read_enum_metadata($column_schema, $field);
+		} else {
+			$field['max_length'] = ((($metadata >> 4) & 0x300) ^ 0x300) + ($metadata & 0x00ff);
+		}
+	}
+
+	private function _read_enum_metadata($column_schema, &$field) {
+		$enums = $column_schema["COLUMN_TYPE"];
+		if ($field['type'] == FieldType::ENUM) {
+			$enums = str_replace('enum(', '', $enums);
+			$enums = str_replace(')', '', $enums);
+			$enums = str_replace('\'', '', $enums);
+			$field['enum_values'] = explode(',', $enums);
+		} else {
+			$enums = str_replace('set(', '', $enums);
+			$enums = str_replace(')', '', $enums);
+			$enums = str_replace('\'', '', $enums);
+			$field['set_values'] = explode(',', $enums);
+		}
+	}
+
+
 
 	public function updateRow($event_type, $size)
 	{

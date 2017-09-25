@@ -1,7 +1,6 @@
 <?php namespace Wing\Bin\RowEvents;
-use Wing\Bin\BinLogPack;
 use Wing\Bin\Constant\Column;
-use Wing\Bin\FieldType;
+use Wing\Bin\Constant\FieldType;
 use Wing\Bin\Packet;
 
 /**
@@ -382,7 +381,7 @@ abstract class BinlogEvent {
 
 			if (self::_is_null($null_bitmap, $null_bitmap_index)) {
 				$values[$name] = null;
-			} elseif ($column['type'] == FieldType::TINY) {
+			} elseif ($column['type'] == \Wing\Bin\Constant\FieldType::TINY) {
 				if ($unsigned)
 					$values[$name] = unpack("C", $this->packet->read(1))[1];
 				else

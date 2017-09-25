@@ -1,5 +1,4 @@
 <?php namespace Wing\Library;
-use Wing\Bin\RowEvent;
 use Wing\FileSystem\WDir;
 
 /**

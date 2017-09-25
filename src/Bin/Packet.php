@@ -1,6 +1,7 @@
 <?php namespace Wing\Bin;
 use Wing\Bin\Constant\CharacterSet;
 use Wing\Bin\Constant\CommandType;
+use Wing\Bin\Constant\FieldType;
 
 /**
  * Packet.php
