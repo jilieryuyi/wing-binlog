@@ -522,19 +522,6 @@ class BinLogPacket
 //        $value['update'] = self::_getUpdateRows($result, $len);
 
 
-		$value = [
-			"database" => $this->schema_name,
-			"table"    => $this->table_name,
-			"event"    =>  [
-				"event_type" => "update_rows",
-				"data"       => self::_getUpdateRows($bitmap1, $bitmap2, $size)
-			]
-		];
-
-		return $value;
-	}
-
-	private function _getUpdateRows($bitmap1, $bitmap2, $size) {
 		$rows = [];
 		while ($this->hasNext($size)) {
 			$rows[] = [
@@ -542,7 +529,17 @@ class BinLogPacket
 				"new_data" => $this->columnFormat($bitmap2)
 			];
 		}
-		return $rows;
+
+		$value = [
+			"database" => $this->schema_name,
+			"table"    => $this->table_name,
+			"event"    =>  [
+				"event_type" => "update_rows",
+				"data"       => $rows//self::_getUpdateRows($bitmap1, $bitmap2, $size)
+			]
+		];
+
+		return $value;
 	}
 
 	public static function bitCount($bitmap) {
@@ -941,12 +938,18 @@ class BinLogPacket
 
 		//nul-bitmap, length (bits set in 'columns-present-bitmap1'+7)/8
 
+		$rows = [];
+
+		while($this->hasNext($size)) {
+			$rows[] = $this->columnFormat($bitmap);
+		}
+
 		$value = [
 			"database" => $this->schema_name,
 			"table"    => $this->table_name,
 			"event"    =>  [
 				"event_type" => "write_rows",
-				"data"       => self::_getAddRows($bitmap, $size)
+				"data"       => $rows//self::_getAddRows($bitmap, $size)
 			]
 		];
 		return $value;
@@ -988,32 +991,20 @@ class BinLogPacket
 		//nul-bitmap, length (bits set in 'columns-present-bitmap1'+7)/8
 		//$value['del'] = self::_getDelRows($result, $len);
 
+		$rows = [];
+		while($this->hasNext($size)) {
+			$rows[] = $this->columnFormat($bitmap);
+		}
+
 		$value = [
 			"database" => $this->schema_name,
 			"table"    => $this->table_name,
 			"event"    =>  [
 				"event_type" => "delete_rows",
-				"data"       => self::_getDelRows($bitmap, $size)
+				"data"       => $rows
 			]
 		];
 		return $value;
-	}
-
-	private function _getDelRows($bitmap, $size) {
-		$rows = [];
-		while($this->hasNext($size)) {
-			$rows[] = $this->columnFormat($bitmap);
-		}
-		return $rows;
-	}
-
-	private function  _getAddRows($bitmap, $size) {
-		$rows = [];
-
-		while($this->hasNext($size)) {
-			$rows[] = $this->columnFormat($bitmap);
-		}
-		return $rows;
 	}
 
 
