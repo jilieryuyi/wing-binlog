@@ -1008,35 +1008,73 @@ class BinLogPacket
 	}
 
 
-	private function _read_time2($column)
-	{
-//		"""TIME encoding for nonfractional part:
-//
-//         1 bit sign    (1= non-negative, 0= negative)
-//         1 bit unused  (reserved for future extensions)
-//        10 bits hour   (0-838)
-//         6 bits minute (0-59)
-//         6 bits second (0-59)
-//        ---------------------
-//        24 bits = 3 bytes
-//        """
+	private function _read_time2($column) {
+		/*
+		https://dev.mysql.com/doc/internals/en/date-and-time-data-type-representation.html
+		TIME encoding for nonfractional part:
+
+		 1 bit sign    (1= non-negative, 0= negative)
+		 1 bit unused  (reserved for future extensions)
+		10 bits hour   (0-838)
+		 6 bits minute (0-59)
+		 6 bits second (0-59)
+		---------------------
+		24 bits = 3 bytes
+		*/
 		$data = $this->read_int_be_by_size(3);
 
-		$sign = $this->_read_binary_slice($data, 0, 1, 24) ? 1 : -1;
+		$sign = 1;
+		if (self::_read_binary_slice($data, 0, 1, 24) ) {
+		} else {
+			$sign = -1;
+		}
 		if ($sign == -1) {
 			# negative integers are stored as 2's compliment
 			# hence take 2's compliment again to get the right value.
 			$data = ~$data + 1;
 		}
 
-//$t = datetime . timedelta(
-		$hours = $sign * $this->_read_binary_slice($data, 2, 10, 24);
-		$minutes = $this->_read_binary_slice($data, 12, 6, 24);
-		$seconds = $this->_read_binary_slice($data, 18, 6, 24);
-		$microseconds = $this->_add_fsp_to_time($column);
-	//);
-		return 0;
+		$hours=$sign*self::_read_binary_slice($data, 2, 10, 24);
+		$minutes=self::_read_binary_slice($data, 12, 6, 24);
+		$seconds=self::_read_binary_slice($data, 18, 6, 24);
+		$microseconds=self::_add_fsp_to_time($column);
+		$t = $hours.':'.$minutes.':'.$seconds;
+		if($microseconds) {
+			$t .= '.'.$microseconds;
+		}
+		return $t;
 	}
+
+
+//	private function _read_time2($column)
+//	{
+////		"""TIME encoding for nonfractional part:
+////
+////         1 bit sign    (1= non-negative, 0= negative)
+////         1 bit unused  (reserved for future extensions)
+////        10 bits hour   (0-838)
+////         6 bits minute (0-59)
+////         6 bits second (0-59)
+////        ---------------------
+////        24 bits = 3 bytes
+////        """
+//		$data = $this->read_int_be_by_size(3);
+//
+//		$sign = $this->_read_binary_slice($data, 0, 1, 24) ? 1 : -1;
+//		if ($sign == -1) {
+//			# negative integers are stored as 2's compliment
+//			# hence take 2's compliment again to get the right value.
+//			$data = ~$data + 1;
+//		}
+//
+////$t = datetime . timedelta(
+//		$hours = $sign * $this->_read_binary_slice($data, 2, 10, 24);
+//		$minutes = $this->_read_binary_slice($data, 12, 6, 24);
+//		$seconds = $this->_read_binary_slice($data, 18, 6, 24);
+//		$microseconds = $this->_add_fsp_to_time($column);
+//	//);
+//		return 0;
+//	}
 
 
 }
