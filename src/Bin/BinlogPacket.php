@@ -63,7 +63,7 @@ class BinLogPacket
 		$timestamp  = unpack('L', $this->read(4))[1];
 		$event_type = unpack('C', $this->read(1))[1];
 
-		$this->advance(4);
+		$this->read(4);
 		//$server_id  = unpack('L', $this->read(4))[1];
 
 		$event_size = unpack('L', $this->read(4))[1];
@@ -71,7 +71,7 @@ class BinLogPacket
 		//position of the next event
 		$log_pos    = unpack('L', $this->read(4))[1];//
 
-		$this->advance(2);
+		$this->read(2);
 		//$flags      = unpack('S', $this->read(2))[1];
 
 		$event_size_without_header = $checkSum === true ? ($event_size -23) : $event_size - 19;
