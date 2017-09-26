@@ -70,8 +70,8 @@ class Binlog
         $this->cache_handler = new File(HOME."/cache/binlog");
 
 		//初始化，最后操作的binlog文件
-		$this->binlog_file = null;//$this->getLastBinLog();
-		list(, $this->last_pos) = 0;//$this->getLastPosition();
+		$this->binlog_file = $this->getLastBinLog();
+		list(, $this->last_pos) = $this->getLastPosition();
 		if (!$this->binlog_file || !$this->last_pos) {
 			//当前使用的binlog 文件
 			$info = $this->getCurrentLogInfo();
