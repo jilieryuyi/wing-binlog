@@ -123,15 +123,15 @@ class ServerInfo
 			else
 			int<1> 0x00
 		 */
-        $plugin_data_length = 0;
-//		if ($this->capability_flag & self::CLIENT_PLUGIN_AUTH) {
-//			//int<1> plugin data length
-//			$plugin_data_length = ord($offset);
-//			$offset++;
-//		} else {
-//			//int<1> 0x00
-//			$offset++;
-//		}
+		/*$plugin_data_length = 0;
+		if ($this->capability_flag & self::CLIENT_PLUGIN_AUTH) {
+			//int<1> plugin data length
+			$plugin_data_length = ord($offset);
+			//$offset++;
+		} else {
+			//int<1> 0x00
+			//$offset++;
+		}*/
 
 		//string<6> filler
 		//$offset += 6;
@@ -155,11 +155,7 @@ class ServerInfo
 		  string<n> scramble 2nd part . Length = max(12, plugin data length - 9)
 		 */
         //第二部分加盐信息，至少12字符
-        if ($length >= $offset + $salt_len) {
-            for ($j = $offset; $j < $offset + $salt_len; $j++) {
-               $this->salt .= $pack[$j];
-            }
-        }
+		$this->salt .= substr($pack, $offset, $salt_len);
 		$offset += $salt_len;
 
 		//string<1> reserved byte
@@ -167,8 +163,10 @@ class ServerInfo
 
 		//if (server_capabilities & PLUGIN_AUTH)
 		//	string<NUL> authentication plugin name
-        for ($j = $offset; $j < $length - 1; $j++) {
-           $this->auth_plugin_name .= $pack[$j];
-        }
+		//$length - 1 去除null字符
+		$len = $length-$offset-1;
+		if ($len > 0) {
+			$this->auth_plugin_name = substr($pack,$offset, $len);
+		}
     }
 }
