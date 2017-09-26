@@ -143,12 +143,11 @@ class ServerInfo
 		//
 		//$offset += 4;
 
-
         //mysql-server/sql/auth/sql_authentication.cc 2696 native_password_authenticate
         $salt_len = max(12, $salt_len - 9);
 
         //10bytes填充值 0x00
-        $offset = $offset + 10;
+        $offset += 10;
 
 		/**
 		  if (server_capabilities & CLIENT_SECURE_CONNECTION)
