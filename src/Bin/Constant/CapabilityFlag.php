@@ -61,11 +61,11 @@ class CapabilityFlag
 	//默认的服务器权能标记 需要就添加上就可以了
 	const DEFAULT_CAPABILITIES =
 		(
-			self::CLIENT_LONG_PASSWORD |
-			self::CLIENT_LONG_FLAG |
-			self::CLIENT_TRANSACTIONS |
-            self::CLIENT_PROTOCOL_41 |
-			self::CLIENT_SECURE_CONNECTION
+			self::CLIENT_LONG_PASSWORD
+			| self::CLIENT_LONG_FLAG
+			| self::CLIENT_TRANSACTIONS
+			| self::CLIENT_PROTOCOL_41
+			| self::CLIENT_SECURE_CONNECTION
 			| self::CLIENT_MULTI_RESULTS /* needed for mysql_multi_query() */
 		);
 

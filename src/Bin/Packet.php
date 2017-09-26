@@ -104,6 +104,7 @@ class Packet
 
 	/**
 	 * http://boytnt.blog.51cto.com/966121/1279318
+	 * https://mariadb.com/kb/en/library/1-connecting-connecting/ ：Handshake response packet
      * 生成auth认证包
      *
 	 * @param int $flag 服务器权能标志
