@@ -3,6 +3,8 @@
 return  [
     //必须配置：mysqlbinlog 命令，如果无法识别 写绝对路径
     "mysqlbinlog" => "mysqlbinlog",
+    //从库id
+    "slave_server_id" => 9999,
     //必须配置：mysql
     "mysql" => [
         "db_name"  => "wordpress",
