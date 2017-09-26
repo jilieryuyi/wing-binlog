@@ -9,14 +9,17 @@ include_once __DIR__."/../vendor/autoload.php";
 define("HOME", dirname(__DIR__));
 define("WING_DEBUG", true);
 
-
-
-function fork_child($socket){
-    if (is_env("windows")) return;
+function fork_child($socket)
+{
+    if (is_env("windows")) {
+    	return;
+	}
     $pid = pcntl_fork();
-    if ($pid > 0) return;
+    if ($pid > 0) {
+    	return;
+	}
 
-        //子进程发送心跳包
+	//子进程发送心跳包
     while(1) {
         try {
             set_error_handler(function(){
@@ -25,7 +28,7 @@ function fork_child($socket){
             });
             socket_write($socket, "tick-php\r\n\r\n\r\n");
             usleep(500000);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             var_dump($e->getMessage());
             exit;
         }
