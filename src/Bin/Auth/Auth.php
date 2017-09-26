@@ -1,4 +1,5 @@
 <?php namespace Wing\Bin\Auth;
+use phpDocumentor\Reflection\Types\Resource;
 use Wing\Bin\Constant\CapabilityFlag;
 use Wing\Bin\Net;
 use Wing\Bin\Packet;
@@ -8,14 +9,30 @@ use Wing\Bin\Packet;
  * User: huangxiaoan
  * Created: 2017/9/11 18:26
  * Email: huangxiaoan@xunlei.com
+ *
+ * 连接mysql，完整认证
  */
 class Auth
 {
+	/**
+	 * @var Resource $socket socket资源句柄
+	 */
 	private static $socket;
+	/**
+	 * 连接mysql、认证连接，初始化Net::$socket
+	 *
+	 * @param string $host
+	 * @param string $user
+	 * @param string $password
+	 * @param string $db_name
+	 * @param int $port
+	 * @return array
+	 */
 	public static function execute($host, $user, $password, $db_name, $port)
 	{
 		if (($socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP)) == false) {
-			throw new \Exception(sprintf("Unable to create a socket: %s", socket_strerror(socket_last_error())));
+			$error_code = socket_last_error();
+			throw new \Exception(sprintf("Unable to create a socket: %s", socket_strerror($error_code)), $error_code);
 		}
 
 		socket_set_block($socket);
@@ -24,21 +41,27 @@ class Auth
 		//socket_set_option($this->socket, SOL_SOCKET,SO_RCVTIMEO, ['sec' => 2, 'usec' => 5000]);
 
 		//连接到mysql
-		if(!socket_connect($socket, $host, $port)) {
-			throw new \Exception(
-				sprintf(
-					'error:%s, msg:%s',
-					socket_last_error(),
-					socket_strerror(socket_last_error())
-				)
-			);
+		if (!socket_connect($socket, $host, $port)) {
+			$error_code = socket_last_error();
+			$error_msg  = sprintf('error:%s, msg:%s', socket_last_error(), socket_strerror($error_code));
+			throw new \Exception($error_msg, $error_code);
 		}
 
 		self::$socket = Net::$socket = $socket;
-		$serverinfo = self::auth($user, $password, $db_name);
+		$serverinfo   = self::auth($user, $password, $db_name);
+
 		return [self::$socket, $serverinfo];
 	}
 
+	/**
+	 * 认证
+	 *
+	 * @param string $user
+	 * @param string $password
+	 * @param string $db
+	 * @throws \Exception
+	 * @return ServerInfo|null
+	 */
 	private static function auth($user, $password, $db)
 	{
 		//mysql认证流程
@@ -47,14 +70,12 @@ class Auth
 		// 3、生成auth协议包
 		// 4、发送协议包，认证完成
 
-
 		// 获取server信息 加密salt
 		$pack   	 = Net::readPacket();
 		$server_info = ServerInfo::parse($pack);
-//var_dump("capability_flag", $server_info->capability_flag);
 
         //希望的服务器权能信息
-        $flag = CapabilityFlag::DEFAULT_CAPABILITIES;//| CapabilityFlag::CLIENT_SECURE_CONNECTION ;//| $server_info->capability_flag;
+        $flag = CapabilityFlag::DEFAULT_CAPABILITIES;
         if ($db) {
             $flag |= CapabilityFlag::CLIENT_CONNECT_WITH_DB;
         }
@@ -85,7 +106,9 @@ class Auth
 
 		//认证
 		$data = Packet::getAuth($flag, $user, $password, $server_info->salt,  $db);
-		Net::send($data);
+		if (!Net::send($data)) {
+			return null;
+		}
 
 		$result = Net::readPacket();
 		// 认证是否成功
@@ -93,6 +116,9 @@ class Auth
 		return $server_info;
 	}
 
+	/**
+	 * 释放socket资源，关闭socket连接
+	 */
 	public static function free()
 	{
 		socket_close(self::$socket);

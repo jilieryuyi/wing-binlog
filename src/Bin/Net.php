@@ -9,11 +9,12 @@ use Wing\Exception\NetCloseException;
  */
 class Net
 {
-	public static $socket;
+	public static $socket = null;
 	public static function send($data)
 	{
-		if(($bytes = socket_write(self::$socket, $data, strlen($data)))=== false ) {
-			throw new \Exception( sprintf( "Unable to write to socket: %s", socket_strerror( socket_last_error())));
+		if (($bytes = socket_write(self::$socket, $data, strlen($data))) === false ) {
+			$error_code = socket_last_error();
+			throw new \Exception( sprintf( "Unable to write to socket: %s", socket_strerror($error_code)), $error_code);
 		}
 		return $bytes === strlen($data);
 	}

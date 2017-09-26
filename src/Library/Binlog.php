@@ -106,6 +106,9 @@ class Binlog
 
 	/**
 	 * 注册成为从库（binlog协议支持）
+	 *
+	 * @param bool $checksum
+	 * @param int $slave_server_id
 	 */
 	public function registerSlave($checksum, $slave_server_id)
 	{
@@ -113,7 +116,7 @@ class Binlog
 		//$this->slave_server_id = $slave_server_id;
 		// checksum
 		if ($checksum){
-			Mysql::query("set @master_binlog_checksum= @@global.binlog_checksum");
+			Mysql::query("set @master_binlog_checksum=@@global.binlog_checksum");
 		}
 		//heart_period
 		$heart = 5;
@@ -127,9 +130,6 @@ class Binlog
 		}
 		$result = Net::readPacket();
 		Packet::success($result);
-
-		// 初始化
-		//BinLogPacket::setFilePos($this->binlog_file, $this->last_pos);
 
 		//封包
 		$data = Packet::binlogDump($this->binlog_file, $this->last_pos, $slave_server_id);
