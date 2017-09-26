@@ -87,12 +87,19 @@ class Binlog
 
 		$res = BinLogPacket::parse($pack, $this->checksum);
 
-		if (!$res) return null;
+		if (!$res) {
+			return null;
+		}
+
 		list($result, $binlog_file, $last_pos) = $res;
-		if ($binlog_file)
+
+		if ($binlog_file) {
 			$this->setLastBinLog($binlog_file);
-		if ($last_pos)
+		}
+
+		if ($last_pos) {
 			$this->setLastPosition(0, $last_pos);
+		}
 
 		return $result;
 	}
