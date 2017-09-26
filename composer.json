@@ -1,8 +1,8 @@
 {
   "name": "Wing/Collector",
   "type": "library",
-  "description": "mysqlbinlog事件采集系统",
-  "keywords": ["ylb"],
+  "description": "基于mysql数据库binlog的增量订阅&消费",
+  "keywords": ["mysql", "binlog", "php", "中间件", "数据监控"],
   "homepage": "http://www.itdfy.com/",
   "support": {
     "issues": "https://www.itdfy.com/",
