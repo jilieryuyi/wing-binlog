@@ -4,6 +4,8 @@
 require __DIR__.'/vendor/autoload.php';
 require __DIR__.'/src/windows.php';
 
+use Symfony\Component\Console\Application;
+
 //根目录
 define("HOME", __DIR__);
 
@@ -17,12 +19,9 @@ define("WINDOWS", "windows");
 define("LINUX", "linux");
 
 //定义时间区
-if(!date_default_timezone_get() || !ini_get("date.timezone")) {
+if (!date_default_timezone_get() || !ini_get("date.timezone")) {
     date_default_timezone_set("PRC");
 }
-
-use Symfony\Component\Console\Application;
-
 
 //初始化开发模式
 $debug = false;
@@ -75,6 +74,6 @@ try {
     }
 
     $application->run();
-} catch (\Exception $e){
+} catch (\Exception $e) {
     var_dump($e);
 }
