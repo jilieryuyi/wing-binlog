@@ -1,5 +1,5 @@
 {
-  "name": "Wing/Collector",
+  "name": "Wing/MysqlBinlog",
   "type": "library",
   "description": "基于mysql数据库binlog的增量订阅&消费",
   "keywords": ["mysql", "binlog", "php", "中间件", "数据监控"],
