@@ -10,7 +10,7 @@ use Wing\Bin\Packet;
  * Created: 2017/9/11 18:26
  * Email: huangxiaoan@xunlei.com
  *
- * 连接mysql，完整认证
+ * 连接mysql，完成认证
  */
 class Auth
 {
