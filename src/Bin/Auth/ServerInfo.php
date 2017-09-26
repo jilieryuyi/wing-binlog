@@ -36,7 +36,7 @@ use Wing\Bin\Constant\CharacterSet;
  */
 class ServerInfo
 {
-
+	const CLIENT_PLUGIN_AUTH =  (1 << 19);
 	/*服务协议版本号：该值由 PROTOCOL_VERSION
 	宏定义决定（参考MySQL源代码/include/mysql_version.h头文件定义）
 	mysql-server/config.h.cmake 399
@@ -80,36 +80,69 @@ class ServerInfo
 		//int<4> connection id
         //thread_id 4 bytes 线程id
        	$this->thread_id = unpack("V", substr($pack, $offset, 4))[1];
-        $offset+=4;
+        $offset += 4;
 
+        //string<8> scramble 1st part (authentication seed)
 		//8bytes加盐信息 用于握手认证
 		$this->salt .= substr($pack,$offset,8);
         $offset = $offset + 8;
 
+        //string<1> reserved byte 1byte保留值
         //1byte填充值 -- 0x00
         $offset++;
 
+        //int<2> server capabilities (1st part)
         //2bytes 低位服务器权能信息
 		$this->capability_flag = $pack[$offset]. $pack[$offset+1];
         $offset = $offset + 2;
 
+        //int<1> server default collation
        	//1byte字符编码
 		$this->character_set = ord($pack[$offset]);
-
         $offset++;
 
+        //int<2> status flags
         //2byte服务器状态
 		//SERVER_STATUS_AUTOCOMMIT == 2
 		$this->server_status = unpack("v", $pack[$offset].$pack[$offset+1])[1];
-		$offset = $offset + 2;
+		$offset += 2;
 
+		//int<2> server capabilities (2nd part)
         //服务器权能标志 高16位
 		$this->capability_flag = unpack("V", $this->capability_flag.$pack[$offset]. $pack[$offset+1])[1];
-		$offset = $offset + 2;
+		$offset += 2;
 
+		//int<1> length of scramble's 2nd part
         //1byte加盐长度
 		$salt_len = ord($pack[$offset]);
         $offset++;
+
+        /**
+			if (server_capabilities & PLUGIN_AUTH)
+			int<1> plugin data length
+			else
+			int<1> 0x00
+		 */
+        $plugin_data_length = 0;
+//		if ($this->capability_flag & self::CLIENT_PLUGIN_AUTH) {
+//			//int<1> plugin data length
+//			$plugin_data_length = ord($offset);
+//			$offset++;
+//		} else {
+//			//int<1> 0x00
+//			$offset++;
+//		}
+
+		//string<6> filler
+		//$offset += 6;
+
+		//	if (server_capabilities & CLIENT_MYSQL)
+		//		string<4> filler
+		//	else
+		//	int<4> server capabilities 3rd part . MariaDB specific flags /-- MariaDB 10.2 or later
+		//
+		//$offset += 4;
+
 
         //mysql-server/sql/auth/sql_authentication.cc 2696 native_password_authenticate
         $salt_len = max(12, $salt_len - 9);
@@ -117,14 +150,23 @@ class ServerInfo
         //10bytes填充值 0x00
         $offset = $offset + 10;
 
+		/**
+		  if (server_capabilities & CLIENT_SECURE_CONNECTION)
+		  string<n> scramble 2nd part . Length = max(12, plugin data length - 9)
+		 */
         //第二部分加盐信息，至少12字符
         if ($length >= $offset + $salt_len) {
-            for ($j = $offset;$j < $offset + $salt_len; $j++) {
+            for ($j = $offset; $j < $offset + $salt_len; $j++) {
                $this->salt .= $pack[$j];
             }
         }
+		$offset += $salt_len;
 
-        $offset = $offset + $salt_len + 1;
+		//string<1> reserved byte
+		$offset += 1;
+
+		//if (server_capabilities & PLUGIN_AUTH)
+		//	string<NUL> authentication plugin name
         for ($j = $offset; $j < $length - 1; $j++) {
            $this->auth_plugin_name .= $pack[$j];
         }
