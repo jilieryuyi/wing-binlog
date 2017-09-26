@@ -39,16 +39,30 @@ class BinLogPacket
 
 
 	private static $_instance = null;
-	//此api为唯一入口
-	public static function parse($pack, $checkSum = true)
+	/**
+	 * 此api为唯一入口，对外必须以静态单例调用
+	 * 因为有些属性前面初始化后，后面可能继续使用的
+	 *
+	 * @param string $pack 数据包，次参数来源于Net::readPacket
+	 * @param bool $check_sum
+	 * @return array|mixed
+	 */
+	public static function parse($pack, $check_sum = true)
 	{
 		if(!self::$_instance) {
 			self::$_instance = new self();
 		}
-		return self::$_instance->_parse($pack, $checkSum);
+		return self::$_instance->_parse($pack, $check_sum);
 	}
 
-	private function _parse($pack, $checkSum = true) {
+	/**
+	 * 内部入口
+	 *
+	 * @param string $pack 数据包，次参数来源于Net::readPacket
+	 * @param bool $check_sum
+	 * @return array|mixed
+	 */
+	private function _parse($pack, $check_sum = true) {
 
 		$file_name  = null;
 		$data       = [];
@@ -76,7 +90,7 @@ class BinLogPacket
 		$this->read(2);
 		//$flags      = unpack('S', $this->read(2))[1];
 
-		$event_size_without_header = $checkSum === true ? ($event_size -23) : $event_size - 19;
+		$event_size_without_header = $check_sum === true ? ($event_size -23) : $event_size - 19;
 
 		switch ($event_type) {
 			// 映射fileds相关信息
