@@ -84,7 +84,7 @@ class ServerInfo
 
         //string<8> scramble 1st part (authentication seed)
 		//8bytes加盐信息 用于握手认证
-		$this->salt .= substr($pack,$offset,8);
+		$this->salt .= substr($pack, $offset,8);
         $offset = $offset + 8;
 
         //string<1> reserved byte 1byte保留值
