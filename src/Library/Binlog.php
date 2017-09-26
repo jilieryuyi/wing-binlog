@@ -57,12 +57,12 @@ class Binlog
             $this->mysqlbinlog = $config["mysqlbinlog"];
         }
 
-        if (!$this->isOpen() && WING_DEBUG) {
+        if (!$this->isOpen()) {
             wing_debug("请开启mysql binlog日志");
             exit;
         }
 
-        if ($this->getFormat() != "row" && WING_DEBUG) {
+        if ($this->getFormat() != "row") {
 			wing_debug("仅支持row格式");
             exit;
         }
