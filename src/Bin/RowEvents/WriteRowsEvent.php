@@ -7,7 +7,6 @@
  */
 class WriteRowsEvent extends BinlogEvent
 {
-
 	public function Parse()
 	{
 
