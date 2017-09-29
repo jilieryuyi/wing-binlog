@@ -57,10 +57,7 @@ class BinlogWorker extends BaseWorker
 			);
 
 			//注册为slave
-			$this->binlog->registerSlave(
-				!!\Wing\Bin\Db::getChecksum(),
-				$config["slave_server_id"]
-			);
+			$this->binlog->registerSlave($config["slave_server_id"]);
 		} catch (\Exception $e) {
 			var_dump($e->getMessage());
 		}

@@ -110,12 +110,12 @@ class Binlog
 	 * @param bool $checksum
 	 * @param int $slave_server_id
 	 */
-	public function registerSlave($checksum, $slave_server_id)
+	public function registerSlave($slave_server_id)
 	{
-		$this->checksum = $checksum;
+		$this->checksum = !!$this->getCheckSum();
 		//$this->slave_server_id = $slave_server_id;
 		// checksum
-		if ($checksum){
+		if ($this->checksum){
 			Mysql::query("set @master_binlog_checksum=@@global.binlog_checksum");
 		}
 		//heart_period
@@ -142,6 +142,13 @@ class Binlog
 		$result = Net::readPacket();
 		Packet::success($result);
 		return true;
+	}
+
+
+	public function getCheckSum()
+	{
+		$res = $this->db_handler->row("SHOW GLOBAL VARIABLES LIKE 'BINLOG_CHECKSUM'");
+		return $res['Value'];
 	}
 
     /**
