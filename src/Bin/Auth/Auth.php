@@ -1,14 +1,13 @@
 <?php namespace Wing\Bin\Auth;
-use phpDocumentor\Reflection\Types\Resource;
 use Wing\Bin\Constant\CapabilityFlag;
 use Wing\Bin\Net;
 use Wing\Bin\Packet;
 
 /**
- * ClientSocket.php
+ * Auth.php
  * User: huangxiaoan
  * Created: 2017/9/11 18:26
- * Email: huangxiaoan@xunlei.com
+ * Email: 297341015@qq.com
  *
  * 连接mysql，完成认证
  */
