@@ -131,7 +131,22 @@ class BinLogPacket
 					wing_debug('心跳事件 => ' . $binlog_name);
 				}
 				break;
+			case EventType::QUERY_EVENT:
+				//修改表结构的事件为QUERY_EVENT
+				$_pack = strtolower($pack);
+				if (//strpos($_pack, "alter") !== false
+					//&&
+					$this->schema_name
+					&& $this->table_name
+					&& strpos($_pack, strtolower($this->schema_name) !== false)
+					&& strpos($_pack, strtolower($this->table_name) !== false)
+				) {
+					//清除数据表缓存
+					$this->unsetTableMapCache($this->schema_name, $this->table_name);
+				}
+				break;
 			default:
+				wing_debug("未知事件", $event_type, $pack);
 				wing_log("binlog_not_support_event", $event_type, $pack);
 				echo "未知事件";
 				break;
@@ -414,6 +429,31 @@ class BinLogPacket
 		return $a;
 	}
 
+	/**
+	 * 设置table_map缓存，避免重复查询数据库
+	 */
+	protected function setTableMapCache($schema_name, $table_name, $data)
+	{
+		$this->table_map[$schema_name][$table_name] = $data;
+	}
+
+	/**
+	 * 判断是都存在table_map缓存
+	 */
+	protected function issetTableMapCache($schema_name, $table_name, $table_id)
+	{
+		return isset($this->table_map[$schema_name][$table_name]['table_id']) &&
+			$this->table_map[$schema_name][$table_name]['table_id'] == $table_id;
+	}
+
+	/**
+	 * 删除table_map缓存，发生在table结构改变事件
+	 */
+	protected function unsetTableMapCache($schema_name, $table_name)
+	{
+		unset($this->table_map[$schema_name][$table_name]);
+	}
+
 	public function tableMap()
 	{
 		$table_id = $this->readTableId();
@@ -449,9 +489,7 @@ class BinLogPacket
 //			return $data;
 //		}
 
-		if (isset($this->table_map[$this->schema_name][$this->table_name]['table_id']) &&
-			$this->table_map[$this->schema_name][$this->table_name]['table_id'] == $table_id
-		) {
+		if ($this->issetTableMapCache($this->schema_name, $this->table_name, $table_id)) {
 			return [
 				'schema_name'=> $this->schema_name,
 				'table_name' => $this->table_name,
@@ -459,11 +497,16 @@ class BinLogPacket
 			];
 		}
 
-		$this->table_map[$this->schema_name][$this->table_name] = [
-			'schema_name'=> $this->schema_name,
-			'table_name' => $this->table_name,
-			'table_id'   => $table_id
-		];
+		$this->setTableMapCache($this->schema_name, $this->table_name, [
+				'schema_name'=> $this->schema_name,
+				'table_name' => $this->table_name,
+				'table_id'   => $table_id
+		]);
+//		$this->table_map[$this->schema_name][$this->table_name] = [
+//			'schema_name'=> $this->schema_name,
+//			'table_name' => $this->table_name,
+//			'table_id'   => $table_id
+//		];
 
 //
 //		self::$TABLE_MAP[self::$SCHEMA_NAME][self::$TABLE_NAME] = array(
