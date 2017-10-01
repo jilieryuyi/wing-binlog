@@ -46,6 +46,10 @@ foreach ($argv as $item) {
         list(,$event_index) = explode("=",$item);
 }
 
+$pdo      = new \Wing\Library\PDO();
+$bin      = new \Wing\Library\Binlog($pdo);
+$raw_data = $bin->getSessions($start_pos, $end_pos);
+$file     = new \Wing\Library\FileFormat($raw_data, $pdo, $event_index);
+$datas    = $file->parse();
 
-$datas = \Wing\Library\ParseWorker::process($start_pos, $end_pos, $event_index);
 echo json_encode($datas);
