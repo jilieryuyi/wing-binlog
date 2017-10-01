@@ -12,16 +12,9 @@ use Wing\Library\PDO;
  */
 class BinlogWorker extends BaseWorker
 {
-//	private $all_pos            = [];
-//	private $dispatch_pipes     = [];
-//	private $dispatch_processes = [];
-//
-//	private $write_run_time     = 0;
-	//private $pdo;
 
 	private $notify = [];
 	private $daemon;
-   // private $event_index        = 0;
 
     /**
      * @var \Wing\Library\Binlog
@@ -38,7 +31,8 @@ class BinlogWorker extends BaseWorker
             && isset($config["subscribe"])
             && is_array($config["subscribe"])
             && count($config["subscribe"]) > 0) {
-		    foreach ($config["subscribe"] as $class => $params) {
+
+			foreach ($config["subscribe"] as $class => $params) {
                 $params["daemon"]  = $daemon;
                 $params["workers"] = $workers;
                 $this->notify[] = new $class($params);

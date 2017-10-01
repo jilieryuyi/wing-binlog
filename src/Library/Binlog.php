@@ -1,7 +1,5 @@
 <?php namespace Wing\Library;
-use Wing\Bin\BinLogPack;
 use Wing\Bin\BinLogPacket;
-use Wing\Bin\Db;
 use Wing\Bin\Mysql;
 use Wing\Bin\Net;
 use Wing\Bin\Packet;
