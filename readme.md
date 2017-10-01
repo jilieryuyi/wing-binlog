@@ -43,7 +43,7 @@ php wing stop
 ````
 php wing status 
 ````
-8. services目录为可选的订阅者服务插件，只需要配置到app.php的subscribe下即可！    
+8. src/Subscribe目录为可选的订阅者服务插件，只需要配置到app.php的subscribe下即可！    
 wing-binlog提供tcp和websocket服务，可选使用go或者workerman，workerman仅支持linux，go支持所有的平台。    
 使用go服务需要安装go，已安装的忽略。    
 编译go服务（如需使用，请先编译后再启动Binlog服务）：
