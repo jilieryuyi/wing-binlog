@@ -1,4 +1,6 @@
 <?php namespace Wing\Library\Workers;
+use Wing\Library\Binlog;
+use Wing\Library\PDO;
 
 /**
  * EventWorker.php
