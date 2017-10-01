@@ -1,6 +1,8 @@
-<?php namespace Wing\Library;
+<?php namespace Wing\Library\Workers;
 
 use Wing\Exception\NetCloseException;
+use Wing\Library\Binlog;
+use Wing\Library\PDO;
 
 /**
  * EventWorker.php
@@ -29,7 +31,7 @@ class BinlogWorker extends BaseWorker
 	{
 		$config = load_config("app");
 
-		$this->binlog = new BinLog(new PDO);
+		$this->binlog = new Binlog(new PDO);
 		$this->connect($config);
 
 		if ($config

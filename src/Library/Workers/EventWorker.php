@@ -1,4 +1,4 @@
-<?php namespace Wing\Library;
+<?php namespace Wing\Library\Workers;
 
 /**
  * EventWorker.php

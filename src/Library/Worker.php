@@ -1,4 +1,6 @@
 <?php namespace Wing\Library;
+use Wing\Library\Workers\BaseWorker;
+use Wing\Library\Workers\BinlogWorker;
 
 /**
  * @author yuyi
@@ -21,6 +23,7 @@ class Worker
 	private $processes          = [];
 	private $start_time         = null;
 	private $exit_times         = 0; //子进程退出次数
+	private $worker				= BinlogWorker::class;
 
     /**
      * 构造函数
@@ -284,9 +287,12 @@ class Worker
         echo $str;
         unset($str, $format);
 
-        $p = new BinlogWorker($this->daemon, $this->workers);
-		$this->event_process_id = $p->start();
-		unset($p);
+		/**
+		 * @var BaseWorker $worker
+		 */
+        $worker = new $this->worker($this->daemon, $this->workers);
+		$this->event_process_id = $worker->start();
+		unset($worker);
         $this->processes[] = $this->event_process_id;
 
 
@@ -321,9 +327,9 @@ class Worker
                         unset($this->processes[$id]);
 
                         if ($pid == $this->event_process_id) {
-                            $p = new BinlogWorker($this->daemon, $this->workers);
-                            $this->event_process_id = $p->start();
-                            unset($p);
+                            $worker = new $this->worker($this->daemon, $this->workers);
+                            $this->event_process_id = $worker->start();
+                            unset($worker);
                             $this->processes[] = $this->event_process_id;
                             break;
                         }
