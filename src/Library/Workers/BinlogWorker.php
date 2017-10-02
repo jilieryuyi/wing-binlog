@@ -39,6 +39,20 @@ class BinlogWorker extends BaseWorker
             }
         }
 	}
+	protected function notice($result)
+	{
+		//通知订阅者
+		if (is_array($this->notify) && count($this->notify) > 0) {
+			$datas = $result["event"]["data"];
+			foreach ($datas as $row) {
+				$result["event"]["data"] = $row;
+				var_dump($result);
+				foreach ($this->notify as $notify) {
+					$notify->onchange($result);
+				}
+			}
+		}
+	}
 
 	protected function connect($config)
 	{
@@ -101,32 +115,21 @@ class BinlogWorker extends BaseWorker
 						break;
 					}
 
-					$times += count($result["event"]["data"]);
+					$times    += count($result["event"]["data"]);
 					$span_time = time() - $start;
+
 					if ($span_time > 0) {
 						echo $times, "次，", $times / ($span_time) . "/次事件每秒，耗时", $span_time, "秒\r\n";
 					}
 
 					//通知订阅者
-					if (is_array($this->notify) && count($this->notify) > 0) {
-						$datas = $result["event"]["data"];
-						foreach ($datas as $row) {
-							$result["event"]["data"] = $row;
-							var_dump($result);
-							foreach ($this->notify as $notify) {
-								$notify->onchange($result);
-							}
-						}
-					}
-
+					$this->notice($result);
 
 				} while (0);
-			}
-			catch (NetCloseException $e) {
+			} catch (NetCloseException $e) {
 				usleep(500000);
 				$this->connect(load_config("app"));
-			}
-			catch (\Exception $e) {
+			} catch (\Exception $e) {
 				if (WING_DEBUG) {
 					var_dump($e->getMessage());
 				}
