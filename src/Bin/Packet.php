@@ -211,6 +211,11 @@ class Packet
      */
     public static function success($pack)
     {
+    	if (!$pack) {
+			return;
+    		//throw new \Exception("mysql has gone away");
+		}
+
         if (ord($pack[0]) == self::OK_PACK_HEAD) {
             return;
         }

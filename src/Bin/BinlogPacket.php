@@ -72,20 +72,22 @@ class BinLogPacket
 			goto end;
 		}
 
-		$this->packet   = $pack;
-		$this->offset   = 0;
+		$this->packet = $pack;
+		$this->offset = 0;
 
 		$this->advance(1);
 		$timestamp  = unpack('L', $this->read(4))[1];
 		$event_type = unpack('C', $this->read(1))[1];
+		$server_id  = unpack('L', $this->read(4))[1];
 
-		$this->read(4);
-		//$server_id  = unpack('L', $this->read(4))[1];
+		if (WING_DEBUG) {
+			echo "server id = ",$server_id, PHP_EOL;
+		}
 
 		$event_size = unpack('L', $this->read(4))[1];
 
 		//position of the next event
-		$log_pos    = unpack('L', $this->read(4))[1];//
+		$log_pos    = unpack('L', $this->read(4))[1];
 
 		$this->read(2);
 		//$flags      = unpack('S', $this->read(2))[1];
