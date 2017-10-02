@@ -15,29 +15,40 @@ use Wing\Cache\File;
 class Binlog
 {
     /**
-     * @var IDb
+     * @var IDb $db_handler
      */
     private $db_handler;
 
     /**
      * mysqlbinlog 命令路径
-     * @var string
+     * @var string $mysqlbinlog
      */
     private $mysqlbinlog  = "mysqlbinlog";
 
     /**
-     * @var string
+     * @var string $cache_handler
      */
     private $cache_handler;
 
+    /**
+     * @var string $current_binlog_file
+	 */
     private $current_binlog_file = null;
 
+    /**
+     * @var string $binlog_file
+	 */
+	private $binlog_file;
 
-	private
-		$binlog_file,
-		$last_pos,
-		$checksum;
-		//$slave_server_id;
+	/**
+	 * @var int $last_pos
+	 */
+	private $last_pos;
+
+	/**
+	 * @var bool $checksum
+	 */
+	private $checksum;
 
     /**
      * 构造函数
@@ -78,11 +89,11 @@ class Binlog
 		}
     }
 
-	public function getBinlogEvents() {
-		$pack   = Net::readPacket();
+	public function getBinlogEvents()
+	{
+		$pack = Net::readPacket();
 		// 校验数据包格式
 		Packet::success($pack);
-
 		$res = BinLogPacket::parse($pack, $this->checksum);
 
 		if (!$res) {
@@ -123,9 +134,11 @@ class Binlog
 		}
 
 		$data = Packet::registerSlave($slave_server_id);
+
 		if (!Net::send($data)) {
 			return false;
 		}
+
 		$result = Net::readPacket();
 		Packet::success($result);
 
@@ -232,6 +245,7 @@ class Binlog
         if ($this->start_getCurrentLogFile == null) {
             $this->start_getCurrentLogFile = time();
         }
+
         if ($this->current_binlog_file != null ) {
             if ((time() - $this->start_getCurrentLogFile) < 5) {
                 return $this->current_binlog_file;
@@ -247,17 +261,21 @@ class Binlog
 
         $data = $this->db_handler->row($sql);
 
-        if (!isset($data["@@log_bin_basename"]))
-            return null;
+        if (!isset($data["@@log_bin_basename"])) {
+        	return null;
+		}
 
         $file = str_replace("\\","/", $data["@@log_bin_basename"]);
         $temp = explode("/", $file);
+
         array_pop($temp);
-        $path = implode("/", $temp);//pathinfo(,PATHINFO_DIRNAME);
+
+        $path = implode("/", $temp);
         $info = $this->getCurrentLogInfo();
 
-        if (!isset($info["File"]))
-            return null;
+        if (!isset($info["File"])) {
+        	return null;
+		}
 
         $path = $path ."/". $info["File"];
         $this->current_binlog_file = $path;
@@ -343,8 +361,9 @@ class Binlog
      */
     public function getEvents($current_binlog,$last_end_pos, $limit = 10000)
     {
-        if (!$last_end_pos)
-            $last_end_pos = 0;
+        if (!$last_end_pos) {
+        	$last_end_pos = 0;
+		}
 
         $sql   = 'show binlog events in "' . $current_binlog . '" from ' . $last_end_pos.' limit '.$limit;
         $datas = $this->db_handler->query($sql);
