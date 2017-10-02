@@ -85,8 +85,8 @@ class BinLogPacket
 	 * @param bool $check_sum
 	 * @return array|mixed
 	 */
-	private function _parse($pack, $check_sum = true) {
-
+	private function _parse($pack, $check_sum = true)
+	{
 		$file_name  = null;
 		$data       = [];
 		$log_pos    = 0;
@@ -186,6 +186,12 @@ class BinLogPacket
 		return [$data, $file_name, $log_pos];
 	}
 
+	/**
+	 * 读取指定长度的字节数据
+	 *
+	 * @param int $length
+	 * @return string
+	 */
 	public function read($length)
 	{
 		$length  = intval($length);
@@ -213,6 +219,7 @@ class BinLogPacket
 
 	/**
 	 * 前进步长
+	 *
 	 * @param $length
 	 */
 	public  function advance($length)
@@ -221,6 +228,7 @@ class BinLogPacket
 	}
 
 	/**
+	 * 读取一个使用'Length Coded Binary'格式编码的数据长度
 	 * read a 'Length Coded Binary' number from the data buffer.
 	 * Length coded numbers can be anywhere from 1 to 9 bytes depending
 	 * on the value of the first byte.
@@ -467,7 +475,8 @@ class BinLogPacket
 		return false;
 	}
 
-	public function unread($data) {
+	public function unread($data)
+	{
 		$this->buffer .= $data;
 	}
 
@@ -620,7 +629,7 @@ class BinLogPacket
 		}
 
 		elseif ($field['type'] == FieldType::VAR_STRING || $field['type'] == FieldType::STRING) {
-			$this->_readString_metadata($column_schema, $field);
+			$this->_readStringMetadata($column_schema, $field);
 		}
 
 		elseif( $field['type'] == FieldType::BLOB) {
@@ -647,7 +656,7 @@ class BinLogPacket
 		return $field;
 	}
 
-	private function _readString_metadata($column_schema, &$field)
+	private function _readStringMetadata($column_schema, &$field)
 	{
 		$metadata  = ($this->readUint8() << 8) + $this->readUint8();
 		$real_type = $metadata >> 8;
@@ -655,13 +664,13 @@ class BinLogPacket
 		if ($real_type == FieldType::SET || $real_type == FieldType::ENUM) {
 			$field['type'] = $real_type;
 			$field['size'] = $metadata & 0x00ff;
-			$this->_read_enum_metadata($column_schema, $field);
+			$this->_readEnumMetadata($column_schema, $field);
 		} else {
 			$field['max_length'] = ((($metadata >> 4) & 0x300) ^ 0x300) + ($metadata & 0x00ff);
 		}
 	}
 
-	private function _read_enum_metadata($column_schema, &$field)
+	private function _readEnumMetadata($column_schema, &$field)
 	{
 		$enums = $column_schema["COLUMN_TYPE"];
 
@@ -852,6 +861,7 @@ class BinLogPacket
 			intval(($time % 10000) / 100).':'.
 			intval($time % 100);
 	}
+
 	private static function _readBinarySlice($binary, $start, $size, $data_length)
 	{
 		/*
@@ -961,7 +971,6 @@ class BinLogPacket
 
 		return $year.'-'.$month.'-'.$day;
 	}
-
 
 	private function columnFormat($cols_bitmap)
 	{
