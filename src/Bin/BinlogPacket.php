@@ -883,33 +883,46 @@ class BinLogPacket
 		*/
 		$read = 0;
 		$time = '';
-		if( $column['fsp'] == 1 or $column['fsp'] == 2)
+
+		if ($column['fsp'] == 1 or $column['fsp'] == 2) {
 			$read = 1;
-		elseif($column['fsp'] == 3 or $column['fsp'] == 4)
+		}
+
+		elseif($column['fsp'] == 3 or $column['fsp'] == 4) {
 			$read = 2;
-		elseif ($column ['fsp'] == 5 or $column['fsp'] == 6)
+		}
+
+		elseif ($column ['fsp'] == 5 or $column['fsp'] == 6) {
 			$read = 3;
+		}
+
 		if ($read > 0) {
 			$microsecond = $this->readIntBeBySize($read);
-			if ($column['fsp'] % 2)
+			if ($column['fsp'] % 2) {
 				$time = (int)($microsecond / 10);
-			else
+			} else {
 				$time = $microsecond;
+			}
 		}
+
 		return $time;
 	}
 
-	private function _read_date() {
+	private function _read_date()
+	{
 		$time = $this->readUint24();
 
-		if ($time == 0)  # nasty mysql 0000-00-00 dates
+		if ($time == 0) {  # nasty mysql 0000-00-00 dates
 			return null;
+		}
 
-		$year = ($time & ((1 << 15) - 1) << 9) >> 9;
+		$year  = ($time & ((1 << 15) - 1) << 9) >> 9;
 		$month = ($time & ((1 << 4) - 1) << 5) >> 5;
-		$day = ($time & ((1 << 5) - 1));
-		if ($year == 0 || $month == 0 || $day == 0)
+		$day   = ($time & ((1 << 5) - 1));
+
+		if ($year == 0 || $month == 0 || $day == 0) {
 			return null;
+		}
 
 		return $year.'-'.$month.'-'.$day;
 	}
