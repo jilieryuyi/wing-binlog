@@ -10,7 +10,9 @@ abstract class BaseWorker
     protected $workers = 1;
     protected $task    = [];
     const USLEEP       = 10000;
-    public static $event_times = 0;
+
+    public static $event_times   = 0;
     public static $process_title = '';
+
     abstract public function start();
 }
