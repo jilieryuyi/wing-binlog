@@ -908,7 +908,7 @@ class BinLogPacket
 		return $time;
 	}
 
-	private function _read_date()
+	private function _readDate()
 	{
 		$time = $this->readUint24();
 
@@ -931,9 +931,7 @@ class BinLogPacket
 	private function columnFormat($cols_bitmap)
 	{
 		$values = [];
-
-		//$l = (int)(($len * 8 + 7) / 8);
-		$l = (int)((self::bitCount($cols_bitmap) + 7) / 8);
+		$l      = (int)((self::bitCount($cols_bitmap) + 7) / 8);
 
 		# null bitmap length = (bits set in 'columns-present-bitmap'+7)/8
 		# See http://dev.mysql.com/doc/internals/en/rows-event.html
@@ -942,11 +940,9 @@ class BinLogPacket
 		$nullBitmapIndex = 0;
 
 		foreach ($this->table_map[$this->schema_name][$this->table_name]['fields'] as $i => $value) {
-			$column = $value;
-			//var_dump($column);
-			$name = $value['name'];
+			$column   = $value;
+			$name     = $value['name'];
 			$unsigned = $value['unsigned'];
-
 
 			if (self::BitGet($cols_bitmap, $i) == 0) {
 				$values[$name] = null;
@@ -955,126 +951,105 @@ class BinLogPacket
 
 			if (self::_isNull($null_bitmap, $nullBitmapIndex)) {
 				$values[$name] = null;
-			} elseif ($column['type'] == FieldType::TINY) {
-				if ($unsigned)
-					$values[$name] = unpack("C", $this->read(1))[1];
-				else
-					$values[$name] = unpack("c", $this->read(1))[1];
-			} elseif ($column['type'] == FieldType::SHORT) {
-				if ($unsigned)
-					$values[$name] = unpack("S", $this->read(2))[1];
-				else
-					$values[$name] = unpack("s", $this->read(2))[1];
-			} elseif ($column['type'] == FieldType::LONG) {
+			}
 
+			elseif ($column['type'] == FieldType::TINY) {
+				if ($unsigned) {
+					$values[$name] = unpack("C", $this->read(1))[1];
+				} else {
+					$values[$name] = unpack("c", $this->read(1))[1];
+				}
+			}
+
+			elseif ($column['type'] == FieldType::SHORT) {
+				if ($unsigned) {
+					$values[$name] = unpack("S", $this->read(2))[1];
+				} else {
+					$values[$name] = unpack("s", $this->read(2))[1];
+				}
+			}
+
+			elseif ($column['type'] == FieldType::LONG) {
 				if ($unsigned) {
 					$values[$name] = unpack("I", $this->read(4))[1];
 				} else {
 					$values[$name] = unpack("i", $this->read(4))[1];
 				}
-			} elseif ($column['type'] == FieldType::INT24) {
-				if ($unsigned)
-					$values[$name] = $this->readUint24();
-				else
-					$values[$name] = $this->readInt24();
-			} elseif ($column['type'] == FieldType::FLOAT)
-				$values[$name] = unpack("f", $this->read(4))[1];
-			elseif ($column['type'] == FieldType::DOUBLE)
-				$values[$name] = unpack("d", $this->read(8))[1];
-			elseif ($column['type'] == FieldType::VARCHAR ||
-				$column['type'] == FieldType::STRING
-			) {
-				if ($column['max_length'] > 255)
-					$values[$name] = $this->_readString(2, $column);
-				else
-					$values[$name] = $this->_readString(1, $column);
-			} elseif ($column['type'] == FieldType::NEWDECIMAL) {
-
-				//$precision = unpack('C', $this->read(1))[1];
-				//$decimals  = unpack('C', $this->read(1))[1];
-
-//var_dump($precision,$decimals);exit;
-//precision = metadata[:precision]
-//        scale = metadata[:decimals]
-				$values[$name] = $this->read_new_decimal($column);
-			} elseif ($column['type'] == FieldType::BLOB) {
-				//ok
-				$values[$name] = self::_readString($column['length_size'], $column);
-
 			}
+
+			elseif ($column['type'] == FieldType::INT24) {
+				if ($unsigned) {
+					$values[$name] = $this->readUint24();
+				} else {
+					$values[$name] = $this->readInt24();
+				}
+			}
+
+			elseif ($column['type'] == FieldType::FLOAT) {
+				$values[$name] = unpack("f", $this->read(4))[1];
+			}
+
+			elseif ($column['type'] == FieldType::DOUBLE) {
+				$values[$name] = unpack("d", $this->read(8))[1];
+			}
+
+			elseif ($column['type'] == FieldType::VARCHAR || $column['type'] == FieldType::STRING) {
+				if ($column['max_length'] > 255) {
+					$values[$name] = $this->_readString(2, $column);
+				} else {
+					$values[$name] = $this->_readString(1, $column);
+				}
+			}
+
+			elseif ($column['type'] == FieldType::NEWDECIMAL) {
+				$values[$name] = $this->read_new_decimal($column);
+			}
+
+			elseif ($column['type'] == FieldType::BLOB) {
+				$values[$name] = self::_readString($column['length_size'], $column);
+			}
+
 			elseif ($column['type'] == FieldType::DATETIME) {
 
 				$values[$name] = $this->_readDatetime();
-			} elseif ($column['type'] == FieldType::DATETIME2) {
-				//ok
-				$values[$name] = $this->_readDatetime2($column);
-			}elseif ($column['type'] == FieldType::TIME2) {
+			}
 
+			elseif ($column['type'] == FieldType::DATETIME2) {
+				$values[$name] = $this->_readDatetime2($column);
+			}
+
+			elseif ($column['type'] == FieldType::TIME2) {
 				$values[$name] = self::_readTime2($column);
 			}
+
 			elseif ($column['type'] == FieldType::TIMESTAMP2){
-				//ok
-				$time = date('Y-m-d H:i:m',$this->readIntBeBySize(4));
-				// 微妙
-				$time .= '.' . self::_addFspToTime($column);
+				$time  = date('Y-m-d H:i:m',$this->readIntBeBySize(4));
+				$time .= '.' . self::_addFspToTime($column);// 微妙
 				$values[$name] = $time;
 			}
-			elseif ($column['type'] == FieldType::DATE)
-				$values[$name] = $this->_read_date();
-			/*
-		elseif ($column['type'] == FieldType::TIME:
-			$values[$name] = self.__read_time()
-		elseif ($column['type'] == FieldType::DATE:
-			$values[$name] = self.__read_date()
-			*/
+
+			elseif ($column['type'] == FieldType::DATE) {
+				$values[$name] = $this->_readDate();
+			}
+
 			elseif ($column['type'] == FieldType::TIMESTAMP) {
 				$values[$name] = date('Y-m-d H:i:s', $this->readUint32());
 			}
 
-			# For new date format:
-			/*
-						elseif ($column['type'] == FieldType::TIME2:
-							$values[$name] = self.__readTime2(column)
-						elseif ($column['type'] == FieldType::TIMESTAMP2:
-							$values[$name] = self.__addFspToTime(
-									datetime.datetime.fromtimestamp(
-										$this->readIntBeBySize(4)), column)
-						*/
 			elseif ($column['type'] == FieldType::LONGLONG) {
 				if ($unsigned) {
 					$values[$name] = $this->readUint64();
 				} else {
 					$values[$name] = $this->readInt64();
 				}
-
-			} elseif($column['type'] == FieldType::ENUM) {
-				$values[$name] = $column['enum_values'][$this->readUintBySize($column['size']) - 1];
-			} else {
 			}
-			/*
-			elseif ($column['type'] == FieldType::YEAR:
-				$values[$name] = $this->read_uint8() + 1900
-			elseif ($column['type'] == FieldType::SET:
-				# We read set columns as a bitmap telling us which options
-				# are enabled
-				bit_mask = $this->readUintBySize(column.size)
-				$values[$name] = set(
-					val for idx, val in enumerate(column.set_values)
-				if bit_mask & 2 ** idx
-				) or None
+			elseif($column['type'] == FieldType::ENUM) {
+				$values[$name] = $column['enum_values'][$this->readUintBySize($column['size']) - 1];
+			}
 
-			elseif ($column['type'] == FieldType::BIT:
-				$values[$name] = self.__read_bit(column)
-			elseif ($column['type'] == FieldType::GEOMETRY:
-				$values[$name] = $this->readLengthCodedPascalString(
-						column.length_size)
-			else:
-				raise NotImplementedError("Unknown MySQL column type: %d" %
-					(column.type))
-			*/
 			$nullBitmapIndex += 1;
 		}
-		//$values['table_name'] = self::$TABLE_NAME;
+
 		return $values;
 	}
 
@@ -1084,36 +1059,25 @@ class BinLogPacket
 		//$table_id =
 		$this->readTableId();
 
-		if (in_array($event_type, [EventType::DELETE_ROWS_EVENT_V2, EventType::WRITE_ROWS_EVENT_V2, EventType::UPDATE_ROWS_EVENT_V2])) {
+		if (in_array($event_type, [
+			EventType::DELETE_ROWS_EVENT_V2,
+			EventType::WRITE_ROWS_EVENT_V2,
+			EventType::UPDATE_ROWS_EVENT_V2
+		])) {
 			$this->read(2);
 			//$flags = unpack('S', $this->read(2))[1];
-
 			$extra_data_length = unpack('S', $this->read(2))[1];
-
 			//$extra_data =
 			$this->read($extra_data_length / 8);
-
 		} else {
 			$this->read(2);
 			//$flags = unpack('S', $this->read(2))[1];
 		}
 
-		// Body
 		$columns_num = $this->readCodedBinary();
-
-		//$result = [];
-		// ？？？？
-		//$result['extra_data'] = getData($data, );
-//        $result['columns_length'] = unpack("C", $this->read(1))[1];
-		//$result['schema_name']   = getData($data, 29, 28+$result['schema_length'][1]);
-		$len = (int)(($columns_num + 7) / 8);
-
-
-		$bitmap = $this->read($len);
-
-		//nul-bitmap, length (bits set in 'columns-present-bitmap1'+7)/8
-
-		$rows = [];
+		$len         = (int)(($columns_num + 7) / 8);
+		$bitmap      = $this->read($len);
+		$rows        = [];
 
 		while($this->hasNext($size)) {
 			$rows[] = $this->columnFormat($bitmap);
@@ -1124,7 +1088,7 @@ class BinLogPacket
 			"table"    => $this->table_name,
 			"event"    =>  [
 				"event_type" => "write_rows",
-				"data"       => $rows//self::_getAddRows($bitmap, $size)
+				"data"       => $rows
 			]
 		];
 		return $value;
@@ -1135,21 +1099,21 @@ class BinLogPacket
 		//$table_id =
 		$this->readTableId();
 
-		if (in_array($event_type, [EventType::DELETE_ROWS_EVENT_V2, EventType::WRITE_ROWS_EVENT_V2, EventType::UPDATE_ROWS_EVENT_V2])) {
+		if (in_array($event_type, [
+			EventType::DELETE_ROWS_EVENT_V2,
+			EventType::WRITE_ROWS_EVENT_V2,
+			EventType::UPDATE_ROWS_EVENT_V2
+		])) {
 			$this->read(2);
 			//$flags = unpack('S', $this->read(2))[1];
-
 			$extra_data_length = unpack('S', $this->read(2))[1];
-
 			//$extra_data =
 			$this->read($extra_data_length / 8);
-
 		} else {
 			$this->read(2);
 			//$flags = unpack('S', $this->read(2))[1];
 		}
 
-		// Body
 		$columns_num = $this->readCodedBinary();
 		$len 		 = (int)(($columns_num + 7) / 8);
 		$bitmap 	 = $this->read($len);
