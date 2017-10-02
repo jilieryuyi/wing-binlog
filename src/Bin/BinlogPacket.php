@@ -11,12 +11,35 @@ use Wing\Bin\Constant\FieldType;
  */
 class BinLogPacket
 {
+	/**
+	 * @var int $offset 读取当前数据包的偏移量
+	 */
 	protected $offset = 0;
+
+	/**
+	 * @var string $packet 当前待处理的二进制数据包
+	 */
 	protected $packet;
+
+	/**
+	 * @var string $buffer 缓冲区，实现c语言的"unget作用是将最近读取的字符回流"
+	 */
 	protected $buffer = '';
+
+	/**
+	 * @var string $schema_name 数据库名称
+	 */
 	protected $schema_name;
+
+	/**
+	 * @var string $table_name 数据表名称
+	 */
 	protected $table_name;
-	protected $table_map;
+
+	/**
+	 * @var array $table_map 数据表字段缓冲区，用于提升性能
+	 */
+	protected $table_map = [];
 
 	public static $bitCountInByte = [
 		0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
@@ -36,7 +59,6 @@ class BinLogPacket
 		3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
 		4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8,
 	];
-
 
 	private static $_instance = null;
 
@@ -749,7 +771,7 @@ class BinLogPacket
 		return $string;
 	}
 
-	private function read_new_decimal($column)
+	private function readNewDecimal($column)
 	{
 		# Read MySQL's new decimal format introduced in MySQL 5"""
 		# This project was a great source of inspiration for
@@ -1015,7 +1037,7 @@ class BinLogPacket
 			}
 
 			elseif ($column['type'] == FieldType::NEWDECIMAL) {
-				$values[$name] = $this->read_new_decimal($column);
+				$values[$name] = $this->readNewDecimal($column);
 			}
 
 			elseif ($column['type'] == FieldType::BLOB) {
