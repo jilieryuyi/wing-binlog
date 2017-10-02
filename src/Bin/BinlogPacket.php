@@ -433,6 +433,7 @@ class BinLogPacket
 	}
 
 	/**
+	 * @param int $size
 	 * @return bool
 	 */
 	public function hasNext($size)
@@ -461,6 +462,10 @@ class BinLogPacket
 
 	/**
 	 * 设置table_map缓存，避免重复查询数据库
+	 *
+	 * @param string $schema_name 数据库名称
+	 * @param string $table_name 数据表名称
+	 * @param array $data
 	 */
 	protected function setTableMapCache($schema_name, $table_name, $data)
 	{
@@ -469,6 +474,11 @@ class BinLogPacket
 
 	/**
 	 * 判断是都存在table_map缓存
+	 *
+	 * @param string $schema_name
+	 * @param string $table_name
+	 * @param int $table_id
+	 * @return bool
 	 */
 	protected function issetTableMapCache($schema_name, $table_name, $table_id)
 	{
@@ -478,6 +488,9 @@ class BinLogPacket
 
 	/**
 	 * 删除table_map缓存，发生在table结构改变事件
+	 *
+	 * @param string $schema_name
+	 * @param string $table_name
 	 */
 	protected function unsetTableMapCache($schema_name, $table_name)
 	{
