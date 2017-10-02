@@ -39,6 +39,7 @@ class BinLogPacket
 
 
 	private static $_instance = null;
+
 	/**
 	 * 此api为唯一入口，对外必须以静态单例调用
 	 * 因为有些属性前面初始化后，后面可能继续使用的
@@ -76,6 +77,7 @@ class BinLogPacket
 		$this->offset = 0;
 
 		$this->advance(1);
+
 		$timestamp  = unpack('L', $this->read(4))[1];
 		$event_type = unpack('C', $this->read(1))[1];
 		$server_id  = unpack('L', $this->read(4))[1];
@@ -85,19 +87,17 @@ class BinLogPacket
 		}
 
 		$event_size = unpack('L', $this->read(4))[1];
-
 		//position of the next event
 		$log_pos    = unpack('L', $this->read(4))[1];
 
 		$this->read(2);
-		//$flags      = unpack('S', $this->read(2))[1];
+		//$flags = unpack('S', $this->read(2))[1];
 
 		$event_size_without_header = $check_sum === true ? ($event_size -23) : $event_size - 19;
 
 		switch ($event_type) {
 			// 映射fileds相关信息
 			case EventType::TABLE_MAP_EVENT: {
-					//RowEvent::tableMap($this, $event_type);
 					$this->tableMap();
 				}
 				break;
