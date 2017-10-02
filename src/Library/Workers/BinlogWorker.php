@@ -89,13 +89,12 @@ class BinlogWorker extends BaseWorker
 				return $process_id;
 			}
 
-
 			if ($daemon) {
 				reset_std();
 			}
 		}
 
-		$process_name = "wing php >> events collector process";
+		$process_name        = "wing php >> events collector process";
 		self::$process_title = $process_name;
 
 		//设置进程标题 mac 会有warning 直接忽略
