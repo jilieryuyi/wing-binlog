@@ -38,39 +38,36 @@ class Net
 	{
 
 		// server gone away
-//		if ($data_len == 5) {
-//			throw new \Exception('read 5 bytes from mysql server has gone away');
-//		}
+		//if ($data_len == 5) {
+		//	throw new \Exception('read 5 bytes from mysql server has gone away');
+		//}
 
-		//try{
-			$bytes_read = 0;
-			$body       = '';
-			while ($bytes_read < $data_len) {
-				$resp = socket_read(self::$socket, $data_len - $bytes_read);
-				if($resp === false) {
-					throw new NetCloseException(
-						sprintf(
-							'remote host has closed. error:%s, msg:%s',
-							socket_last_error(),
-							socket_strerror(socket_last_error())
-						));
-				}
-
-				// server kill connection or server gone away
-				if(strlen($resp) === 0){
-					throw new NetCloseException("read less " . ($data_len - strlen($body)));
-				}
-				$body .= $resp;
-				$bytes_read += strlen($resp);
+		$bytes_read = 0;
+		$body       = '';
+		while ($bytes_read < $data_len) {
+			$resp = socket_read(self::$socket, $data_len - $bytes_read);
+			if($resp === false) {
+				throw new NetCloseException(
+					sprintf(
+						'remote host has closed. error:%s, msg:%s',
+						socket_last_error(),
+						socket_strerror(socket_last_error())
+					));
 			}
-			if (strlen($body) < $data_len){
+
+			// server kill connection or server gone away
+			if(strlen($resp) === 0){
 				throw new NetCloseException("read less " . ($data_len - strlen($body)));
 			}
-			return $body;
-//		} catch (\Exception $e) {
-//			var_dump($e->getMessage());
-//		}
-		//return null;
+			$body .= $resp;
+			$bytes_read += strlen($resp);
+		}
+
+		if (strlen($body) < $data_len){
+			throw new NetCloseException("read less " . ($data_len - strlen($body)));
+		}
+
+		return $body;
 	}
 
 	public static function readPacket()
