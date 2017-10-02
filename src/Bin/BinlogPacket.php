@@ -102,21 +102,18 @@ class BinLogPacket
 			case EventType::UPDATE_ROWS_EVENT_V2:
 			case EventType::UPDATE_ROWS_EVENT_V1: {
 					$data = $this->updateRow($event_type, $event_size_without_header);
-					//RowEvent::updateRow($this, $event_type, $event_size_without_header);
 					$data["event"]["time"] = date("Y-m-d H:i:s", $timestamp);
 				}
 				break;
 			case EventType::WRITE_ROWS_EVENT_V1:
 			case EventType::WRITE_ROWS_EVENT_V2: {
 					$data = $this->addRow($event_type, $event_size_without_header);
-					//RowEvent::addRow($this, $event_type, $event_size_without_header);
 					$data["event"]["time"] = date("Y-m-d H:i:s", $timestamp);
 				}
 				break;
 			case EventType::DELETE_ROWS_EVENT_V1:
 			case EventType::DELETE_ROWS_EVENT_V2: {
 					$data =  $this->delRow($event_type, $event_size_without_header);
-					//RowEvent::delRow($this, $event_type, $event_size_without_header);
 					$data["event"]["time"] = date("Y-m-d H:i:s", $timestamp);
 				}
 				break;
@@ -287,7 +284,6 @@ class BinLogPacket
 		return unpack('C', $this->read(1))[1];
 	}
 
-	//
 	public function readUint16()
 	{
 		return unpack('S', $this->read(2))[1];
@@ -299,7 +295,6 @@ class BinLogPacket
 		return $data[1] + ($data[2] << 8) + ($data[3] << 16);
 	}
 
-	//
 	public function readUint32()
 	{
 		return unpack('I', $this->read(4))[1];
@@ -340,13 +335,6 @@ class BinLogPacket
 		$data = unpack('V*', $d);
 		$bigInt = bcadd($data[1], bcmul($data[2], bcpow(2, 32)));
 		return $bigInt;
-
-//        $unpackArr = unpack('I2', $d);
-		//$data = unpack("C*", $d);
-		//$r = $data[1] + ($data[2] << 8) + ($data[3] << 16) + ($data[4] << 24);//+
-		//$r2= ($data[5]) + ($data[6] << 8) + ($data[7] << 16) + ($data[8] << 24);
-
-//        return $unpackArr[1] + ($unpackArr[2] << 32);
 	}
 
 	public function readInt64()
@@ -620,7 +608,6 @@ class BinLogPacket
 	public function updateRow($event_type, $size)
 	{
 
-		//self::rowInit($pack, $event_type, $size);
 
 		//$table_id =
 			$this->readTableId();
@@ -1110,22 +1097,10 @@ class BinLogPacket
 
 		// Body
 		$columns_num = $this->readCodedBinary();
+		$len 		 = (int)(($columns_num + 7) / 8);
+		$bitmap 	 = $this->read($len);
+		$rows	     = [];
 
-		//$result = [];
-		// ？？？？
-		//$result['extra_data'] = getData($data, );
-//        $result['columns_length'] = unpack("C", $this->read(1))[1];
-		//$result['schema_name']   = getData($data, 29, 28+$result['schema_length'][1]);
-		$len = (int)(($columns_num + 7) / 8);
-
-
-		$bitmap = $this->read($len);
-
-
-		//nul-bitmap, length (bits set in 'columns-present-bitmap1'+7)/8
-		//$value['del'] = self::_getDelRows($result, $len);
-
-		$rows = [];
 		while($this->hasNext($size)) {
 			$rows[] = $this->columnFormat($bitmap);
 		}
@@ -1144,38 +1119,39 @@ class BinLogPacket
 
 	private function _read_time2($column) {
 		/*
-		https://dev.mysql.com/doc/internals/en/date-and-time-data-type-representation.html
-		TIME encoding for nonfractional part:
-
-		 1 bit sign    (1= non-negative, 0= negative)
-		 1 bit unused  (reserved for future extensions)
-		10 bits hour   (0-838)
-		 6 bits minute (0-59)
-		 6 bits second (0-59)
-		---------------------
-		24 bits = 3 bytes
+		  https://dev.mysql.com/doc/internals/en/date-and-time-data-type-representation.html
+		  TIME encoding for nonfractional part:
+		  1 bit sign    (1= non-negative, 0= negative)
+		  1 bit unused  (reserved for future extensions)
+		  10 bits hour   (0-838)
+		  6 bits minute (0-59)
+		  6 bits second (0-59)
+		  ---------------------
+		  24 bits = 3 bytes
 		*/
 		$data = $this->read_int_be_by_size(3);
-
 		$sign = 1;
-		if (self::_read_binary_slice($data, 0, 1, 24) ) {
-		} else {
+
+		if (!self::_read_binary_slice($data, 0, 1, 24)) {
 			$sign = -1;
 		}
+
 		if ($sign == -1) {
 			# negative integers are stored as 2's compliment
 			# hence take 2's compliment again to get the right value.
 			$data = ~$data + 1;
 		}
 
-		$hours=$sign*self::_read_binary_slice($data, 2, 10, 24);
-		$minutes=self::_read_binary_slice($data, 12, 6, 24);
-		$seconds=self::_read_binary_slice($data, 18, 6, 24);
-		$microseconds=self::_add_fsp_to_time($column);
-		$t = $hours.':'.$minutes.':'.$seconds;
-		if($microseconds) {
+		$hours        = $sign*self::_read_binary_slice($data, 2, 10, 24);
+		$minutes      = self::_read_binary_slice($data, 12, 6, 24);
+		$seconds      = self::_read_binary_slice($data, 18, 6, 24);
+		$microseconds = self::_add_fsp_to_time($column);
+		$t            = $hours.':'.$minutes.':'.$seconds;
+
+		if ($microseconds) {
 			$t .= '.'.$microseconds;
 		}
+
 		return $t;
 	}
 
