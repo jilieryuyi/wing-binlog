@@ -5,6 +5,7 @@
  * Date: 17/9/24
  * Time: 18:12
  */
-class NetCloseException extends \Exception {
+class NetCloseException extends \Exception
+{
 
 }
