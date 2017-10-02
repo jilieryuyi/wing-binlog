@@ -26,7 +26,7 @@ class Net
 //			throw new \Exception('read 5 bytes from mysql server has gone away');
 //		}
 
-		try{
+		//try{
 			$bytes_read = 0;
 			$body       = '';
 			while ($bytes_read < $data_len) {
@@ -51,10 +51,10 @@ class Net
 				throw new NetCloseException("read less " . ($data_len - strlen($body)));
 			}
 			return $body;
-		} catch (\Exception $e) {
-			var_dump($e->getMessage());
-		}
-		return null;
+//		} catch (\Exception $e) {
+//			var_dump($e->getMessage());
+//		}
+		//return null;
 	}
 
 	public static function readPacket()
