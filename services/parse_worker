@@ -6,8 +6,8 @@ require __DIR__.'/../vendor/autoload.php';
 //定义根目录
 define("HOME", dirname(__DIR__));
 //时间区设定
-if (!date_default_timezone_get()) {
-    date_default_timezone_set("PRC");
+if (!date_default_timezone_get() || !ini_get("date.timezone")) {
+	date_default_timezone_set("PRC");
 }
 
 //启动命令所需参数
