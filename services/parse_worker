@@ -32,11 +32,7 @@ foreach ($argv as $item) {
 		$debug = true;
 	}
 }
-if ($debug) {
-	define("WING_DEBUG", true);
-} else {
-	define("WING_DEBUG", false);
-}
+define("WING_DEBUG", $debug);
 
 //命令行参数解析
 $start_pos   = 0;

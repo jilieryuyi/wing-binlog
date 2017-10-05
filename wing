@@ -35,12 +35,7 @@ foreach ($argv as $item) {
         $debug  = $winfo["debug"];
     }
 }
-
-if ($debug) {
-    define("WING_DEBUG", true);
-} else {
-    define("WING_DEBUG", false);
-}
+define("WING_DEBUG", $debug);
 
 
 //初始化命令行参数
