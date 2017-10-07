@@ -50,7 +50,7 @@ class CapabilityFlag
 	const CLIENT_MULTI_RESULTS  	= (1 << 17);
 	const CLIENT_PS_MULTI_RESULTS 	= (1 << 18);
 	const CLIENT_PLUGIN_AUTH  		= (1 << 19);
-	const CLIENT_CONNECT_ATTRS		 = (1 << 20);
+	const CLIENT_CONNECT_ATTRS		= (1 << 20);
 	const CLIENT_PLUGIN_AUTH_LENENC_CLIENT_DATA = (1 << 21);
 	const CLIENT_CAN_HANDLE_EXPIRED_PASSWORDS 	= (1 << 22);
 	const CLIENT_SESSION_TRACK 					= (1 << 23);
