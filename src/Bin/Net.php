@@ -20,7 +20,7 @@ class Net
 	 */
 	public static function send($data)
 	{
-		if (($bytes = socket_write(self::$socket, $data, strlen($data))) === false ) {
+		if (($bytes = socket_write(self::$socket, $data, strlen($data))) === false) {
 			$error_code = socket_last_error();
 			throw new \Exception(sprintf( "Unable to write to socket: %s", socket_strerror($error_code)), $error_code);
 		}
@@ -44,9 +44,11 @@ class Net
 
 		$bytes_read = 0;
 		$body       = '';
+
 		while ($bytes_read < $data_len) {
 			$resp = socket_read(self::$socket, $data_len - $bytes_read);
-			if($resp === false) {
+
+			if ($resp === false) {
 				throw new NetCloseException(
 					sprintf(
 						'remote host has closed. error:%s, msg:%s',
@@ -56,7 +58,7 @@ class Net
 			}
 
 			// server kill connection or server gone away
-			if(strlen($resp) === 0){
+			if (strlen($resp) === 0) {
 				throw new NetCloseException("read less " . ($data_len - strlen($body)));
 			}
 			$body .= $resp;
