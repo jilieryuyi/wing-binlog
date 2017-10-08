@@ -546,7 +546,7 @@ class Mysql
             $rows[] = $row;
         }
 
-//var_dump($rows);
+var_dump($rows);
 
 		//mysql-server/sql/protocol_classic.cc 904
 		//mysql-server/libmysql/libmysql.c 4819

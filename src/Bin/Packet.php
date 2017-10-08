@@ -390,9 +390,8 @@ class Packet
 
     public function debugDump()
     {
-    	//var_dump($this->packet);
-    	//echo "\r\n\r\n";
-
+    	var_dump($this->packet);
+    	echo "\r\n";
         for ($i = 0; $i < $this->len; $i++) {
             echo ord($this->packet[$i]),"(".$this->packet[$i].")-";
         }
