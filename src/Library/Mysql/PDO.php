@@ -146,18 +146,24 @@ class PDO
     {
 		$sql = '';
         if ($mode & Trans::WITH_CONSISTENT_SNAPSHOT) {
-        	if ($sql) $sql .= ',';
-           $sql .=" WITH CONSISTENT SNAPSHOT";
+        	if ($sql) {
+        		$sql .= ',';
+			}
+            $sql .=" WITH CONSISTENT SNAPSHOT";
         }
 
         //5.6.5之前的版本不支持
-		if ( $this->server_version >= 50605) {
+		if ($this->server_version >= 50605) {
 			if ($mode & (Trans::READ_WRITE | Trans::READ_ONLY)) {
 				if ($mode & Trans::READ_WRITE) {
-					if ($sql) $sql .= ',';
+					if ($sql) {
+						$sql .= ',';
+					}
 					$sql .= " READ WRITE";
 				} else if ($mode & Trans::READ_ONLY) {
-					if ($sql) $sql .= ',';
+					if ($sql) {
+						$sql .= ',';
+					}
 					$sql .= " READ ONLY";
 				}
 			}
@@ -177,17 +183,25 @@ class PDO
         return Mysql::query($parse_sql);
     }
 
-    //Changes the user of the specified database connection
+	//Commits the current transaction
+	public function commit()
+	{
+		return mysql::query('commit');
+	}
+
+	//Rolls back current transaction
+	public function rollback()
+	{
+		return mysql::query('rollback');
+	}
+
+	//Changes the user of the specified database connection
     public function change_user()
     {
 
     }
 
-	//Commits the current transaction
-    public function commit()
-	{
 
-	}
     public function debug(){}//Performs debugging operations
     public function dump_debug_info(){}//Dump debugging information into the log
     public function get_charset(){}//Returns a character set object
@@ -215,7 +229,6 @@ class PDO
     public function reap_async_query(){}//Get result from async query
     public function refresh(){}//Refreshes
     public function release_savepoint(){}//Removes the named savepoint from the set of savepoints of the current transaction
-    public function rollback(){}//Rolls back current transaction
     public function rpl_query_type(){}//Returns RPL query type
     public function savepoint(){}//Set a named transaction savepoint
     public function select_db(){}//Selects the default database for database queries
