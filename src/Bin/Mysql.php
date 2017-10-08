@@ -186,7 +186,6 @@ class Mysql
 	/**
 	 * 预处理执行sql
 	 * @see https://dev.mysql.com/doc/internals/en/myisam-column-attributes.html
-	 * @todo COM_STMT_CLOSE命令发送报错，暂时还没有处理
 	 */
     public static function execute($sql,array $params = [])
     {
@@ -414,16 +413,15 @@ class Mysql
         $packet = new Packet($res);
         $packet->debugDump();
 
-//        $res = Net::readPacket();
-//        $packet = new Packet($res);
-//        $packet->debugDump();
-       // exit;
+        /**
+         *4	预处理语句的ID值（小字节序）
+          4	数据的行数（小字节序）
+         */
+        $rows    = 1;
+        $packet  = chr($smtid).chr($smtid >> 8) .chr($smtid >> 16) .chr($smtid >> 24);
+        $packet .= chr($rows).chr($rows >> 8) .chr($rows >> 16) .chr($rows >> 24);
 
-        //fetch rows
-       // $prelude = pack('LC',1, CommandType::COM_STMT_FETCH);
-       // Net::send($prelude);
-
-		$success = Packet::writeCommand(CommandType::COM_STMT_FETCH);
+        $success = Packet::writeCommand(CommandType::COM_STMT_FETCH, $packet);
 		if (!$success) {
 			echo "write command COM_STMT_FETCH failure\r\n";
 			return false;
@@ -450,12 +448,12 @@ class Mysql
 //            }
 //            echo "\r\n";
            // $packet->read(1);
-            /**
-            1	结构头（0x00）
-            (列数量 + 7 + 2) / 8	空位图
-            n	字段值
-             * https://dev.mysql.com/doc/internals/en/myisam-column-attributes.html
-             */
+            //
+            //1	结构头（0x00）
+           /// (列数量 + 7 + 2) / 8	空位图
+          //  n	字段值
+          //   * https://dev.mysql.com/doc/internals/en/myisam-column-attributes.html
+             //
             $packet->read(intval(($columns_count+9)/8)+1);
 
             while($index < $columns_count) {
@@ -546,13 +544,13 @@ class Mysql
             $rows[] = $row;
         }
 
-var_dump($rows);
+        var_dump($rows);
 
 		//mysql-server/sql/protocol_classic.cc 904
 		//mysql-server/libmysql/libmysql.c 4819
 		//COM_CLOSE_STMT 释放预处理资源
-
-		$packet  = chr($smtid).chr($smtid >> 8) .chr($smtid >> 16) .chr($smtid >> 24);
+        //COM_STMT_FETCH 之后会自动 close_stmt
+		/*$packet  = chr($smtid).chr($smtid >> 8) .chr($smtid >> 16) .chr($smtid >> 24);
 		$success = Packet::writeCommand(CommandType::COM_STMT_CLOSE, $packet);
 		if (!$success) {
 			echo "write command COM_STMT_CLOSE failure\r\n";
@@ -563,13 +561,34 @@ var_dump($rows);
 		(new Packet($res))->debugDump();
 
 		//}
-		exit;
-
+		//exit;
+        */
         return $rows;
         //这里得到响应结果
         //var_dump($res);
 
         //return $res;
+    }
+
+    /**
+     * @return bool
+     */
+    public static function close_stmt($smtid)
+    {
+        //mysql-server/sql/protocol_classic.cc 904
+		//mysql-server/libmysql/libmysql.c 4819
+		//COM_CLOSE_STMT 释放预处理资源
+        //COM_STMT_FETCH 之后会自动 close_stmt
+		$packet  = chr($smtid).chr($smtid >> 8) .chr($smtid >> 16) .chr($smtid >> 24);
+		$success = Packet::writeCommand(CommandType::COM_STMT_CLOSE, $packet);
+		if (!$success) {
+			echo "write command COM_STMT_CLOSE failure\r\n";
+			return false;
+		}
+
+		$res = Net::readPacket();
+		(new Packet($res))->debugDump();
+		return true;
     }
 
 }
