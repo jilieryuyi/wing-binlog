@@ -61,7 +61,7 @@ try {
 
 
 	//预处理查询 ok
-	var_dump(\Wing\Bin\Mysql::execute('select * from wp_posts where id=?', [12]));
+	var_dump(\Wing\Bin\Mysql::execute('select * from t1 where a=?', [12]));
 
 
 	//test ok

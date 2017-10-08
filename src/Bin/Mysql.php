@@ -350,7 +350,7 @@ class Mysql
              *pos+= 2;
              */
 
-            $pfields = \Wing\Bin\FieldType::parse($params);
+            $pfields = FieldType::parse($params);
 
             //n字节每个参数的类型值（长度 = 参数数量 * 2 字节）
             foreach ($pfields as $value) {
