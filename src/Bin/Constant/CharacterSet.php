@@ -800,7 +800,7 @@ class CharacterSet
 				return "utf8_unicode_ci";
 				break;
 			default:
-				return $flag;
+				return null;
 		}
 	}
 }
