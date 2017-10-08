@@ -1,6 +1,35 @@
 #!/usr/bin/env php
 <?php
 //declare(ticks = 1);
+
+ini_set("display_errors", "On");
+error_reporting(E_ALL);
+
+//初始化命令行参数
+$str_argv = '';
+for ($i = 1; $i < $argc; $i++) {
+    $str_argv .= ' '.$argv[$i];
+}
+
+$file_name = str_replace(__DIR__, "", __FILE__);
+$file_name = trim($file_name, "/");
+$file_name = trim($file_name, "\\");
+
+$command_line = 'php '.$file_name.' '.$str_argv;
+define("WING_COMMAND_LINE", $command_line);
+
+if (!file_exists(__DIR__.'/vendor/autoload.php')) {
+    echo "正在尝试安装依赖-composer install", PHP_EOL;
+    exec("composer install");
+    echo PHP_EOL, "请重新执行：", WING_COMMAND_LINE, PHP_EOL;
+    exit;
+}
+
+if (!function_exists("socket_create")) {
+    echo "请安装php_sockets扩展", PHP_EOL;
+    exit;
+}
+
 require __DIR__.'/vendor/autoload.php';
 require __DIR__.'/src/windows.php';
 
@@ -36,20 +65,6 @@ foreach ($argv as $item) {
     }
 }
 define("WING_DEBUG", $debug);
-
-
-//初始化命令行参数
-$str_argv = '';
-for ($i = 1; $i < $argc; $i++) {
-    $str_argv .= ' '.$argv[$i];
-}
-
-$file_name = str_replace(__DIR__, "", __FILE__);
-$file_name = trim($file_name, "/");
-$file_name = trim($file_name, "\\");
-
-$command_line = 'php '.$file_name.' '.$str_argv;
-define("WING_COMMAND_LINE", $command_line);
 
 try {
 
