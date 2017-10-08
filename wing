@@ -5,6 +5,19 @@
 ini_set("display_errors", "On");
 error_reporting(E_ALL);
 
+//初始化一些系统常量
+define("WINDOWS", "windows");
+define("LINUX", "linux");
+//根目录
+define("HOME", __DIR__);
+
+//初始化日志目录
+if (!is_dir(__DIR__."/logs")) {
+    mkdir(__DIR__."/logs");
+}
+
+include __DIR__."/src/helpers.php";
+
 //初始化命令行参数
 $str_argv = '';
 for ($i = 1; $i < $argc; $i++) {
@@ -17,6 +30,12 @@ $file_name = trim($file_name, "\\");
 
 $command_line = 'php '.$file_name.' '.$str_argv;
 define("WING_COMMAND_LINE", $command_line);
+
+if (is_env(WINDOWS) && !file_exists(__DIR__."/composer.json")) {
+    copy(__DIR__."/composer.json.win", __DIR__."/composer.json");
+} else if (is_env(LINUX) && !file_exists(__DIR__."/composer.json")) {
+    copy(__DIR__."/composer.json.linux", __DIR__."/composer.json");
+}
 
 if (!file_exists(__DIR__.'/vendor/autoload.php')) {
     echo "正在尝试安装依赖-composer install", PHP_EOL;
@@ -34,18 +53,6 @@ require __DIR__.'/vendor/autoload.php';
 require __DIR__.'/src/windows.php';
 
 use Symfony\Component\Console\Application;
-
-//根目录
-define("HOME", __DIR__);
-
-//初始化日志目录
-if (!is_dir(__DIR__."/logs")) {
-    mkdir(__DIR__."/logs");
-}
-
-//初始化一些系统常量
-define("WINDOWS", "windows");
-define("LINUX", "linux");
 
 //定义时间区
 if (!date_default_timezone_get() || !ini_get("date.timezone")) {

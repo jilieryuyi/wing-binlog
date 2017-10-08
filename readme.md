@@ -52,17 +52,6 @@ cd services
 go build -o tcp tcp.go
 go build -o websocket websocket.go
 ````
-如需使用workerman，请在composer.json中加上 "workerman/workerman":"dev-master"，如下：
-````
- "require": {
-    "php": ">=5.0",
-    "symfony/console":"~3.1",
-    "wing/FileSystem":"dev-master",
-    "psr/log": "~1.0",
-    "php-amqplib/php-amqplib": ">=2.6",
-    "workerman/workerman":"dev-master"
-  },
-````
      
 ### 使用场景
 1. 数据库实时备份 （按业务表自定义或者整库同步）    
