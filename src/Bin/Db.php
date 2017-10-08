@@ -1,4 +1,5 @@
 <?php namespace Wing\Bin;
+
 use Wing\Library\PDO;
 
 /**
@@ -13,24 +14,32 @@ class Db
 	 * @var PDO
 	 */
 	public static $pdo = null;
+
+	private static function PdoInit()
+	{
+		if (!self::$pdo) {
+			self::$pdo = new \Wing\Library\PDO();
+		}
+	}
+
 	public static function getChecksum()
 	{
-		if (!self::$pdo)self::$pdo = new \Wing\Library\PDO();
+		self::PdoInit();
 		$res = self::$pdo->row("SHOW GLOBAL VARIABLES LIKE 'BINLOG_CHECKSUM'");
 		return $res['Value'];
 	}
 
-	public static function getPos() {
-		if (!self::$pdo)self::$pdo = new \Wing\Library\PDO();
-
+	public static function getPos()
+	{
+		self::PdoInit();
 		$sql    = "SHOW MASTER STATUS";
 		$result = self::$pdo->row($sql);
 		return $result;
 	}
 
-	public static function getFields($schema, $table) {
-		if (!self::$pdo)self::$pdo = new \Wing\Library\PDO();
-
+	public static function getFields($schema, $table)
+	{
+		self::PdoInit();
 		$sql = "SELECT
                 COLUMN_NAME,COLLATION_NAME,CHARACTER_SET_NAME,COLUMN_COMMENT,COLUMN_TYPE,COLUMN_KEY
                 FROM

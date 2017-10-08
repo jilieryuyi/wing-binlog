@@ -1,4 +1,5 @@
 <?php namespace Wing\Bin;
+
 use Wing\Bin\Constant\CommandType;
 use Wing\Bin\Constant\Cursor;
 use Wing\Bin\Constant\FieldFlag;

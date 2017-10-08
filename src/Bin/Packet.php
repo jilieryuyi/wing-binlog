@@ -1,4 +1,5 @@
 <?php namespace Wing\Bin;
+
 use Wing\Bin\Constant\CharacterSet;
 use Wing\Bin\Constant\CommandType;
 use Wing\Bin\Constant\FieldType;
@@ -38,7 +39,7 @@ if capabilities & CLIENT_PROTOCOL_41 {
 2                  status_flags; Copy of thd->server_status; Can be used
 by client to check if we are inside a transaction.
 2                  warnings (New in 4.1 protocol)
-} elseif capabilities & CLIENT_TRANSACTIONS {
+} else if capabilities & CLIENT_TRANSACTIONS {
 2                  status_flags
 }
 
@@ -116,21 +117,22 @@ class Packet
 	 */
 	public static function  getAuth($flag, $user, $pass, $salt, $db = '')
 	{
-		$data 	= pack('L',$flag);						 	//4bytes权能信息
+		$data 	= pack('L',$flag);						//4bytes权能信息
 		$data  .= pack('L', self::PACK_MAX_LENGTH); 	//4bytes最大长度
-		$data  .= chr(CharacterSet::utf8_general_ci);			//1byte字符编码
+		$data  .= chr(CharacterSet::utf8_general_ci);	    //1byte字符编码
 
 		//填充23字节0x00
 		for ($i = 0; $i < 23; $i++) {
 			$data .= chr(0);
 		}
 
-		//用户名 0x00 以NULL结束
-		$data   .= $user . chr(0) ;
-		//密码加密
-		$result  = sha1($pass, true) ^ sha1($salt . sha1(sha1($pass, true), true),true);
-		//密码信息 Length Coded Binary
-		$data 	.= chr(strlen($result)) . $result;
+
+		$data   .= $user . chr(0) ;            //用户名 0x00 以NULL结束
+		$result  = sha1($pass, true) ^    //密码加密
+			       sha1($salt .
+				   sha1(sha1($pass, true),
+				   true),true);
+		$data 	.= chr(strlen($result)) . $result;	//密码信息 Length Coded Binary
 
 		//数据库名称  0x00 以NULL结束
 		if ($db) {
@@ -251,7 +253,7 @@ class Packet
     {
 		if ($this->buffer) {
 			$sub_str = substr($this->buffer, 0 , $bytes);
-			if(strlen($sub_str) == $bytes) {
+			if (strlen($sub_str) == $bytes) {
 				$this->buffer = substr($this->buffer, $bytes);;
 				return $sub_str;
 			} else {
@@ -275,15 +277,17 @@ class Packet
         $res = $this->read(1);
         return unpack("C", $res)[1];
     }
+
     //小端序16bit
     public function readUint16()
     {
-        $_server_status = self::read(2);
-        return unpack("v", $_server_status[0].$_server_status[1])[1];
+        $packet = self::read(2);
+        return unpack("v", $packet[0].$packet[1])[1];
     }
+
     public function readUint24()
     {
-        $res = $this->read(3);
+        $res  = $this->read(3);
         $data = unpack("C3", $res[0].$res[1].$res[2]);//[1];
         return $data[1] + ($data[2] << 8) + ($data[3] << 16);
     }
@@ -307,18 +311,19 @@ class Packet
         //libmysql/libmysql.c 3176 read_binary_datetime
         //第一个字节获取日期的存储长度
         $length = $this->getLength();
-
-        $year = $this->readUint16();
-
-        $month = $this->readUint8();
-        $day = $this->readUint8();
-        $hour = $this->readUint8();
+        $year   = $this->readUint16();
+        $month  = $this->readUint8();
+        $day    = $this->readUint8();
+        $hour   = $this->readUint8();
         $minute = $this->readUint8();
         $second = $this->readUint8();
 
-        return sprintf("%d-%02d-02%d %02d:%02d:%02d",$year, $month, $day,
-            $hour, $minute, $second);
+        return sprintf("%d-%02d-02%d %02d:%02d:%02d",
+			            $year, $month, $day,
+                        $hour, $minute, $second
+		       );
     }
+
     public function readUint32()
     {
         $res = $this->read(4);
@@ -413,82 +418,105 @@ class Packet
         n	默认值（Length Coded String）
          */
         $column = [
-            "dir" => $this->next(),
-            "database"=>$this->next(),
-            "table"=>$this->next(),
-            "table_alias"=>$this->next(),
-            "column"=>$this->next(),
-            "column_alias"=>$this->next(),
+            "dir"          => $this->next(),
+            "database"     => $this->next(),
+            "table"        => $this->next(),
+            "table_alias"  => $this->next(),
+            "column"       => $this->next(),
+            "column_alias" => $this->next(),
         ];
 
         $this->read(1);
+
         $column["character_set"] = $this->readUint16();
-        $column["length"] = $this->readUint32();
+        $column["length"]        = $this->readUint32();
+
         $type = $this->readUint8();
-        $column["type"] = $type;
+
+        $column["type"]      = $type;
         $column["type_text"] = FieldType::fieldtype2str($type);
-        $column["flag"] = $this->readUint16();
+        $column["flag"]      = $this->readUint16();
         $column["precision"] = $this->readUint8();
+
         $this->read(2);
+
         $column["default"] = $this->next();
+
         return $column;
     }
 
-    ///Users/yuyi/Downloads/mysql-5.7.19/sql-common/pack.c 93
+    /**
+	 * @source mysql-5.7.19/sql-common/pack.c 93
+	 */
     public static function storeLength($length)
     {
         if ($length < 251) {
             return chr($length);
         }
 
-        /* 251 is reserved for NULL */
+        //251 is reserved for NULL
         if ($length < 65536) {
             return chr(252).chr($length).chr($length >> 8);
-            //pack("v", $length);
         }
 
         if ($length < 16777216) {
-            $data = chr(253);
+            $data  = chr(253);
             $data .= chr($length).chr($length >> 8).chr($length >> 16);
             return $data;
         }
 
         return chr(254).pack("P", $length);
     }
+
 	public function read_int24()
 	{
 		$data = unpack("CCC", $this->read(3));
+		$res  = $data[1] | ($data[2] << 8) | ($data[3] << 16);
 
-		$res = $data[1] | ($data[2] << 8) | ($data[3] << 16);
-		if ($res >= 0x800000)
+		if ($res >= 0x800000) {
 			$res -= 0x1000000;
+		}
+
 		return $res;
 	}
+
 	public function read_int40_be()
 	{
-		$data1= unpack("N", $this->read(4))[1];
+		$data1 = unpack("N", $this->read(4))[1];
 		$data2 = unpack("C", $this->read(1))[1];
 		return $data2 + ($data1 << 8);
 	}
-	public function read_int_be_by_size($size) {
+
+	public function read_int_be_by_size($size)
+	{
 		//Read a big endian integer values based on byte number
-		if ($size == 1)
+		if ($size == 1) {
 			return unpack('c', $this->read($size))[1];
-		elseif( $size == 2)
+		}
+
+		else if ( $size == 2) {
 			return unpack('n', $this->read($size))[1];
-		elseif( $size == 3)
+		}
+
+		else if ( $size == 3) {
 			return $this->read_int24_be();
-		elseif( $size == 4)
+		}
+
+		else if ( $size == 4) {
 			return unpack('N', $this->read($size))[1];
-		elseif( $size == 5)
+		}
+
+		else if ( $size == 5) {
 			return $this->read_int40_be();
-		//TODO
-		elseif( $size == 8)
+		}
+
+		else if ( $size == 8) {
 			return unpack('N', $this->read($size))[1];
+		}
 
 		return null;
-
 	}
+
 	public function readInt64()
 	{
 		return $this->readUint64();
@@ -496,23 +524,37 @@ class Packet
 
 	public function read_uint_by_size($size)
 	{
-
-		if($size == 1)
+		if ($size == 1) {
 			return $this->readUint8();
-		elseif($size == 2)
+		}
+
+		else if ($size == 2) {
 			return $this->readUint16();
-		elseif($size == 3)
+		}
+
+		else if ($size == 3) {
 			return $this->readUint24();
-		elseif($size == 4)
+		}
+
+		else if ($size == 4) {
 			return $this->readUint32();
-		elseif($size == 5)
+		}
+
+		else if ($size == 5) {
 			return $this->readUint40();
-		elseif($size == 6)
+		}
+
+		else if ($size == 6) {
 			return $this->readUint48();
-		elseif($size == 7)
+		}
+
+		else if ($size == 7) {
 			return $this->readUint56();
-		elseif($size == 8)
+		}
+
+		else if ($size == 8) {
 			return $this->readUint64();
+		}
 
 		return null;
 	}
@@ -523,16 +565,12 @@ class Packet
 		return $data[1] + ($data[2] << 8);
 	}
 
-
-
-	//
 	public function readUint48()
 	{
 		$data = unpack("vvv", $this->read(6));
 		return $data[1] + ($data[2] << 16) + ($data[3] << 32);
 	}
 
-	//
 	public function readUint56()
 	{
 		$data = unpack("CSI", $this->read(7));
@@ -542,18 +580,19 @@ class Packet
 	/*
 	 * 不支持unsigned long long，溢出
 	 */
-	public function readUint64() {
+	public function readUint64()
+	{
 		$d = $this->read(8);
 		$data = unpack('V*', $d);
 		$bigInt = bcadd($data[1], bcmul($data[2], bcpow(2, 32)));
 		return $bigInt;
 
-//        $unpackArr = unpack('I2', $d);
+        //$unpackArr = unpack('I2', $d);
 		//$data = unpack("C*", $d);
 		//$r = $data[1] + ($data[2] << 8) + ($data[3] << 16) + ($data[4] << 24);//+
 		//$r2= ($data[5]) + ($data[6] << 8) + ($data[7] << 16) + ($data[8] << 24);
 
-//        return $unpackArr[1] + ($unpackArr[2] << 32);
+        //return $unpackArr[1] + ($unpackArr[2] << 32);
 	}
 
 	public function read_length_coded_pascal_string($size)
@@ -566,9 +605,12 @@ class Packet
 	public function read_int24_be()
 	{
 		$data = unpack('C3', $this->read(3));
-		$res = ($data[1] << 16) | ($data[2] << 8) | $data[3];
-		if ($res >= 0x800000)
+		$res  = ($data[1] << 16) | ($data[2] << 8) | $data[3];
+
+		if ($res >= 0x800000) {
 			$res -= 0x1000000;
+		}
+
 		return $res;
 	}
 	/**
@@ -586,10 +628,12 @@ class Packet
     public static function writeCommand($command, $packet = '')
 	{
 		self::$sequence = 0;
+
 		$length = strlen($packet)+1;
 		$ll     = chr($length) . chr($length >> 8) . chr($length >> 16);
 		$data   = $ll.chr(self::$sequence).pack('C', $command).$packet;
-		$res = ($length + 4) == Net::send($data);
+		$res    = ($length + 4) == Net::send($data);
+
 		//if ($res) self::$sequence++;
 		return $res;
 	}

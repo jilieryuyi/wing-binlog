@@ -1,4 +1,5 @@
 <?php namespace Wing\Bin;
+
 use Wing\Exception\NetCloseException;
 
 /**

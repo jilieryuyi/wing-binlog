@@ -1,4 +1,5 @@
 <?php namespace Wing\Bin;
+
 use Wing\Bin\Constant\Column;
 use Wing\Bin\Constant\EventType;
 use Wing\Bin\Constant\FieldType;
