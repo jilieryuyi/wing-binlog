@@ -57,3 +57,4 @@
 /data/user/*.user
 /data/user/roles/*.role
 /composer
+/composer.json
