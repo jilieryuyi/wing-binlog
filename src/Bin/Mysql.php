@@ -183,7 +183,11 @@ class Mysql
         return true;
 	}
 
-	//https://dev.mysql.com/doc/internals/en/myisam-column-attributes.html
+	/**
+	 * 预处理执行sql
+	 * @see https://dev.mysql.com/doc/internals/en/myisam-column-attributes.html
+	 * @todo COM_STMT_CLOSE命令发送报错，暂时还没有处理
+	 */
     public static function execute($sql,array $params = [])
     {
         //COM_STMT_PREPARE --- start ---
