@@ -33,7 +33,7 @@ define("WING_COMMAND_LINE", $command_line);
 
 if (is_env(WINDOWS) && !file_exists(__DIR__."/composer.json")) {
     copy(__DIR__."/composer.json.win", __DIR__."/composer.json");
-} else if (is_env(LINUX) && !file_exists(__DIR__."/composer.json")) {
+} else if(!file_exists(__DIR__."/composer.json")) {
     copy(__DIR__."/composer.json.linux", __DIR__."/composer.json");
 }
 
