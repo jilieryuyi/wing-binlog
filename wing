@@ -40,8 +40,8 @@ if (is_env(WINDOWS) && !file_exists(__DIR__."/composer.json")) {
 if (!file_exists(__DIR__.'/vendor/autoload.php')) {
     echo "正在尝试安装依赖-composer install", PHP_EOL;
     exec("composer install");
-    echo PHP_EOL, "请重新执行：", WING_COMMAND_LINE, PHP_EOL;
-    exit;
+//    echo PHP_EOL, "请重新执行：", WING_COMMAND_LINE, PHP_EOL;
+//    exit;
 }
 
 if (!function_exists("socket_create")) {
