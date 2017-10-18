@@ -45,7 +45,6 @@ class WMWebSocket implements ISubscribe
         }
     }
 
-
     private function send($msg)
     {
         $msg .= "\r\n\r\n\r\n";
@@ -78,7 +77,6 @@ class WMWebSocket implements ISubscribe
             pclose($handle);
         }
     }
-
 
     public function onchange($event)
     {

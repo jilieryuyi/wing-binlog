@@ -30,8 +30,6 @@ class Redis implements ISubscribe
         $this->queue = $queue;
 	}
 
-
-
 	public function onchange($event)
 	{
         $this->redis->rpush($this->queue, json_encode($event));

@@ -78,7 +78,6 @@ class WMTcp implements ISubscribe
         }
     }
 
-
     public function onchange($event)
     {
         $this->send(json_encode($event));
