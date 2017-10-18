@@ -34,13 +34,7 @@ class PDO implements IDb
     private $port = 3306;
 
     /**
-     * @构造函数
-     *
-     * @param string $user
-     * @param string $password
-     * @param string $host
-     * @param string $dbname
-     * @return void
+     * 构造函数
      */
     public function __construct()
     {
