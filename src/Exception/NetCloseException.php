@@ -1,4 +1,5 @@
 <?php namespace Wing\Exception;
+
 /**
  * Created by PhpStorm.
  * User: yuyi
