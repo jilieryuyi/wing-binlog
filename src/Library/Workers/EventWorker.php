@@ -40,7 +40,7 @@ class EventWorker extends BaseWorker
 		    foreach ($subscribe["subscribe"] as $class => $params) {
                 $params["daemon"]  = $daemon;
                 $params["workers"] = $workers;
-                $this->notify[] = new $class($params);
+                $this->notify[]    = new $class($params);
             }
         }
 	}
@@ -50,20 +50,24 @@ class EventWorker extends BaseWorker
 		if (count($this->all_pos) <= 0) {
 			return false;
 		}
+
 		list($start_pos, $end_pos) = array_shift($this->all_pos);
 		$descriptorspec = array(
 			0 => array("pipe", "r"),
 			1 => array("pipe", "w"),
 			2 => array("pipe", "w")
 		);
+
 		$cmd = "php " . HOME . "/services/parse_worker --start=".$start_pos." --end=".$end_pos." --event_index=".$this->event_index;
 		wing_debug("开启parse进程, ", $cmd);
 		$this->dispatch_processes[] = proc_open($cmd, $descriptorspec, $pipes);
 		$this->dispatch_pipes[]     = $pipes[1];
+
 		//不阻塞
 		stream_set_blocking($pipes[1], 0);
 		fclose($pipes[0]);
 		fclose($pipes[2]); //标准错误直接关闭 不需要
+
 		return true;
 	}
 
@@ -77,16 +81,16 @@ class EventWorker extends BaseWorker
 		wing_debug("等待parse进程返回结果");
 
 		while (1) {
-			$all_count= count($this->dispatch_pipes);
-			$read     = $this->dispatch_pipes;
-			$write    = null;
-			$except   = null;
-			$timeleft = 60;
+			$all_count = count($this->dispatch_pipes);
+			$read      = $this->dispatch_pipes;
+			$write     = null;
+			$except    = null;
+			$timeleft  = 60;
 
 			$ret = stream_select(
 				$read,
-				$write,// = null,
-				$except,// = null,
+				$write,
+				$except,
 				$timeleft
 			);
 
@@ -143,9 +147,11 @@ class EventWorker extends BaseWorker
     {
     	wing_debug("发生事件");
 		$this->write_run_time = time();
-    	if (count($this->all_pos) <= 0) {
+
+		if (count($this->all_pos) <= 0) {
     		return;
 		}
+
     	if (count($this->dispatch_pipes) < $this->workers) {
     		$count = $this->workers - count($this->dispatch_pipes);
     		//启动 $count 个 dispatch 进程
@@ -263,7 +269,6 @@ class EventWorker extends BaseWorker
 
                             $last_start_pos = $start_pos;
                             $last_end_pos   = $row["End_log_pos"];
-
                             $has_session    = true;
                             $start_pos      = $row["End_log_pos"];
                         }
@@ -274,6 +279,7 @@ class EventWorker extends BaseWorker
                         $s   = $all_pos[0][0];
                         $cc  = 0;
                         $len = count($all_pos);
+
                         foreach ($all_pos as $po) {
                             $cc++;
                             if ($cc >= 1000) {
@@ -282,17 +288,22 @@ class EventWorker extends BaseWorker
                                 $cc = 0;
                             }
                         }
+
                         $this->all_pos[] = [$s, $all_pos[$len-1][1]];
                     }
 
 					//如果没有查找到一个事务 $limit x 2 直到超过 100000 行
 					if (!$has_session) {
 						$limit = 2 * $limit;
-						if (WING_DEBUG)
-						wing_debug("没有找到事务，更新limit=", $limit);
+
+						if (WING_DEBUG) {
+							wing_debug("没有找到事务，更新limit=", $limit);
+						}
+
 						if ($limit >= 80000) {
 							//如果超过8万 仍然没有找到事务的结束点 放弃采集 直接更新游标
 							$row = array_pop($data);
+
 							if (WING_DEBUG) {
 								wing_debug("查询超过8万，没有找到事务，直接更新游标");
 								wing_debug($start_pos, "=>", $row["End_log_pos"]);
@@ -304,27 +315,30 @@ class EventWorker extends BaseWorker
 							$last_end_pos   = $row["End_log_pos"];
 							$limit          = 10000;
 						}
+
 					} else {
 						$limit = 10000;
 					}
+
 					if ($run_count%$is_run == 0) {
 						$run_count = 0;
 					}
 				} while (0);
 
 			} catch (\Exception $e) {
-				if (WING_DEBUG)
-				var_dump($e->getMessage());
+				if (WING_DEBUG) {
+					var_dump($e->getMessage());
+				}
 				unset($e);
 			}
 
 			$output = ob_get_contents();
-
 			ob_end_clean();
 
 			if ($output && WING_DEBUG) {
 				wing_debug($output);
 			}
+
 			unset($output);
 			usleep(self::USLEEP);
 		}

@@ -17,18 +17,22 @@ class FileFormat
      * @缓存路径
      */
     private $file;
+
     /**
      * @事件发生的时间
      */
     private $daytime = null;
+
     /**
      * @事件类型
      */
     private $event_type = null;
+
     /**
      * @事件发生次数
      */
     private $events_times = 0;
+
     /**
      * @数据库句柄
      */
@@ -44,9 +48,9 @@ class FileFormat
      */
     public function __construct($file, IDb $db_handler, $event_index = 0)
     {
-        $this->file       = $file;
-        $this->db_handler = $db_handler;
-        $this->start_time = time();
+        $this->file        = $file;
+        $this->db_handler  = $db_handler;
+        $this->start_time  = time();
         $this->event_index = $event_index;
     }
 
@@ -127,8 +131,7 @@ class FileFormat
 
         $file_size = strlen($this->file);//filesize($this->file);
         $read_size = 0;
-        $all_lines     = explode("\n", $this->file);
-
+        $all_lines = explode("\n", $this->file);
         $all_res   = [];
         $lines     = [];
 
@@ -137,7 +140,6 @@ class FileFormat
         {
 
            // $line  = fgets($fh);
-
            // $read_size += sizeof($line);
 
             $_line = ltrim($line,"#");
@@ -147,7 +149,7 @@ class FileFormat
             unset($_line);
 
             //遇到分隔符 重置
-            if (preg_match("/#[\s]{1,}at[\s]{1,}[0-9]{1,}/",$line) ||
+            if (preg_match("/#[\s]{1,}at[\s]{1,}[0-9]{1,}/", $line) ||
                 $e == "insert" ||
                 $e == "update" ||
                 $e == "delete"
@@ -166,8 +168,9 @@ class FileFormat
             $lines[] = $line;
             unset($line);
 
-            if ($read_size >= $file_size)
-                break;
+            if ($read_size >= $file_size) {
+            	break;
+			}
         }
 
         if ($lines) {
@@ -180,6 +183,7 @@ class FileFormat
         //fclose($fh);
         return $all_res;
     }
+
     /**
      * @获取事件发生的时间
      *
@@ -188,9 +192,11 @@ class FileFormat
     protected function getEventTime($item)
     {
         preg_match_all("/[0-9]{6}\s+?[0-9]{1,2}\:[0-9]{1,2}\:[0-9]{1,2}/", $item, $time_match);
+
         if (!isset($time_match[0][0])) {
             return $this->daytime;
         }
+
         $daytime = $this->daytime = date("Y-m-d H:i:s", strtotime(substr(date("Y"), 0, 2) . $time_match[0][0]));
         return $daytime;
     }
@@ -206,9 +212,9 @@ class FileFormat
         do {
             //处理流程
             $item = implode("", $lines);
-
             //得到事件发生的时间
             $daytime = $this->getEventTime($item);
+
             if (!$daytime) {
                 break;
             }
@@ -245,20 +251,23 @@ class FileFormat
                 $str1 = md5(rand(0, 999999));
                 $str2 = md5(rand(0, 999999));
                 $str3 = md5(rand(0, 999999));
+
                 $event["__enevt_id"] = "wing_binlog_" . time() . "_" .
                     substr($str1, rand(0, strlen($str1) - 16), 16) . "_" .
                     substr($str2, rand(0, strlen($str2) - 16), 16) . "_" .
                     substr($str3, rand(0, strlen($str3) - 16), 16);
+
                 //执行事件回调函数
 				$result[] = [
-				    "database" => $database_name,
-                    "table" => $table_name,
-                    "event" => $event,
+				    "database"    => $database_name,
+                    "table"       => $table_name,
+                    "event"       => $event,
                     "event_index" => $this->event_index
                     ];
 				$this->event_index++;
             }
         } while (0);
+
         return $result;
     }
 
@@ -295,16 +304,19 @@ class FileFormat
         if (!isset($ematch[1])) {
             $_item = ltrim($item,"#");
             $_item = trim($_item);
+            $e     = strtolower(substr($_item,0,6));
 
-            $e = strtolower(substr($_item,0,6));
-            if ($e == "insert")
-                return "write_rows";
+            if ($e == "insert") {
+            	return "write_rows";
+			}
 
-            if ($e == "update")
-                return "update_rows";
+            if ($e == "update") {
+            	return "update_rows";
+			}
 
-            if ($e == "delete")
-                return "delete_rows";
+            if ($e == "delete") {
+            	return "delete_rows";
+			}
 
             return $this->event_type;
         }
@@ -321,7 +333,6 @@ class FileFormat
      */
     protected function eventDatasFormat($target_lines, $daytime, $event_type, $columns)
     {
-
         $event_data = [
             "event_type" => $event_type,
             "time"       => $daytime
@@ -337,6 +348,7 @@ class FileFormat
             //去掉行的开始#和空格
             $target_line = ltrim($target_line, "#");
             $target_line = trim($target_line);
+
             //所有的字段开始的字符都是@
             if (substr($target_line, 0, 1) == "@") {
                 $target_line = preg_replace("/@[0-9]{1,}=/", "", $target_line);
@@ -349,6 +361,7 @@ class FileFormat
                 }
                 */
                 $target_line = trim($target_line, "'");
+
                 //如果是update操作 有两组数据 一组是旧数据 一组是新数据
                 if ($event_type == "update_rows") {
                     if ($is_old_data) {
@@ -403,17 +416,18 @@ class FileFormat
         ) {
             return $this->caches[$database_name][$table_name];
         }
+
         $sql     = 'SHOW COLUMNS FROM `' . $database_name . '`.`' . $table_name . '`';
         $columns = $this->db_handler->query($sql);
 
         if (!$columns) {
             return null;
         }
+
         $columns = array_column($columns, "Field");
         $this->caches[$database_name][$table_name] = $columns;
         $this->start_time = time();
+
         return $columns;
     }
-
-
 }

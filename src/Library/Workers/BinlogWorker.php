@@ -20,7 +20,8 @@ class BinlogWorker extends BaseWorker
      * @var \Wing\Library\Binlog
 	 */
 	private $binlog;
-    public function __construct($daemon, $workers)
+
+	public function __construct($daemon, $workers)
 	{
 		$config = load_config("app");
 
@@ -30,8 +31,8 @@ class BinlogWorker extends BaseWorker
 		if ($config
             && isset($config["subscribe"])
             && is_array($config["subscribe"])
-            && count($config["subscribe"]) > 0) {
-
+            && count($config["subscribe"]) > 0
+		) {
 			foreach ($config["subscribe"] as $class => $params) {
                 $params["daemon"]  = $daemon;
                 $params["workers"] = $workers;
@@ -110,6 +111,7 @@ class BinlogWorker extends BaseWorker
 				pcntl_signal_dispatch();
 				do {
 					$result = $this->binlog->getBinlogEvents();
+
 					if (!$result) {
 						break;
 					}
