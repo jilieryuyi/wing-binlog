@@ -39,6 +39,7 @@ class PDO implements IDb
     public function __construct()
     {
 		$config = load_config("app");
+
 		if (!is_array($config)) {
 			if (WING_DEBUG)
 			wing_debug("数据库配置错误");
