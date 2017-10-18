@@ -1,4 +1,5 @@
 <?php namespace Wing\Subscribe;
+
 use Wing\Library\ISubscribe;
 
 /**
@@ -13,6 +14,7 @@ class Redis implements ISubscribe
 {
     private $redis;
     private $queue;
+
 	public function __construct($config)
 	{
         $host     = $config["host"];

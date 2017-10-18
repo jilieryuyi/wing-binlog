@@ -1,4 +1,5 @@
 <?php namespace Wing\Subscribe;
+
 use Wing\Library\ISubscribe;
 
 /**
@@ -15,6 +16,7 @@ class WMWebSocket implements ISubscribe
     private $port;
     private $send_times = 0;
     private $send_failure_times = 0 ;
+
     public function __construct($config)
     {
         $host    = $config["host"];

@@ -1,4 +1,5 @@
 <?php namespace Wing\Subscribe;
+
 use Wing\Library\ISubscribe;
 
 /**
@@ -14,6 +15,7 @@ class WMTcp implements ISubscribe
     private $client;
     private $send_times    = 0;
     private $failure_times = 0;
+
     public function __construct($config)
     {
         $this->host    = $config["host"];
