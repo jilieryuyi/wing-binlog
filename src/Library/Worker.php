@@ -1,4 +1,5 @@
 <?php namespace Wing\Library;
+
 use Wing\Library\Workers\BaseWorker;
 use Wing\Library\Workers\BinlogWorker;
 

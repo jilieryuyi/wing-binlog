@@ -19,7 +19,7 @@ class PDO implements IDb
     /**
      * @var \PDOStatement
      */
-    private $sQuery;
+    private $statement;
 
     /**
      * @var bool
@@ -52,6 +52,7 @@ class PDO implements IDb
 		}
 
 		$config = $config["mysql"];
+
         $this->parameters = array();
         $this->dbname     = $config["db_name"];
         $this->host       = $config["host"];
@@ -70,23 +71,51 @@ class PDO implements IDb
         $this->close();
     }
 
+    /**
+     * 获取db名称
+	 *
+	 * @return string
+	 */
     public function getDatabaseName()
     {
         return $this->dbname;
     }
 
+    /**
+     * 获取host
+	 *
+	 * @return string
+	 */
     public function getHost()
     {
         return $this->host;
     }
+
+    /**
+     * 获取user
+	 *
+	 * @return string
+	 */
     public function getUser()
     {
         return $this->user;
     }
+
+    /**
+     * 获取password
+	 *
+	 * @return string
+	 */
     public function getPassword()
     {
         return $this->password;
     }
+
+    /**
+     * 获取连接端口
+	 *
+	 * @return int
+	 */
     public function getPort()
     {
         return $this->port;
@@ -112,13 +141,16 @@ class PDO implements IDb
 
             $this->bconnected = true;
         } catch (\PDOException $e) {
-			if (WING_DEBUG)
-			var_dump(__CLASS__."::".__FUNCTION__,$e->errorInfo);
-            sleep(1);
+			if (WING_DEBUG) {
+				var_dump(__CLASS__."::".__FUNCTION__, $e->errorInfo);
+			}
+
+			sleep(1);
             $this->connect();
-			if (WING_DEBUG)
+
+            if (WING_DEBUG) {
 				("mysql连接异常");
-			//exit;
+			}
         }
     }
 
@@ -128,7 +160,7 @@ class PDO implements IDb
      */
     private function close()
     {
-        $this->pdo = null;
+        $this->pdo        = null;
         $this->bconnected = false;
     }
 
@@ -141,33 +173,39 @@ class PDO implements IDb
      */
     private function init($query, $parameters = null)
     {
-        if ($parameters && !is_array($parameters))
-            $parameters = [$parameters];
+        if ($parameters && !is_array($parameters)) {
+        	$parameters = [$parameters];
+		}
 
         $this->lastSql = $query;
-        if ($parameters)
-            $this->lastSql .= ", with data: ".json_encode($parameters,JSON_UNESCAPED_UNICODE);
+
+        if ($parameters) {
+        	$this->lastSql .= ", with data: ".json_encode($parameters,JSON_UNESCAPED_UNICODE);
+		}
 
         if (!$this->bconnected) {
             $this->connect();
         }
+
         try {
-            if ($this->pdo) {
-                if (!$this->sQuery = $this->pdo->prepare($query))
-                    return false;
-            } else {
-                return false;
-            }
-            if ($this->sQuery) {
-                return $this->sQuery->execute($parameters);
-            } else {
-                return false;
-            }
+            if (!$this->pdo) {
+            	return false;
+			}
+
+			$this->statement = $this->pdo->prepare($query);
+
+            if(!$this->statement) {
+				return false;
+			}
+
+			return $this->statement->execute($parameters);
         } catch (\PDOException $e) {
             $this->close();
             $this->connect();
-			if (WING_DEBUG)
-			var_dump(__CLASS__."::".__FUNCTION__,$e->errorInfo);
+
+			if (WING_DEBUG) {
+				var_dump(__CLASS__."::".__FUNCTION__,$e->errorInfo);
+			}
         }
         $this->parameters = array();
         return false;
@@ -184,8 +222,7 @@ class PDO implements IDb
      */
     public function query($query, $params = null, $fetchmode = \PDO::FETCH_ASSOC)
     {
-        $query = preg_replace("/\s+|\t+|\n+/", " ", $query);
-
+        $query    = preg_replace("/\s+|\t+|\n+/", " ", $query);
         $init_res = $this->init($query, $params);
 
         try {
@@ -193,29 +230,34 @@ class PDO implements IDb
             $statement    = strtolower($rawStatement[0]);
 
             if ($statement === 'select' || $statement === 'show') {
-                if ($this->sQuery)
-                    return $this->sQuery->fetchAll($fetchmode);
-                else
-                    return null;
+                if (!$this->statement) {
+                	return null;
+				}
+
+				return $this->statement->fetchAll($fetchmode);
             }
 
             if ($statement === 'insert') {
-                if ($this->pdo)
-                    return $this->pdo->lastInsertId();
-                else
-                    return 0;
+                if (!$this->pdo) {
+                	return null;
+				}
+
+				return $this->pdo->lastInsertId();
             }
 
             if ($statement === 'update' || $statement === 'delete') {
-                if ($this->sQuery)
-                    return $this->sQuery->rowCount();
-                else
-                    return 0;
+                if (!$this->statement) {
+                	return 0;
+				}
+
+				return $this->statement->rowCount();
             }
         } catch (\PDOException $e) {
-			if (WING_DEBUG)
-			var_dump(__CLASS__."::".__FUNCTION__,$e->errorInfo);
-            $this->close();
+			if (WING_DEBUG) {
+				var_dump(__CLASS__."::".__FUNCTION__,$e->errorInfo);
+			}
+
+			$this->close();
             $this->connect();
         }
 
@@ -230,14 +272,16 @@ class PDO implements IDb
     public function lastInsertId()
     {
         try {
-            if ($this->pdo)
-                return $this->pdo->lastInsertId();
-            else
-                return 0;
+            if (!$this->pdo) {
+            	return 0;
+			}
+			return $this->pdo->lastInsertId();
         } catch (\PDOException $e) {
-			if (WING_DEBUG)
-			var_dump(__CLASS__."::".__FUNCTION__,$e->errorInfo);
-            $this->close();
+        	if (WING_DEBUG) {
+				var_dump(__CLASS__."::".__FUNCTION__,$e->errorInfo);
+			}
+
+			$this->close();
             $this->connect();
         }
         return 0;
@@ -251,11 +295,16 @@ class PDO implements IDb
     public function startTransaction()
     {
         try {
-            if ($this->pdo)
-                return $this->pdo->beginTransaction();
+            if (!$this->pdo) {
+            	return false;
+			}
+
+			return $this->pdo->beginTransaction();
         } catch (\PDOException $e) {
-			if (WING_DEBUG)
-			var_dump(__CLASS__."::".__FUNCTION__,$e->errorInfo);
+			if (WING_DEBUG) {
+				var_dump(__CLASS__."::".__FUNCTION__,$e->errorInfo);
+			}
+
             $this->close();
             $this->connect();
         }
@@ -270,11 +319,16 @@ class PDO implements IDb
     public function commit()
     {
         try {
-            if ($this->pdo)
-                return $this->pdo->commit();
+            if (!$this->pdo) {
+            	return false;
+			}
+
+			return $this->pdo->commit();
         } catch (\PDOException $e) {
-			if (WING_DEBUG)
-			var_dump(__CLASS__."::".__FUNCTION__,$e->errorInfo);
+			if (WING_DEBUG) {
+				var_dump(__CLASS__."::".__FUNCTION__,$e->errorInfo);
+			}
+
             $this->close();
             $this->connect();
         }
@@ -289,11 +343,16 @@ class PDO implements IDb
     public function rollBack()
     {
         try {
-            if ($this->pdo)
-                return $this->pdo->rollBack();
+            if (!$this->pdo) {
+            	return false;
+			}
+
+			return $this->pdo->rollBack();
         } catch (\PDOException $e) {
-			if (WING_DEBUG)
-			var_dump(__CLASS__."::".__FUNCTION__,$e->errorInfo);
+			if (WING_DEBUG) {
+				var_dump(__CLASS__."::".__FUNCTION__,$e->errorInfo);
+			}
+
             $this->close();
             $this->connect();
         }
@@ -313,14 +372,17 @@ class PDO implements IDb
     {
         try {
             $this->init($query, $params);
-            if ($this->sQuery) {
-                $result = $this->sQuery->fetch($fetchmode);
-                $this->sQuery->closeCursor();
+
+            if ($this->statement) {
+                $result = $this->statement->fetch($fetchmode);
+                $this->statement->closeCursor();
                 return $result;
             }
         } catch (\PDOException $e) {
-			if (WING_DEBUG)
-			var_dump(__CLASS__."::".__FUNCTION__,$e->errorInfo);
+			if (WING_DEBUG) {
+				var_dump(__CLASS__."::".__FUNCTION__,$e->errorInfo);
+			}
+
             $this->close();
             $this->connect();
         }
@@ -341,9 +403,11 @@ class PDO implements IDb
     {
         $data = $this->query('show databases');
         $res  = [];
+
         foreach ($data as $row) {
             $res[] = $row["Database"];
         }
+
         return $res;
     }
 }

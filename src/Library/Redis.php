@@ -1,6 +1,7 @@
 <?php namespace Wing\Library;
+
 /**
- * Redis.php
+ * Redis.php redis客户端简易的打包封装
  * User: huangxiaoan
  * Created: 2017/8/7 16:06
  * Email: huangxiaoan@xunlei.com
@@ -10,27 +11,29 @@ class Redis
 	private $port;
 	private $host;
 	private $password   = null;
-
 	private $is_connect = false;
 	private $instance   = null;
 
 	public function __construct($host, $port = 6397, $password = null)
 	{
-		$this->port = $port;
-		$this->host = $host;
+		$this->port     = $port;
+		$this->host     = $host;
 		$this->password = $password;
 	}
 
 	protected function connect()
 	{
 		try {
-			$this->instance = null;
+			$this->instance   = null;
 			$this->is_connect = false;
+
 			if (!class_exists("Redis")) {
 				return;
 			}
-			$redis = new \Redis();
+
+			$redis            = new \Redis();
 			$this->is_connect = $redis->connect('127.0.0.1', $this->port);
+
 			if (!$this->is_connect) {
 				return;
 			}
@@ -43,7 +46,7 @@ class Redis
 			}
 
 			$this->is_connect = true;
-			$this->instance = $redis;
+			$this->instance   = $redis;
 
 		} catch (\Exception $e) {
 			$this->is_connect = false;
@@ -56,10 +59,12 @@ class Redis
 		if (!$this->is_connect) {
 			$this->connect();
 		}
+
 		if (!$this->is_connect) {
 		    wing_debug("redis连接错误");
         }
-		try {
+
+        try {
 			if (!$this->instance || !$this->is_connect) {
 				return false;
 			}
@@ -69,6 +74,7 @@ class Redis
 			var_dump($e->getMessage());
 			$this->is_connect = false;
 		}
+
 		return false;
 	}
 }
