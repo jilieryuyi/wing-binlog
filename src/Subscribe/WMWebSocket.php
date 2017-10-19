@@ -1,16 +1,20 @@
 <?php namespace Wing\Subscribe;
 
 use Wing\Library\ISubscribe;
+use Wing\Net\WsClient;
 
 /**
  * Created by PhpStorm.
  * User: yuyi
  * Date: 17/8/4
  * Time: 22:58
+ *
+ * @property WsClient $client
  */
 class WMWebSocket implements ISubscribe
 {
     private $workers = 1;
+
     private $client = null;
     private $host;
     private $port;
@@ -50,13 +54,15 @@ class WMWebSocket implements ISubscribe
         $msg .= "\r\n\r\n\r\n";
         try {
         	$this->send_times++;
-            if (!$this->client->send($msg)) {
+
+        	if (!$this->client->send($msg)) {
             	$this->send_failure_times++;
                 $this->client = null;
                 $this->tryConnect();
                 $this->send_times++;
                 $this->client->send($msg);
             }
+
             wing_debug("websocket发送次数：", $this->send_times,"  失败次数：", $this->send_failure_times);
         } catch(\Exception $e){
             var_dump($e->getMessage());
@@ -65,14 +71,16 @@ class WMWebSocket implements ISubscribe
 
     private function startWebsocketService($host, $port, $deamon, $workers)
     {
-
         $command = "php ".HOME."/services/websocket.php start --host=".$host." --port=".$port." --workers=".$workers;
+
         if ($deamon) {
             $command .= " -d";
         }
+
         $command = "/bin/sh -c \"".$command."\" >>".HOME."/logs/websocket.log&";
         wing_debug($command);
         $handle  = popen($command,"r");
+
         if ($handle) {
             pclose($handle);
         }
