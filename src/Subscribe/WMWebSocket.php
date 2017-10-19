@@ -42,8 +42,8 @@ class WMWebSocket implements ISubscribe
     {
         $this->client = null;
         try {
-            $this->client = new \Wing\Net\WsClient($this->host, $this->port, '/');
-        } catch (\Exception $e){
+            $this->client = new WsClient($this->host, $this->port, '/');
+        } catch (\Exception $e) {
             var_dump($e->getMessage());
 			$this->client = null;
         }
