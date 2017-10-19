@@ -14,11 +14,13 @@ class WsClient
     private $_Socket = null;
     private $_connected = false;
 
-    public function __construct($host, $port, $path, $origin = false) {
+    public function __construct($host, $port, $path, $origin = false)
+	{
         $this->_host   = $host;
         $this->_port   = $port;
         $this->_path   = $path;
         $this->_origin = $origin;
+        
         $this->connect();
     }
 
@@ -29,27 +31,28 @@ class WsClient
 
     public function send($data, $type = 'text', $masked = true)
     {
-        if($this->_connected === false) {
+        if ($this->_connected === false) {
             $this->connect();
         }
 
-        if( !is_string($data)) {
+        if (!is_string($data)) {
             wing_debug("发送的数据必须是字符串类型的数据");
             return false;
         }
-        if (strlen($data) == 0)
-        {
+        
+        if (strlen($data) == 0) {
             return false;
         }
+        
         $res = @fwrite($this->_Socket, $this->_hybi10Encode($data, $type, $masked));
 
-        if($res === 0 || $res === false)
-        {
+        if ($res === 0 || $res === false) {
             $this->connect();
             @fwrite($this->_Socket, $this->_hybi10Encode($data, $type, $masked));
 
             return false;
         }
+
         return true;
     }
 
@@ -68,7 +71,7 @@ class WsClient
         //$header.= "Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits\r\n";
         $header.= "Sec-WebSocket-Key: " . $key . "\r\n";
 
-        if($origin !== false)
+        if ($origin !== false)
         {
             $header.= "Sec-WebSocket-Origin: " . $origin . "\r\n";
         }
@@ -78,7 +81,7 @@ class WsClient
         socket_set_timeout($this->_Socket, 2, 10000);
         //socket_write($this->_Socket, $header);
         $res = @fwrite($this->_Socket, $header);
-        if( $res === false ){
+        if ($res === false ){
             wing_debug("发送websocket链接头错误");
         }
 
@@ -101,16 +104,16 @@ class WsClient
         $data = 'ping?';
         @fwrite($this->_Socket, $this->_hybi10Encode($data, 'ping', true));
         $response = @fread($this->_Socket, 300);
-        if(empty($response))
+        if (empty($response))
         {
             return false;
         }
         $response = $this->_hybi10Decode($response);
-        if(!is_array($response))
+        if (!is_array($response))
         {
             return false;
         }
-        if(!isset($response['type']) || $response['type'] !== 'pong')
+        if (!isset($response['type']) || $response['type'] !== 'pong')
         {
             return false;
         }
@@ -143,11 +146,11 @@ class WsClient
             $useChars[] = $characters[mt_rand(0, strlen($characters)-1)];
         }
         // add spaces and numbers:
-        if($addSpaces === true)
+        if ($addSpaces === true)
         {
             array_push($useChars, ' ', ' ', ' ', ' ', ' ', ' ');
         }
-        if($addNumbers === true)
+        if ($addNumbers === true)
         {
             array_push($useChars, rand(0,9), rand(0,9), rand(0,9));
         }
@@ -187,7 +190,7 @@ class WsClient
         }
 
         // set mask and payload length (using 1, 3 or 9 bytes)
-        if($payloadLength > 65535)
+        if ($payloadLength > 65535)
         {
             $payloadLengthBin = str_split(sprintf('%064b', $payloadLength), 8);
             $frameHead[1] = ($masked === true) ? 255 : 127;
@@ -196,13 +199,13 @@ class WsClient
                 $frameHead[$i+2] = bindec($payloadLengthBin[$i]);
             }
             // most significant bit MUST be 0 (close connection if frame too big)
-            if($frameHead[2] > 127)
+            if ($frameHead[2] > 127)
             {
                // $this->close(1004);
                 return false;
             }
         }
-        elseif($payloadLength > 125)
+        elseif ($payloadLength > 125)
         {
             $payloadLengthBin = str_split(sprintf('%016b', $payloadLength), 8);
             $frameHead[1] = ($masked === true) ? 254 : 126;
@@ -219,7 +222,7 @@ class WsClient
         {
             $frameHead[$i] = chr($frameHead[$i]);
         }
-        if($masked === true)
+        if ($masked === true)
         {
             // generate a random mask:
             $mask = array();
@@ -287,13 +290,13 @@ class WsClient
                 break;
         }
 
-        if($payloadLength === 126)
+        if ($payloadLength === 126)
         {
             $mask = substr($data, 4, 4);
             $payloadOffset = 8;
             $dataLength = bindec(sprintf('%08b', ord($data[2])) . sprintf('%08b', ord($data[3]))) + $payloadOffset;
         }
-        elseif($payloadLength === 127)
+        elseif ($payloadLength === 127)
         {
             $mask = substr($data, 10, 4);
             $payloadOffset = 14;
@@ -312,12 +315,12 @@ class WsClient
             $dataLength = $payloadLength + $payloadOffset;
         }
 
-        if($isMasked === true)
+        if ($isMasked === true)
         {
             for($i = $payloadOffset; $i < $dataLength; $i++)
             {
                 $j = $i - $payloadOffset;
-                if(isset($data[$i]))
+                if (isset($data[$i]))
                 {
                     $unmaskedPayload .= $data[$i] ^ $mask[$j % 4];
                 }
