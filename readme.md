@@ -58,6 +58,7 @@ go build -o websocket websocket.go
 ...... 
 
 ### 帮助
+   目录详解：http://www.itdfy.com/details/1156
    QQ群咨询 535218312  
 
 ### 致谢
