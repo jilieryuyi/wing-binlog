@@ -13,7 +13,7 @@ if (!date_default_timezone_get() || !ini_get("date.timezone")) {
 //启动命令所需参数
 $str_argv = '';
 for ($i = 1; $i < $argc; $i++) {
-    $str_argv .= ' '.$argv[$i];
+    $str_argv .= ' ' . $argv[$i];
 }
 
 //启动命令所需参数
@@ -22,7 +22,7 @@ $file_name = trim($file_name, "/");
 $file_name = trim($file_name, "\\");
 
 //启动命令
-$command_line = 'php '.$file_name.' '.$str_argv;
+$command_line = 'php ' . $file_name . ' ' . $str_argv;
 define("WING_COMMAND_LINE", $command_line);
 
 //debug模式解析，来源于--debug参数
@@ -38,13 +38,19 @@ define("WING_DEBUG", $debug);
 $start_pos   = 0;
 $end_pos     = 0;
 $event_index = 0;
+
 foreach ($argv as $item) {
-	if (strpos($item,"--start") === 0)
-		list(,$start_pos) = explode("=",$item);
-	if (strpos($item,"--end") === 0)
-		list(,$end_pos) = explode("=",$item);
-    if (strpos($item,"--event_index") === 0)
-        list(,$event_index) = explode("=",$item);
+	if (strpos($item,"--start") === 0) {
+	    list(,$start_pos) = explode("=",$item);
+	}
+
+	if (strpos($item,"--end") === 0) {
+	    list(,$end_pos) = explode("=",$item);
+	}
+
+    if (strpos($item,"--event_index") === 0) {
+	    list(,$event_index) = explode("=",$item);
+	}
 }
 
 //pdo对象
