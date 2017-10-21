@@ -37,8 +37,12 @@ register_shutdown_function(function() use ($sp){
 $bind   = socket_bind($socket, $sp);
 $msg    = "welcome to unix socket";
 
+socket_set_option($socket,SOL_SOCKET,SO_RCVBUF,1024*1024);
+
+$count = 1;
 while ($n = socket_recvfrom($socket, $recv, 10240, 0, $from)) {
-	echo $recv,"\r\n";
+	echo $count,"=>",$recv,"\r\n";
+	$count++;
 }
 
 socket_close($socket);

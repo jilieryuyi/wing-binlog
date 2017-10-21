@@ -24,11 +24,17 @@ $socket = socket_create(AF_UNIX, SOCK_DGRAM, 0);
 $sp     = __DIR__."/unix_socket.socket";
 $msg    = "hello";
 
-socket_connect($socket, $sp);
+//socket_connect($socket, $sp);
+$count = 0;
+
+socket_set_option($socket,SOL_SOCKET,SO_SNDBUF,1024*1024);
+
 
 while (1) {
-	//socket_sendto($socket, $msg, strlen($msg),0, $sp);
-	socket_write($socket, $msg, strlen($msg));
+	socket_sendto($socket, $msg, strlen($msg),0, $sp);
+	//socket_write($socket, $msg, strlen($msg));
+	$count++;
+	echo $count,"\r\n";
 }
 
 socket_close($socket);
