@@ -24,7 +24,7 @@ $socket = socket_create(AF_UNIX, SOCK_DGRAM, 0);
 $sp     = __DIR__."/unix_socket.socket";
 $msg    = "hello";
 
-//socket_connect($socket, $sp);
+//socket_connect($socket, $sp); //配合socket_write
 $count = 0;
 
 socket_set_option($socket,SOL_SOCKET,SO_SNDBUF,1024*1024);
