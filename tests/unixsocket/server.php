@@ -5,6 +5,9 @@
  * Date: 17/10/21
  * Time: 15:53
  */
+
+
+
 /*
 $socket = socket_create(AF_UNIX, SOCK_STREAM, IPPROTO_IP);
 $sp     = __DIR__."/unix_socket.socket";
@@ -29,6 +32,8 @@ socket_close($socket);
 
 $socket = socket_create(AF_UNIX, SOCK_DGRAM, IPPROTO_IP);
 $sp     = __DIR__."/unix_socket.socket";
+
+if (file_exists($sp)) unlink($sp);
 
 register_shutdown_function(function() use ($sp){
 	unlink($sp);
