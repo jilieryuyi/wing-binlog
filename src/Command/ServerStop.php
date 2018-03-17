@@ -12,13 +12,12 @@ class ServerStop extends ServerBase
             ->setName('server:stop')
             ->setAliases(["stop"])
             ->setDescription('停止服务');
-
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-    	exec("php ".HOME."/services/tcp.php stop");
-		exec("php ".HOME."/services/websocket.php stop");
+        exec("php ".HOME."/services/tcp.php stop");
+        exec("php ".HOME."/services/websocket.php stop");
         Worker::stopAll();
     }
 }

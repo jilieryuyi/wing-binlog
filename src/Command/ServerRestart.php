@@ -20,13 +20,13 @@ class ServerRestart extends ServerBase
         exec("php ".HOME."/services/websocket stop");
         Worker::stopAll();
 
-        $winfo       = Worker::getWorkerProcessInfo();
-        $deamon      = $winfo["daemon"];//$input->getOption("d");
-        $debug       = $winfo["debug"];//$input->getOption("debug");
-        $workers     = $winfo["workers"];//$input->getOption("n");
+        $worker_info = Worker::getWorkerProcessInfo();
+        $daemon      = $worker_info["daemon"];
+        $debug       = $worker_info["debug"];
+        $workers     = $worker_info["workers"];
 
-        $worker = new \Wing\Library\Worker([
-            "daemon"  => !!$deamon,
+        $worker = new Worker([
+            "daemon"  => !!$daemon,
             "debug"   => !!$debug,
             "workers" => $workers
         ]);

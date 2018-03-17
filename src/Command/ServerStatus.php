@@ -12,7 +12,6 @@ class ServerStatus extends ServerBase
             ->setName('server:status')
             ->setAliases(["status"])
             ->setDescription('服务状态');
-
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

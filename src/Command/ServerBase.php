@@ -1,10 +1,6 @@
 <?php namespace Wing\Command;
 
-use Wing\Cache\File;
-use Wing\Library\Cpu;
-use Wing\Library\Worker;
 use Symfony\Component\Console\Command\Command;
-use Wing\FileSystem\WDir;
 
 /**
  * @author yuyi
@@ -15,5 +11,4 @@ use Wing\FileSystem\WDir;
 
 class ServerBase extends Command
 {
-
 }

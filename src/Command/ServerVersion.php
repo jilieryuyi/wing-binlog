@@ -1,7 +1,6 @@
 <?php namespace Wing\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Wing\Library\Worker;
 
@@ -13,7 +12,6 @@ class ServerVersion extends ServerBase
             ->setName('server:version')
             ->setAliases(["version"])
             ->setDescription('版本号');
-
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
