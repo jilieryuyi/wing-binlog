@@ -26,14 +26,25 @@ if (!defined("SIG_IGN")) {
 }
 
 if (!function_exists("pcntl_signal")) {
-    function pcntl_signal($a=null,$b=null,$c=null,$d=null){}
+    function pcntl_signal($a = null, $b = null, $c = null, $d = null)
+    {
+    }
 }
 if (!function_exists("posix_kill")) {
-    function posix_kill($a=null, $b = null, $c = null){}
+    function posix_kill($a = null, $b = null, $c = null)
+    {
+    }
 }
+
 if (!function_exists("pcntl_signal_dispatch")) {
-    function pcntl_signal_dispatch($a=null, $b = null, $c = null){}
+    function pcntl_signal_dispatch($a = null, $b = null, $c = null)
+    {
+    }
 }
+
 if (!function_exists("pcntl_wait")) {
-    function pcntl_wait($a=null, $b = null, $c = null){ return 0;}
+    function pcntl_wait($a = null, $b = null, $c = null)
+    {
+        return 0;
+    }
 }
