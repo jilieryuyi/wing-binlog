@@ -218,7 +218,7 @@ class Binlog
 //        }
 
         $data  = $this->db_handler->row($sql);
-        $path  = pathinfo($data["@@log_bin_basename"],PATHINFO_DIRNAME);
+        $path  = pathinfo($data["@@log_bin_basename"], PATHINFO_DIRNAME);
         $files = [];
 
         foreach ($logs as $line) {
@@ -327,7 +327,7 @@ class Binlog
     * @param int $end_pos
     * @return bool
     */
-    public function setLastPosition($start_pos,$end_pos)
+    public function setLastPosition($start_pos, $end_pos)
     {
 //        if (WING_DEBUG) {
 //            //echo "保存最后读取为位置：", $start_pos,":",$end_pos,"\r\n";
@@ -349,11 +349,13 @@ class Binlog
     }
 
     /**
-    * 获取binlog事件，请只在意第一第二个参数
-    *
-    * @return array
-    */
-    public function getEvents($current_binlog,$last_end_pos, $limit = 10000)
+     * 获取binlog事件，请只在意第一第二个参数
+     * @param string $current_binlog
+     * @param int $last_end_pos
+     * @param int $limit
+     * @return array
+     */
+    public function getEvents($current_binlog, $last_end_pos, $limit = 10000)
     {
         if (!$last_end_pos) {
             $last_end_pos = 0;
@@ -374,6 +376,8 @@ class Binlog
     /**
     * 获取session元数据--直接存储于cache_file
     *
+     * @param int $start_pos
+     * @param int $end_pos
     * @return string 缓存文件路径
     */
     public function getSessions($start_pos, $end_pos)

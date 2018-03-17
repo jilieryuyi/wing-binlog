@@ -3,8 +3,8 @@
 /**
  * 获取cpu数量，已测试linux和mac
  */
-
-class Cpu{
+class Cpu
+{
     /**
      * @var int
      */
@@ -20,7 +20,7 @@ class Cpu{
                 $this->sysLinux();
                 break;
             case "Darwin":
-                exec("sysctl -n machdep.cpu.core_count",$output);
+                exec("sysctl -n machdep.cpu.core_count", $output);
                 $this->cpu_num = $output[0];
                 /**
                 echo -n "CPU型号:    "
@@ -43,8 +43,8 @@ class Cpu{
         $this->cpu_num = intval($this->cpu_num);
 
         if ($this->cpu_num <= 0) {
-        	$this->cpu_num = 1;
-		}
+            $this->cpu_num = 1;
+        }
     }
 
     /**
@@ -67,5 +67,4 @@ class Cpu{
 
         $this->cpu_num = 1;
     }
-
 }
