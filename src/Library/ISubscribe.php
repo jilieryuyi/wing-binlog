@@ -13,7 +13,7 @@ interface ISubscribe
      */
     public function __construct($config);
     /**
-     * @param array $config
+     * @param array $event
      */
     public function onchange($event);
 }

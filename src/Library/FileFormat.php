@@ -45,6 +45,7 @@ class FileFormat
      * @构造函数
      * @param string $file 文件路径
      * @param IDb $db_handler
+     * @param int $event_index
      */
     public function __construct($file, IDb $db_handler, $event_index = 0)
     {
@@ -54,107 +55,23 @@ class FileFormat
         $this->event_index = $event_index;
     }
 
-    /**
-     * 按行解析文件
-     *
-     * @param \Closure $callback 如 function($db,$table,$event){}
-     * @return array
-     */
-//    public function parse()
-//    {
-//        $fh = fopen($this->file, 'r');
-//
-//        if (!$fh || !is_resource($fh)) {
-//            return null;
-//        }
-//
-//        $file_size = filesize($this->file);
-//        $read_size = 0;
-//        $lines     = [];
-//
-//        $all_res   = [];
-//
-//        while (!feof($fh)) {
-//
-//            $line  = fgets($fh);
-//
-//            $read_size += sizeof($line);
-//
-//            $_line = ltrim($line,"#");
-//            $_line = trim($_line);
-//
-//            $e = strtolower(substr($_line,0,6));
-//            unset($_line);
-//
-//            //遇到分隔符 重置
-//            if (preg_match("/#[\s]{1,}at[\s]{1,}[0-9]{1,}/",$line) ||
-//                $e == "insert" ||
-//                $e == "update" ||
-//                $e == "delete"
-//            ) {
-//
-//                if ($lines) {
-//					$res = $this->linesParse($lines);
-//					foreach ($res as $item) {
-//						$all_res[] = $item;
-//					}
-//                }
-//                unset($lines);
-//                $lines = [];
-//            }
-//
-//            $lines[] = $line;
-//            unset($line);
-//
-//            if ($read_size >= $file_size)
-//                break;
-//        }
-//
-//        if ($lines) {
-//            $res = $this->linesParse($lines);
-//			foreach ($res as $item) {
-//				$all_res[] = $item;
-//			}
-//        }
-//
-//        fclose($fh);
-//        return $all_res;
-//    }
-
     public function parse()
     {
-//        $fh = fopen($this->file, 'r');
-//
-//        if (!$fh || !is_resource($fh)) {
-//            return null;
-//        }
-
-        $file_size = strlen($this->file);//filesize($this->file);
+        $file_size = strlen($this->file);
         $read_size = 0;
         $all_lines = explode("\n", $this->file);
         $all_res   = [];
         $lines     = [];
-
-       // while (!feof($fh))
-        foreach ($all_lines as $line)
-        {
-
-           // $line  = fgets($fh);
-           // $read_size += sizeof($line);
-
-            $_line = ltrim($line,"#");
+        foreach ($all_lines as $line) {
+            $_line = ltrim($line, "#");
             $_line = trim($_line);
-
-            $e = strtolower(substr($_line,0,6));
+            $e = strtolower(substr($_line, 0, 6));
             unset($_line);
-
             //遇到分隔符 重置
             if (preg_match("/#[\s]{1,}at[\s]{1,}[0-9]{1,}/", $line) ||
                 $e == "insert" ||
                 $e == "update" ||
-                $e == "delete"
-            ) {
-
+                $e == "delete") {
                 if ($lines) {
                     $res = $this->linesParse($lines);
                     foreach ($res as $item) {
@@ -164,39 +81,32 @@ class FileFormat
                 unset($lines);
                 $lines = [];
             }
-
             $lines[] = $line;
             unset($line);
-
             if ($read_size >= $file_size) {
-            	break;
-			}
+                break;
+            }
         }
-
         if ($lines) {
             $res = $this->linesParse($lines);
             foreach ($res as $item) {
                 $all_res[] = $item;
             }
         }
-
-        //fclose($fh);
         return $all_res;
     }
 
     /**
      * @获取事件发生的时间
-     *
+     * @param string $item
      * @return string
      */
     protected function getEventTime($item)
     {
         preg_match_all("/[0-9]{6}\s+?[0-9]{1,2}\:[0-9]{1,2}\:[0-9]{1,2}/", $item, $time_match);
-
         if (!isset($time_match[0][0])) {
             return $this->daytime;
         }
-
         $daytime = $this->daytime = date("Y-m-d H:i:s", strtotime(substr(date("Y"), 0, 2) . $time_match[0][0]));
         return $daytime;
     }
@@ -205,10 +115,11 @@ class FileFormat
      * 行解析
      *
      * @param array $lines 行
+     * @return array
      */
     protected function linesParse($lines)
     {
-    	$result = [];
+        $result = [];
         do {
             //处理流程
             $item = implode("", $lines);
@@ -258,13 +169,13 @@ class FileFormat
                     substr($str3, rand(0, strlen($str3) - 16), 16);
 
                 //执行事件回调函数
-				$result[] = [
-				    "database"    => $database_name,
+                $result[] = [
+                    "database"    => $database_name,
                     "table"       => $table_name,
                     "event"       => $event,
                     "event_index" => $this->event_index
-                    ];
-				$this->event_index++;
+                ];
+                $this->event_index++;
             }
         } while (0);
 
@@ -273,7 +184,7 @@ class FileFormat
 
     /**
      * 获取数据库和数据表
-     *
+     * @param string $item
      * @return array
      */
     protected function getTables($item)
@@ -284,17 +195,17 @@ class FileFormat
             return [false,false];
         }
 
-        list($database_name, $table_name) = explode(".",$match_tables[0][0]);
+        list($database_name, $table_name) = explode(".", $match_tables[0][0]);
 
-        $database_name = trim($database_name,"`");
-        $table_name    = trim($table_name,"`");
+        $database_name = trim($database_name, "`");
+        $table_name    = trim($table_name, "`");
 
         return [$database_name, $table_name];
     }
 
     /**
      * 获取事件类型
-     *
+     * @param string $item
      * @return string
      */
     protected function getEventType($item)
@@ -302,22 +213,18 @@ class FileFormat
         preg_match("/\s(Delete_rows|Write_rows|Update_rows):/", $item, $ematch);
 
         if (!isset($ematch[1])) {
-            $_item = ltrim($item,"#");
+            $_item = ltrim($item, "#");
             $_item = trim($_item);
-            $e     = strtolower(substr($_item,0,6));
-
+            $e     = strtolower(substr($_item, 0, 6));
             if ($e == "insert") {
-            	return "write_rows";
-			}
-
+                return "write_rows";
+            }
             if ($e == "update") {
-            	return "update_rows";
-			}
-
+                return "update_rows";
+            }
             if ($e == "delete") {
-            	return "delete_rows";
-			}
-
+                return "delete_rows";
+            }
             return $this->event_type;
         }
 
@@ -329,6 +236,10 @@ class FileFormat
     /**
      * @事件数据格式化
      *
+     * @param array $target_lines
+     * @param string $daytime
+     * @param string $event_type
+     * @param array $columns
      * @return array
      */
     protected function eventDatasFormat($target_lines, $daytime, $event_type, $columns)
@@ -406,7 +317,8 @@ class FileFormat
 
     /**
      * @获取数据表行
-     *
+     * @param  string $database_name
+     * @param  string $table_name
      * @return array
      */
     protected function getColumns($database_name, $table_name)
