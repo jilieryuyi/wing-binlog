@@ -10,7 +10,7 @@ use Wing\Bin\Constant\FieldType;
  * Date: 17/9/8
  * Time: 23:14
  */
-class BinLogPacket
+class BinlogPacket
 {
     /**
      * @var int $offset 读取当前数据包的偏移量
