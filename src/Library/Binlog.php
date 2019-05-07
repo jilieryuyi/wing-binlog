@@ -1,6 +1,6 @@
 <?php namespace Wing\Library;
 
-use Wing\Bin\BinLogPacket;
+use Wing\Bin\BinlogPacket;
 use Wing\Bin\Mysql;
 use Wing\Bin\Net;
 use Wing\Bin\Packet;
@@ -89,7 +89,7 @@ class Binlog
         $pack = Net::readPacket();
         // 校验数据包格式
         Packet::success($pack);
-        $res = BinLogPacket::parse($pack, $this->checksum);
+        $res = BinlogPacket::parse($pack, $this->checksum);
 
         if (!$res) {
             return null;
