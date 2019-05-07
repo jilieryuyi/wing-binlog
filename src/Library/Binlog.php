@@ -1,6 +1,6 @@
 <?php namespace Wing\Library;
 
-use Wing\Bin\BinLogPacket;
+use Wing\Bin\BinlogPacket;
 use Wing\Bin\Mysql;
 use Wing\Bin\Net;
 use Wing\Bin\Packet;
